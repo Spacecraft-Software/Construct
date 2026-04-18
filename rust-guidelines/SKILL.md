@@ -159,7 +159,7 @@ Use when:
 
 ## Directory Structure
 ```
-~/.claude/skills/Rust-Guidelines/
+~/.claude/skills/rust-guidelines/
 ├── SKILL.md
 └── references/
     ├── 01_ai_guidelines.md
