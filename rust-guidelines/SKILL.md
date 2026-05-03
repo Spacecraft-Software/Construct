@@ -7,11 +7,17 @@ description:
   This skill is MANDATORY for all Rust development.
 user-invocable: false
 license: MIT
+maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+website: https://Steelbore.com/
 ---
 
 **Current compliance date: 2026-03-30**
 
 # Rust-Guidelines Skill
+
+**Maintainer (Steelbore adaptation):** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
+**Website:** [https://Steelbore.com/](https://Steelbore.com/)
+*(Base guidelines: Microsoft Pragmatic Rust Guidelines — MIT License)*
 
 This skill enforces structured, guideline-driven Rust development. It ensures all
 Rust code strictly follows the Microsoft Pragmatic Rust Guidelines for style,

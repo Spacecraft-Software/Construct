@@ -2,9 +2,15 @@
 name: steelbore-brand-guidelines
 description: Applies Steelbore's official brand colors and typography to any sort of artifact that may benefit from having Steelbore's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or project design standards apply.
 license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+website: https://Steelbore.com/
 ---
 
 # Steelbore Brand Guidelines
+
+**Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
+**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Website:** [https://Steelbore.com/](https://Steelbore.com/)
 
 > **Source of truth:** The Steelbore Standard v1.0 (§8 Colors, §9 Typography).
 > All values here are canonical. Do not use any other color or font values for Steelbore artifacts.

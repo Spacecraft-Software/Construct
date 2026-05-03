@@ -14,12 +14,16 @@ description: >
   specific alternative, first consult the matching reference file in the
   references directory for correct flag syntax.
 license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+website: https://Steelbore.com/
 ---
 
 # Steelbore CLI Preference — Modern Alternatives over Legacy Tools
 
 **Version:** 1.0 | **Date:** 2026-04-18 | **Author:** Mohamed Hammad
+**Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Website:** [https://Steelbore.com/](https://Steelbore.com/)
 
 This skill makes Claude default to the Steelbore-preferred CLI/TUI stack
 (primarily Rust, with curated Zig / Go / Python entries where best-in-class)

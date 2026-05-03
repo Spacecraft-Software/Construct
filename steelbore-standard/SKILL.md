@@ -10,12 +10,16 @@ description: >
   consult this skill immediately. It encodes The Steelbore Standard v1.0 so you never need
   to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+website: https://Steelbore.com/
 ---
  
 # The Steelbore Standard — Compliance Reference
  
 **Version:** 1.0 | **Date:** 2026-03-08 | **Author:** Mohamed Hammad
+**Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Website:** [https://Steelbore.com/](https://Steelbore.com/)
  
 This skill encodes The Steelbore Standard in full. Apply every applicable section
 to any artifact you produce for a Steelbore project. The 12-point compliance checklist
@@ -195,19 +199,151 @@ verify they are available on Google Fonts or another FOSS-licensed repository.
 ---
  
 ## §11 — Date, Time & Units
- 
-| Concern     | Rule                                              | Example          |
-|-------------|---------------------------------------------------|------------------|
-| Date format | ISO 8601 only: `YYYY-MM-DD`                       | `2026-03-08`     |
-| Time format | 24-hour only: `HH:MM:SS` — AM/PM never permitted  | `14:30:00`       |
-| Timezone    | UTC for all timestamps, logs, commits, API responses | `2026-03-08T14:30:00Z` |
-| Units       | Metric (SI) primary; imperial in parentheses only if locale requires | `100 km (62 mi)` |
- 
+
+### §11.1 — Date & Time Format Rules
+
+| Concern      | Rule                                                             | Example                      |
+|--------------|------------------------------------------------------------------|------------------------------|
+| Date format  | ISO 8601 only: `YYYY-MM-DD`                                      | `2026-03-08`                 |
+| Time format  | 24-hour only: `HH:MM:SS` — AM/PM is **never** permitted          | `14:30:00`                   |
+| Timestamp    | Combined ISO 8601 UTC: `YYYY-MM-DDTHH:MM:SSZ`                   | `2026-03-08T14:30:00Z`       |
+| Timezone     | **UTC always.** The `Z` suffix is mandatory — see §11.2          | `Z` not `+00:00`             |
+| Duration     | ISO 8601 duration format only                                    | `PT1H30M` not "1h 30m"       |
+| Units        | Metric (SI) primary; imperial in parentheses only if locale requires | `100 km (62 mi)`         |
+
 Apply these conventions to all generated code, documentation, comments, and any
 user-facing strings. Never output AM/PM time, non-ISO dates, or imperial-primary units.
+
+### §11.2 — UTC-Only Timezone Policy (Non-Negotiable)
+
+**UTC is the one and only timezone for all stored, transmitted, logged, and
+committed timestamps across every Steelbore project.** This is a non-negotiable
+rule with no exceptions for core data paths.
+
+**Mandatory rules — violation blocks shipping:**
+
+| Rule | Detail |
+|------|--------|
+| `Z` suffix required | Every stored/transmitted timestamp MUST end with `Z`. `2026-03-08T14:30:00Z` ✓ |
+| No offset notation in data | `+03:00`, `-05:00`, `+00:00` etc. are **forbidden** in stored or API timestamps. `Z` is the only permitted UTC marker. |
+| No local time in data | Local-time timestamps (without timezone info, or with a local offset) are **forbidden** in files, databases, logs, API responses, and commits. |
+| Log entries use UTC + `Z` | Every log line timestamp must be `YYYY-MM-DDTHH:MM:SS.sssZ` (millisecond precision encouraged). |
+| Commit timestamps use UTC | `GIT_COMMITTER_DATE` and `GIT_AUTHOR_DATE` must be UTC when set programmatically. |
+| File metadata written by Steelbore tools | mtime/ctime written by Steelbore tools must be UTC-sourced. |
+
+### §11.3 — Display-Only Local Time (Render Layer Only)
+
+Local time is permitted **only** as an ephemeral render layer in human-facing
+terminal output. It is **never** stored, serialized, transmitted, or logged.
+
+- The `--absolute-time` flag (defined in `steelbore-cli-standard` §3) disables
+  relative-time rendering but always renders as UTC, not local time.
+- If a future CLI wants to show local time in human mode, it MUST:
+  1. Accept a `--tz <IANA-zone>` flag (e.g., `--tz Africa/Cairo`).
+  2. Render local time only to stdout in human mode — never in `--json` output.
+  3. Always include the UTC value alongside the local rendering.
+  4. Never persist or transmit the local-time rendering.
+- JSON/machine output (`--format json/jsonl/yaml/csv`) MUST always use UTC + `Z`.
+
+### §11.4 — Duration Format
+
+Durations follow ISO 8601 duration notation:
+
+| Format   | Example   | Meaning             |
+|----------|-----------|---------------------|
+| `PTnHnMnS` | `PT1H30M` | 1 hour 30 minutes |
+| `PnD`    | `P7D`     | 7 days              |
+| `PnYnM`  | `P1Y6M`   | 1 year 6 months     |
+
+Prose forms like "1h 30m", "90 minutes", "1.5 hours" are **forbidden** in
+machine-readable output. They are acceptable in `--help` text only.
+
+### §11.5 — Rust Implementation Guidance
+
+When writing Rust code that handles time:
+
+| Concern | Rule |
+|---------|------|
+| Crate choice | Use `jiff` (preferred) or `chrono` — never `time` 0.1.x |
+| UTC type | `jiff::Timestamp` or `chrono::DateTime<chrono::Utc>` for all stored values |
+| Local type | `chrono::Local` and `jiff::Zoned` (with non-UTC zone) are **forbidden** in serialized output |
+| Serialization | Always serialize as `"2026-03-08T14:30:00Z"` (string, ISO 8601, `Z` suffix) |
+| `serde` | Use `#[serde(with = "...")]` or a newtype that enforces UTC on deserialization |
+| `SystemTime` | Acceptable for internal durations; convert to UTC ISO 8601 string before any output |
+| No `NaiveDateTime` in output | `chrono::NaiveDateTime` has no timezone — forbidden in any serialized or logged value |
  
 ---
  
+## §12 — Attribution, Maintainer & Contact
+
+**Maintainer:** Mohamed Hammad
+**Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
+**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Website:** [https://Steelbore.com/](https://Steelbore.com/)
+
+### §12.1 — Project Pages
+
+Each Steelbore project has a dedicated subdomain following the pattern
+`https://<ProjectName>.Steelbore.com/`. Use the project-specific URL in all
+project-level outputs; use `https://Steelbore.com/` only for umbrella references.
+
+| Project          | URL                                    |
+|------------------|----------------------------------------|
+| Steelbore (main) | https://Steelbore.com/                 |
+| Gitway           | https://Gitway.Steelbore.com/          |
+| Ferrocast        | https://Ferrocast.Steelbore.com/       |
+| Caliper          | https://Caliper.Steelbore.com/         |
+| Craton           | https://Craton.Steelbore.com/          |
+| Ironway          | https://Ironway.Steelbore.com/         |
+| Zamak            | https://Zamak.Steelbore.com/           |
+| Lattice          | https://Lattice.Steelbore.com/         |
+| Mawaqit          | https://Mawaqit.Steelbore.com/         |
+| Flux             | https://Flux.Steelbore.com/            |
+
+When a new project is created, add its subdomain to this table immediately.
+
+### §12.2 — Mandatory Attribution in Project Outputs
+
+Every Steelbore product **must** surface the following attribution in at least one
+of: `--help` output, `--version` output, README, or About/Info screen.
+
+**Required attribution block:**
+```
+Maintained by Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+Copyright (c) 2026 Mohamed Hammad  |  License: GPL-3.0-or-later
+https://<ProjectName>.Steelbore.com/
+```
+
+**Per-surface rules:**
+
+| Surface           | Required content                                                        |
+|-------------------|-------------------------------------------------------------------------|
+| `--version`       | Maintainer name, project URL, copyright year                            |
+| `--help`          | Project URL and maintainer name (at footer)                             |
+| README            | "Maintainer" section: name, `Mohamed.Hammad@Steelbore.com`, project URL |
+| About / Info (GUI/TUI) | Maintainer name, project URL, copyright year                       |
+| SPDX header       | `// SPDX-License-Identifier: GPL-3.0-or-later` (existing §4 rule)      |
+
+**Specific rules:**
+- The contact email is always `Mohamed.Hammad@Steelbore.com` — never a personal
+  domain, GitHub handle, or other address.
+- The copyright year reflects the year of first release or current year, or a range
+  (e.g., `2025-2026`) when a project spans multiple years.
+- Link text for project pages must use the full URL as the display text or a clear
+  label (e.g., `[Gitway](https://Gitway.Steelbore.com/)`), never an opaque label.
+- For CLI `--version` output in human mode, the footer line format is:
+  ```
+  Maintained by Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+  https://<ProjectName>.Steelbore.com/
+  ```
+- For CLI `--version` output in JSON/machine mode, include in `metadata`:
+  ```json
+  "maintainer": "Mohamed Hammad <Mohamed.Hammad@Steelbore.com>",
+  "website": "https://<ProjectName>.Steelbore.com/"
+  ```
+
+---
+
 ## §13 — Compliance Checklist (Audit Gate)
  
 Before finalising **any** Steelbore artifact, mentally verify:
@@ -223,7 +359,8 @@ Before finalising **any** Steelbore artifact, mentally verify:
 - [ ] **§8** Steelbore color palette used; Void Navy background mandatory
 - [ ] **§9** FOSS-licensed fonts only (Share Tech Mono / Inconsolata)
 - [ ] **§10** Material Design UI/UX; WCAG 2.1 AA verified
-- [ ] **§11** ISO 8601 dates, 24h time, UTC timestamps, metric units
+- [ ] **§11** ISO 8601 dates; 24h time; UTC-only timestamps with mandatory `Z` suffix; no local-time in stored/transmitted data; ISO 8601 durations; metric units
+- [ ] **§12** Attribution present: maintainer name (`Mohamed Hammad`), contact (`Mohamed.Hammad@Steelbore.com`), and project URL in `--version` / README / About
  
 If any item is not applicable to the current artifact type (e.g., color palette
 for a pure Rust library), note it as N/A rather than silently skipping it.
@@ -237,9 +374,8 @@ for a pure Rust library), note it as N/A rather than silently skipping it.
 | Writing any Rust code                | `rust-guidelines`           |
 | Generating DOCX / PDF documents      | `steelbore-document-format` |
 | Creating IDE / terminal themes       | `steelbore-theme-factory`   |
-| This skill (all other Steelbore work)| `steelbore-standard` ← you are here |
+| This skill (all other Steelbore work)| `steelbore-standard` <- you are here |
  
 ---
  
-*─── Forged in Steelbore ───*
- 
+*--- Forged in Steelbore ---*

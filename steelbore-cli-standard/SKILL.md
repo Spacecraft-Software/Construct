@@ -15,13 +15,16 @@ description: >
   user does not explicitly mention the Standard. Use proactively the moment
   CLI code appears on the horizon.
 license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+website: https://Steelbore.com/
 ---
 
 # Steelbore CLI Standard — Dual-Mode Self-Documenting CLI Framework
 
 **Version:** 1.0.0 | **Spec Date:** 2026-04-10 | **Author:** Mohamed Hammad
+**Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
-**Source Spec:** Steelbore SFRS v1.0.0 — Dual-Mode Self-Documenting CLI Framework
+**Website:** [https://Steelbore.com/](https://Steelbore.com/) | **Source Spec:** Steelbore SFRS v1.0.0 — Dual-Mode Self-Documenting CLI Framework
 
 This skill encodes the Steelbore SFRS so every CLI the AI writes for a
 Steelbore project ships with two co-equal output personalities: a
@@ -45,7 +48,7 @@ Violation of any item below blocks shipping. No exceptions.
 
 | # | Rule | Enforcement |
 |---|------|-------------|
-| 1 | **ISO 8601 + UTC timestamps** everywhere | `2026-04-10T14:30:00Z`. Local time is forbidden. `--local-time` is explicitly prohibited. Durations use ISO 8601 duration format (`PT1H30M`). |
+| 1 | **ISO 8601 + UTC timestamps** everywhere | All stored, transmitted, logged, and committed timestamps MUST be `YYYY-MM-DDTHH:MM:SSZ` — the `Z` suffix is mandatory, not optional. Offset notation (`+03:00`, `-05:00`) is forbidden in data. Local time is forbidden in all machine-readable output. `--local-time` flag is explicitly prohibited. Durations use ISO 8601 duration format (`PT1H30M`). See Steelbore Standard §11.2. |
 | 2 | **UTF-8 without BOM** for all output | stdout, stderr, file writes. On Windows, set console output code page to 65001 at startup. Never rely on system locale. |
 | 3 | **POSIX-first default output** | No-flag output must parse correctly in POSIX sh using only grep/awk/cut/sed/tr. No Bash-isms, no Nushell-isms, no PowerShell-isms in default mode. |
 | 4 | **Metric + 24-hour** | SI units only. No AM/PM. No imperial units. |
@@ -87,9 +90,9 @@ behavior. Divergent implementation is a BLOCKER.
 | `--quiet` / `-q` | Suppress non-error stderr. |
 | `--no-color` | Disable ANSI color. Equivalent to `--color=never`. |
 | `--color <when>` | `never` / `always` / `auto`. |
-| `--help` / `-h` | Help text with ≥2 examples per sub-command (one demonstrating `--json`). |
-| `--version` | Version + build info. |
-| `--absolute-time` | Disable relative-time rendering in human mode. Data is always stored and transmitted as ISO 8601 UTC; relative display is render-only. |
+| `--help` / `-h` | Help text with ≥2 examples per sub-command (one demonstrating `--json`). Footer MUST include project URL (e.g., `https://<ProjectName>.Steelbore.com/`) and maintainer name. |
+| `--version` | Version + build info. MUST include maintainer line: `Maintained by Mohamed Hammad <Mohamed.Hammad@Steelbore.com>` and project URL. In `--json` mode, include `"maintainer"` and `"website"` keys in the metadata envelope. |
+| `--absolute-time` | Disable relative-time rendering in human mode. Data is always stored and transmitted as ISO 8601 UTC with mandatory `Z` suffix; relative and local-time display are render-only and never appear in `--json` output. |
 | `--print0` / `-0` | NUL-delimited output for filename-safe piping through `xargs -0`. |
 | `--yes` / `--force` | Skip confirmation in non-TTY mode. |
 

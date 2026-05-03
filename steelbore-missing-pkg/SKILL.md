@@ -1,6 +1,8 @@
 ---
 name: steelbore-missing-pkg
 license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+website: https://Steelbore.com/
 metadata:
   author: Mohamed Hammad
 description: >
@@ -20,6 +22,10 @@ description: >
 ---
 
 # Steelbore Missing-Package Provisioner
+
+**Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
+**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Website:** [https://Steelbore.com/](https://Steelbore.com/)
 
 Whenever a tool is missing from `PATH`, this skill walks a fixed priority
 chain of package managers and uses the first one that is both **installed

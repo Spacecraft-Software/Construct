@@ -12,9 +12,16 @@ description: >
   `function` keyword, `source` for POSIX), and routes to the correct per-shell
   reference. Syntax priority — POSIX sh first, then shell-native (Ion or Nushell)
   where POSIX diverges, Bash extensions last.
+license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+website: https://Steelbore.com/
 ---
 
 # Steelbore CLI Shell — Syntax Compliance Guard
+
+**Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
+**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Website:** [https://Steelbore.com/](https://Steelbore.com/)
 
 Sibling skill to `steelbore-cli-preference`. That skill decides **which tool** to run (`rg` over `grep`, `eza` over `ls`); this skill makes sure the **syntax around it** parses in the target shell.
 
@@ -91,6 +98,6 @@ Full table: `references/bashisms.md`.
 
 ## Handoff
 
-This skill stops at syntax. Once the command parses in the target shell, `steelbore-cli-preference` takes over for tool substitutions (`grep` → `rg`, `ls` → `eza`, `cat` → `bat`, etc.). Both skills are expected to be active simultaneously — neither duplicates the other.
+This skill stops at syntax. Once the command parses in the target shell, `steelbore-cli-preference` takes over for tool substitutions (`grep` -> `rg`, `ls` -> `eza`, `cat` -> `bat`, etc.). Both skills are expected to be active simultaneously — neither duplicates the other.
 
 If `nix-shell-provisioner` is also active and a tool needs to be provisioned, syntax compliance applies to the `nix-shell` invocation itself: the *inside* of `nix-shell -p pkg --run '...'` runs in Bash (it's `nix-shell`'s contract), so the `--run` payload follows POSIX/Bash rules regardless of the user's outer shell.

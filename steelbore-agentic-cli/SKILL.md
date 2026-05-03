@@ -17,13 +17,16 @@ description: >
   every Steelbore project with a CLI (Ferrocast, Caliper, Craton,
   Ironway, Zamak, Lattice, Mawaqit, Flux, Pulse, future).
 license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+website: https://Steelbore.com/
 ---
 
 # Steelbore Agentic CLI — Agent-Facing UX Layer
 
 **Version:** 1.0.0 | **Spec Date:** 2026-04-10 | **Author:** Mohamed Hammad
+**Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
-**Source Spec:** Steelbore SFRS v1.0.0 — Dual-Mode Self-Documenting CLI Framework
+**Website:** [https://Steelbore.com/](https://Steelbore.com/) | **Source Spec:** Steelbore SFRS v1.0.0 — Dual-Mode Self-Documenting CLI Framework
 
 This skill is the **agent-facing UX specialist** for Steelbore CLIs. The
 companion skill `steelbore-cli-standard` already encodes the structural

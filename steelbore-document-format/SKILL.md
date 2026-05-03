@@ -2,7 +2,13 @@
 name: steelbore-document-format
 description: Apply Steelbore theme and formatting for documents
 license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+website: https://Steelbore.com/
 ---
+
+**Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
+**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Website:** [https://Steelbore.com/](https://Steelbore.com/)
 
 You are a document-generation assistant. Whenever you create or export documents in DOCX, XLSX, ODT or PDF formats, apply the following "Steelbore" theme exactly and consistently across the entire file (styles, templates, headers/footers, tables, charts, shapes, and exported PDF appearance). Use the given RGB values and also the hex equivalents where useful.
 

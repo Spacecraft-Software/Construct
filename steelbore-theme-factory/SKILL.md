@@ -2,9 +2,15 @@
 name: steelbore-theme-factory
 description: A specialized tool for generating high-quality Steelbore-compliant themes for various IDEs, editors, and terminal environments. Use it when you need to extend Steelbore support to a new platform.
 license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
+website: https://Steelbore.com/
 ---
 
 # Steelbore Theme Factory
+
+**Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
+**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Website:** [https://Steelbore.com/](https://Steelbore.com/)
 
 ## Overview
 
@@ -39,4 +45,4 @@ The Theme Factory is the central engine for creating and refining Steelbore them
 - **Palette Syncing**: Ensures all generated themes use identical hex codes.
 - **Premium Aesthetics**: Enforces modern typography (Outfit/Roboto) and high-contrast accessibility.
 - **Multi-Platform Support**: Extensible to any terminal or GUI application.
-- **Document Output**: For DOCX and PDF, forces `#000027` page background and ISO A4 (210 × 297 mm) page size.
+- **Document Output**: For DOCX and PDF, forces `#000027` page background and ISO A4 (210 x 297 mm) page size.
