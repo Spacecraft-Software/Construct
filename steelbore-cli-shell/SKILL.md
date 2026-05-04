@@ -18,11 +18,13 @@ maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
 website: https://Steelbore.com/
 ---
 
-# Steelbore CLI Shell — Syntax Compliance Guard
+# Steelbore CLI Shell — POSIX-First, Avoid Bashisms
 
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://Steelbore.com/](https://Steelbore.com/)
+
+**Default rule: write POSIX. Avoid bashisms.** POSIX sh is the only syntax family that survives the trip across every shell this skill cares about — Bash, dash, ash, zsh, plus the non-POSIX targets (Nushell, Ion, PowerShell) where bashisms simply don't parse. Reach for shell-native syntax only inside `.nu`, `.ion`, or `.ps1` files. Reach for Bash extensions (`[[ ]]`, `(( ))`, arrays, `${var^^}`, `<( )`, `&>`, `$RANDOM`) **never as a first choice** — only when POSIX cannot express the operation *and* the target is confirmed Bash.
 
 Sibling skill to `steelbore-cli-preference`. That skill decides **which tool** to run (`rg` over `grep`, `eza` over `ls`); this skill makes sure the **syntax around it** parses in the target shell.
 
