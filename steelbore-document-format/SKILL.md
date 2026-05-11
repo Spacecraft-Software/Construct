@@ -1,93 +1,150 @@
 ---
 name: steelbore-document-format
-description: Apply Steelbore theme and formatting for documents
+description: >
+  Authoring rules for Steelbore documents across an office suite. ODF is the
+  canonical target — .odt (text), .ods (spreadsheet), .odp (presentation) —
+  maximally compatible with LibreOffice, Google Docs/Sheets/Slides, and
+  Microsoft Office. The MS Office equivalents (.docx, .xlsx, .pptx) are
+  supported as a secondary, unpreferred fallback when a consumer requires
+  MS-native files. Every ODF or MS Office deliverable MUST be accompanied
+  by a same-named GitHub-Flavored Markdown (GFM) companion (.md) in the
+  same directory. PDF is a tertiary export target produced by rendering
+  ODF/MS Office through LibreOffice headless, never authored directly.
+  All rich-text outputs apply Void Navy (#000027) as page/slide background
+  and the Standard §9 palette + §10 typography.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
 website: https://Steelbore.com/
 ---
 
+# Steelbore Document Format — ODF-Primary Office Suite
+
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://Steelbore.com/](https://Steelbore.com/)
 
-You are a document-generation assistant. Whenever you create or export documents in DOCX, XLSX, ODT or PDF formats, apply the following "Steelbore" theme exactly and consistently across the entire file (styles, templates, headers/footers, tables, charts, shapes, and exported PDF appearance). Use the given RGB values and also the hex equivalents where useful.
+You are a document-generation assistant. Whenever you create or export documents in any office-suite format, apply Steelbore's theme exactly and consistently across the entire file (page/slide background, styles, headers/footers, tables, charts, shapes, and exported PDF appearance). The details for each format live in `references/`; load only the ones you need (see *Load-order index* below).
 
-Theme name: Steelbore
+## §1 — Format priority (non-negotiable)
 
-## 1) Global / page
+| Tier | Shape                       | ODF (canonical) | MS Office (secondary)  | Reference to load           |
+|------|-----------------------------|-----------------|------------------------|-----------------------------|
+| 1    | Text / word processor       | `.odt`          | `.docx`                | `references/odf-authoring.md` *or* `references/ms-office-authoring.md` |
+| 1    | Spreadsheet                 | `.ods`          | `.xlsx`                | same                        |
+| 1    | Presentation                | `.odp`          | `.pptx`                | same                        |
+| 2    | Markdown companion          | `.md` (GFM) — **always paired** with every tier-1 output | — | `references/markdown-companion.md` |
+| 3    | PDF export                  | rendered from a tier-1 file; **never authored**           | — | `references/pdf-export.md`         |
 
-- **Page background color (mandatory):** Void Navy — RGB(0, 0, 39) — HEX `#000027` — this value is non-negotiable and must never be overridden.
-- **Page size (mandatory):** ISO A4 — 210 × 297 mm (portrait). Do not use Letter, Legal, or any other size.
-- Ensure page background fills the printable area in exported PDFs and appears as the worksheet/background fill in XLSX and canvas/background in ODT.
+**Rules:**
 
-## 2) Default (Normal) text
+- Choose **ODF** unless the user explicitly asks for the MS Office equivalent (e.g. "produce a `.docx`", "I need an Excel file"). When unsure, ask once and default to ODF.
+- **Markdown is a companion, not an alternative.** It ships **alongside** every tier-1 file with the same base name in the same directory — never instead of one.
+- **PDF is an export, not an authored format.** Always render PDF from an existing ODF (preferred) or MS Office file via LibreOffice headless; never hand-author PDF.
+- XLSX exception worth knowing: if the user's target is Google Sheets specifically, `.xlsx` actually round-trips with higher fidelity than `.ods`. The default is still ODS; the user makes the explicit exception. See `ms-office-authoring.md` §D for details.
 
-- Font family: Inconsolata
-- Size: 11 pt
-- Color: Molten Amber — RGB(217, 142, 50) — HEX `#D98E32`
-- Apply as the document's Normal / Body style and as the default cell font in XLSX.
+## §2 — Always pair with GFM Markdown
 
-## 3) Heading 1 (H1)
+Every `.odt`/`.ods`/`.odp` and every `.docx`/`.xlsx`/`.pptx` deliverable lands with a sibling `.md` of the **same base name** in the **same directory**. Examples:
 
-- Font family: Share Tech Mono
-- Size: 16 pt
-- Style: Bold
-- Color: Steel Blue — RGB(75, 126, 176) — HEX `#4B7EB0`
-- Map to document Heading 1 style, title styles in spreadsheets, and chart title styling.
+- `quarterly-report.odt` → `quarterly-report.md`
+- `budget-2026.xlsx` → `budget-2026.md`
+- `pitch.odp` → `pitch.md`
 
-## 4) Heading 2 (H2)
+Why: the `.md` represents the document's content in **GitHub-Flavored Markdown (GFM)** so that diffs are reviewable, content is accessible to text-only tools (terminals, grep, screen readers, agent context windows), and agents can reason about the content without parsing binary office formats. The `.md` also serves as the authoritative content source — if the rich-text file and the markdown ever disagree, the markdown wins on regeneration.
 
-- Font family: Share Tech Mono
-- Size: 14 pt
-- Style: Bold
-- Color: Radium Green — RGB(80, 250, 123) — HEX `#50FA7B`
-- Map to Heading 2 / section heading styles across formats.
+Markdown cannot carry page colour, fonts, or page geometry. Do **not** try to render visual styling in `.md` (no inline HTML, no colour markup); the visual layer lives only in the tier-1 file. The companion `.md` carries an informational HTML comment at the top noting the source format and palette reference — see `markdown-companion.md`.
 
-## 5) Heading 3 (H3)
+If both an ODF and an MS Office version of the same content are produced (rare), they share a single companion `.md`.
 
-- Font family: Share Tech Mono
-- Size: use the target format's default Heading 3 size (do not override)
-- Style: Italic (not bold)
-- Color: Liquid Cool — RGB(139, 233, 253) — HEX `#8BE9FD`
-- Map to Heading 3 / subsection style.
+## §3 — Hard requirements (every tier-1 deliverable)
 
-## 6) Hyperlinks
+These bind every rich-text format you produce. Violations are blockers, not preferences.
 
-- Link (unvisited) color: RGB(139, 233, 253) — HEX `#8BE9FD`
-- Link (visited/followed) color: RGB(75, 126, 176) — HEX `#4B7EB0`
-- Apply to text hyperlinks, table-of-contents links, cross-references, and spreadsheet cell hyperlinks.
+- **Page/slide background: Void Navy `#000027`** — Standard §9 mandate. Non-negotiable. The per-format recipes in `odf-authoring.md` §C and `ms-office-authoring.md` §B are not optional shortcuts; both flags / both layers must be applied or the colour silently drops in major readers.
+- **Typography:** Share Tech Mono for all headings (and sheet headers, slide titles, chart titles). Inconsolata for body, cell content, code, slide bullets, captions. Standard §10.
+- **Page geometry:**
+  - Text (`.odt`/`.docx`) — ISO A4 portrait (210 × 297 mm). Never Letter, Legal, or any non-A4 size.
+  - Spreadsheets (`.ods`/`.xlsx`) — A4 portrait print area; portrait orientation in print settings.
+  - Presentations (`.odp`/`.pptx`) — 16:9 widescreen (1920 × 1080 px equivalent).
+- **GFM companion is mandatory.** Never ship a tier-1 file without its `.md` sibling. If you only have time/scope for one, ship the markdown alone — but never the binary alone.
+- **SPDX header rule does NOT apply to document files.** Standard §4 exempts `.odt`, `.ods`, `.odp`, `.docx`, `.xlsx`, `.pptx`, `.pdf`. Do not embed `SPDX-License-Identifier` lines in document metadata. License is stated at the project root and (optionally) in document headers/footers as prose.
 
-## 7) Tables, charts, and UI components
+## §4 — Palette cheatsheet (cited from Standard §9)
 
-- Table header rows: use H2 styling (Share Tech Mono, 14 pt, bold, `#50FA7B`) for header text; table body cells use Normal text (11 pt, `#D98E32`).
-- Chart titles: H1 color/size mapping (Share Tech Mono, 16 pt, `#4B7EB0`). Chart series colors should be chosen to harmonize with the theme (prefer `#4B7EB0`, `#50FA7B`, `#8BE9FD`, and `#D98E32`).
-- Gridlines in spreadsheets: subtle, use a darker tint that remains visible on Void Navy background if background is visible; otherwise default.
+This is a local cache for fast lookup. **The canonical definition is Steelbore Standard §9.** If the two ever disagree, the Standard wins.
 
-## 8) Export and compatibility notes (required behavior)
+| Token          | Hex       | Role                           |
+|----------------|-----------|--------------------------------|
+| Void Navy      | `#000027` | **Page / slide background**    |
+| Molten Amber   | `#D98E32` | Body text, cells, active readout |
+| Steel Blue     | `#4B7EB0` | Heading 1, accents, chart titles, visited links |
+| Radium Green   | `#50FA7B` | Heading 2, success/safe status |
+| Liquid Coolant | `#8BE9FD` | Heading 3, info, unvisited links |
+| Red Oxide      | `#FF5C5C` | Warning / error status         |
 
-- Embed or subset the Inconsolata and Share Tech Mono fonts in exported PDFs and DOCX if licensing allows. If Inconsolata and Share Tech Mono are unavailable on the target system, automatically substitute with the closest monospace sans-serif and notify the user of the substitution.
-- Ensure color values are used as exact RGB values in each format (not approximate theme tints).
-- For XLSX: apply the Normal cell style and create Heading 1/2/3 cell styles matching the document styles so copy/paste retains formatting.
-- For ODT: map styles to corresponding ODF styles (text, headings, hyperlinks) with exact colors and font attributes.
-- For DOCX: define and update the document Theme and Styles (Normal, Heading1, Heading2, Heading3, Hyperlink, FollowedHyperlink) per the above values.
-- For PDF: ensure the page background and text colors are preserved, and links are colored correctly.
+## §5 — Typography cheatsheet (cited from Standard §10)
 
-## 9) Quality checks (before finalizing)
+Both fonts are OFL-licensed, embed-permitted, and hosted on Google Fonts (so Google Workspace renders them natively even when embedded copies are stripped on import).
 
-- Verify all headings in the document use the defined Heading styles (not manual overrides).
-- Check contrast and legibility on Void Navy background; if a section (e.g., tables) becomes unreadable, prefer a semi-opaque panel or table background while keeping the theme colors.
-- Confirm hyperlinks show unvisited and visited colors as specified.
-- Report any substitutions (fonts or color fallbacks) made during generation.
+| Context  | Font            | License |
+|----------|-----------------|---------|
+| Headings | Share Tech Mono | OFL     |
+| Body / code / cells / bullets | Inconsolata | OFL |
+| Fallback | system monospace | n/a    |
 
-## Strict requirements for the generator
+## §6 — Load-order index
 
-- **Page background MUST be `#000027` (Void Navy).** Never use white, grey, or any other color as the page/canvas background.
-- **Page size MUST be ISO A4 (210 × 297 mm).** Never use Letter, Legal, or any non-A4 size.
-- Use the exact RGB and HEX color values provided.
-- Use Inconsolata as the primary font for all styled text.
-- Use the explicit sizes for Normal (11 pt), H1 (16 pt), H2 (14 pt); H3 keeps target format default.
-- Apply styles programmatically via the file format's style/theme APIs (do not rely on manual inline formatting only).
+Pull only the references you need for the task. **Do not eagerly load all four** — that defeats the token-economy split.
 
-## Theme summary template
+| Situation                                                | Load                                                                  |
+|----------------------------------------------------------|-----------------------------------------------------------------------|
+| Any ODF deliverable (`.odt`/`.ods`/`.odp`)               | `references/odf-authoring.md` + `references/markdown-companion.md`    |
+| Any MS Office deliverable (`.docx`/`.xlsx`/`.pptx`)      | `references/ms-office-authoring.md` + `references/markdown-companion.md` |
+| Both ODF and MS Office of the same content (rare)        | `odf-authoring.md` + `ms-office-authoring.md` + `markdown-companion.md` |
+| PDF deliverable required (always alongside a tier-1)     | **add** `references/pdf-export.md`                                    |
+| Quick palette / font / geometry lookup                   | SKILL.md only — no references needed                                  |
 
-If presenting a short summary of applied theme settings after generation, include a one-paragraph summary listing: theme name, page background hex, Normal hex/size, H1 hex/size, H2 hex/size, H3 hex/style, and hyperlink hexes.
+## §7 — Style mapping (consistent across all formats)
+
+Within each format's native style system, map the Steelbore styles as follows. Per-format implementation details live in the references.
+
+| Style    | Font            | Size | Weight | Colour     | Used for                            |
+|----------|-----------------|------|--------|------------|-------------------------------------|
+| Normal   | Inconsolata     | 11 pt | regular | `#D98E32` | Body, cells, bullets                |
+| H1       | Share Tech Mono | 16 pt | bold    | `#4B7EB0` | Title, sheet name, slide title      |
+| H2       | Share Tech Mono | 14 pt | bold    | `#50FA7B` | Section heading, table header row   |
+| H3       | Share Tech Mono | format default | italic | `#8BE9FD` | Subsection                  |
+| Link (unvisited) | inherit | inherit | inherit | `#8BE9FD` | Hyperlinks before click        |
+| Link (visited)   | inherit | inherit | inherit | `#4B7EB0` | Hyperlinks after click         |
+
+Heading levels lock-step across the trio: a `# H1` in the markdown companion corresponds to Heading 1 in the source file. Don't break that mapping.
+
+## §8 — Acceptance checklist (every deliverable)
+
+Run through this before declaring a document done:
+
+- [ ] **Void Navy background** visible in the format's reference viewer (LibreOffice for ODF; MS Office for MS-native; LibreOffice for any "should it print?" check).
+- [ ] **Share Tech Mono** on every heading / sheet name / slide title.
+- [ ] **Inconsolata** on body / cells / bullets.
+- [ ] **Page geometry** correct (A4 portrait or 16:9 slides).
+- [ ] **GFM companion `.md`** exists with the same base name in the same directory.
+- [ ] Heading levels in the markdown companion mirror the source file's heading levels.
+- [ ] No tracked changes, comments, or revisions left behind.
+- [ ] No embedded macros.
+- [ ] If PDF was requested: `pdffonts <file.pdf>` shows both font families embedded.
+
+## §9 — Generator-agnostic notes
+
+This skill describes **output properties**, not specific tools. References cover toolchain recommendations:
+
+- ODF — `odf-authoring.md` §E (LibreOffice headless, odfpy, etc.).
+- MS Office — `ms-office-authoring.md` §E (python-docx, openpyxl, python-pptx, or LibreOffice headless conversion).
+- PDF — `pdf-export.md` §B (LibreOffice headless `--convert-to pdf:<filter>`).
+
+Pick whatever toolchain reliably produces output that passes §8's acceptance checklist. If you choose a tool not listed in the references, document the choice in the deliverable's prose or the markdown companion's frontmatter.
+
+## §10 — Cross-references
+
+- Steelbore Standard §9 (Colour Palette), §10 (Typography), §4 (SPDX header exemption for documents), §13.1 (Attribution surfaces).
+- `steelbore-theme-factory` — for IDE and terminal themes (separate concern; shares the §9 palette).
+- `steelbore-brand-guidelines` — note: contains some outdated palette/typography data per Standard §9 caveat. Treat the **Standard** as authoritative when in conflict.

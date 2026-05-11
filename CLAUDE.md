@@ -78,6 +78,22 @@ is mechanical — apply it after **any** edit inside a `<skill-name>/` directory
    — no extra flag needed.
 4. **Push** to `origin/main` with no confirmation prompt — this repo is
    pre-authorised for auto-push on skill-directory changes.
+5. **Fan out to local agent install dirs** so every agent CLI on this host
+   sees the pushed state:
+   ```sh
+   rsync -a --delete \
+     --exclude='.git' --exclude='.claude' --exclude='Excluded' \
+     --exclude='Chat.txt' --exclude='CLAUDE.md' --exclude='.gitignore' \
+     --exclude='*.zip' --exclude='*.skill' \
+     /steelbore/construct/ ~/.agents/skills/
+   ```
+   `~/.agents/skills/` is the canonical local install. `~/.ai/skills`,
+   `~/.agent/skills`, `~/.claude/skills`, and `~/.codex/skills` are
+   **symlinks** to it (set up once per host — see the *Local agent fan-out*
+   section below). They pick up the new content automatically; no per-target
+   rsync needed. `~/.gemini/skills` is deliberately **not** a symlink — Gemini
+   CLI scans `~/.agents/skills/` directly and would emit duplicate-skill
+   warnings if it saw both.
 
 If multiple skills changed in one turn, rebuild **all** of their bundles in the
 same commit. Never let `git status` show a skill-dir change without its
@@ -88,6 +104,49 @@ matching bundle change.
 signing failure. GitHub validates the SSH signature independently and shows
 "Verified" if the public key is registered as a **Signing** key in GitHub
 account settings (Authentication-only keys won't validate signatures).
+
+## Local agent fan-out
+
+A single canonical skills directory at `~/.agents/skills/` feeds every agent
+CLI on this host. Step 5 of the workflow rsyncs the repo into it; the
+per-harness conventional paths are symlinks pointing back at it.
+
+| Path                | Kind                       | Target              | Why |
+|---------------------|----------------------------|---------------------|-----|
+| `~/.agents/skills/` | directory (canonical)      | (content)           | Source of truth — rsync target in step 5 |
+| `~/.ai/skills`      | symlink                    | `~/.agents/skills`  | Generic AI-tool convention |
+| `~/.agent/skills`   | symlink                    | `~/.agents/skills`  | Generic single-`agent` convention |
+| `~/.claude/skills`  | symlink                    | `~/.agents/skills`  | Claude Code reads from here |
+| `~/.codex/skills`   | symlink                    | `~/.agents/skills`  | OpenAI Codex reads from here |
+| `~/.gemini/skills`  | **must not exist**         | —                   | Gemini CLI is configured to scan `~/.agents/skills/` natively; a symlink at this path would cause Gemini to enumerate every skill twice and emit duplicate-skill warnings. |
+
+### One-time setup (per host)
+
+Run once on a fresh box, or after retiring a real `~/.<harness>/skills` clone.
+If any of the four target paths is currently a real directory (e.g. from the
+README install instructions), it gets renamed aside before being replaced
+with a symlink:
+
+```sh
+mkdir -p ~/.agents
+for d in ~/.ai/skills ~/.agent/skills ~/.claude/skills ~/.codex/skills; do
+  if [ -e "$d" ] && [ ! -L "$d" ]; then
+    mv "$d" "${d}.pre-symlink.$(TZ=UTC date -u +%Y%m%dT%H%M%SZ)"
+  fi
+  mkdir -p "$(dirname "$d")"
+  ln -sfn ~/.agents/skills "$d"
+done
+```
+
+Verify: `ls -la ~/.ai/skills ~/.agent/skills ~/.claude/skills ~/.codex/skills`
+should print four `... -> /home/<you>/.agents/skills` lines. `ls ~/.gemini/skills`
+should error with *No such file or directory* — if it doesn't, remove whatever
+is there before Gemini next loads.
+
+The `--delete` in step 5's rsync means anything sitting in `~/.agents/skills/`
+that isn't in the repo gets removed on the next sync. If you're prototyping a
+skill locally before adding it to the repo, keep the work tree somewhere
+**outside** `~/.agents/skills/` until it lands in `/steelbore/construct/`.
 
 ## Editing rules specific to this repo
 

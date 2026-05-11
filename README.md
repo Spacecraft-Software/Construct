@@ -34,7 +34,7 @@ the rules re-attached to every prompt.
 | [`steelbore-cli-preference`](steelbore-cli-preference/) | Modern CLI substitutions: `eza` for `ls`, `rg` for `grep`, `gitway` for Git SSH, etc. |
 | [`steelbore-cli-standard`](steelbore-cli-standard/) | Enforces the Steelbore Dual-Mode Self-Documenting CLI Standard (SFRS v1.0.0) on every CLI. |
 | [`steelbore-cli-shell`](steelbore-cli-shell/) | Syntax-compliance guard for Nushell / Ion / POSIX / Bash commands. |
-| [`steelbore-document-format`](steelbore-document-format/) | Applies Steelbore theme and formatting to documents. |
+| [`steelbore-document-format`](steelbore-document-format/) | ODF-primary office suite (`.odt` / `.ods` / `.odp`) with MS Office (`.docx` / `.xlsx` / `.pptx`) as secondary; GFM Markdown companion always paired; PDF as tertiary export; Void Navy + Standard §9 palette. |
 | [`steelbore-missing-pkg`](steelbore-missing-pkg/) | Handles missing-package situations in the Steelbore workflow. |
 | [`steelbore-standard`](steelbore-standard/) | Authoritative compliance reference (The Steelbore Standard v1.1). |
 | [`steelbore-theme-factory`](steelbore-theme-factory/) | Generates Steelbore-compliant themes for IDEs and terminals. |

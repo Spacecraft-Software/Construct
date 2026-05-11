@@ -2,9 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(nix-shell *)",
-      "Bash(cp /steelbore/Construct/steelbore-cli-shell/SKILL.md ~/.claude/skills/steelbore-cli-shell/SKILL.md)",
-      "Bash(cp /steelbore/Construct/steelbore-cli-shell/SKILL.md ~/.gemini/skills/steelbore-cli-shell/SKILL.md)",
-      "Bash(cp /steelbore/Construct/steelbore-cli-shell/SKILL.md ~/.codex/skills/steelbore-cli-shell/SKILL.md)",
+      "Bash(cp /steelbore/construct/steelbore-cli-shell/SKILL.md ~/.claude/skills/steelbore-cli-shell/SKILL.md)",
+      "Bash(cp /steelbore/construct/steelbore-cli-shell/SKILL.md ~/.gemini/skills/steelbore-cli-shell/SKILL.md)",
+      "Bash(cp /steelbore/construct/steelbore-cli-shell/SKILL.md ~/.codex/skills/steelbore-cli-shell/SKILL.md)",
       "Read(//home/mj/.gemini/skills/steelbore-cli-shell/**)",
       "Bash(gh repo *)",
       "Bash(gh api *)",
@@ -42,8 +42,8 @@
       "Bash(awk 'NR>3 && NF>=4 {print $NF}')",
       "Bash(grep -v '/$')",
       "Bash(git rev-list *)",
-      "Bash(unzip -l /steelbore/Construct/steelbore-agentic-cli.zip)",
-      "Bash(unzip -l /steelbore/Construct/steelbore-agentic-cli.skill)"
+      "Bash(unzip -l /steelbore/construct/steelbore-agentic-cli.zip)",
+      "Bash(unzip -l /steelbore/construct/steelbore-agentic-cli.skill)"
     ]
   }
 }
