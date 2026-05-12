@@ -36,7 +36,7 @@ the rules re-attached to every prompt.
 | [`steelbore-cli-shell`](steelbore-cli-shell/) | Syntax-compliance guard for Nushell / Ion / POSIX / Bash commands. |
 | [`steelbore-document-format`](steelbore-document-format/) | ODF-primary office suite (`.odt` / `.ods` / `.odp`) with MS Office (`.docx` / `.xlsx` / `.pptx`) as secondary; GFM Markdown companion always paired; PDF as tertiary export; Void Navy + Standard §9 palette. |
 | [`steelbore-missing-pkg`](steelbore-missing-pkg/) | Handles missing-package situations in the Steelbore workflow. |
-| [`steelbore-standard`](steelbore-standard/) | Authoritative compliance reference (The Steelbore Standard v1.1). |
+| [`steelbore-standard`](steelbore-standard/) | Authoritative compliance reference (The Steelbore Standard v1.2). |
 | [`steelbore-theme-factory`](steelbore-theme-factory/) | Generates Steelbore-compliant themes for IDEs and terminals. |
 
 <!-- §3 — Layout convention -->
