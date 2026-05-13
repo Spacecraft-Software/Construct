@@ -77,18 +77,18 @@ back-rename.
 | Codename    | Status                | Description                                                    |
 |-------------|-----------------------|----------------------------------------------------------------|
 | `Steelbore` | Active (umbrella)     | Umbrella organization and standard name                        |
-| `Zamak`     | Active                | Rust bootloader (Limine rewrite)                               |
-| `Bravais`   | Active (renamed)      | NixOS flake configuration. Renamed from `Lattice` due to collision with Lattice OS. `Bravais` is still a metallurgical-era name (Bravais lattice) and predates the v1.2 convention. |
-| `Ferrocast` | Active                | Rust PowerShell rewrite (16-crate workspace)                   |
+| `Zamak`     | Active (WIP)          | Rust bootloader (Limine rewrite)                               |
+| `Bravais`   | Completed (renamed)   | NixOS flake configuration. Renamed from `Lattice` due to collision with Lattice OS. `Bravais` is still a metallurgical-era name (Bravais lattice) and predates the v1.2 convention. |
+| `Ferrocast` | Active (planning)     | Rust PowerShell rewrite (16-crate workspace)                   |
 | `Craton`    | Registered; not started | Rust universal package manager. Codename reserved in the Standard; no directory or code on disk yet. |
-| `Ironway`   | Active                | Rust OpenTTD rewrite                                           |
-| `Caliper`   | Active                | Rust raster-to-vector tracing engine (CLI+TUI)                 |
+| `Ironway`   | Active (WIP)          | Rust OpenTTD rewrite                                           |
+| `Caliper`   | Active (WIP)          | Rust raster-to-vector tracing engine (CLI+TUI)                 |
 | `Mawaqit`   | **Pending rename**    | Islamic prayer times app (Flutter + Rust CLI + libmawaqit). To be renamed under the v1.2 aerospace/sci-fi/AI convention. |
-| `Anvil`     | Active                | Rust workspace with benches and CHANGELOG; metallurgical legacy name. |
-| `Ferrite_OS`| Active                | Custom OS and DOS-emulation experiments; ferrite is a metallurgical iron compound. |
-| `Flux`      | Active                | Rust workspace with CHANGELOG; metallurgical legacy name. |
-| `Forge`     | Active                | Production flavor tooling workspace (`forge-cli`, `forge-build`, `forge-activate`); metallurgical name. |
-| `Pearlite`  | Active                | Rust workspace with extended audit tooling; pearlite is a steel microstructure. |
+| `Anvil`     | Completed             | Rust workspace with benches and CHANGELOG; metallurgical legacy name. |
+| `Ferrite_OS`| Active (WIP)          | Custom OS and DOS-emulation experiments; ferrite is a metallurgical iron compound. |
+| `Flux`      | Completed             | Rust workspace with CHANGELOG; metallurgical legacy name. |
+| `Forge`     | Active (WIP)          | Production flavor tooling workspace (`forge-cli`, `forge-build`, `forge-activate`); metallurgical name. |
+| `Pearlite`  | Active (WIP)          | Rust workspace with extended audit tooling; pearlite is a steel microstructure. |
 
 Existing legacy-named projects MAY be renamed under the v1.2 convention at the
 maintainer's discretion — renames are optional. When a rename happens, update
