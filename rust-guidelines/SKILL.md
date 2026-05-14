@@ -7,16 +7,16 @@ description:
   This skill is MANDATORY for all Rust development.
 user-invocable: false
 license: MIT
-maintainer: Mohamed Hammad <Mohamed.Hammad@Steelbore.com>
-website: https://Steelbore.com/
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://SpacecraftSoftware.org/
 ---
 
 **Current compliance date: 2026-03-30**
 
 # Rust-Guidelines Skill
 
-**Maintainer (Steelbore adaptation):** Mohamed Hammad | **Contact:** [Mohamed.Hammad@Steelbore.com](mailto:Mohamed.Hammad@Steelbore.com)
-**Website:** [https://Steelbore.com/](https://Steelbore.com/)
+**Maintainer (Spacecraft Software adaptation):** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
+**Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
 *(Base guidelines: Microsoft Pragmatic Rust Guidelines — MIT License)*
 
 This skill enforces structured, guideline-driven Rust development. It ensures all

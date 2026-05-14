@@ -10,7 +10,7 @@ system, runtime, or test suite — every artifact is markdown plus a small numbe
 of templates/JSON. Edits are content edits; shipping is rezipping.
 
 The authoritative governance document for everything produced in this repo is
-[`steelbore-standard/SKILL.md`](steelbore-standard/SKILL.md) (The Steelbore
+[`spacecraft-standard/SKILL.md`](spacecraft-standard/SKILL.md) (The Spacecraft Software
 Standard v1.2). Load it before any non-trivial edit — its §14 checklist is the
 audit gate.
 
@@ -49,7 +49,7 @@ zip -qrD <name>.skill <name>/SKILL.md <name>/LICENSE <name>/CREDITS.md <name>/re
 
 Include each argument only when that file/dir exists in the skill — LICENSE
 filenames vary (`LICENSE` vs `LICENSE.md`), `CREDITS.md` appears only where
-§13.3 triggers fire (currently `rust-guidelines` and `steelbore-cli-preference`),
+§13.3 triggers fire (currently `rust-guidelines` and `spacecraft-cli-preference`),
 and `references/` is optional.
 
 The `.skill` bundle uses `-D` to drop directory entries; the `.zip` keeps them.
@@ -70,10 +70,10 @@ is mechanical — apply it after **any** edit inside a `<skill-name>/` directory
    zip -qrD <name>.skill <name>/SKILL.md <name>/LICENSE <name>/CREDITS.md <name>/references
    ```
    Add `<name>/assets` to both lines if the skill has an `assets/` dir.
-   Omit any argument the skill doesn't have — `steelbore-standard` is
+   Omit any argument the skill doesn't have — `spacecraft-standard` is
    SKILL.md-only; LICENSE filenames vary (`LICENSE` vs `LICENSE.md`);
    `CREDITS.md` exists only where §13.3 applies (`rust-guidelines`,
-   `steelbore-cli-preference`). Run `ls <name>/` first when in doubt.
+   `spacecraft-cli-preference`). Run `ls <name>/` first when in doubt.
 2. **Stage** the skill directory **and** both bundles in the same commit —
    never separately. Always stage by explicit name:
    ```sh
@@ -87,7 +87,7 @@ is mechanical — apply it after **any** edit inside a `<skill-name>/` directory
    TZ=UTC GIT_COMMITTER_DATE="$(TZ=UTC date)" \
      git commit --date "$(TZ=UTC date)" -m "..."
    ```
-   Steelbore Standard §12.2 forbids offset notation (`+0300`, `+00:00`); only
+   Spacecraft Software Standard §12.2 forbids offset notation (`+0300`, `+00:00`); only
    `Z` / `+0000` is permitted. Signing is on globally
    (`commit.gpgsign=true`, `gpg.format=ssh`, `user.signingkey=~/.ssh/id_ed25519.pub`)
    — no extra flag needed.
@@ -118,7 +118,7 @@ per-skill symlinks that chain through the Nix store to this repo:
 ~/.claude/skills/<skill>
   → /nix/store/<hash>-home-manager-files/.claude/skills/<skill>
   → /nix/store/<hash>-hm_<skill>
-  → /steelbore/construct/<skill>
+  → /spacecraft-software/construct/<skill>
 ```
 
 Paths populated by Home Manager: `~/.claude/skills/`, `~/.codex/skills/`,
@@ -133,8 +133,8 @@ does **not** invoke it.
 Verify after rebuild:
 
 ```sh
-readlink -f ~/.claude/skills/steelbore-standard
-# → /steelbore/construct/steelbore-standard
+readlink -f ~/.claude/skills/spacecraft-standard
+# → /spacecraft-software/construct/spacecraft-standard
 ```
 
 If the symlink still resolves into a stale `/nix/store/<old-hash>-hm_*` path
@@ -157,18 +157,18 @@ The assistant performs no `rsync`, no symlink setup, and no
 - `Chat.txt` is a session export and is gitignored — never commit it.
 - `Excluded/` is the holding pen for inputs that produce skill content but must
   not ship with it. Don't reference it from inside any `SKILL.md`.
-- **Pre-existing dirty `.skill` files** (`steelbore-agentic-cli.skill`,
-  `steelbore-cli-shell.skill`, `steelbore-cli-standard.skill`,
-  `steelbore-missing-pkg.skill`) carry uncommitted changes from prior `-D`
+- **Pre-existing dirty `.skill` files** (`spacecraft-agentic-cli.skill`,
+  `spacecraft-cli-shell.skill`, `spacecraft-cli-standard.skill`,
+  `spacecraft-missing-pkg.skill`) carry uncommitted changes from prior `-D`
   normalization passes. Do not commit them unless the task explicitly targets
   those files.
 
 ## Installation (what consumers do)
 
 ```sh
-git clone git@github.com:Steelbore/Construct.git ~/.claude/skills
-git clone git@github.com:Steelbore/Construct.git ~/.gemini/skills
-git clone git@github.com:Steelbore/Construct.git ~/.codex/skills
+git clone git@github.com:Spacecraft-Software/Construct.git ~/.claude/skills
+git clone git@github.com:Spacecraft-Software/Construct.git ~/.gemini/skills
+git clone git@github.com:Spacecraft-Software/Construct.git ~/.codex/skills
 ```
 
-The SSH remote is configured for [Gitway](https://github.com/Steelbore/Gitway).
+The SSH remote is configured for [Gitway](https://github.com/Spacecraft-Software/Gitway).
