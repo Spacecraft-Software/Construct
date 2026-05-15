@@ -27,7 +27,6 @@ the rules re-attached to every prompt.
 
 | Skill | Purpose |
 |-------|---------|
-| [`nix-shell-provisioner`](nix-shell-provisioner/) | Use `nix-shell` for transient tool provisioning (preferred over `pip`, `npm -g`, `apt`, `brew`). |
 | [`rust-guidelines`](rust-guidelines/) | Enforces Microsoft Pragmatic Rust Guidelines before any `.rs` edit. |
 | [`spacecraft-agentic-cli`](spacecraft-agentic-cli/) | Agent-facing UX layer for Spacecraft Software CLIs — pairs with `spacecraft-cli-standard`. |
 | [`spacecraft-brand-guidelines`](spacecraft-brand-guidelines/) | Applies Spacecraft Software's official colors and typography to artifacts. |

@@ -1,5 +1,8 @@
 # Local conversation/session exports — never commit
 Chat.txt
 
-# Per-session Claude Code worktrees (local dev state, not for the catalogue)
-.claude/worktrees/
+# Per-host Claude Code config and per-session worktrees (local dev state, not for the catalogue)
+.claude/
+
+# Local agent guidance — not shipped with the catalogue
+CLAUDE.md
