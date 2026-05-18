@@ -20,7 +20,7 @@ website: https://SpacecraftSoftware.org/
 
 # Spacecraft Software CLI Preference — Modern Alternatives over Legacy Tools
 
-**Version:** 1.0 | **Date:** 2026-04-18 | **Author:** Mohamed Hammad
+**Version:** 1.0 | **Date:** 2026-05-18 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
@@ -356,14 +356,14 @@ documentation. See `references/ATTRIBUTION.md` for per-tool sourcing.
 ## §8 — Spacecraft Software Compliance Note
 
 This skill itself is a Spacecraft Software artifact and conforms to the relevant parts
-of The Spacecraft Software Standard (see `spacecraft-standard` skill):
+of The Steelbore Standard (see `spacecraft-standard` skill):
 
 - **§4** GPL-3.0-or-later license declared in frontmatter
-- **§11** ISO 8601 dates used throughout
+- **§12** ISO 8601 dates used throughout
 - Naming: `spacecraft-cli-preference` — functional prefix, not a codename
   (aerospace/sci-fi/AI naming §2 applies to new project/module identifiers;
   §2.2 explicitly exempts skill IDs)
 
 ---
 
-*─── Forged in Spacecraft Software ───*
+*— Built by Spacecraft Software —*
