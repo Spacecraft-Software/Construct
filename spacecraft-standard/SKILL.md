@@ -8,37 +8,43 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Spacecraft Software Standard v1.2 so you never need to ask for it or have it attached to a
+  The Steelbore Standard v1.8 so you never need to ask for it or have it attached to a
   prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://SpacecraftSoftware.org/
 ---
 
-# The Spacecraft Software Standard — Compliance Reference
+# The Steelbore Standard — Compliance Reference
 
-**Version:** 1.2 | **Date:** 2026-05-13 | **Author:** Mohamed Hammad
+**Version:** 1.8 | **Date:** 2026-05-18 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
 
-This skill encodes The Spacecraft Software Standard in full. Apply every applicable section
+This skill encodes The Steelbore Standard in full. Apply every applicable section
 to any artifact you produce under the standard. The 13-point compliance checklist
 in §14 is your audit gate — run through it mentally before finalising any output.
 
-**Standard name vs. project naming.** "The Spacecraft Software Standard" is the canonical,
-stable name of *this standard*. It is independent of the projects it currently
-governs and of the umbrella organization name. If individual projects — or the
-umbrella itself — are renamed in the future, the standard retains the name
-"The Spacecraft Software Standard." Versioning of project codenames (see §2) and versioning
-of the standard are separate concerns.
-
 **Changelog:**
 
-- **v1.2 — registry sync (2026-05-13):** Added `Anvil`, `Ferrite_OS`, `Flux`, `Forge`, and `Pearlite` to §2.1 (metallurgical legacy names confirmed from PROJECTS.md cross-check; Anvil and Flux were explicitly noted there as not previously registered). Extended §13.1 subdomain table with `Anvil`, `Construct`, `Ferrite`, `Forge`, `Ginx`, `Loran`, and `Pearlite` (all have active GitHub repositories under the Spacecraft Software organisation).
-- **v1.2 (2026-05-11):** Replaced §2 metallurgical naming convention with Aerospace, Sci-Fi & AI naming (aerospace/astronomy terminology + franchise references from *2001: A Space Odyssey*, *The Matrix*, *Terminator*). Preserved pre-v1.2 metallurgical-era names under §2's Legacy Registry. Added explicit statement that the standard's name — "The Spacecraft Software Standard" — is decoupled from project naming and survives any project or umbrella rename. Renamed `Lattice` to `Bravais` (collision with Lattice OS) in registry and §13.1 subdomain table. Flagged `Mawaqit` as pending rename under the v1.2 convention.
+- **v1.8 (2026-05-18):** Standard name reinstated as "The Steelbore Standard". Primary mandate reaffirmed as the Steelbore OS line; scope explicitly extended by default to all Spacecraft Software projects (unless a project's own spec explicitly carves out an exception). Subtitle updated to reflect dual scope. Source file renamed `The_Spacecraft_Software_Standard.md` → `The_Steelbore_Standard.md`. §13.1: added Standard subdomain entry (`Standard.SpacecraftSoftware.org`). Umbrella org name and domain (Spacecraft Software / SpacecraftSoftware.org) unchanged.
+- **v1.7 (2026-05-15):** Umbrella renamed from `Steelbore` to `Spacecraft Software` per the brand consolidation. Standard's name updated to "The Spacecraft Software Standard"; domain to `SpacecraftSoftware.org`; contact email to `Mohamed.Hammad@SpacecraftSoftware.org`; §13.1 subdomain pattern to `<ProjectName>.SpacecraftSoftware.org`. Skill ID prefix renamed (`steelbore-*` → `spacecraft-*`). Subproject codenames unchanged. The OS line (`Steelbore OS`, `Steelbore OS Bravais`, `Steelbore OS Lattice`) retains the Steelbore name and is unaffected by this rename.
+- **v1.6 (2026-05-13):** Synced §2.1 development statuses with PROJECTS.md — `Bravais` and `Anvil` and `Flux` promoted to Completed; `Ferrocast` corrected to Planning; `Mawaqit` updated to Planning (Pending rename).
+- **v1.5 (2026-05-13):** Corrected `Craton` status in §2.1 from `Active` to `Reserved` — codename is registered but no development has started yet.
+- **v1.4 (2026-05-13):** Synced §2.1 Legacy Metallurgical Registry with PROJECTS.md — added five previously unregistered pre-v1.2 codenames: `Anvil`, `Flux`, `Pearlite`, `Ferrite_OS`, and `Forge`. Expanded §13.1 subdomain table to include all first-party projects with GitHub repositories that were missing: Anvil, Construct, Ferrite_OS, Forge, Ginx, Loran, Pearlite.
+- **v1.3 (2026-05-12):** Added §6.3 (Signed & Verified Commits — mandatory Ed25519 SSH commit signing with hosting-platform "Verified" status; the rule extends to programmatic, CI, and assistant-driven commits and requires rewrites to preserve signatures). Added §13.3 (Third-Party Attribution — `CREDITS.md` at project/skill root when external work is substantially built upon, distinct from mechanical SPDX license metadata). Two new compliance-checklist bullets cover both additions.
+- **v1.2 (2026-05-11):** Replaced §2 metallurgical naming convention with Aerospace, Sci-Fi & AI naming (aerospace/astronomy terminology + franchise references from *2001: A Space Odyssey*, *The Matrix*, *Terminator*). Preserved pre-v1.2 metallurgical-era names under §2's Legacy Registry. Added explicit statement that the standard's name was decoupled from project naming and would survive any project or umbrella rename (subsequently revisited in v1.7's umbrella rename). Renamed `Lattice` to `Bravais` (collision with Lattice OS) in registry and §13.1 subdomain table. Flagged `Mawaqit` as pending rename under the v1.2 convention.
 - **v1.1 (2026-05-06):** Added §5 Project Posture (personal-hobby default, general-use carve-out, required posture files). Renumbered prior §5–§13 to §6–§14. Added posture bullet to compliance checklist.
 - **v1.0 (2026-03-08):** Initial release.
+
+---
+
+## §1 — Preamble
+
+The Steelbore Standard defines the engineering principles, compliance requirements, and design conventions that govern all software produced under the Steelbore OS line and, by extension, all projects under the Spacecraft Software umbrella. Every Spacecraft Software artifact — from bootloaders to desktop environments — must satisfy the requirements set forth in this document unless a project-specific specification explicitly carves out an exception. Where a project-specific specification conflicts with this standard, the stricter of the two requirements shall prevail.
+
+**Standard name vs. project naming.** "The Steelbore Standard" is the canonical, stable name of *this standard*. It is independent of the projects it governs and of the umbrella organization name — the standard retains this name regardless of any future renames. The v1.7 umbrella rename (Steelbore → Spacecraft Software) and the v1.8 reinstatement of this standard's name are recorded in the changelog. Versioning of project codenames (see §2) and versioning of the standard are separate concerns.
 
 ---
 
@@ -76,19 +82,19 @@ back-rename.
 
 | Codename    | Status                | Description                                                    |
 |-------------|-----------------------|----------------------------------------------------------------|
-| `Spacecraft Software` | Active (umbrella)     | Umbrella organization and standard name                        |
-| `Zamak`     | Active (WIP)          | Rust bootloader (Limine rewrite)                               |
+| `Steelbore` | Renamed to Spacecraft Software (umbrella, v1.7) | Former umbrella organization name. Renamed 2026-05-15 under the v1.7 brand consolidation. The OS line (`Steelbore OS`, `Steelbore OS Bravais`, `Steelbore OS Lattice`) retains the Steelbore name. |
+| `Zamak`     | Active                | Rust bootloader (Limine rewrite)                               |
 | `Bravais`   | Completed (renamed)   | NixOS flake configuration. Renamed from `Lattice` due to collision with Lattice OS. `Bravais` is still a metallurgical-era name (Bravais lattice) and predates the v1.2 convention. |
-| `Ferrocast` | Active (planning)     | Rust PowerShell rewrite (16-crate workspace)                   |
-| `Craton`    | Registered; not started | Rust universal package manager. Codename reserved in the Standard; no directory or code on disk yet. |
-| `Ironway`   | Active (WIP)          | Rust OpenTTD rewrite                                           |
-| `Caliper`   | Active (WIP)          | Rust raster-to-vector tracing engine (CLI+TUI)                 |
-| `Mawaqit`   | **Pending rename**    | Islamic prayer times app (Flutter + Rust CLI + libmawaqit). To be renamed under the v1.2 aerospace/sci-fi/AI convention. |
-| `Anvil`     | Completed             | Rust workspace with benches and CHANGELOG; metallurgical legacy name. |
-| `Ferrite_OS`| Active (WIP)          | Custom OS and DOS-emulation experiments; ferrite is a metallurgical iron compound. |
-| `Flux`      | Completed             | Rust workspace with CHANGELOG; metallurgical legacy name. |
-| `Forge`     | Active (WIP)          | Production flavor tooling workspace (`forge-cli`, `forge-build`, `forge-activate`); metallurgical name. |
-| `Pearlite`  | Active (WIP)          | Rust workspace with extended audit tooling; pearlite is a steel microstructure. |
+| `Ferrocast` | Planning              | Rust PowerShell rewrite (16-crate workspace)                   |
+| `Craton`    | Reserved              | Rust universal package manager — codename registered; no work started yet. |
+| `Ironway`   | Active                | Rust OpenTTD rewrite                                           |
+| `Caliper`   | Active                | Rust raster-to-vector tracing engine (CLI+TUI)                 |
+| `Mawaqit`   | Planning (**Pending rename**) | Islamic prayer times app (Flutter + Rust CLI + libmawaqit). To be renamed under the v1.2 aerospace/sci-fi/AI convention. |
+| `Anvil`     | Completed             | Rust workspace; benches and CHANGELOG; legacy forging-tool name.                |
+| `Flux`      | Completed             | Rust workspace; CHANGELOG and deny.toml; legacy metallurgical-flux name.        |
+| `Pearlite`  | Active                | Rust workspace; audit.toml, clippy.toml, CHANGELOG; steel microstructure name.  |
+| `Ferrite_OS`| Active                | Custom OS / DOS-emulation experiments; ferrite (iron-based material) name.      |
+| `Forge`     | Active                | Production flavor tooling (forge-cli, forge-build, forge-activate); forging-tool name. |
 
 Existing legacy-named projects MAY be renamed under the v1.2 convention at the
 maintainer's discretion — renames are optional. When a rename happens, update
@@ -149,7 +155,7 @@ A higher-numbered priority **may never compromise** a lower-numbered one.
 and project manifests (`Cargo.toml`, `package.json`, `flake.nix`, etc.) must include
 the SPDX header/expression.
 
-**Document files** (`.odf`, `.xlsx`, `.docx`, PDF, etc.) are **exempt** from
+**Document files** (`.odt`, `.ods`, `.odp`, `.docx`, `.xlsx`, `.pptx`, `.pdf`, etc.) are **exempt** from
 SPDX header requirements; the license is stated in the project root.
 
 **When writing or reviewing any software source file**, check that the SPDX header is present.
@@ -160,7 +166,7 @@ When generating new source files, always include it.
 ## §5 — Project Posture
 
 Spacecraft Software is a personal hobby project. This posture is the **default** for every
-subproject under the umbrella and is non-negotiable. Individual subprojects may
+project under the umbrella and is non-negotiable. Individual projects may
 adopt a more open posture (see §5.3) but never a more closed one.
 
 §4 defines the formal license; this section defines the **stated stance** that
@@ -179,9 +185,9 @@ should *expect* from the maintainer.
 | Forking        | Encouraged                                                     |
 | License        | GPL-3.0-or-later (formal terms govern in any conflict)         |
 
-### §5.2 — Required Posture Files (per subproject)
+### §5.2 — Required Posture Files (per project)
 
-Every Spacecraft Software subproject repository **must** ship the following files at its
+Every Spacecraft Software project repository **must** ship the following files at its
 root, derived from the canonical Spacecraft Software templates:
 
 | File              | Purpose                                                     |
@@ -195,18 +201,18 @@ Customize only the project name, scope, and any project-specific carve-outs.
 
 ### §5.3 — General-Use Carve-Out
 
-A subproject may declare itself **intended for general use**. When it does:
+A project may declare itself **intended for general use**. When it does:
 
-- The declaration MUST appear in that subproject's `README.md` posture section.
+- The declaration MUST appear in that project's `README.md` posture section.
 - The no-warranty / no-liability stance from §5.1 still applies in full —
   general-use status changes audience and intent, **not** legal terms.
-- General-use subprojects must hold a higher release-quality bar:
+- General-use projects must hold a higher release-quality bar:
   semantic versioning, maintained `CHANGELOG.md`, deprecation policy, and a
   documented support window for the current major version.
 
 **General-use registry** (keep in sync with §13.1 subdomain table):
 
-| Subproject   | Posture       |
+| Project      | Posture       |
 |--------------|---------------|
 | Anvil-SSH    | General-use   |
 | (all others) | Personal      |
@@ -276,9 +282,8 @@ All interactive applications must support **both**:
 
 | Scheme    | Requirement                                                              |
 |-----------|--------------------------------------------------------------------------|
-| **CUA**   | Standard bindings (Ctrl+C/X/V/Z/S) must work in all text input contexts |
-| **Vim**   | Modal editing layer (Normal / Insert / Visual mode) as opt-in feature.  |
-|           | Minimum: hjkl navigation where full Vim layer is impractical            |
+| **CUA**   | Standard bindings (Ctrl+C/X/V/Z/S) must work in all text input contexts  |
+| **Vim**   | Modal editing layer (Normal / Insert / Visual mode) as opt-in feature. Minimum: hjkl navigation where full Vim layer is impractical |
 
 ---
 
@@ -324,7 +329,7 @@ verify they are available on Google Fonts or another FOSS-licensed repository.
   Theme Material components with the §9 color palette.
 - **WCAG 2.1 Level AA** contrast is the minimum for all color pairings.
   Any new color additions must be WCAG-verified before adoption.
-- **Accessibility**: screen readers, keyboard-only navigation, and system accessibility
+- **Accessibility:** screen readers, keyboard-only navigation, and system accessibility
   preferences (reduced motion, high contrast) must all be respected.
 
 ---
@@ -418,25 +423,26 @@ Each Spacecraft Software project has a dedicated subdomain following the pattern
 `https://<ProjectName>.SpacecraftSoftware.org/`. Use the project-specific URL in all
 project-level outputs; use `https://SpacecraftSoftware.org/` only for umbrella references.
 
-| Project          | URL                                    |
-|------------------|----------------------------------------|
-| Spacecraft Software (main) | https://SpacecraftSoftware.org/                 |
-| Gitway           | https://Gitway.SpacecraftSoftware.org/          |
-| Ferrocast        | https://Ferrocast.SpacecraftSoftware.org/       |
-| Caliper          | https://Caliper.SpacecraftSoftware.org/         |
-| Craton           | https://Craton.SpacecraftSoftware.org/          |
-| Ironway          | https://Ironway.SpacecraftSoftware.org/         |
-| Zamak            | https://Zamak.SpacecraftSoftware.org/           |
-| Bravais          | https://Bravais.SpacecraftSoftware.org/         |
-| Mawaqit          | https://Mawaqit.SpacecraftSoftware.org/         |
-| Flux             | https://Flux.SpacecraftSoftware.org/            |
-| Anvil            | https://Anvil.SpacecraftSoftware.org/           |
-| Construct        | https://Construct.SpacecraftSoftware.org/       |
-| Ferrite          | https://Ferrite.SpacecraftSoftware.org/         |
-| Forge            | https://Forge.SpacecraftSoftware.org/           |
-| Ginx             | https://Ginx.SpacecraftSoftware.org/            |
-| Loran            | https://Loran.SpacecraftSoftware.org/           |
-| Pearlite         | https://Pearlite.SpacecraftSoftware.org/        |
+| Project                    | URL                                              |
+|----------------------------|--------------------------------------------------|
+| Spacecraft Software (main) | https://SpacecraftSoftware.org/                  |
+| The Steelbore Standard     | https://Standard.SpacecraftSoftware.org/         |
+| Gitway                     | https://Gitway.SpacecraftSoftware.org/           |
+| Ferrocast                  | https://Ferrocast.SpacecraftSoftware.org/        |
+| Caliper                    | https://Caliper.SpacecraftSoftware.org/          |
+| Craton                     | https://Craton.SpacecraftSoftware.org/           |
+| Ironway                    | https://Ironway.SpacecraftSoftware.org/          |
+| Zamak                      | https://Zamak.SpacecraftSoftware.org/            |
+| Bravais                    | https://Bravais.SpacecraftSoftware.org/          |
+| Mawaqit                    | https://Mawaqit.SpacecraftSoftware.org/          |
+| Flux                       | https://Flux.SpacecraftSoftware.org/             |
+| Anvil                      | https://Anvil.SpacecraftSoftware.org/            |
+| Construct                  | https://Construct.SpacecraftSoftware.org/        |
+| Ferrite_OS                 | https://Ferrite.SpacecraftSoftware.org/          |
+| Forge                      | https://Forge.SpacecraftSoftware.org/            |
+| Ginx                       | https://Ginx.SpacecraftSoftware.org/             |
+| Loran                      | https://Loran.SpacecraftSoftware.org/            |
+| Pearlite                   | https://Pearlite.SpacecraftSoftware.org/         |
 
 When a new project is created, add its subdomain to this table immediately.
 
@@ -539,7 +545,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§3.2** Concurrency designed-in; benchmarking planned/documented
 - [ ] **§3.3** Hardened security; PQC readiness addressed
 - [ ] **§4** `GPL-3.0-or-later` license; SPDX headers on software source code files (excluding documents)
-- [ ] **§5** Project Posture: README/NOTICE/CONTRIBUTING present; default personal-hobby stance applied; general-use carve-outs declared in subproject README
+- [ ] **§5** Project Posture: README/NOTICE/CONTRIBUTING present; default personal-hobby stance applied; general-use carve-outs declared in project README
 - [ ] **§6.1** POSIX-compliant CLI/system tools
 - [ ] **§7** PFA: no tracking, minimal permissions, local storage default
 - [ ] **§8** CUA + Vim-like key bindings planned/implemented
@@ -558,13 +564,13 @@ for a pure Rust library), note it as N/A rather than silently skipping it.
 
 ## Skill Cross-References
 
-| Task                                 | Load this skill             |
-|--------------------------------------|-----------------------------|
-| Writing any Rust code                | `rust-guidelines`           |
-| Generating DOCX / PDF documents      | `spacecraft-document-format` |
-| Creating IDE / terminal themes       | `spacecraft-theme-factory`   |
-| This skill (all other Spacecraft Software work)| `spacecraft-standard` <- you are here |
+| Task                                  | Load this skill              |
+|---------------------------------------|------------------------------|
+| Writing any Rust code                 | `rust-guidelines`            |
+| Generating DOCX / ODT / PDF documents | `spacecraft-document-format` |
+| Creating IDE / terminal themes        | `spacecraft-theme-factory`   |
+| All other Spacecraft Software work    | `spacecraft-standard`        |
 
 ---
 
-*--- Forged in Spacecraft Software ---*
+*— Built by Spacecraft Software —*
