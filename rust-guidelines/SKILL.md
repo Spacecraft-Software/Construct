@@ -11,7 +11,7 @@ maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://SpacecraftSoftware.org/
 ---
 
-**Current compliance date: 2026-03-30**
+**Current compliance date: 2026-05-18**
 
 # Rust-Guidelines Skill
 
@@ -159,7 +159,52 @@ Use when:
 6. If the file is fully compliant, add a comment:
    `// Rust guideline compliant <DATE>` where `<DATE>` is the **Current compliance
    date** shown at the top of this document, formatted as ISO 8601 (`YYYY-MM-DD`).
+
+---
+
+## Spacecraft Software Standard Requirements (Rust)
+
+When writing Rust code for any Spacecraft Software project, these additional rules
+from [The Steelbore Standard](../spacecraft-standard/SKILL.md) apply on top of the
+Microsoft Pragmatic Rust Guidelines above.
+
+### §4 — SPDX License Header (mandatory)
+
+Every `.rs` source file and Rust manifest (`Cargo.toml`, `build.rs`) must include:
+
 ```
+// SPDX-License-Identifier: GPL-3.0-or-later
+```
+
+Place it as the first non-blank line. Document files (`.md`, `.toml` configs that
+are not manifests) are exempt; software source files are not.
+
+### §3.2 — Performance
+
+- Concurrency must be **designed-in from the start**, never bolted on retroactively.
+- Release profiles must use `-C target-cpu=native` (or `RUSTFLAGS=-C target-cpu=native`),
+  LTO (`lto = true`), and PGO where the toolchain supports it.
+- Benchmarking is **mandatory** before and after any optimization work; regressions
+  must be documented and justified.
+
+### §3.3 — Security & Dependency Auditing
+
+- Run `cargo audit` before adding any new third-party crate.
+- **Post-Quantum Cryptography (PQC) readiness:** crypto subsystems must support
+  migration to PQC algorithms. Use hybrid schemes (classical + PQC candidate) where
+  library support exists. Current targets: **ML-KEM-768, ML-DSA-65**.
+
+### §12.5 — Time Handling
+
+| Concern | Rule |
+|---------|------|
+| Crate choice | Use `jiff` (preferred) or `chrono` — never `time` 0.1.x |
+| UTC type | `jiff::Timestamp` or `chrono::DateTime<chrono::Utc>` for all stored values |
+| Local type | `chrono::Local` and `jiff::Zoned` (with non-UTC zone) are **forbidden** in serialized output |
+| Serialization | Always serialize as `"2026-03-08T14:30:00Z"` (ISO 8601, `Z` suffix) |
+| `serde` | Use `#[serde(with = "...")]` or a newtype that enforces UTC on deserialization |
+| `SystemTime` | Acceptable for internal durations; convert to UTC ISO 8601 string before any output |
+| No `NaiveDateTime` | `chrono::NaiveDateTime` has no timezone — forbidden in any serialized or logged value |
 
 ---
 
