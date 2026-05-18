@@ -71,7 +71,7 @@ These bind every rich-text format you produce. Violations are blockers, not pref
 
 ## §4 — Palette cheatsheet (cited from Standard §9)
 
-This is a local cache for fast lookup. **The canonical definition is Spacecraft Software Standard §9.** If the two ever disagree, the Standard wins.
+This is a local cache for fast lookup. **The canonical definition is The Steelbore Standard §9.** If the two ever disagree, the Standard wins.
 
 | Token          | Hex       | Role                           |
 |----------------|-----------|--------------------------------|
@@ -145,6 +145,8 @@ Pick whatever toolchain reliably produces output that passes §8's acceptance ch
 
 ## §10 — Cross-references
 
-- Spacecraft Software Standard §9 (Colour Palette), §10 (Typography), §4 (SPDX header exemption for documents), §13.1 (Attribution surfaces).
+- The Steelbore Standard §9 (Colour Palette), §10 (Typography), §4 (SPDX header exemption for documents), §13.1 (Attribution surfaces).
 - `spacecraft-theme-factory` — for IDE and terminal themes (separate concern; shares the §9 palette).
-- `spacecraft-brand-guidelines` — note: contains some outdated palette/typography data per Standard §9 caveat. Treat the **Standard** as authoritative when in conflict.
+- `spacecraft-brand-guidelines` — brand colors and typography quick-reference; shares the §9 palette.
+
+*— Built by Spacecraft Software —*
