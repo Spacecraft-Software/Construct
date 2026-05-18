@@ -3,14 +3,14 @@ name: spacecraft-brand-guidelines
 description: Applies Spacecraft Software's official brand colors and typography to any sort of artifact that may benefit from having Spacecraft Software's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or project design standards apply.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
-website: https://SpacecraftSoftware.org/
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Software Brand Guidelines
 
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
-**Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
+**Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 > **Source of truth:** The Steelbore Standard v1.9 (§9 Colors, §10 Typography).
 > All values here are canonical. Do not use any other color or font values for Spacecraft Software artifacts.

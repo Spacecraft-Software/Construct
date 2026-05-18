@@ -18,7 +18,7 @@ description: >
   Ironway, Zamak, Bravais, Mawaqit, Flux, future).
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
-website: https://SpacecraftSoftware.org/
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Software Agentic CLI — Agent-Facing UX Layer
@@ -26,7 +26,7 @@ website: https://SpacecraftSoftware.org/
 **Version:** 1.0.0 | **Spec Date:** 2026-04-10 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
-**Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/) | **Source Spec:** Spacecraft Software SFRS v1.0.0 — Dual-Mode Self-Documenting CLI Framework
+**Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/) | **Source Spec:** Spacecraft Software SFRS v1.0.0 — Dual-Mode Self-Documenting CLI Framework
 
 This skill is the **agent-facing UX specialist** for Spacecraft Software CLIs. The
 companion skill `spacecraft-cli-standard` already encodes the structural

@@ -3,14 +3,14 @@ name: spacecraft-theme-factory
 description: A specialized tool for generating high-quality Spacecraft Software-compliant themes for various IDEs, editors, and terminal environments. Use it when you need to extend Spacecraft Software support to a new platform.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
-website: https://SpacecraftSoftware.org/
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Software Theme Factory
 
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
-**Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
+**Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 > **Source of truth:** The Steelbore Standard v1.9 (§9 Colors, §10 Typography)
 > and the `spacecraft-brand-guidelines` skill. Themes may not introduce

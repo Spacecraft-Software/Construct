@@ -8,7 +8,7 @@ description:
 user-invocable: false
 license: MIT
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
-website: https://SpacecraftSoftware.org/
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 **Current compliance date: 2026-05-18**
@@ -16,7 +16,7 @@ website: https://SpacecraftSoftware.org/
 # Rust-Guidelines Skill
 
 **Maintainer (Spacecraft Software adaptation):** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
-**Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
+**Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 *(Base guidelines: Microsoft Pragmatic Rust Guidelines — MIT License)*
 
 This skill enforces structured, guideline-driven Rust development. It ensures all

@@ -15,7 +15,7 @@ description: >
   references directory for correct flag syntax.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
-website: https://SpacecraftSoftware.org/
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Software CLI Preference — Modern Alternatives over Legacy Tools
@@ -23,7 +23,7 @@ website: https://SpacecraftSoftware.org/
 **Version:** 1.0 | **Date:** 2026-05-18 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
-**Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
+**Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 This skill makes the agent default to the Spacecraft Software-preferred CLI/TUI stack
 (primarily Rust, with curated Zig / Go / Python entries where best-in-class)

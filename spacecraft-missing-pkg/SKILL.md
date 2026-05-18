@@ -2,7 +2,7 @@
 name: spacecraft-missing-pkg
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
-website: https://SpacecraftSoftware.org/
+website: https://Construct.SpacecraftSoftware.org/
 description: >
   Provides any required software via the best available package manager,
   preferring ephemeral options over permanent installs. ALWAYS use this skill
@@ -23,7 +23,7 @@ description: >
 
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
-**Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
+**Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 Whenever a tool is missing from `PATH`, this skill walks a fixed priority
 chain of package managers and uses the first one that is both **installed
