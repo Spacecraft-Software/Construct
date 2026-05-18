@@ -102,8 +102,33 @@ These are the high-frequency offenders. Catching them up front saves a reference
 
 Full table: `references/bashisms.md`.
 
+## Spacecraft Software Standard Requirements (Shell Scripts)
+
+When writing Spacecraft Software shell script files, these rules from
+[The Steelbore Standard](../spacecraft-standard/SKILL.md) apply.
+
+### §4 — SPDX License Header (mandatory)
+
+Every shell script file that is a **source artifact** (`.sh`, `.ps1`, `.nu`, `.ion` —
+not a one-liner, README snippet, or `--help` doc example) must include the SPDX
+header as the first comment, immediately after the shebang (if present):
+
+```sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+```
+
+All four shells use `#` for comments, so the syntax is identical across Bash/POSIX,
+PowerShell, Nushell, and Ion. Inline scripts passed via `--run` or `-c` flags are
+exempt; named script files are not.
+
+### §6.1 — POSIX Compliance
+
+CLI tools, daemons, and system utilities must be POSIX-compliant. Platform-specific
+extensions must go behind feature flags and must not be required for core
+functionality. This skill's rank-1 POSIX-first priority order directly enforces §6.1.
+
+---
+
 ## Handoff
 
 This skill stops at syntax. Once the command parses in the target shell, `spacecraft-cli-preference` takes over for tool substitutions (`grep` -> `rg`, `ls` -> `eza`, `cat` -> `bat`, etc.). Both skills are expected to be active simultaneously — neither duplicates the other.
-
-If `nix-shell-provisioner` is also active and a tool needs to be provisioned, syntax compliance applies to the `nix-shell` invocation itself: the *inside* of `nix-shell -p pkg --run '...'` runs in Bash (it's `nix-shell`'s contract), so the `--run` payload follows POSIX/Bash rules regardless of the user's outer shell.
