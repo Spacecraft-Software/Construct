@@ -3,8 +3,6 @@ name: spacecraft-missing-pkg
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://SpacecraftSoftware.org/
-metadata:
-  author: Mohamed Hammad
 description: >
   Provides any required software via the best available package manager,
   preferring ephemeral options over permanent installs. ALWAYS use this skill
@@ -208,3 +206,5 @@ If no manager in the chain has the tool, fall through to the guidance in
 **[references/fallback.md](references/fallback.md)** (Git-source Cargo
 installs, language-native ad-hoc envs like `npx` / `uvx`, and hard
 prohibitions on `apt`/`dnf`/`pacman`/`pip -g`/`npm -g`).
+
+*— Built by Spacecraft Software —*
