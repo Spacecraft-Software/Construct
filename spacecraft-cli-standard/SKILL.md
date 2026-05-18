@@ -48,7 +48,7 @@ Violation of any item below blocks shipping. No exceptions.
 
 | # | Rule | Enforcement |
 |---|------|-------------|
-| 1 | **ISO 8601 + UTC timestamps** everywhere | All stored, transmitted, logged, and committed timestamps MUST be `YYYY-MM-DDTHH:MM:SSZ` — the `Z` suffix is mandatory, not optional. Offset notation (`+03:00`, `-05:00`) is forbidden in data. Local time is forbidden in all machine-readable output. `--local-time` flag is explicitly prohibited. Durations use ISO 8601 duration format (`PT1H30M`). See Spacecraft Software Standard §11.2. |
+| 1 | **ISO 8601 + UTC timestamps** everywhere | All stored, transmitted, logged, and committed timestamps MUST be `YYYY-MM-DDTHH:MM:SSZ` — the `Z` suffix is mandatory, not optional. Offset notation (`+03:00`, `-05:00`) is forbidden in data. Local time is forbidden in all machine-readable output. `--local-time` flag is explicitly prohibited. Durations use ISO 8601 duration format (`PT1H30M`). See Spacecraft Software Standard §12.2. |
 | 2 | **UTF-8 without BOM** for all output | stdout, stderr, file writes. On Windows, set console output code page to 65001 at startup. Never rely on system locale. |
 | 3 | **POSIX-first default output** | No-flag output must parse correctly in POSIX sh using only grep/awk/cut/sed/tr. No Bash-isms, no Nushell-isms, no PowerShell-isms in default mode. |
 | 4 | **Metric + 24-hour** | SI units only. No AM/PM. No imperial units. |
