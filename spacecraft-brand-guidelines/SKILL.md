@@ -12,7 +12,7 @@ website: https://SpacecraftSoftware.org/
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
 
-> **Source of truth:** The Spacecraft Software Standard v1.2 (§9 Colors, §10 Typography).
+> **Source of truth:** The Steelbore Standard v1.9 (§9 Colors, §10 Typography).
 > All values here are canonical. Do not use any other color or font values for Spacecraft Software artifacts.
 
 ## Color Palette (WCAG 2.1 AA Compliant)
@@ -61,3 +61,5 @@ Quick reference:
 - Apply the palette to Material Design components (the required UI system for Spacecraft Software GUIs).
 - All new color pairings must pass WCAG 2.1 Level AA contrast verification before adoption.
 - For IDE and terminal themes, load the `spacecraft-theme-factory` skill.
+
+*— Built by Spacecraft Software —*
