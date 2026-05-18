@@ -12,7 +12,7 @@ website: https://SpacecraftSoftware.org/
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
 
-> **Source of truth:** The Spacecraft Software Standard v1.2 (§9 Colors, §10 Typography)
+> **Source of truth:** The Steelbore Standard v1.9 (§9 Colors, §10 Typography)
 > and the `spacecraft-brand-guidelines` skill. Themes may not introduce
 > colors, fonts, or naming outside what these sources define.
 
@@ -77,3 +77,5 @@ Before shipping any generated theme:
 - Output references only `spacecraft-brand-guidelines` (lowercase) for
   upstream brand context; no claims of `/themes`, `/scripts`, or
   `/templates` subdirectories (this skill ships as `SKILL.md` only).
+
+*— Built by Spacecraft Software —*
