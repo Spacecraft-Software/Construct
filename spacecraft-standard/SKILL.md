@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.8 so you never need to ask for it or have it attached to a
+  The Steelbore Standard v1.9 so you never need to ask for it or have it attached to a
   prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.8 | **Date:** 2026-05-18 | **Author:** Mohamed Hammad
+**Version:** 1.9 | **Date:** 2026-05-18 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
@@ -28,6 +28,7 @@ in §14 is your audit gate — run through it mentally before finalising any out
 
 **Changelog:**
 
+- **v1.9 (2026-05-18):** Clarified organizational model in §1: "Steelbore" now specifically refers to Steelbore OS and OS-specific artifacts (configurations, themes, tooling); "Spacecraft Software" is the broader umbrella. Independent projects (Zamak, Ironway, Ferrocast, Caliper, etc.) are peer citizens of the umbrella — designed to work with Steelbore OS but OS-agnostic and usable on any compliant platform. Both categories governed by this standard in full.
 - **v1.8 (2026-05-18):** Standard name reinstated as "The Steelbore Standard". Primary mandate reaffirmed as the Steelbore OS line; scope explicitly extended by default to all Spacecraft Software projects (unless a project's own spec explicitly carves out an exception). Subtitle updated to reflect dual scope. Source file renamed `The_Spacecraft_Software_Standard.md` → `The_Steelbore_Standard.md`. §13.1: added Standard subdomain entry (`Standard.SpacecraftSoftware.org`). Umbrella org name and domain (Spacecraft Software / SpacecraftSoftware.org) unchanged.
 - **v1.7 (2026-05-15):** Umbrella renamed from `Steelbore` to `Spacecraft Software` per the brand consolidation. Standard's name updated to "The Spacecraft Software Standard"; domain to `SpacecraftSoftware.org`; contact email to `Mohamed.Hammad@SpacecraftSoftware.org`; §13.1 subdomain pattern to `<ProjectName>.SpacecraftSoftware.org`. Skill ID prefix renamed (`steelbore-*` → `spacecraft-*`). Subproject codenames unchanged. The OS line (`Steelbore OS`, `Steelbore OS Bravais`, `Steelbore OS Lattice`) retains the Steelbore name and is unaffected by this rename.
 - **v1.6 (2026-05-13):** Synced §2.1 development statuses with PROJECTS.md — `Bravais` and `Anvil` and `Flux` promoted to Completed; `Ferrocast` corrected to Planning; `Mawaqit` updated to Planning (Pending rename).
@@ -42,7 +43,7 @@ in §14 is your audit gate — run through it mentally before finalising any out
 
 ## §1 — Preamble
 
-The Steelbore Standard defines the engineering principles, compliance requirements, and design conventions that govern all software produced under the Steelbore OS line and, by extension, all projects under the Spacecraft Software umbrella. Every Spacecraft Software artifact — from bootloaders to desktop environments — must satisfy the requirements set forth in this document unless a project-specific specification explicitly carves out an exception. Where a project-specific specification conflicts with this standard, the stricter of the two requirements shall prevail.
+The Steelbore Standard defines the engineering principles, compliance requirements, and design conventions that govern all software produced under Spacecraft Software. The umbrella encompasses two categories of work: **Steelbore OS** — the operating system and all OS-specific artifacts (configurations, themes, OS tooling) — and **independent Spacecraft Software projects** such as Zamak, Ironway, Ferrocast, and Caliper, which are designed to work with Steelbore OS but are not OS-specific and may run on any compliant platform. Both categories are full citizens of Spacecraft Software and subject to this standard in full. Where a project-specific specification conflicts with this standard, the stricter of the two requirements shall prevail.
 
 **Standard name vs. project naming.** "The Steelbore Standard" is the canonical, stable name of *this standard*. It is independent of the projects it governs and of the umbrella organization name — the standard retains this name regardless of any future renames. The v1.7 umbrella rename (Steelbore → Spacecraft Software) and the v1.8 reinstatement of this standard's name are recorded in the changelog. Versioning of project codenames (see §2) and versioning of the standard are separate concerns.
 
