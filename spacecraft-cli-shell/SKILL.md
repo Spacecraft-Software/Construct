@@ -21,7 +21,7 @@ website: https://Construct.SpacecraftSoftware.org/
 # Spacecraft Software CLI Shell — POSIX-First, Avoid Bashisms
 
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
-**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Copyright:** (C) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 **Default rule: write POSIX. Avoid bashisms.** POSIX sh is the only syntax family that survives the trip across every shell this skill cares about — Bash, dash, ash, zsh, plus the non-POSIX targets (Nushell, Ion, PowerShell) where bashisms simply don't parse. Reach for shell-native syntax only inside `.nu`, `.ion`, or `.ps1` files. Reach for Bash extensions (`[[ ]]`, `(( ))`, arrays, `${var^^}`, `<( )`, `&>`, `$RANDOM`) **never as a first choice** — only when POSIX cannot express the operation *and* the target is confirmed Bash.

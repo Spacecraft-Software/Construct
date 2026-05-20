@@ -22,7 +22,7 @@ description: >
 # Spacecraft Software Missing-Package Provisioner
 
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
-**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Copyright:** (C) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 Whenever a tool is missing from `PATH`, this skill walks a fixed priority

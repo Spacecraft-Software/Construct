@@ -22,7 +22,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 **Version:** 1.0 | **Date:** 2026-05-18 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
-**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Copyright:** (C) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 This skill makes the agent default to the Spacecraft Software-preferred CLI/TUI stack

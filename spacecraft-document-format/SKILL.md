@@ -20,7 +20,7 @@ website: https://Construct.SpacecraftSoftware.org/
 # Spacecraft Software Document Format — ODF-Primary Office Suite
 
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
-**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Copyright:** (C) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 You are a document-generation assistant. Whenever you create or export documents in any office-suite format, apply Spacecraft Software's theme exactly and consistently across the entire file (page/slide background, styles, headers/footers, tables, charts, shapes, and exported PDF appearance). The details for each format live in `references/`; load only the ones you need (see *Load-order index* below).

@@ -19,7 +19,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 **Version:** 1.9 | **Date:** 2026-05-18 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
-**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Copyright:** (C) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 This skill encodes The Steelbore Standard in full. Apply every applicable section
@@ -415,7 +415,7 @@ When writing Rust code that handles time:
 
 **Maintainer:** Mohamed Hammad
 **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
-**Copyright:** (c) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
+**Copyright:** (C) 2026 Mohamed Hammad | **License:** GPL-3.0-or-later
 **Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
 
 ### §13.1 — Project Pages
@@ -455,7 +455,7 @@ of: `--help` output, `--version` output, README, or About/Info screen.
 **Required attribution block:**
 ```
 Maintained by Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
-Copyright (c) 2026 Mohamed Hammad  |  License: GPL-3.0-or-later
+Copyright (C) 2026 Mohamed Hammad  |  License: GPL-3.0-or-later
 https://<ProjectName>.SpacecraftSoftware.org/
 ```
 
