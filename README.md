@@ -27,6 +27,7 @@ the rules re-attached to every prompt.
 
 | Skill | Purpose |
 |-------|---------|
+| [`guile-guidelines`](guile-guidelines/) | Write idiomatic, functional, concurrent GNU Guile (Guile Scheme 3.x) — fibers/CSP, SRFI-1, tail calls, hygienic macros. |
 | [`rust-guidelines`](rust-guidelines/) | Enforces Microsoft Pragmatic Rust Guidelines before any `.rs` edit. |
 | [`spacecraft-agentic-cli`](spacecraft-agentic-cli/) | Agent-facing UX layer for Spacecraft Software CLIs — pairs with `spacecraft-cli-standard`. |
 | [`spacecraft-brand-guidelines`](spacecraft-brand-guidelines/) | Applies Spacecraft Software's official colors and typography to artifacts. |
