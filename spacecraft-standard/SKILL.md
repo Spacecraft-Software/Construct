@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.11 so you never need to ask for it or have it attached to a
+  The Steelbore Standard v1.12 so you never need to ask for it or have it attached to a
   prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.11 | **Date:** 2026-05-24 | **Author:** Mohamed Hammad
+**Version:** 1.12 | **Date:** 2026-05-25 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -28,6 +28,7 @@ in §14 is your audit gate — run through it mentally before finalising any out
 
 **Changelog:**
 
+- **v1.12 (2026-05-25):** §6.3 extended: added explicit authorized signing identity rule — all commits from v1.12 onwards must be signed with the `Mohamed.Hammad@SpacecraftSoftware.org` Ed25519 SSH key; committer email and signing key identity must both resolve to that address. Commits predating this version are exempt.
 - **v1.11 (2026-05-24):** Three normative updates: (1) Copyright notices updated to `Copyright (C) 2026 Mohamed Hammad & Spacecraft Software` in all locations. (2) §9.1 added: new apps must expose palette colors through a named `Steelbore` theme rather than hard-coded hex literals, enabling clean theme substitution. (3) §12 revised: UTC Z remains the canonical/mandatory primary format; local time expressed as a UTC offset may now optionally accompany UTC Z values in display, API responses, and stored records.
 - **v1.10 (2026-05-20):** Standardized copyright notice to `Copyright (C) 2026 Mohamed Hammad` in all three locations (YAML frontmatter masthead, §13 attribution block, and `--version` / About template in §6).
 - **v1.9 (2026-05-18):** Clarified organizational model in §1: "Steelbore" now specifically refers to Steelbore OS and OS-specific artifacts (configurations, themes, tooling); "Spacecraft Software" is the broader umbrella. Independent projects (Zamak, Ironway, Ferrocast, Caliper, etc.) are peer citizens of the umbrella — designed to work with Steelbore OS but OS-agnostic and usable on any compliant platform. Both categories governed by this standard in full.
@@ -86,6 +87,7 @@ back-rename.
 | Codename    | Status                | Description                                                    |
 |-------------|-----------------------|----------------------------------------------------------------|
 | `Steelbore` | Renamed to Spacecraft Software (umbrella, v1.7) | Former umbrella organization name. Renamed 2026-05-15 under the v1.7 brand consolidation. The OS line (`Steelbore OS`, `Steelbore OS Bravais`, `Steelbore OS Lattice`) retains the Steelbore name. |
+| `Aetheric`  | Active                | Next-generation extensible text editor (Pulsar + Quasar + Nebula IPC). |
 | `Zamak`     | Active                | Rust bootloader (Limine rewrite)                               |
 | `Bravais`   | Completed (renamed)   | NixOS flake configuration. Renamed from `Lattice` due to collision with Lattice OS. `Bravais` is still a metallurgical-era name (Bravais lattice) and predates the v1.2 convention. |
 | `Ferrocast` | Planning              | Rust PowerShell rewrite (16-crate workspace)                   |
@@ -251,6 +253,7 @@ the same rule).
 | Rule | Detail |
 |------|--------|
 | All commits signed | `commit.gpgsign=true` configured globally. SSH signing (`gpg.format=ssh`) is the current default; GPG is acceptable. The signing key MUST be registered as a **Signing** key on the hosting platform — Authentication-only keys do not validate signatures. |
+| Authorized signing identity | All commits from v1.12 onwards must be signed with the `Mohamed.Hammad@SpacecraftSoftware.org` key. The committer email and the signing key identity must both resolve to `Mohamed.Hammad@SpacecraftSoftware.org`. Commits predating v1.12 are exempt from this requirement. |
 | Hosting-platform "Verified" required | Every commit on a Spacecraft Software remote must show "Verified" on the platform's commit/PR view. Unsigned or "Unverified" commits MUST be remediated (re-signed via rebase or amend by the original author) before merge to a default branch. |
 | Programmatic commits signed too | Bots, CI pipelines, scripted commits, and assistant-driven commits inherit the same rule — no `--no-gpg-sign`, no signing-disabled subshells. The signing pipeline runs unattended. |
 | Rewrites preserve signatures | Rebase, amend, cherry-pick, and squash MUST re-sign each resulting commit. Don't push history that lost signatures through rewriting. |
@@ -460,8 +463,8 @@ project-level outputs; use `https://SpacecraftSoftware.org/` only for umbrella r
 | Project                    | URL                                              |
 |----------------------------|--------------------------------------------------|
 | Spacecraft Software (main) | https://SpacecraftSoftware.org/                  |
-| Aetheric                   | https://Aetheric.SpacecraftSoftware.org/         |
 | The Steelbore Standard     | https://Standard.SpacecraftSoftware.org/         |
+| Aetheric                   | https://Aetheric.SpacecraftSoftware.org/         |
 | Gitway                     | https://Gitway.SpacecraftSoftware.org/           |
 | Ferrocast                  | https://Ferrocast.SpacecraftSoftware.org/        |
 | Caliper                    | https://Caliper.SpacecraftSoftware.org/          |
@@ -590,7 +593,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§12** ISO 8601 dates; 24h time; UTC Z mandatory on all primary timestamps; local time with UTC offset permitted as optional companion only (never as a replacement); ISO 8601 durations; metric units
 - [ ] **§13** Attribution present: maintainer name (`Mohamed Hammad`), contact (`Mohamed.Hammad@SpacecraftSoftware.org`), and project URL in `--version` / README / About
 - [ ] **§13.3** Third-party work credited in `CREDITS.md` at project/skill root when triggers apply; deeper `references/ATTRIBUTION.md` present where reference content is adapted from external sources
-- [ ] **§6.3** All commits to Spacecraft Software Git remotes cryptographically signed and showing "Verified" on the hosting platform; rewrites preserve signatures; programmatic and assistant-driven commits signed too
+- [ ] **§6.3** All commits to Spacecraft Software Git remotes cryptographically signed with the `Mohamed.Hammad@SpacecraftSoftware.org` key and showing "Verified" on the hosting platform; rewrites preserve signatures; programmatic and assistant-driven commits signed too
 
 If any item is not applicable to the current artifact type (e.g., color palette
 for a pure Rust library), note it as N/A rather than silently skipping it.
