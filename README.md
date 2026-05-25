@@ -27,6 +27,7 @@ the rules re-attached to every prompt.
 
 | Skill | Purpose |
 |-------|---------|
+| [`gnu-coding-standards`](gnu-coding-standards/) | Applies the GNU Coding Standards to C, Rust, GNU Guile, Go, and Python — error-message grammar, CLI contract, i18n, build conventions, and free-software philosophy. |
 | [`spacecraft-guile-guidelines`](spacecraft-guile-guidelines/) | Write idiomatic, functional, concurrent GNU Guile (Guile Scheme 3.x) — fibers/CSP, SRFI-1, tail calls, hygienic macros. |
 | [`rust-guidelines`](rust-guidelines/) | Enforces Microsoft Pragmatic Rust Guidelines before any `.rs` edit. |
 | [`spacecraft-agentic-cli`](spacecraft-agentic-cli/) | Agent-facing UX layer for Spacecraft Software CLIs — pairs with `spacecraft-cli-standard`. |
