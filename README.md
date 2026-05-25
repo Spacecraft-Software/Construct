@@ -35,6 +35,7 @@ the rules re-attached to every prompt.
 | [`spacecraft-cli-standard`](spacecraft-cli-standard/) | Enforces the Spacecraft Software Dual-Mode Self-Documenting CLI Standard (SFRS v1.0.0) on every CLI. |
 | [`spacecraft-cli-shell`](spacecraft-cli-shell/) | Syntax-compliance guard for Nushell / Ion / POSIX / Bash commands. |
 | [`spacecraft-document-format`](spacecraft-document-format/) | ODF-primary office suite (`.odt` / `.ods` / `.odp`) with MS Office (`.docx` / `.xlsx` / `.pptx`) as secondary; GFM Markdown companion always paired; PDF as tertiary export; Void Navy + Standard §9 palette. |
+| [`spacecraft-markdown-document`](spacecraft-markdown-document/) | Produces well-formed GFM documents conforming to the GitHub Flavored Markdown spec and Spacecraft Software house style. Slash-command only: `/spacecraft-markdown-document`. |
 | [`spacecraft-missing-pkg`](spacecraft-missing-pkg/) | Handles missing-package situations in the Spacecraft Software workflow. |
 | [`spacecraft-standard`](spacecraft-standard/) | Authoritative compliance reference (The Spacecraft Software Standard v1.2). |
 | [`spacecraft-theme-factory`](spacecraft-theme-factory/) | Generates Spacecraft Software-compliant themes for IDEs and terminals. |
