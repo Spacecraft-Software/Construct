@@ -120,7 +120,7 @@ A higher-numbered priority **may never compromise** a lower-numbered one.
 
 ### §3.1 — Priority 1: Memory Safety
 - **Preferred language: Rust** — governed by the Spacecraft Software Rust Guidelines.
-  → Always load the `rust-guidelines` skill before writing any Rust code.
+  → Always load the `microsoft-rust-guidelines` skill before writing any Rust code.
 - When Rust is not viable (Flutter/Dart, Zig, etc.), **mandatory mitigations**:
   - **ASLR** (Address Space Layout Randomization) on all compiled binaries
   - **CFI** (Control-Flow Integrity) wherever the toolchain supports it
@@ -604,7 +604,7 @@ for a pure Rust library), note it as N/A rather than silently skipping it.
 
 | Task                                  | Load this skill              |
 |---------------------------------------|------------------------------|
-| Writing any Rust code                 | `rust-guidelines`            |
+| Writing any Rust code                 | `microsoft-rust-guidelines`  |
 | Generating DOCX / ODT / PDF documents | `spacecraft-document-format` |
 | Creating IDE / terminal themes        | `spacecraft-theme-factory`   |
 | All other Spacecraft Software work    | `spacecraft-standard`        |

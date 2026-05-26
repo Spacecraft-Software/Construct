@@ -348,7 +348,7 @@ This skill is the **agent-UX layer** in the Spacecraft Software CLI skill stack:
   invoke (e.g., `rg` over `grep`). Complementary.
 - **`spacecraft-cli-shell`** — shell syntax (Nushell / Ion / POSIX) in
   generated commands. Complementary.
-- **`rust-guidelines`** — Microsoft Pragmatic Rust Guidelines. Consult
+- **`microsoft-rust-guidelines`** — Microsoft Pragmatic Rust Guidelines. Consult
   when writing Rust.
 - **`spacecraft-brand-guidelines`** — six-token color palette source of
   truth.

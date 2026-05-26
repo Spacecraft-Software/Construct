@@ -49,7 +49,7 @@ consult them when their triggers match:
 - `spacecraft-cli-standard` — structural CLI SFRS rules
 - `spacecraft-agentic-cli` — agent-facing UX for the CLI
 - `spacecraft-brand-guidelines` — six-token color palette
-- `rust-guidelines` — Microsoft Pragmatic Rust Guidelines
+- `microsoft-rust-guidelines` — Microsoft Pragmatic Rust Guidelines
 - `spacecraft-cli-preference` — preferred external CLI tools (rg, fd, bat)
 - `spacecraft-cli-shell` — shell syntax for generated commands
 - <ADD-PROJECT-SPECIFIC-SKILLS>

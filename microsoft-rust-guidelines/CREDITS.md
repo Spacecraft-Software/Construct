@@ -1,6 +1,6 @@
 # CREDITS
 
-The `rust-guidelines` skill is a Spacecraft Software adaptation of publicly released
+The `microsoft-rust-guidelines` skill is a Spacecraft Software adaptation of publicly released
 work by Microsoft. This file records the upstream source it builds on, in
 accordance with [The Spacecraft Software Standard §13.3](../spacecraft-standard/SKILL.md).
 

@@ -63,7 +63,7 @@ trigger; GNU intent is the trigger.
    in that language, and where the language's own canonical style legitimately
    overrides GNU's C-era mechanics.
 3. For **Rust** and **Guile**, the language files cover only the GNU-package layer.
-   For idiomatic Rust, also consult the `rust-guidelines` skill; for idiomatic /
+   For idiomatic Rust, also consult the `microsoft-rust-guidelines` skill; for idiomatic /
    concurrent Guile, also consult `spacecraft-guile-guidelines`. This skill governs
    *GNU conformance*; those skills govern *language craft*. They compose.
 

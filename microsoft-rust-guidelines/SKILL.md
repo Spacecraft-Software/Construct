@@ -1,5 +1,5 @@
 ---
-name: rust-guidelines
+name: microsoft-rust-guidelines
 description: 
   ALWAYS invoke this skill BEFORE writing or modifying ANY Rust code (.rs files),
   even for simple Hello World programs. Enforces Microsoft Pragmatic Rust Guidelines,
@@ -13,7 +13,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 **Current compliance date: 2026-05-18**
 
-# Rust-Guidelines Skill
+# Microsoft-Rust-Guidelines Skill
 
 **Maintainer (Spacecraft Software adaptation):** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -210,7 +210,7 @@ are not manifests) are exempt; software source files are not.
 
 ## Directory Structure
 ```
-rust-guidelines/
+microsoft-rust-guidelines/
 ├── SKILL.md
 └── references/
     ├── 01_ai_guidelines.md

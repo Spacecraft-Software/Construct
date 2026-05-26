@@ -3,7 +3,7 @@
 **Scope.** Concrete Rust scaffolds for every piece of the Spacecraft Software CLI
 Standard. Copy-pasteable code for the envelope, error type, output mode
 detection, clap wiring, path validation, TUI bootstrap, MCP server, and
-the test harness. Paired with `rust-guidelines` (Microsoft Pragmatic Rust
+the test harness. Paired with `microsoft-rust-guidelines` (Microsoft Pragmatic Rust
 Guidelines) — consult both.
 
 ---
@@ -37,7 +37,7 @@ Pin these as your starting point. Every crate below is MSL-priority
 
 | Purpose | Crate |
 |---------|-------|
-| MCP server SDK | Current Spacecraft Software-recommended MCP Rust SDK (consult `rust-guidelines` references for the specific crate name at time of writing). Alternative: hand-roll over `jsonrpc-core` for stdio transport. |
+| MCP server SDK | Current Spacecraft Software-recommended MCP Rust SDK (consult `microsoft-rust-guidelines` references for the specific crate name at time of writing). Alternative: hand-roll over `jsonrpc-core` for stdio transport. |
 
 ### Testing
 
@@ -654,5 +654,5 @@ fn schema_output_validates_against_draft_2020_12_meta_schema() {
 ---
 
 *See also: every other file in this directory for the requirements these
-patterns satisfy. Consult `rust-guidelines` for MSL and Microsoft
+patterns satisfy. Consult `microsoft-rust-guidelines` for MSL and Microsoft
 Pragmatic Rust Guidelines rules that layer on top.*

@@ -6,7 +6,7 @@ faithfully and is honest about the gaps: GNU has not officially blessed Rust, an
 Rust offers is that several GNU robustness goals — no arbitrary limits, no silent error
 swallowing, correct UTF-8 handling — fall out of the type system almost for free.
 
-**Defer language craft to the `rust-guidelines` skill.** This file covers only the
+**Defer language craft to the `microsoft-rust-guidelines` skill.** This file covers only the
 GNU-package layer on top of idiomatic Rust.
 
 ## Formatting and naming

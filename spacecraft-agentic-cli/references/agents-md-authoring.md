@@ -136,7 +136,7 @@ copying AGENTS.md, then add Claude-specific sections:
 - `spacecraft-cli-standard` — structural SFRS
 - `spacecraft-agentic-cli` — agent-facing UX
 - `spacecraft-brand-guidelines` — color palette
-- `rust-guidelines` — Microsoft Pragmatic Rust
+- `microsoft-rust-guidelines` — Microsoft Pragmatic Rust
 
 ## MCP servers expected
 - `<tool> mcp` — this project's own MCP surface
@@ -316,7 +316,7 @@ needs them, mirroring the skill progressive-disclosure pattern.
 
 - Implementation details visible from reading the code (function names,
   module structure)
-- General-purpose Rust advice (it's in `rust-guidelines`)
+- General-purpose Rust advice (it's in `microsoft-rust-guidelines`)
 - General-purpose Spacecraft Software conventions (in the master Standard skill)
 - Marketing copy
 - Aspirational descriptions of features that don't exist yet

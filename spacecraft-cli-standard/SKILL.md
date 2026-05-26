@@ -223,7 +223,7 @@ Full matrix + verification methods: `references/testing-compliance.md`.
 - **`spacecraft-standard`** — the master Standard. This skill is subordinate; master wins on conflict.
 - **`spacecraft-cli-preference`** — governs which *external* CLI tools to invoke (e.g., `rg` over `grep`). Complementary: that skill picks tools, this one defines how the CLI you're *building* should behave.
 - **`spacecraft-cli-shell`** — governs shell syntax (Nushell / Ion / POSIX) in generated commands. Complementary.
-- **`rust-guidelines`** — Microsoft Pragmatic Rust Guidelines. Consult alongside `references/rust-implementation.md`.
+- **`microsoft-rust-guidelines`** — Microsoft Pragmatic Rust Guidelines. Consult alongside `references/rust-implementation.md`.
 - **`spacecraft-brand-guidelines`** — source of truth for the six-token color palette (Void Navy, Molten Amber, Steel Blue, Radium Green, Liquid Coolant, Red Oxide).
 
 ---
