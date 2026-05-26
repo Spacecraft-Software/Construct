@@ -6,3 +6,6 @@ Chat.txt
 
 # Local agent guidance — not shipped with the catalogue
 CLAUDE.md
+
+# Upstream inputs and build tooling — not shipped with any skill bundle
+Excluded/
