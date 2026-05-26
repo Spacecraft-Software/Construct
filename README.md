@@ -63,6 +63,8 @@ repository root for drop-in installation.
 <!-- §4 — Installation -->
 ## Installation
 
+### Direct clone
+
 Clone into any of the supported agent skill directories:
 
 ```sh
@@ -74,11 +76,62 @@ git clone git@github.com:Spacecraft-Software/Construct.git ~/.gemini/skills
 
 # Codex
 git clone git@github.com:Spacecraft-Software/Construct.git ~/.codex/skills
+
+# Grok
+git clone git@github.com:Spacecraft-Software/Construct.git ~/.grok/skills
 ```
 
 The SSH remote is configured to work with
 [Gitway](https://github.com/Spacecraft-Software/Gitway), Spacecraft Software's pinned-host-key
 SSH transport for Git.
+
+### Nix flake (Home Manager)
+
+The repository is a Nix flake. Add it as an input and import the Home Manager
+module:
+
+```nix
+{
+  inputs.construct.url = "github:Spacecraft-Software/Construct";
+
+  outputs = { self, nixpkgs, home-manager, construct, ... }: {
+    homeConfigurations."you" = home-manager.lib.homeManagerConfiguration {
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      modules = [
+        construct.homeManagerModules.default
+        {
+          spacecraft.construct.enable = true;       # cross-platform skills
+          spacecraft.construct.enableGrok = true;   # Grok skills
+        }
+      ];
+    };
+  };
+}
+```
+
+With `enable`, all cross-platform skills are installed to `~/.agents/skills/`
+and every known agent harness's skill path
+(`~/.claude/skills`, `~/.gemini/skills`, `~/.codex/skills`, `~/.ai/skills`,
+`~/.agent/skills`) becomes a directory symlink to that canonical location.
+Add more paths via `spacecraft.construct.agentPaths`.
+
+With `enableGrok`, Grok-specific skills (from [`grok-skills/`](grok-skills/))
+install to `~/.grok/skills/` — kept separate because Grok's bundle format is
+flat (no enclosing skill-name directory) and is not interchangeable with the
+Claude/Gemini/Codex layout.
+
+To pick up the latest commit, run `nix flake update construct` in the consumer
+flake and rebuild.
+
+Individual skills are also exposed as packages — e.g.
+`nix build github:Spacecraft-Software/Construct#spacecraft-standard` produces
+a `result/` directory with that skill's contents.
+
+### Grok skills
+
+Skills authored for the Grok agent platform live in
+[`grok-skills/`](grok-skills/) with their own catalogue. The bundle layout
+differs (flat zip root); see the section's README for details.
 
 <!-- §5 — Contributing / standards -->
 ## Standards
