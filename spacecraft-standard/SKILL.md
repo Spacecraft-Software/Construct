@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.12 so you never need to ask for it or have it attached to a
+  The Steelbore Standard v1.14 so you never need to ask for it or have it attached to a
   prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.12 | **Date:** 2026-05-25 | **Author:** Mohamed Hammad
+**Version:** 1.14 | **Date:** 2026-06-03 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -28,6 +28,8 @@ in §14 is your audit gate — run through it mentally before finalising any out
 
 **Changelog:**
 
+- **v1.14 (2026-06-03):** §3.2 reframed — Performance is the foremost priority after Stability, and its default means of achievement is **multi-core, multi-thread concurrency** (parallelism as the baseline, designed in from the start), *unless* concurrency would materially degrade performance (overhead, contention, or inherently serial workloads), in which case a documented serial/simpler approach is chosen. §3.2 compliance-checklist bullet revised.
+- **v1.13 (2026-06-03):** §3.1 reframed — Priority 1 is now **Stability**, not Memory Safety. Memory safety remains the single most important contributor and primary lever, but Priority 1 now also mandates robust error handling, fault tolerance / graceful degradation, and test-verified stability. Cardinal Rule updated to reference stability (including memory safety); §3.1 compliance-checklist bullet revised.
 - **v1.12 (2026-05-25):** §6.3 extended: added explicit authorized signing identity rule — all commits from v1.12 onwards must be signed with the `Mohamed.Hammad@SpacecraftSoftware.org` Ed25519 SSH key; committer email and signing key identity must both resolve to that address. Commits predating this version are exempt.
 - **v1.11 (2026-05-24):** Three normative updates: (1) Copyright notices updated to `Copyright (C) 2026 Mohamed Hammad & Spacecraft Software` in all locations. (2) §9.1 added: new apps must expose palette colors through a named `Steelbore` theme rather than hard-coded hex literals, enabling clean theme substitution. (3) §12 revised: UTC Z remains the canonical/mandatory primary format; local time expressed as a UTC offset may now optionally accompany UTC Z values in display, API responses, and stored records.
 - **v1.10 (2026-05-20):** Standardized copyright notice to `Copyright (C) 2026 Mohamed Hammad` in all three locations (YAML frontmatter masthead, §13 attribution block, and `--version` / About template in §6).
@@ -118,7 +120,13 @@ not for skill identifiers.
 
 A higher-numbered priority **may never compromise** a lower-numbered one.
 
-### §3.1 — Priority 1: Memory Safety
+### §3.1 — Priority 1: Stability
+Software must behave predictably and remain correct under sustained and adverse
+conditions. Stability is the foremost priority. **Memory safety is the single most
+important contributor to stability and the primary means of achieving it — but it is
+not the whole of Priority 1.**
+
+**Memory safety (primary lever):**
 - **Preferred language: Rust** — governed by the Spacecraft Software Rust Guidelines.
   → Always load the `microsoft-rust-guidelines` skill before writing any Rust code.
 - When Rust is not viable (Flutter/Dart, Zig, etc.), **mandatory mitigations**:
@@ -127,11 +135,25 @@ A higher-numbered priority **may never compromise** a lower-numbered one.
 - Memory-Safe Languages (MSLs) are always preferred. If an MSL alternative exists,
   it must be chosen unless a documented technical exemption is filed.
 
+**Beyond memory safety, stability also requires:**
+- **Robust error handling** — failures must be surfaced and handled, never silently
+  swallowed; no panics / `unwrap` / `expect` on untrusted or fallible input in production paths.
+- **Fault tolerance and graceful degradation** — components must survive partial failure,
+  degrade gracefully under load or dependency loss, and recover rather than crash.
+- **Verified by testing** — stability properties must be backed by tests (unit, integration,
+  and fuzz/property where applicable) gating CI, not asserted by inspection alone.
+
 ### §3.2 — Priority 2: Performance
+Performance is the foremost priority after stability. The default means of achieving it is
+**multi-core, multi-thread concurrency** — parallelism is the expected baseline, not an
+afterthought — *unless* concurrency would materially degrade performance (synchronization
+overhead, lock contention, or inherently serial / small workloads outweighing the gains),
+in which case a simpler or serial approach must be chosen and the trade-off documented.
 - Concurrency must be **designed-in from the start**, never bolted on retroactively.
 - Release builds must use CPU-optimized flags: `-march=native`, LTO, PGO where applicable.
 - Benchmarking is **mandatory** before and after any optimization work; regressions must
-  be documented and justified.
+  be documented and justified — and it is the evidence by which the concurrency-vs-serial
+  trade-off above is decided.
 
 ### §3.3 — Priority 3: Hardened Security
 - Kernel hardening (XanMod, grsecurity profiles) where applicable.
@@ -142,8 +164,8 @@ A higher-numbered priority **may never compromise** a lower-numbered one.
   - Current targets: ML-KEM-768, ML-DSA-65 (as used in Ferrocast)
 - Dependency auditing: `cargo-audit` or equivalent before any third-party crate inclusion.
 
-**Cardinal Rule:** Any optimization that weakens memory safety or security hardening
-**must be rejected**, no exceptions.
+**Cardinal Rule:** Any optimization that weakens **stability (including memory safety)** or
+security hardening **must be rejected**, no exceptions.
 
 ---
 
@@ -579,8 +601,8 @@ shaped the Spacecraft Software artifact.
 Before finalising **any** Spacecraft Software artifact, mentally verify:
 
 - [ ] **§2** Aerospace/Sci-Fi/AI naming convention applied to all **new** identifiers; legacy (pre-v1.2) names preserved unless explicitly renamed
-- [ ] **§3.1** Memory safety: Rust used, or ASLR+CFI mitigations documented
-- [ ] **§3.2** Concurrency designed-in; benchmarking planned/documented
+- [ ] **§3.1** Stability: memory safety (Rust, or ASLR+CFI documented); robust error handling, fault tolerance, and test-verified
+- [ ] **§3.2** Performance: multi-core/multi-thread concurrency by default (or serial trade-off documented); concurrency designed-in; benchmarking before/after
 - [ ] **§3.3** Hardened security; PQC readiness addressed
 - [ ] **§4** `GPL-3.0-or-later` license; SPDX headers on software source code files (excluding documents)
 - [ ] **§5** Project Posture: README/NOTICE/CONTRIBUTING present; default personal-hobby stance applied; general-use carve-outs declared in project README
