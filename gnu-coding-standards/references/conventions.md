@@ -230,6 +230,13 @@ build part of the program, never to substitute one behavior for another.
   in the compile command so the user can override; never put mandatory flags in `CFLAGS`.
 - Make build and install targets work under parallel `make`.
 
+> **OS-specific note:** Compiler and linker optimization flags are not universally portable.
+> On NixOS (including Steelbore OS Bravais), `-flto` (Link Time Optimization) requires
+> explicitly pointing GCC's linker to the LTO plugin via `-fuse-ld=mold` (preferred) or
+> `-fuse-ld=bfd` (fallback) because `/nix/store` isolation keeps the plugin off the default
+> linker path. Just as systemd-specific settings do not apply to non-systemd distros, LTO
+> and linker flags must be adapted to the target platform. See `spacecraft-standard` §3.2.1.
+
 ### Directory variables
 
 Name every install directory by variable so installers can relocate with `make prefix=/usr

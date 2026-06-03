@@ -155,6 +155,23 @@ in which case a simpler or serial approach must be chosen and the trade-off docu
   be documented and justified — and it is the evidence by which the concurrency-vs-serial
   trade-off above is decided.
 
+### §3.2.1 — Platform-Specific Compiler & Linker Flag Caveats
+
+Compiler and linker optimization flags are **not universally portable** across operating
+systems and distributions. Just as systemd-specific settings do not apply to non-systemd
+distros (e.g., GNU Guix System, Void Linux, Gentoo with OpenRC), linker and LTO flags
+must be adapted to the target platform's toolchain layout.
+
+**NixOS / Steelbore OS Bravais:** Because NixOS isolates packages in the `/nix/store`,
+GCC's LTO plugin is not on the standard linker search path. When using `-flto` (Link Time
+Optimization) on NixOS, you **must** explicitly point GCC's linker to the GCC LTO plugin
+via `-fuse-ld=mold` (preferred) or `-fuse-ld=bfd` (fallback). Without this, LTO-enabled
+builds will fail to link.
+
+> **Rule:** Whenever recommending or applying compiler/linker flags — especially `-flto`,
+> `-march=native`, or PGO — verify whether the target OS requires supplementary flags or
+> alternative linker selection. Document the OS-specific requirements alongside the flags.
+
 ### §3.3 — Priority 3: Hardened Security
 - Kernel hardening (XanMod, grsecurity profiles) where applicable.
 - Sandboxing and privilege separation for all network-facing components.

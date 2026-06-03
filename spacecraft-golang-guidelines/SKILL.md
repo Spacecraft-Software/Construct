@@ -61,6 +61,11 @@ Never use raw `go func() { ... }()` without a `sync.WaitGroup` or `errgroup` in 
 ## Build, Tooling & CI (Non-Negotiable)
 - `go test -race ./...` must pass (enforce in CI).
 - Release builds: `go build -ldflags="-s -w"`.
+  > **OS-specific note:** Go's toolchain manages its own linker, but when building
+  > cgo-enabled packages that invoke the system C linker on NixOS, LTO and similar
+  > cross-module optimizations may require `-fuse-ld=mold` (preferred) or `-fuse-ld=bfd`
+  > because `/nix/store` isolation keeps the GCC LTO plugin off the default linker path.
+  > See `spacecraft-standard` §3.2.1.
 - Use `golangci-lint` with `govet`, `staticcheck`, `errcheck`, `ineffassign`.
 - Benchmark with `testing.B` + `b.ReportAllocs()`; stabilize with `b.ResetTimer()`.
 - For production: enable `GODEBUG=asyncpreemptoff=1` only if needed; prefer recent Go (1.22+ has better scheduler).
