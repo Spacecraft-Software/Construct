@@ -12,7 +12,7 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-> **Source of truth:** The Steelbore Standard v1.9 (§9 Colors, §10 Typography).
+> **Source of truth:** The Steelbore Standard v1.18 (§9 Colors, §10 Typography).
 > All values here are canonical. Do not use any other color or font values for Spacecraft Software artifacts.
 
 ## Color Palette (WCAG 2.1 AA Compliant)
