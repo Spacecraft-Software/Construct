@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.15 so you never need to ask for it or have it attached to a
+  The Steelbore Standard v1.16 so you never need to ask for it or have it attached to a
   prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.15 | **Date:** 2026-06-08 | **Author:** Mohamed Hammad
+**Version:** 1.16 | **Date:** 2026-06-08 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -28,6 +28,7 @@ in §14 is your audit gate — run through it mentally before finalising any out
 
 **Changelog:**
 
+- **v1.16 (2026-06-08):** §12 reframed — UTC Z is now explicitly the **default and preferred** timezone (not a universal mandate forced onto every domain). New §12.2.1 documents a domain exception: a project whose core domain is fundamentally local-time-bound (e.g., `Mawaqit` prayer-time calculations, sunrise/sunset, local scheduling) may declare local time as its *primary* representation for that domain's data, provided it is documented, the UTC default still governs the project's general-purpose machinery (logs, commits, APIs), and a UTC instant remains derivable via a stored IANA timezone. §12.1 timezone row and §12.3 updated to reference the new exception and avoid contradicting it.
 - **v1.15 (2026-06-08):** §2 naming convention expanded — added explicitly endorsed canonical sources: *The Hitchhiker's Guide to the Galaxy*, *Hackers* (1995), Spielberg films, *Ghost in the Shell*, *Æon Flux*, *Super 8*, *LOST*, the *Cloverfield* franchise, and robot/android names from any sci-fi film or franchise. §2 now explicitly frames naming as a fun, playful exercise alongside the existing space-machine-AI fitness test.
 - **v1.14 (2026-06-03):** §3.2 reframed — Performance is the foremost priority after Stability, and its default means of achievement is **multi-core, multi-thread concurrency** (parallelism as the baseline, designed in from the start), *unless* concurrency would materially degrade performance (overhead, contention, or inherently serial workloads), in which case a documented serial/simpler approach is chosen. §3.2 compliance-checklist bullet revised.
 - **v1.13 (2026-06-03):** §3.1 reframed — Priority 1 is now **Stability**, not Memory Safety. Memory safety remains the single most important contributor and primary lever, but Priority 1 now also mandates robust error handling, fault tolerance / graceful degradation, and test-verified stability. Cardinal Rule updated to reference stability (including memory safety); §3.1 compliance-checklist bullet revised.
@@ -430,7 +431,7 @@ verify they are available on Google Fonts or another FOSS-licensed repository.
 | Date format  | ISO 8601 only: `YYYY-MM-DD`                                      | `2026-03-08`                 |
 | Time format  | 24-hour only: `HH:MM:SS` — AM/PM is **never** permitted          | `14:30:00`                   |
 | Timestamp    | Combined ISO 8601 UTC: `YYYY-MM-DDTHH:MM:SSZ`                    | `2026-03-08T14:30:00Z`       |
-| Timezone     | **UTC Z is the canonical default** (mandatory). Local time expressed as a UTC offset may optionally accompany it — see §12.2 | `Z` not `+00:00`             |
+| Timezone     | **UTC Z is the default and preferred primary** for general-purpose, cross-system, and machine-readable timestamps. A project whose core domain is inherently local-time-bound (e.g., solar/prayer-time calculations) may declare local time as its primary record instead — a documented exception, not a free choice. See §12.2 and §12.2.1 | `Z` not `+00:00`             |
 | Duration     | ISO 8601 duration format only                                    | `PT1H30M` not "1h 30m"       |
 | Units        | Metric (SI) primary; imperial in parentheses only if locale requires | `100 km (62 mi)`         |
 
@@ -439,13 +440,21 @@ user-facing strings. Never output AM/PM time, non-ISO dates, or imperial-primary
 
 ### §12.2 — UTC Z Timezone Policy
 
-**UTC Z is the canonical timezone for all stored, transmitted, logged, and
-committed timestamps across every Spacecraft Software project.** The `Z` suffix is
-mandatory on all primary timestamps. Local time expressed as a UTC offset
-(e.g., `2026-05-24T13:34:55+03:00`) may optionally accompany a UTC Z value as a
-secondary, human-convenience field — but UTC Z is always the authoritative record.
+**UTC Z is the default and preferred timezone for stored, transmitted, logged,
+and committed timestamps across Spacecraft Software projects.** It is the
+convention every project should reach for first — it keeps cross-project tooling,
+sorting, and interchange simple and unambiguous. Under this default, the `Z`
+suffix is required on primary timestamps, and local time expressed as a UTC
+offset (e.g., `2026-05-24T13:34:55+03:00`) may optionally accompany a UTC Z value
+as a secondary, human-convenience field — but UTC Z remains the authoritative
+record.
 
-**Mandatory rules — violation blocks shipping:**
+This is a strong default, not a universal mandate forced onto every domain
+regardless of fit — §12.2.1 documents the exception that lets a project whose
+domain is genuinely local-time-bound use local time as its primary record instead.
+
+**Rules for projects under the UTC Z default — apply unless a project has filed
+the §12.2.1 exception:**
 
 | Rule | Detail |
 |------|--------|
@@ -456,13 +465,42 @@ secondary, human-convenience field — but UTC Z is always the authoritative rec
 | Commit timestamps use UTC | `GIT_COMMITTER_DATE` and `GIT_AUTHOR_DATE` must be UTC when set programmatically. |
 | File metadata written by Spacecraft Software tools | mtime/ctime written by Spacecraft Software tools must be UTC-sourced. |
 
+### §12.2.1 — Domain Exception: Inherently Local-Time-Bound Projects
+
+A project whose core domain is fundamentally defined by **local civil or solar
+time** — not by a moment in absolute (UTC) time — may declare local time as the
+**primary** representation for that domain's data. Examples: prayer-time
+calculations (`Mawaqit`), sunrise/sunset tables, local event or business-hours
+scheduling. For data like this, the meaningful value *is* "06:14 local, at this
+place" — collapsing it to a UTC instant first and treating that as authoritative
+would misrepresent what the data actually is.
+
+**Conditions for the exception:**
+
+1. **Document it.** The project's README or spec must state explicitly which
+   data uses local time as primary, and the *domain* reason why — not developer
+   or user convenience.
+2. **Keep the default everywhere else.** General-purpose machinery within the
+   same project — logs, commit timestamps, internal cross-system APIs,
+   telemetry — still follows the §12.2 UTC Z default. The exception covers the
+   domain data itself, not the whole project.
+3. **Preserve UTC derivability.** Store or compute the IANA timezone (e.g.,
+   `Africa/Cairo`) alongside the local value, so a UTC instant remains derivable
+   for interchange, comparison, and storage portability.
+4. **This is an exception, not an escape hatch.** "Local time is more
+   convenient" or "our users are mostly in one timezone" do not qualify — the
+   domain itself must be inherently local-time-bound.
+
 ### §12.3 — Local Time as Optional Companion
 
-Local time expressed as a UTC offset is permitted as an **optional companion**
-to a UTC Z primary value — in human-facing display, in API responses (as an
-additional field, never replacing the UTC Z field), and in stored records where
-timezone context aids human readers. The UTC Z value is always present and always
-authoritative; the local-time companion is supplemental only.
+**For projects under the UTC Z default** (§12.2), local time expressed as a UTC
+offset is permitted as an **optional companion** to the UTC Z primary value — in
+human-facing display, in API responses (as an additional field, never replacing
+the UTC Z field), and in stored records where timezone context aids human
+readers. The UTC Z value is always present and always authoritative; the
+local-time companion is supplemental only. (A project operating under the
+§12.2.1 domain exception inverts these roles for its domain data — local time is
+primary there, with UTC kept derivable rather than displayed as authoritative.)
 
 - The `--absolute-time` flag (defined in `spacecraft-cli-standard` §3) disables
   relative-time rendering but always renders as UTC, not local time.
