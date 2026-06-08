@@ -116,6 +116,37 @@ When providing code examples, always include:
 - Caveats about potential bottlenecks (false sharing, contention, allocator).
 - If unsafe is used, full safety justification.
 
+## Steelbore Idiom Layer
+This skill is the **concurrency & performance doctrine**. For questions about how Rust
+*reads* — borrowing vs cloning, idiomatic `Option`/`Result` flow, iterators vs `for`,
+clippy lint discipline, testing conventions, static vs dynamic dispatch, the type-state
+pattern, comments vs docs, import ordering — load
+[`references/idioms.md`](references/idioms.md). It is a distilled, attributed adaptation
+of Apollo GraphQL's *Rust Best Practices* (MIT; see [`CREDITS.md`](CREDITS.md)). The
+idiom layer sits **under** this doctrine — it never overrides a concurrency/performance
+decision made here.
+
+## Relationship to Other Rust Skills (Precedence & Conflict Resolution)
+Three Rust skills coexist; they occupy different planes and must not compete to be the
+"front door." Resolve their tensions by these rules, not by whichever skill spoke last:
+
+- **Planes.** `microsoft-rust-guidelines` = the mandatory rules + API/library-design
+  gateway (load first for any Rust work). **This skill** = concurrency/performance
+  doctrine, pulled in conditionally for multi-core / latency-sensitive / parallel work.
+  The **idiom layer** above = a borrowed readability reference. They stack additively.
+- **Canonical clippy policy.** One policy wins: `clippy` **warnings-as-errors in CI**
+  (`-D warnings`) is the Steelbore baseline. Apollo's named-lint list in `idioms.md` is
+  the *surgical detail under* that policy, not a competing one.
+- **`parking_lot` is internal-only.** This skill prefers `parking_lot` locks over `std`
+  — but never leak `parking_lot` (or any third-party) types across a **public API**
+  surface. Keep them behind your own types/`std` types at the boundary. This resolves
+  the "prefer `parking_lot`" vs "don't leak third-party types" tension cleanly.
+- **Default posture by project class.** Match aggression to the target:
+  **restraint** (profile first, don't pre-optimise) for CLIs and tools;
+  **aggression** (design concurrency in from the start) for kernels, daemons, and
+  perf-critical paths. The skills can't tell which project they're in — you decide by
+  class, then apply the matching default.
+
 ## Closing Directive
 The code you write must be the code you would trust on a spacecraft: robust,
 tunable to the metal, and transparently correct. When in doubt, favour clarity
