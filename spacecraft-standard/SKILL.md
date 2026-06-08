@@ -8,18 +8,18 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.16 so you never need to ask for it or have it attached to a
+  The Steelbore Standard v1.17 so you never need to ask for it or have it attached to a
   prompt again.
-license: GPL-3.0-or-later
+license: CC-BY-SA-4.0
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.16 | **Date:** 2026-06-08 | **Author:** Mohamed Hammad
+**Version:** 1.17 | **Date:** 2026-06-08 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
-**Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
+**Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** CC-BY-SA-4.0
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 This skill encodes The Steelbore Standard in full. Apply every applicable section
@@ -28,6 +28,7 @@ in §14 is your audit gate — run through it mentally before finalising any out
 
 **Changelog:**
 
+- **v1.17 (2026-06-08):** Licensing & build overhaul. (1) **Standard relicensed** from `GPL-3.0-or-later` to **`CC-BY-SA-4.0`** (incl. this skill's own metadata) — GPL suits software, not a prose specification; CC BY-SA preserves the share-alike copyleft ethos and is purpose-built for documents. Affects the Standard/skill artifact itself only; governed projects are unchanged. (2) **§4.1:** project license is now `GPL-3.0-or-later` **or** `AGPL-3.0-or-later` (AGPL for network-facing), prospective with no forced re-license. (3) **§4.2 added:** upstream-license-compliance clause — preserve third-party copyright notices, license texts, and `NOTICE`/`AUTHORS` verbatim; ship upstream licenses in `LICENSES/`. (4) **§4.3:** SPDX/REUSE compliance per <https://reuse.software> — two-tag headers, `LICENSES/` directory, `.license`/`REUSE.toml` coverage for headerless files (replacing "documents are exempt"), `reuse lint` CI gate. (5) **§3.2:** optimization-flag exception — flags like LTO that break/destabilize a build on a given toolchain/platform (NixOS, cross-compilation) MUST be disabled and documented, since Stability (P1) outranks Performance (P2). §5.1/§5.2/§6/§13.2 license references and §4/§12 checklist items updated to match.
 - **v1.16 (2026-06-08):** §12 reframed — UTC Z is now explicitly the **default and preferred** timezone (not a universal mandate forced onto every domain). New §12.2.1 documents a domain exception: a project whose core domain is fundamentally local-time-bound (e.g., `Mawaqit` prayer-time calculations, sunrise/sunset, local scheduling) may declare local time as its *primary* representation for that domain's data, provided it is documented, the UTC default still governs the project's general-purpose machinery (logs, commits, APIs), and a UTC instant remains derivable via a stored IANA timezone. §12.1 timezone row and §12.3 updated to reference the new exception and avoid contradicting it.
 - **v1.15 (2026-06-08):** §2 naming convention expanded — added explicitly endorsed canonical sources: *The Hitchhiker's Guide to the Galaxy*, *Hackers* (1995), Spielberg films, *Ghost in the Shell*, *Æon Flux*, *Super 8*, *LOST*, the *Cloverfield* franchise, and robot/android names from any sci-fi film or franchise. §2 now explicitly frames naming as a fun, playful exercise alongside the existing space-machine-AI fitness test.
 - **v1.14 (2026-06-03):** §3.2 reframed — Performance is the foremost priority after Stability, and its default means of achievement is **multi-core, multi-thread concurrency** (parallelism as the baseline, designed in from the start), *unless* concurrency would materially degrade performance (overhead, contention, or inherently serial workloads), in which case a documented serial/simpler approach is chosen. §3.2 compliance-checklist bullet revised.
@@ -167,7 +168,12 @@ afterthought — *unless* concurrency would materially degrade performance (sync
 overhead, lock contention, or inherently serial / small workloads outweighing the gains),
 in which case a simpler or serial approach must be chosen and the trade-off documented.
 - Concurrency must be **designed-in from the start**, never bolted on retroactively.
-- Release builds must use CPU-optimized flags: `-march=native`, LTO, PGO where applicable.
+- Release builds should use CPU-optimized flags — `-march=native`, LTO, PGO —
+  **where the toolchain and target support them reliably.** Any such flag known to
+  break or destabilize builds on a given platform/toolchain/linker (e.g., LTO under
+  certain NixOS, cross-compilation, or static-linking setups) MUST be disabled and
+  the reason documented. Stability (P1) outranks Performance (P2) — never ship a
+  broken or unstable build for the sake of a flag.
 - Benchmarking is **mandatory** before and after any optimization work; regressions must
   be documented and justified — and it is the evidence by which the concurrency-vs-serial
   trade-off above is decided.
@@ -205,22 +211,66 @@ security hardening **must be rejected**, no exceptions.
 
 ## §4 — Licensing & Compliance
 
-- **License:** GNU General Public License, version 3 or later (`GPL-3.0-or-later`)
-- No proprietary, closed-source, or permissive-only exceptions for core project code.
+### §4.1 — Project License (GPL-3.0-or-later or AGPL-3.0-or-later)
 
-### SPDX Headers (mandatory on software source code files only)
+- **License:** strong copyleft — each project chooses **`GPL-3.0-or-later`** or
+  **`AGPL-3.0-or-later`**, whichever fits the project better:
+  - Use **`AGPL-3.0-or-later`** when the software is **network-facing** — anything
+    users interact with primarily over a network (servers, web services, SaaS,
+    hosted APIs, multiplayer/network daemons). AGPL closes the "SaaS loophole."
+  - Use **`GPL-3.0-or-later`** for everything else (local CLIs, libraries,
+    desktop/TUI apps, OS components, bootloaders).
+  - GPLv3 and AGPLv3 are mutually compatible by design — an umbrella mixing both is fine.
+- No proprietary, closed-source, or permissive-only license for core project code.
+- **Prospective, no forced re-license.** This dual choice applies going forward.
+  Existing `GPL-3.0-or-later` projects are **not** required to migrate to AGPL even if
+  network-facing; a maintainer MAY switch at their discretion (mirrors §2's
+  prospective-naming stance — no forced back-rename).
+
+### §4.2 — Upstream License Compliance (preserve what you build on)
+
+When a project incorporates, adapts, or links third-party code, it MUST satisfy that
+upstream's license in full — independent of the project's own GPL/AGPL choice:
+
+- **Preserve verbatim** all upstream copyright notices, license texts,
+  `NOTICE`/`AUTHORS` files, and in-file license headers — never strip, rewrite, or
+  relicense them.
+- **Ship** each distinct upstream license text in the project's `LICENSES/` directory (§4.3).
+- **Verify compatibility** of the upstream license with the project's GPL/AGPL license
+  before inclusion.
+- This is the legal/mechanical obligation; §13.3's `CREDITS.md` is the human-readable
+  narrative counterpart. When both are triggered, both apply.
+
+### §4.3 — SPDX & REUSE Compliance
+
+Spacecraft Software follows the **[REUSE specification](https://reuse.software)** for
+unambiguous, machine-readable license and copyright metadata. Every project MUST be
+`reuse lint`-clean.
+
+**Every file carries two SPDX tags** — copyright *and* license:
 ```
+// SPDX-FileCopyrightText: 2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 // SPDX-License-Identifier: GPL-3.0-or-later
 ```
-**Software source code files** (`.rs`, `.ts`, `.js`, `.py`, `.sh`, `.ps1`, `.go`, etc.)
-and project manifests (`Cargo.toml`, `package.json`, `flake.nix`, etc.) must include
-the SPDX header/expression.
+(Substitute the project's actual license — `GPL-3.0-or-later` or `AGPL-3.0-or-later` —
+and the correct comment syntax for the file type.)
 
-**Document files** (`.odt`, `.ods`, `.odp`, `.docx`, `.xlsx`, `.pptx`, `.pdf`, etc.) are **exempt** from
-SPDX header requirements; the license is stated in the project root.
+- **Software source files** (`.rs`, `.ts`, `.js`, `.py`, `.sh`, `.ps1`, `.go`, etc.)
+  and project manifests (`Cargo.toml`, `package.json`, `flake.nix`, etc.) carry both
+  tags as an inline header.
+- **Files that cannot carry an inline header** — documents (`.odt`, `.docx`, `.pdf`, …),
+  images, binary assets, generated files — are covered by a `.license` sidecar file
+  **or** an entry in the repo-root `REUSE.toml`. No file is left uncovered (this
+  replaces the former blanket "documents are exempt" rule).
+- **`LICENSES/` directory:** verbatim text of every license used lives in
+  `LICENSES/<SPDX-id>.txt` (e.g., `LICENSES/GPL-3.0-or-later.txt`,
+  `LICENSES/AGPL-3.0-or-later.txt`, plus any upstream licenses per §4.2). A root
+  `LICENSE` file MAY remain as a pointer for GitHub's license detection.
+- **CI gate:** `reuse lint` MUST pass before shipping.
 
-**When writing or reviewing any software source file**, check that the SPDX header is present.
-When generating new source files, always include it.
+When writing or reviewing any file, confirm REUSE coverage; when generating a new file,
+add the two-tag header (or the `.license` sidecar / `REUSE.toml` entry for files that
+can't carry one).
 
 ---
 
@@ -244,7 +294,7 @@ should *expect* from the maintainer.
 | Liability      | None — see project `NOTICE.md`                                 |
 | Contributions  | Welcome but not guaranteed to be accepted                      |
 | Forking        | Encouraged                                                     |
-| License        | GPL-3.0-or-later (formal terms govern in any conflict)         |
+| License        | GPL-3.0-or-later or AGPL-3.0-or-later, per §4.1 (formal terms govern in any conflict) |
 
 ### §5.2 — Required Posture Files (per project)
 
@@ -254,9 +304,9 @@ root, derived from the canonical Spacecraft Software templates:
 | File              | Purpose                                                     |
 |-------------------|-------------------------------------------------------------|
 | `README.md`       | Includes a "Project Posture" section linking to the two below |
-| `NOTICE.md`       | Full no-warranty / no-liability statement; defers to GPL-3.0-or-later for binding terms |
+| `NOTICE.md`       | Full no-warranty / no-liability statement; defers to the project's GPL/AGPL license (§4.1) for binding terms |
 | `CONTRIBUTING.md` | Contribution scope, PR-acceptance discretion, sign-off, security reporting, license-of-contributions |
-| `LICENSE`         | Verbatim GPL-3.0-or-later text (existing §4 rule)           |
+| `LICENSES/`       | REUSE license directory (§4.3): verbatim text of every license used (`GPL-3.0-or-later` or `AGPL-3.0-or-later`, plus any upstream licenses per §4.2). A root `LICENSE` MAY remain as a GitHub-detection pointer. |
 
 Customize only the project name, scope, and any project-specific carve-outs.
 
@@ -544,7 +594,7 @@ When writing Rust code that handles time:
 
 **Maintainer:** Mohamed Hammad
 **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
-**Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
+**Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** CC-BY-SA-4.0
 **Website:** [https://SpacecraftSoftware.org/](https://SpacecraftSoftware.org/)
 
 ### §13.1 — Project Pages
@@ -588,6 +638,7 @@ Maintained by Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 Copyright (C) 2026 Mohamed Hammad & Spacecraft Software  |  License: GPL-3.0-or-later
 https://<ProjectName>.SpacecraftSoftware.org/
 ```
+(The License line shows the project's own license — GPL-3.0-or-later or AGPL-3.0-or-later per §4.1.)
 
 **Per-surface rules:**
 
@@ -597,7 +648,7 @@ https://<ProjectName>.SpacecraftSoftware.org/
 | `--help`          | Project URL and maintainer name (at footer)                             |
 | README            | "Maintainer" section: name, `Mohamed.Hammad@SpacecraftSoftware.org`, project URL |
 | About / Info (GUI/TUI) | Maintainer name, project URL, copyright year                       |
-| SPDX header       | `// SPDX-License-Identifier: GPL-3.0-or-later` (existing §4 rule)      |
+| SPDX header       | REUSE two-tag header (§4.3): `SPDX-FileCopyrightText` + `SPDX-License-Identifier` (`GPL-3.0-or-later` or `AGPL-3.0-or-later`) |
 
 **Specific rules:**
 - The contact email is always `Mohamed.Hammad@SpacecraftSoftware.org` — never a personal
@@ -675,7 +726,9 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§3.1** Stability: memory safety (Rust, or ASLR+CFI documented); robust error handling, fault tolerance, and test-verified
 - [ ] **§3.2** Performance: multi-core/multi-thread concurrency by default (or serial trade-off documented); concurrency designed-in; benchmarking before/after
 - [ ] **§3.3** Hardened security; PQC readiness addressed
-- [ ] **§4** `GPL-3.0-or-later` license; SPDX headers on software source code files (excluding documents)
+- [ ] **§4.1** License is `GPL-3.0-or-later` or `AGPL-3.0-or-later` (AGPL for network-facing; per §4.1)
+- [ ] **§4.2** Upstream copyright notices, license texts, and `NOTICE`/`AUTHORS` preserved verbatim; upstream licenses shipped in `LICENSES/`
+- [ ] **§4.3** REUSE-compliant: two-tag SPDX header (`SPDX-FileCopyrightText` + `SPDX-License-Identifier`) on every file (or `.license` sidecar / `REUSE.toml` entry); `LICENSES/` directory present; `reuse lint` passes
 - [ ] **§5** Project Posture: README/NOTICE/CONTRIBUTING present; default personal-hobby stance applied; general-use carve-outs declared in project README
 - [ ] **§6.1** POSIX-compliant CLI/system tools
 - [ ] **§7** PFA: no tracking, minimal permissions, local storage default
@@ -683,7 +736,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§9** Spacecraft Software color palette used; Void Navy background mandatory; new apps expose colors via a named `Steelbore` theme (§9.1) — no bare hex literals in UI logic
 - [ ] **§10** FOSS-licensed fonts only (Share Tech Mono / Inconsolata)
 - [ ] **§11** Material Design UI/UX; WCAG 2.1 AA verified
-- [ ] **§12** ISO 8601 dates; 24h time; UTC Z mandatory on all primary timestamps; local time with UTC offset permitted as optional companion only (never as a replacement); ISO 8601 durations; metric units
+- [ ] **§12** ISO 8601 dates; 24h time; UTC Z is the default primary timestamp (companion local time with UTC offset permitted, never a replacement) — unless the project filed the §12.2.1 domain exception for inherently local-time-bound data; ISO 8601 durations; metric units
 - [ ] **§13** Attribution present: maintainer name (`Mohamed Hammad`), contact (`Mohamed.Hammad@SpacecraftSoftware.org`), and project URL in `--version` / README / About
 - [ ] **§13.3** Third-party work credited in `CREDITS.md` at project/skill root when triggers apply; deeper `references/ATTRIBUTION.md` present where reference content is adapted from external sources
 - [ ] **§6.3** All commits to Spacecraft Software Git remotes cryptographically signed with the `Mohamed.Hammad@SpacecraftSoftware.org` key and showing "Verified" on the hosting platform; rewrites preserve signatures; programmatic and assistant-driven commits signed too
