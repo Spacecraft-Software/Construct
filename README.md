@@ -52,7 +52,7 @@ Every skill follows the same shape:
 ```
 <skill-name>/
 ├── SKILL.md           # Frontmatter + the agent-facing instructions
-├── LICENSE.md         # GPL-3.0-or-later (per Spacecraft Software Standard §4)
+├── LICENSE.md         # Skill license (Standard §4.1.1: skills are GPL-3.0-or-later; third-party-derived skills keep their upstream license)
 ├── CREDITS.md         # Required when the skill builds on third-party work (Standard §13.3)
 └── references/        # Optional; consulted only when depth is needed
     ├── <topic>.md
@@ -141,15 +141,21 @@ differs (flat zip root); see the section's README for details.
 All skills in this repository are expected to conform to
 [The Spacecraft Software Standard](spacecraft-standard/) — including:
 
-- **§4** GPL-3.0-or-later license declared in frontmatter.
+- **§4** SPDX/REUSE-compliant licensing (§4.3): two-tag headers / `REUSE.toml`, a
+  `LICENSES/` directory, `reuse lint`-clean. Skills are GPL-3.0-or-later (§4.1.1);
+  third-party-derived skills preserve their upstream license (§4.2).
 - **§11** ISO 8601 dates throughout.
 - Functional naming (no codenames for skill IDs).
 
 <!-- §6 — License -->
 ## License
 
-GPL-3.0-or-later. See `LICENSE.md` inside each skill directory for the full
-text.
+This repository follows the [REUSE specification](https://reuse.software) — see
+`REUSE.toml` and the `LICENSES/` directory; run `reuse lint` to verify. Per Standard
+§4.1.1, skills are **GPL-3.0-or-later** by default; third-party-derived skills keep
+their upstream license (e.g. `microsoft-rust-guidelines` is MIT, `gnu-coding-standards`
+is GFDL-1.3-or-later). The published Standard *document* is CC-BY-SA-4.0, but the
+`spacecraft-standard` *skill* here is GPL-3.0-or-later.
 
 ---
 

@@ -1,0 +1,25 @@
+version = 1
+
+# Default: all Construct skills and tooling are GPL-3.0-or-later (software-class per
+# Standard §4.1.1). "override" precedence so example SPDX headers embedded in skill prose
+# (e.g. spacecraft-standard's §4.3 example) are not parsed as real license tags.
+[[annotations]]
+path = "**"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+# Third-party-derived skill: Microsoft Pragmatic Rust Guidelines — upstream MIT (§4.2).
+# Covers the skill directory plus its packaged .skill / .zip artifacts at repo root.
+[[annotations]]
+path = ["microsoft-rust-guidelines/**", "microsoft-rust-guidelines.skill", "microsoft-rust-guidelines.zip"]
+precedence = "override"
+SPDX-FileCopyrightText = "Microsoft Corporation; Spacecraft Software adaptation 2026 Mohamed Hammad"
+SPDX-License-Identifier = "MIT"
+
+# Third-party-derived skill: GNU Coding Standards — upstream GFDL-1.3-or-later (§4.2).
+[[annotations]]
+path = ["gnu-coding-standards/**", "gnu-coding-standards.skill", "gnu-coding-standards.zip"]
+precedence = "override"
+SPDX-FileCopyrightText = "Free Software Foundation, Inc.; Spacecraft Software adaptation 2026 Mohamed Hammad"
+SPDX-License-Identifier = "GFDL-1.3-or-later"
