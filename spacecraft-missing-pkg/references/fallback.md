@@ -2,44 +2,42 @@
 
 ## Cleanup summary
 
-Ephemeral managers (Guix, Nix) need no cleanup — the store is
-garbage-collected later by `guix gc` / `nix-collect-garbage`. The permanent
-managers do:
+Band A leaves nothing to clean up — Guix/Nix stores are garbage-collected later
+by `guix gc` / `nix-collect-garbage`, and the one-shot runners (`npx`/`uvx`)
+only populate a throwaway cache. The Band B (permanent) managers do need
+cleanup:
 
-| Manager  | Remove a package                                   | Scope           |
-|----------|----------------------------------------------------|-----------------|
-| Cargo    | `cargo uninstall <crate>`                          | User-local      |
-| Homebrew | `brew uninstall <formula>`                         | User-local      |
-| Flatpak  | `flatpak uninstall --user <app-id>`                | User-local      |
-| Snap     | `sudo snap remove <pkg>` (or `--purge` to wipe data) | System-wide     |
+| Manager  | Remove a package                                          | Scope            |
+|----------|-----------------------------------------------------------|------------------|
+| Cargo    | `cargo uninstall <crate>`                                 | User-local       |
+| Homebrew | `brew uninstall <formula>`                                | User-local       |
+| Flatpak  | `flatpak uninstall --user <app-id>`                       | User-local       |
+| AppImage | `rm <tool>.AppImage` (and `rm -rf squashfs-root` if extracted) | The file you downloaded |
+| Snap     | `sudo snap remove <pkg>` (or `--purge` to wipe data)      | System-wide      |
 
-**Whenever a permanent manager (tier 3 or later) was used, tell the user
-what was installed and how to remove it.**
+**Whenever a Band B (permanent) manager was used, tell the user what was
+installed and how to remove it.**
 
 ---
 
-## When the package isn't in any of the six managers
+## When the package isn't in any manager in the chain
 
-If lookups across Guix, Nix, Cargo, Homebrew, Flatpak, and Snap all come up
-empty:
+If lookups across Guix, Nix, the one-shot runners, Cargo, Homebrew, Flatpak,
+AppImage, and Snap all come up empty:
 
-1. **If it's a Rust crate not yet on crates.io**, try a Git source:
+1. **If it's a Node / Python / other-ecosystem package, re-check the one-shot
+   runner tier first.** `npx`/`uvx` are Band A tier 3, not a fallback — a tool
+   published to npm or PyPI should have been provisioned there (bootstrapping
+   the runtime via `guix shell node -- npx <pkg>` if needed). Revisit
+   [oneshot.md](oneshot.md) before concluding the package is unavailable.
+2. **If it's a Rust crate not yet on crates.io**, try a Git source:
    ```bash
    cargo install --git https://github.com/<owner>/<repo>
    ```
-2. **If it's a Node / Python / other-ecosystem package**, propose a
-   temporary language-native ad-hoc environment rather than installing
-   permanently:
-   ```bash
-   # Node (one-shot via npx)
-   guix shell node -- npx <pkg>
-   nix-shell -p nodejs --run "npx <pkg>"
-
-   # Python (one-shot via uv)
-   uvx <pkg>                        # if uv is installed
-   guix shell uv -- uvx <pkg>       # otherwise
-   ```
-3. **Report the gap to the user** with the searches you performed and the
+3. **If upstream ships a release binary or `*.AppImage`** but it's in no
+   manager, an AppImage (Band B tier 7) or a direct binary download is the
+   remaining option — see [appimage.md](appimage.md).
+4. **Report the gap to the user** with the searches you performed and the
    URLs you consulted — makes it easy to double-check or report the
    missing package upstream.
 

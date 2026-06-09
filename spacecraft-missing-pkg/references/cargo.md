@@ -107,4 +107,4 @@ cargo uninstall <crate>
 ```
 
 Tell the user what was installed and how to remove it — Cargo is a permanent
-manager (tier 3 in the priority chain).
+manager (Band B in the priority chain).

@@ -97,4 +97,5 @@ flatpak uninstall --user --unused
 ```
 
 Tell the user what was installed and how to remove it — Flatpak is a
-permanent manager (tier 5 in the priority chain).
+permanent manager (Band B in the priority chain; AppImage and Snap rank
+below it).

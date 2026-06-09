@@ -94,4 +94,4 @@ brew uninstall <formula>
 ```
 
 Tell the user what was installed and how to remove it — Homebrew is a
-permanent manager (tier 4 in the priority chain).
+permanent manager (Band B in the priority chain).

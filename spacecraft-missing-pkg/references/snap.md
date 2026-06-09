@@ -99,5 +99,5 @@ sudo snap remove --purge <pkg>
 ```
 
 Tell the user what was installed and how to remove it — Snap is a
-permanent manager (tier 6, last-resort in the priority chain) and is
+permanent manager (Band B, the last-resort tier in the priority chain) and is
 installed system-wide.

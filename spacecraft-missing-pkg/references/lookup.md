@@ -24,6 +24,16 @@ Do not fabricate a name. Move down the priority chain.
 - **CLI:** `nix search nixpkgs#<tool-name>`
   - Extract the attribute name after `legacyPackages.x86_64-linux.`
 
+### One-shot runners (`npx` / `uvx`)
+
+- **npm (npx):** <https://www.npmjs.com/>
+  - Direct page pattern: `https://www.npmjs.com/package/<n>`
+- **PyPI (uvx / pipx run):** <https://pypi.org/>
+  - Direct page pattern: `https://pypi.org/project/<n>/`
+- Confirm the package exposes a CLI / console-script before running. For
+  Python, when the command name differs from the distribution use
+  `uvx --from <pkg> <command>`.
+
 ### Cargo
 
 - **Online:** <https://crates.io/>
@@ -48,6 +58,15 @@ Do not fabricate a name. Move down the priority chain.
   `com.github.tchx84.Flatseal`).
 - Flathub is strongly biased toward GUI apps. Most CLI tools are not on
   Flathub — only use Flatpak when a confirmed app-id exists.
+
+### AppImage
+
+- **Authoritative:** the upstream project's own releases (GitHub Releases or the
+  project download page) — that is where the correct `*.AppImage` asset URL
+  lives.
+- **Catalogue:** <https://appimage.github.io/> (AppImageHub) — searchable index
+  of apps that ship an AppImage.
+- Prefer an asset with a published checksum/signature and verify it when offered.
 
 ### Snap
 
