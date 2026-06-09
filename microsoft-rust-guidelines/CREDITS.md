@@ -16,11 +16,24 @@ accordance with [The Spacecraft Software Standard §13.3](../spacecraft-standard
 
 ## License of the Spacecraft Software adaptation
 
-This skill itself is released under the **MIT License**, matching the
-upstream — see `LICENSE`. The MIT designation is intentional and the
-single exception to The Spacecraft Software Standard §4 (GPL-3.0-or-later default),
-made so that the adaptation can be redistributed under the same terms as
-the work it is derived from.
+This skill is **dual-licensed: `GPL-3.0-or-later OR MIT`** — see
+[`LICENSE-GPL`](LICENSE-GPL) and [`LICENSE-MIT`](LICENSE-MIT). The recipient
+may use the skill under **either** license, at their option.
+
+- The **MIT arm** preserves the terms of the upstream Microsoft Pragmatic Rust
+  Guidelines verbatim (Standard §4.2 — third-party-derived artifacts keep their
+  upstream license; Microsoft's copyright + permission notice is retained in
+  `LICENSE-MIT`). The entire `references/` tree is Microsoft's MIT text.
+- The **GPL-3.0-or-later arm** brings the skill in line with the Standard's
+  software-class default (Standard §4.1.1 — skills are software-class). MIT is
+  one-way compatible with the GPL, so offering the adapted work under
+  GPL-3.0-or-later is valid as long as the MIT notice above is preserved, which
+  it is.
+
+GPL is listed first as the preferred arm; MIT remains available so the skill is
+never more restrictive than the work it derives from. (This replaces the earlier
+"MIT only / single exception to §4" posture, which predated Standard v1.18's
+§4.1.1/§4.2 artifact-class model.)
 
 ## Maintainer of the adaptation
 

@@ -6,7 +6,7 @@ description:
   requires consulting the appropriate guideline files before any coding activity.
   This skill is MANDATORY for all Rust development.
 user-invocable: false
-license: MIT
+license: GPL-3.0-or-later OR MIT
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
 ---
@@ -17,6 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 **Maintainer (Spacecraft Software adaptation):** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
+**License:** GPL-3.0-or-later OR MIT (dual; see [`LICENSE-GPL`](LICENSE-GPL), [`LICENSE-MIT`](LICENSE-MIT), [`CREDITS.md`](CREDITS.md))
 *(Base guidelines: Microsoft Pragmatic Rust Guidelines — MIT License)*
 
 This skill enforces structured, guideline-driven Rust development. It ensures all
