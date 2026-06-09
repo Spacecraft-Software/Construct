@@ -9,13 +9,15 @@ precedence = "override"
 SPDX-FileCopyrightText = "2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"
 SPDX-License-Identifier = "GPL-3.0-or-later"
 
-# Third-party-derived skill: Microsoft Pragmatic Rust Guidelines — upstream MIT (§4.2).
-# Covers the skill directory plus its packaged .skill / .zip artifacts at repo root.
+# Third-party-derived skill: Microsoft Pragmatic Rust Guidelines — upstream MIT (§4.2),
+# dual-licensed GPL-3.0-or-later OR MIT by Spacecraft Software (MIT→GPL compatible; the
+# MIT arm preserves Microsoft's notice). Covers the skill directory plus its packaged
+# .skill / .zip artifacts at repo root.
 [[annotations]]
 path = ["microsoft-rust-guidelines/**", "microsoft-rust-guidelines.skill", "microsoft-rust-guidelines.zip"]
 precedence = "override"
-SPDX-FileCopyrightText = "Microsoft Corporation; Spacecraft Software adaptation 2026 Mohamed Hammad"
-SPDX-License-Identifier = "MIT"
+SPDX-FileCopyrightText = ["Microsoft Corporation", "2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"]
+SPDX-License-Identifier = "GPL-3.0-or-later OR MIT"
 
 # Third-party-derived skill: GNU Coding Standards — upstream GFDL-1.3-or-later (§4.2).
 [[annotations]]
@@ -23,3 +25,14 @@ path = ["gnu-coding-standards/**", "gnu-coding-standards.skill", "gnu-coding-sta
 precedence = "override"
 SPDX-FileCopyrightText = "Free Software Foundation, Inc.; Spacecraft Software adaptation 2026 Mohamed Hammad"
 SPDX-License-Identifier = "GFDL-1.3-or-later"
+
+# Idiom layer in spacecraft-rust-guidelines: distilled from Apollo GraphQL's Rust Best
+# Practices (upstream MIT, §4.2) into Spacecraft Software's own GPL-3.0-or-later expression.
+# Credit both rights-holders; the upstream MIT notice is preserved verbatim in
+# references/ATTRIBUTION.md. (Only these two files derive from Apollo — the rest of the
+# skill is original Spacecraft work covered by the default GPL annotation above.)
+[[annotations]]
+path = ["spacecraft-rust-guidelines/references/idioms.md", "spacecraft-rust-guidelines/references/ATTRIBUTION.md"]
+precedence = "override"
+SPDX-FileCopyrightText = ["2024 Apollo Graph, Inc.", "2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"]
+SPDX-License-Identifier = "GPL-3.0-or-later"
