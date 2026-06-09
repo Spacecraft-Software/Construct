@@ -24,6 +24,8 @@ Scope is the language ecosystem, the way Cargo is scoped to Rust crates:
 npx <pkg> [<args>]
 npx <pkg>@<version> [<args>]      # pin a version
 npx --yes <pkg> [<args>]          # skip the install-confirmation prompt (non-interactive)
+pnpm dlx <pkg> [<args>]           # pnpm's equivalent (use in pnpm projects)
+bunx <pkg> [<args>]               # Bun's equivalent (fastest start-up; needs bun)
 
 # Python — run a console-script package, once
 uvx <pkg> [<args>]                # uv's runner (fast; preferred)

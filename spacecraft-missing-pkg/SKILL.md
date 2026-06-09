@@ -49,7 +49,7 @@ take the first manager that is both available and has the tool packaged.
 |---|------------------------|-----------------------------------------------|------------------------------------|-----------------------------------------------|
 | 1 | **Guix**               | `guix shell <pkg> -- <cmd> <args>`            | Any tool                           | [references/guix.md](references/guix.md)      |
 | 2 | **Nix**                | `nix-shell -p <pkg> --run "<cmd>"`            | Any tool                           | [references/nix.md](references/nix.md)        |
-| 3 | **One-shot runners**   | `npx <pkg>` · `uvx <pkg>`                     | Node / Python ecosystem packages   | [references/oneshot.md](references/oneshot.md) |
+| 3 | **One-shot runners**   | `npx` · `uvx` · `pnpm dlx` · `bunx`           | Node / Python ecosystem packages   | [references/oneshot.md](references/oneshot.md) |
 
 ### Band B — Permanent (real install; tell the user what landed and how to remove it)
 
