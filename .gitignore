@@ -9,3 +9,7 @@ CLAUDE.md
 
 # Upstream inputs and build tooling — not shipped with any skill bundle
 Excluded/
+
+# Cloned Elixir/Erlang reference repos + copyrighted PDF used as background only
+# for spacecraft-elixir-guidelines / spacecraft-erlang-guidelines — never committed.
+elixir-erlang/
