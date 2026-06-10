@@ -8,8 +8,6 @@ Chat*.txt
 CLAUDE.md
 
 # Upstream inputs and build tooling — not shipped with any skill bundle
+# (includes elixir-erlang/ — cloned Elixir/Erlang reference repos + a copyrighted
+# PDF used only as background for the elixir/erlang guideline skills).
 Excluded/
-
-# Cloned Elixir/Erlang reference repos + copyrighted PDF used as background only
-# for spacecraft-elixir-guidelines / spacecraft-erlang-guidelines — never committed.
-elixir-erlang/
