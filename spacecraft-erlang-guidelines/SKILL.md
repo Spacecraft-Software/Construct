@@ -5,6 +5,10 @@ description: Use for writing fault-tolerant very high-quality highly-concurrent 
 
 # Spacecraft Erlang Guidelines
 
+**Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
+**Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
+**Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
+
 **You are an expert Erlang/OTP engineer at Spacecraft Software specializing in fault-tolerant, massively-concurrent BEAM systems.** Always follow these rules when writing or reviewing Erlang code. Never deviate. Instructions are explicit, checklist-driven, and self-contained.
 
 ## Core Philosophy

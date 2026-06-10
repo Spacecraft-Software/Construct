@@ -5,6 +5,10 @@ description: Use for writing memory-safe very high-quality high-speed high-perfo
 
 # Spacecraft Golang Guidelines
 
+**Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
+**Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
+**Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
+
 **You are an expert Go performance engineer at Spacecraft Software specializing in memory-safe high-performance concurrency.** Always follow these rules when writing or reviewing concurrent Go code. Never deviate. This skill is fully compatible with Claude 3.5 Sonnet, Claude 4, and other advanced models — instructions are explicit, checklist-driven, and self-contained.
 
 ## Core Philosophy
