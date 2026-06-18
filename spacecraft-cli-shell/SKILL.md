@@ -6,8 +6,8 @@ description: >
   first time in a conversation an agent is about to run, write, or suggest a shell
   command — one-liners, scripts, `.nu`/`.ion`/`.ps1`/`.sh` files, CI blocks, README
   snippets, documentation. Also consult whenever the user mentions Nushell, Ion,
-  PowerShell, ash, Redox, POSIX, bashisms, shell portability, or a `$SHELL`. Detects
-  the target shell (Nushell / Ion / PowerShell / ash / POSIX sh / Bash), blocks
+  Brush, PowerShell, ash, Redox, POSIX, bashisms, shell portability, or a `$SHELL`. Detects
+  the target shell (Nushell / Ion / Brush / PowerShell / ash / POSIX sh / Bash), blocks
   Bash-only patterns that silently break elsewhere (`[[ ]]`, `(( ))`, `<(...)`
   process substitution, `${var^^}`, Bash arrays, `function` keyword, `source` for
   POSIX), and routes to the correct per-shell reference. Syntax priority — POSIX sh
@@ -30,12 +30,14 @@ Sibling skill to `spacecraft-cli-preference`. That skill decides **which tool** 
 
 Four non-Bash shells matter most here: **Nushell** (Mohamed's primary interactive + Bravais/Spacecraft Software default), **Ion** (Redox default, secondary), **PowerShell** (Windows-first, cross-platform), and **ash** (Alpine Linux / embedded POSIX). Nushell and Ion are Rust-written and neither accepts Bash scripts as-is. Bashisms that "always worked" in Bash will fail — sometimes loudly, sometimes silently — in any of them.
 
+**Brush** (Bourne RUsty SHell) is a fifth Rust shell, but it sits in the *Bash family*: unlike Nushell and Ion, it is built to accept POSIX and Bash syntax, so for this skill's purposes **treat Brush as Bash** — write POSIX first, and confirm any exotic Bash feature against Brush's still-maturing compatibility matrix. The Steelbore Standard §7 names the four first-class shell environments as **Nushell, Ion, Brush, and Bash**; this skill additionally guards PowerShell and ash because they show up as real operational targets. See `references/brush.md` for the Brush-vs-Bash gaps.
+
 ## When to consult
 
 - **First shell command in a conversation** — always, regardless of how trivial it looks.
 - Any time work involves `.nu`, `.ion`, `.ps1`, or `.sh` files (reading, writing, editing).
 - Any CI block, Makefile/`justfile` recipe, README snippet, or doc example containing shell.
-- Any time the user names a shell (Nushell, Ion, PowerShell, ash, bash, dash, zsh) or says "POSIX", "portable script", "bashism".
+- Any time the user names a shell (Nushell, Ion, Brush, PowerShell, ash, bash, dash, zsh) or says "POSIX", "portable script", "bashism".
 
 After the first consult in a session, trust the decision and proceed — don't re-load on every command unless the target shell changes or a new script file is opened.
 
@@ -47,9 +49,9 @@ Signals 1–3 are **direct evidence** — commit silently, proceed.
 Signal 4 is **inference** — commit *and announce the assumption in one line* so the user can correct if wrong.
 Signal 5 is the only one that asks.
 
-1. **File extension** *(evidence)* — `.nu` → Nushell; `.ion` → Ion; `.ps1` / `.psm1` / `.psd1` → PowerShell; `.sh` → POSIX; `.bash` → Bash.
-2. **Shebang** *(evidence)* — `#!/usr/bin/env nu` → Nushell; `#!/usr/bin/env ion` → Ion; `#!/usr/bin/env pwsh` or `#!/usr/bin/env powershell` → PowerShell; `#!/bin/ash` → ash; `#!/bin/sh` or `#!/usr/bin/env sh` → POSIX; `#!/bin/bash` → Bash.
-3. **Explicit user mention** *(evidence)* — "in Nushell", "my Ion script", "PowerShell", "in ash", "POSIX-compatible", "bash one-liner".
+1. **File extension** *(evidence)* — `.nu` → Nushell; `.ion` → Ion; `.ps1` / `.psm1` / `.psd1` → PowerShell; `.sh` → POSIX; `.bash` → Bash. (Brush has no distinct extension — it runs `.sh`/`.bash` files; identify it by shebang or explicit mention.)
+2. **Shebang** *(evidence)* — `#!/usr/bin/env nu` → Nushell; `#!/usr/bin/env ion` → Ion; `#!/usr/bin/env brush` → Brush (Bash-family); `#!/usr/bin/env pwsh` or `#!/usr/bin/env powershell` → PowerShell; `#!/bin/ash` → ash; `#!/bin/sh` or `#!/usr/bin/env sh` → POSIX; `#!/bin/bash` → Bash.
+3. **Explicit user mention** *(evidence)* — "in Nushell", "my Ion script", "Brush", "PowerShell", "in ash", "POSIX-compatible", "bash one-liner".
 4. **Environmental inference** *(announce)* — state the assumption in a short sentence before/alongside the command, e.g. "Assuming Nushell (your primary) — say the word for Ion, PowerShell, or POSIX.":
    - `bash_tool` in an agent environment runs **Bash**. Commands executed here and now should target **POSIX** (Bash accepts all POSIX).
    - Spacecraft Software / Bravais / "my shell" context with no other signal → **Nushell** (Mohamed's primary). When "my shell" is used explicitly, consider offering an **Ion** secondary since Mohamed runs both.
@@ -67,7 +69,7 @@ Within the detected shell, emit constructs in this preference order:
 |------|---------------|----------|
 | 1 | **POSIX sh** | The target shell accepts POSIX (sh, dash, Bash, zsh, ash, partially Ion). Maximally portable. |
 | 2 | **Shell-native** (PowerShell / Ion / Nushell / ash) | Target is a shell that diverges from or rejects POSIX. Use PowerShell syntax for `.ps1`; Ion syntax when target is Ion; Nushell syntax for `.nu`; ash is POSIX-compatible — stay at rank 1 unless an ash-specific extension is explicitly needed. |
-| 3 | **Bash extensions** | Last resort. Only when the target is confirmed Bash *and* no POSIX or native equivalent works. |
+| 3 | **Bash extensions** | Last resort. Only when the target is confirmed Bash (or Brush) *and* no POSIX or native equivalent works. Under Brush, prefer the widely-implemented subset (`[[ ]]`, indexed arrays, `local`) over exotic features (`declare -A`, `mapfile`, `$PIPESTATUS`) that its compatibility matrix may not yet cover — see `references/brush.md`. |
 
 "POSIX first" means *prefer constructs that happen to be both POSIX and valid in the target shell* — not *write POSIX into a `.nu` file*. Nushell scripts get Nushell syntax; Ion scripts get Ion syntax; PowerShell scripts get PowerShell syntax; the POSIX preference applies to sh / bash / dash / zsh / ash targets and to any portability crossroads.
 
@@ -81,6 +83,7 @@ Once the target is known, read the matching file **before** writing the command.
 
 - **Nushell** → `references/nushell.md`
 - **Ion** → `references/ion.md`
+- **Brush** (Bash-family Rust shell) → `references/brush.md` (then `references/posix-safe.md` for the syntax itself — Brush accepts POSIX)
 - **PowerShell** → `references/powershell.md`
 - **ash** → `references/ash.md`
 - **POSIX sh / dash / bash-in-POSIX-mode** → `references/posix-safe.md`
@@ -126,6 +129,16 @@ exempt; named script files are not.
 CLI tools, daemons, and system utilities must be POSIX-compliant. Platform-specific
 extensions must go behind feature flags and must not be required for core
 functionality. This skill's rank-1 POSIX-first priority order directly enforces §6.1.
+
+### §7 — Shell Environment (v1.22)
+
+The Standard names four first-class shell environments — **Nushell, Ion, Brush,
+and Bash** — and §7.1 mandates POSIX-compatible scripts by default, Nushell/Ion
+native variants where shell-native idioms are required, and **no Bashisms in
+shared scripts**. This skill *is* the operational enforcement of §7.1: the
+detect → POSIX-first → announce-the-bashism workflow above keeps shared scripts
+portable across all four. Brush, being Bash-compatible, runs the POSIX default
+unchanged (`references/brush.md`).
 
 ---
 
