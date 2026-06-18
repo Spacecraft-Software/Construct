@@ -8,8 +8,8 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.22 so you never need to ask for it or have it attached to a
-  prompt again.
+  The Steelbore Standard v1.22 (§7 Shell Environment; §14.2 email obfuscation note) so
+  you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
@@ -708,6 +708,12 @@ https://<ProjectName>.SpacecraftSoftware.org/
   "maintainer": "Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>",
   "website": "https://<ProjectName>.SpacecraftSoftware.org/"
   ```
+- **Email obfuscation in plain-text prose.** In plain-text prose contexts (README body,
+  CONTRIBUTING.md, human-readable documentation) where the address is not a clickable
+  link, `Mohamed.Hammad [at] SpacecraftSoftware.org` is permitted as a scraper-resistant
+  form. `# Maintainer:` lines in PKGBUILDs and `SPDX-FileCopyrightText` headers **must**
+  always use the full address — those formats are parsed by `makepkg`/`pkgcheck` and
+  `reuse lint` respectively, and obfuscation breaks them.
 
 ### §14.3 — Third-Party Attribution
 
