@@ -23,7 +23,7 @@ Every MS Office deliverable still requires its GFM companion `.md` (see SKILL.md
 
 ## §B — Background recipe per MS Office shape
 
-The Void Navy `#000027` mandate (Standard §9) requires per-format care; the obvious property is necessary but not sufficient in any of the three formats.
+The Void Navy `#000027` mandate (Standard §11) requires per-format care; the obvious property is necessary but not sufficient in any of the three formats.
 
 ### §B.1 — `.docx` (Word)
 

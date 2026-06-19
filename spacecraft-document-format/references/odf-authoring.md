@@ -2,7 +2,7 @@
 
 Reference for producing `.odt` (text), `.ods` (spreadsheet), and `.odp` (presentation) deliverables under the Spacecraft Software document-format skill. Load this **alongside** `markdown-companion.md` for any ODF task.
 
-The Spacecraft Software Standard §9/§10 palette and typography rules are summarised in SKILL.md §4 / §5 / §7 — this file focuses on how to **apply** them in ODF.
+The Spacecraft Software Standard §11/§12 palette and typography rules are summarised in SKILL.md §4 / §5 / §7 — this file focuses on how to **apply** them in ODF.
 
 ## §A — Why ODF first
 

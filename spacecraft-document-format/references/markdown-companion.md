@@ -64,7 +64,7 @@ Every Spacecraft Software companion `.md` begins with an HTML comment immediatel
 
 ```markdown
 <!-- Spacecraft Software document — companion to quarterly-report.odt
-     Palette: Standard §9 (Void Navy background, Molten Amber body)
+     Palette: Standard §11 (Void Navy background, Molten Amber body)
      Typography: Share Tech Mono headings, Inconsolata body
      Format: GitHub-Flavored Markdown (GFM) -->
 
@@ -211,14 +211,14 @@ source-format: odt
 ---
 
 <!-- Spacecraft Software document — companion to quarterly-report.odt
-     Palette: Standard §9 (Void Navy background, Molten Amber body)
+     Palette: Standard §11 (Void Navy background, Molten Amber body)
      Typography: Share Tech Mono headings, Inconsolata body
      Format: GitHub-Flavored Markdown (GFM) -->
 
 # Quarterly Report — Q1 2026
 ```
 
-Date format follows Standard §12.1: ISO 8601 (`YYYY-MM-DD`).
+Date format follows Standard §14.1: ISO 8601 (`YYYY-MM-DD`).
 
 ## §G — Acceptance checklist (markdown companion)
 
