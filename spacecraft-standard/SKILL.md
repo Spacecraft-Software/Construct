@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.24 (§8 Documentation (Texinfo); §7 Shell Environment; §15.2 email obfuscation note) so
+  The Steelbore Standard v1.25 (§3.3 renamed to "Secure / Security By Design"; §8 Documentation (Texinfo); §7 Shell Environment; §15.2 email obfuscation note) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.24 | **Date:** 2026-06-19 | **Author:** Mohamed Hammad
+**Version:** 1.25 | **Date:** 2026-06-20 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -181,7 +181,7 @@ builds will fail to link.
 > `-march=native`, or PGO — verify whether the target OS requires supplementary flags or
 > alternative linker selection. Document the OS-specific requirements alongside the flags.
 
-### §3.3 — Priority 3: Hardened Security
+### §3.3 — Priority 3: Secure / Security By Design
 - Kernel hardening (XanMod, grsecurity profiles) where applicable.
 - Sandboxing and privilege separation for all network-facing components.
 - **Post-Quantum Cryptography (PQC) readiness**: all crypto subsystems must support
