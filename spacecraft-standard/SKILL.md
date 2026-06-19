@@ -723,6 +723,7 @@ project-level outputs; use `https://SpacecraftSoftware.org/` only for umbrella r
 | Lode                       | https://Lode.SpacecraftSoftware.org/             |
 | Sonde                      | https://Sonde.SpacecraftSoftware.org/            |
 | Vault                      | https://Vault.SpacecraftSoftware.org/            |
+| Docs                       | https://Docs.SpacecraftSoftware.org/             |
 
 When a new project is created, add its subdomain to this table immediately.
 
