@@ -32,6 +32,7 @@ the rules re-attached to every prompt.
 | [`microsoft-rust-guidelines`](microsoft-rust-guidelines/) | Enforces Microsoft Pragmatic Rust Guidelines before any `.rs` edit. |
 | [`spacecraft-agentic-cli`](spacecraft-agentic-cli/) | Agent-facing UX layer for Spacecraft Software CLIs — pairs with `spacecraft-cli-standard`. |
 | [`spacecraft-brand-guidelines`](spacecraft-brand-guidelines/) | Applies Spacecraft Software's official colors and typography to artifacts. |
+| [`spacecraft-chez-guidelines`](spacecraft-chez-guidelines/) | Functional, safe, concurrent Chez Scheme guidance — R6RS libraries + Akku, pure-first design, `optimize-level` as the safety lever (level 3 = `unsafe`), hand-built mailboxes/channels over real threads (no Fibers), the FFI + AOT/whole-program compilation, and Guile-habit guardrails. |
 | [`spacecraft-cli-preference`](spacecraft-cli-preference/) | Modern CLI substitutions: `eza` for `ls`, `rg` for `grep`, `gitway` for Git SSH, etc. |
 | [`spacecraft-cli-standard`](spacecraft-cli-standard/) | Enforces the Spacecraft Software Dual-Mode Self-Documenting CLI Standard (SFRS v1.0.0) on every CLI. |
 | [`spacecraft-cli-shell`](spacecraft-cli-shell/) | Syntax-compliance guard for Nushell / Ion / POSIX / Bash commands. |
@@ -44,6 +45,7 @@ the rules re-attached to every prompt.
 | [`spacecraft-missing-pkg`](spacecraft-missing-pkg/) | Handles missing-package situations in the Spacecraft Software workflow. |
 | [`spacecraft-rust-guidelines`](spacecraft-rust-guidelines/) | High-performance concurrent Rust guidance — concurrency model selection, lock-free synchronisation, memory layout, tooling gates, and unsafe hygiene — plus a distilled idiom layer (`references/idioms.md`, adapted from Apollo's Rust Best Practices, MIT) covering borrowing, clippy discipline, testing, dispatch, and type-state. |
 | [`spacecraft-standard`](spacecraft-standard/) | Authoritative compliance reference (The Spacecraft Software Standard v1.2). |
+| [`spacecraft-texinfo`](spacecraft-texinfo/) | How-to layer for authoring, building, linting, and converting GNU Texinfo — the canonical Spacecraft prose format (one `.texi` → Info/HTML/PDF/DocBook/text/EPUB); house-style header/licensing, node/menu discipline, `@def*` API docs, the `texi2any`/`texi2pdf` toolchain, and HTML/PDF brand theming. |
 | [`spacecraft-theme-factory`](spacecraft-theme-factory/) | Generates Spacecraft Software-compliant themes for IDEs and terminals. |
 | [`spacecraft-zig-guidelines`](spacecraft-zig-guidelines/) | Memory-safe high-performance concurrent Zig guidance — `std.Thread.Pool` / `std.Io.Threaded`, atomics, allocator discipline, comptime safety, and CPU-bound scaling patterns. |
 
