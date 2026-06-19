@@ -1,20 +1,18 @@
 ---
 name: spacecraft-document-format
 description: >
-  Authoring rules for Spacecraft Software documents. Texinfo is the canonical
-  format for prose documents (manuals, references, guides, reports, books) — a
-  single `.texi` source compiles to plain text/Info, HTML, and PDF, and converts
-  to GFM Markdown, so structure and brand are defined once and every output
-  stays in sync (Standard §8). ODF (.odt) is the secondary prose format and the
-  primary format for spreadsheets (.ods) and presentations (.odp), which Texinfo
-  cannot represent. Microsoft Office (.docx/.xlsx/.pptx) is the proprietary
-  last-resort, used only when a consumer explicitly requires an MS-native file.
-  Every binary ODF/MS-Office deliverable MUST ship a same-named GFM Markdown
-  (.md) companion; Texinfo is exempt since the .texi is already plain text. PDF
-  is always an export (texi2pdf, or LibreOffice headless), never hand-authored.
-  Documents default to the CC-BY-SA-4.0 document license (GFDL-1.3-or-later
-  permitted for Texinfo manuals). All rich-text outputs apply Void Navy
-  (#000027) background and the Standard §11 palette + §12 typography.
+  Authoring rules for Spacecraft Software documents. Texinfo is canonical for prose
+  (manuals, references, guides, reports, books): one .texi source compiles to plain
+  text/Info, HTML, and PDF and converts to GFM Markdown, so structure and brand are
+  defined once (Standard §8). ODF (.odt) is the secondary prose format and the primary
+  format for spreadsheets (.ods) and presentations (.odp), which Texinfo cannot represent.
+  Microsoft Office (.docx/.xlsx/.pptx) is the proprietary last resort, only when a consumer
+  requires an MS-native file. Every binary ODF/MS-Office deliverable MUST ship a same-named
+  GFM Markdown (.md) companion; Texinfo is exempt (the .texi is already plain text). PDF is
+  always an export (texi2pdf, or LibreOffice headless), never hand-authored. Documents
+  default to the CC-BY-SA-4.0 document license (GFDL-1.3-or-later permitted for Texinfo
+  manuals). All rich-text outputs apply Void Navy (#000027) and the Standard §11 palette +
+  §12 typography.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
