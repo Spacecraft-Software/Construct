@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.25 (§3.3 renamed to "Secure / Security By Design"; §8 Documentation (Texinfo); §7 Shell Environment; §15.2 email obfuscation note) so
+  The Steelbore Standard v1.25 (§3.3 renamed to "Security by Design"; §8 Documentation (Texinfo); §7 Shell Environment; §15.2 email obfuscation note) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -181,7 +181,7 @@ builds will fail to link.
 > `-march=native`, or PGO — verify whether the target OS requires supplementary flags or
 > alternative linker selection. Document the OS-specific requirements alongside the flags.
 
-### §3.3 — Priority 3: Secure / Security By Design
+### §3.3 — Priority 3: Security by Design
 - Kernel hardening (XanMod, grsecurity profiles) where applicable.
 - Sandboxing and privilege separation for all network-facing components.
 - **Post-Quantum Cryptography (PQC) readiness**: all crypto subsystems must support
