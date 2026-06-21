@@ -104,7 +104,7 @@ Choose the *most restrictive policy the design allows* (OOP01 is strictest).
 
 ## Spacecraft cross-references
 
-- **DYN02-04, RPP12, RPP14** reinforce `spacecraft-power-of-ten` (no heap, no recursion, bounded everything, no magic numbers).
+- **DYN02-04, RPP12, RPP14** reinforce the NASA/JPL *Power of Ten* rules (no heap, no recursion, bounded everything, no magic numbers).
 - **EXU04 + SWE01** are the formal-verification spine; they map directly to the assurance ladder in `SKILL.md` (Silver = AoRTE proven).
 - **CON01/CON02/CON03** match the skill's Ravenscar/Jorvik + protected-object concurrency rules.
 

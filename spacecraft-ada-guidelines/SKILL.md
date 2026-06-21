@@ -109,7 +109,7 @@ Ada catches at compile/proof time what other languages catch at runtime — *if*
 - **Prove in CI, gated:**
   - `gnatprove -P <proj>.gpr --mode=all --level=2 --report=fail` as the default gate; raise `--level` (0..4) and add `--prover=z3,cvc5,altergo`, `--timeout`/`--steps` for stubborn checks.
   - Treat any unproved check as a build failure for units claiming Silver+.
-- **Coding standard + format:** enforce with `gnatcheck` (rules file in repo) and format with `gnatpp`; gather `gnatmetric` for complexity budgets. Cross-apply `spacecraft-power-of-ten` limits (bounded loops, no recursion in critical code, restricted scope).
+- **Coding standard + format:** enforce with `gnatcheck` (rules file in repo) and format with `gnatpp`; gather `gnatmetric` for complexity budgets. Cross-apply the NASA/JPL *Power of Ten* rules (bounded loops, no recursion in critical code, restricted scope).
 - **SPDX header on every file** (Ada comment syntax):
   ```ada
   -- SPDX-FileCopyrightText: Copyright (C) 2026 Mohamed Hammad & Spacecraft Software
@@ -149,6 +149,6 @@ Ada catches at compile/proof time what other languages catch at runtime — *if*
 - **Rule catalogue (cite IDs from here):** `references/AdaCore_Safe_Secure_Rules.md` — all 41 DYN/RCL/CON/RPP/EXU/OOP/SWE rules with Levels and standards mappings.
 - Extended patterns, full worked examples, and a proof-debugging guide: `references/Spacecraft_Ada_SPARK_Guidelines.md`
 - Conceptual sources, the source PDF, and the SPARK Reference Manual: `CREDITS.md` and `references/ATTRIBUTION.md`
-- Related skills: `spacecraft-power-of-ten` (loop/recursion/scope budgets), `spacecraft-safety-critical-rust` (Rust side of the same assurance posture), `spacecraft-standard` (cross-cutting compliance).
+- Related skills: `spacecraft-rust-guidelines` (the Rust side of the same high-assurance posture), `spacecraft-standard` (cross-cutting compliance); cross-apply the NASA/JPL *Power of Ten* rules (loop/recursion/scope budgets).
 
 When the user provides Ada/SPARK code for review or asks to write a high-assurance unit, immediately apply the rules above: strengthen the types, add and discharge contracts, declare the assurance target, and produce code that passes `gnatprove` at that level. Cite the exact rule or unproved check in any feedback. Prioritize machine-checked correctness and AoRTE above all else.

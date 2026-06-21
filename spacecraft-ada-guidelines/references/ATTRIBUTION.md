@@ -19,8 +19,8 @@ themselves trigger a root `CREDITS.md` (§15.3 carve-out). AdaCore's adoption-le
 methodology is credited here as the conceptual basis for the assurance ladder.
 
 Cross-references within the Spacecraft skill set:
-- `spacecraft-power-of-ten` — bounded-loop / no-recursion / restricted-scope budgets reused here.
-- `spacecraft-safety-critical-rust` — the Rust side of the same high-assurance posture.
+- The NASA/JPL *Power of Ten* rules — bounded-loop / no-recursion / restricted-scope budgets reused here.
+- `spacecraft-rust-guidelines` — the Rust side of the same high-assurance posture.
 - `spacecraft-standard` — cross-cutting compliance (licensing, SPDX, ISO 8601, naming).
 
 — Spacecraft Software, 2026
