@@ -1,18 +1,18 @@
 ---
 name: spacecraft-document-format
 description: >
-  Authoring rules for Spacecraft Software documents. Texinfo is canonical for prose
-  (manuals, references, guides, reports, books): one .texi source compiles to plain
-  text/Info, HTML, and PDF and converts to GFM Markdown, so structure and brand are
-  defined once (Standard §8). ODF (.odt) is the secondary prose format and the primary
-  format for spreadsheets (.ods) and presentations (.odp), which Texinfo cannot represent.
-  Microsoft Office (.docx/.xlsx/.pptx) is the proprietary last resort, only when a consumer
-  requires an MS-native file. Every binary ODF/MS-Office deliverable MUST ship a same-named
-  GFM Markdown (.md) companion; Texinfo is exempt (the .texi is already plain text). PDF is
-  always an export (texi2pdf, or LibreOffice headless), never hand-authored. Documents
-  default to the CC-BY-SA-4.0 document license (GFDL-1.3-or-later permitted for Texinfo
-  manuals). All rich-text outputs apply Void Navy (#000027) and the Standard §11 palette +
-  §12 typography.
+  Authoring rules for Spacecraft Software documents — the format router. Texinfo is
+  canonical for prose (manuals, references, guides, reports, books): one .texi source
+  compiles to plain text/Info, HTML, and PDF and converts to GFM, so structure and brand
+  are defined once (Standard §8). ODF (.odt) is the secondary prose format and the primary
+  format for spreadsheets (.ods) and presentations (.odp); Microsoft Office
+  (.docx/.xlsx/.pptx) is the last resort, only when a consumer requires an MS-native file.
+  Routes prose authoring to the spacecraft-texinfo skill and GFM rendering/companions to
+  spacecraft-markdown-document. Every binary ODF/MS-Office deliverable MUST ship a
+  same-named GFM (.md) companion; Texinfo is exempt (the .texi is already plain text). PDF
+  is always an export, never hand-authored. Documents default to CC-BY-SA-4.0
+  (GFDL-1.3-or-later permitted for Texinfo manuals). All rich-text outputs apply Void Navy
+  (#000027) and the Standard §11 palette + §12 typography.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
@@ -119,16 +119,20 @@ Both fonts are OFL-licensed, embed-permitted, and hosted on Google Fonts (so Goo
 
 ## §6 — Load-order index
 
-Pull only the references you need for the task. **Do not eagerly load all of them** — that defeats the token-economy split.
+This skill is the **router**: it decides the format, then delegates the how-to to the execution-layer
+skills — **`spacecraft-texinfo`** for prose authoring/building, **`spacecraft-markdown-document`** for
+GFM rendering and companions. The local `references/` carry only the document-format-specific glue
+(format priority, pairing policy, office recipes). Pull only what the task needs. **Do not eagerly
+load all of them** — that defeats the token-economy split.
 
 | Situation                                                | Load                                                                  |
 |----------------------------------------------------------|-----------------------------------------------------------------------|
-| Any prose document (default → Texinfo)                   | `references/texinfo-authoring.md`                                     |
-| Prose deliverable as a word-processor file (`.odt`)      | `references/odf-authoring.md` + `references/markdown-companion.md`    |
-| Prose deliverable as MS Word (`.docx`, on request)       | `references/ms-office-authoring.md` + `references/markdown-companion.md` |
-| Spreadsheet (`.ods`, or `.xlsx` on request)              | `references/odf-authoring.md` *or* `references/ms-office-authoring.md` + `references/markdown-companion.md` |
+| Any prose document (default → Texinfo)                   | **`spacecraft-texinfo` skill** (+ `references/texinfo-authoring.md` for routing glue) |
+| Prose deliverable as a word-processor file (`.odt`)      | `references/odf-authoring.md` + `references/markdown-companion.md` (+ `spacecraft-markdown-document` skill for the `.md`) |
+| Prose deliverable as MS Word (`.docx`, on request)       | `references/ms-office-authoring.md` + `references/markdown-companion.md` (+ `spacecraft-markdown-document` skill) |
+| Spreadsheet (`.ods`, or `.xlsx` on request)              | `references/odf-authoring.md` *or* `references/ms-office-authoring.md` + `references/markdown-companion.md` (+ `spacecraft-markdown-document` skill) |
 | Presentation (`.odp`, or `.pptx` on request)             | same as spreadsheet                                                   |
-| GFM Markdown rendering of a `.texi`                       | `references/texinfo-authoring.md` §E                                  |
+| GFM Markdown rendering of a `.texi`                       | **`spacecraft-texinfo` skill** (`references/converting.md`)           |
 | PDF from an ODF/MS-Office source                         | **add** `references/pdf-export.md`                                    |
 | Quick palette / font / geometry lookup                   | SKILL.md only — no references needed                                  |
 
@@ -175,6 +179,15 @@ Pick whatever toolchain reliably produces output that passes §8's acceptance ch
 
 ## §10 — Cross-references
 
+This skill is the **hub** of a hub-and-spoke trio: it picks the format and delegates the how-to to two
+execution-layer spokes. Keep the policy here; keep the mechanics in the spokes.
+
+- **`spacecraft-texinfo`** — the prose execution layer. Load it for authoring, building, linting,
+  converting, packaging, and the HTML/PDF brand output of any `.texi`. It auto-fires on `.texi`; this
+  router hands prose deliverables to it.
+- **`spacecraft-markdown-document`** — the GFM execution layer. Load it for the mandatory `.md`
+  companions (§2) and any house-style GFM authoring/audit. This router delegates companion generation
+  to it; it also responds to its own `/spacecraft-markdown-document` slash command.
 - The Steelbore Standard §8 (Documentation / Texinfo), §11 (Colour Palette), §12 (Typography), §4 (Licensing: §4.1.1 artifact classes, §4.3 SPDX/REUSE), §15 (Attribution surfaces).
 - `spacecraft-standard` — the full Standard, including §8 Texinfo requirements for user-facing programs.
 - `gnu-coding-standards` — deeper GNU Texinfo conventions (for GNU-targeted work; Spacecraft projects follow Standard §8 and this skill).

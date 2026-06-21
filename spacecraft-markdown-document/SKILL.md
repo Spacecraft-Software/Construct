@@ -2,14 +2,15 @@
 name: spacecraft-markdown-document
 description: >
   Produces well-formed GitHub-Flavored Markdown (GFM) documents conforming to
-  the GFM spec (https://github.github.com/gfm/) and the Spacecraft Software
-  house style. SLASH COMMAND ONLY — this skill is NEVER auto-triggered; it runs
-  exclusively when the agent is explicitly invoked via the
-  `/spacecraft-markdown-document` slash command. Invoke it for: creating new .md
-  files, converting prose or outlines to GFM, auditing existing Markdown for
-  spec compliance, and generating GFM companion documents alongside ODF/MS Office
-  deliverables. When the slash command is present, ALWAYS consult this skill
-  before writing a single line of Markdown.
+  the GFM spec and the Spacecraft Software house style. The GFM execution layer
+  beneath spacecraft-document-format. Activates when: (a) explicitly invoked via
+  the `/spacecraft-markdown-document` slash command; (b) spacecraft-document-format
+  delegates a GFM companion or a Markdown rendering to it; or (c) the user asks to
+  create, convert, or audit a house-style GFM document — new .md files, prose or
+  outline conversion, spec-compliance audits, or GFM companions for ODF/MS Office
+  deliverables. Do NOT auto-fire for incidental .md edits — only when GFM
+  compliance, a companion, or an audit is the explicit goal, or when the
+  document-format router hands off here.
 license: GPL-3.0-or-later
 metadata:
   spdx: "SPDX-License-Identifier: GPL-3.0-or-later"
@@ -34,17 +35,31 @@ https://Construct.SpacecraftSoftware.org/
 
 ---
 
-## §0 — Slash-Command Protocol
+## §0 — Activation
 
-This skill is **slash-command-only**. It activates exclusively when the agent
-receives an explicit invocation in the form:
+This skill is the **GFM execution layer** beneath
+[`spacecraft-document-format`](../spacecraft-document-format/SKILL.md). It
+activates in three ways:
 
-```
-/spacecraft-markdown-document [SUBCOMMAND] [OPTIONS] [TARGET]
-```
+1. **Slash command (primary).** Explicit invocation in the form:
 
-**Never** auto-trigger this skill from ambient context, even when markdown
-content is present in the conversation. Wait for the explicit slash-command call.
+   ```
+   /spacecraft-markdown-document [SUBCOMMAND] [OPTIONS] [TARGET]
+   ```
+
+2. **Router hand-off.** When `spacecraft-document-format` delegates GFM companion
+   generation (or a Markdown rendering of a `.texi`) to this skill — load it and
+   apply the `companion` behaviour (§5, and the pairing policy in that skill's
+   `references/markdown-companion.md`).
+
+3. **Explicit GFM request.** When the user asks to create, convert, or audit a
+   house-style GFM document, even without the slash command.
+
+**Do not** auto-trigger from ambient context for *incidental* markdown — a passing
+`.md` edit, a code-fence in chat, a README touch-up. Activate only when GFM
+compliance, a companion, or an audit is the explicit goal, or when the router
+hands off here. When in doubt for a one-off `.md`, the slash command is the
+unambiguous entry point.
 
 ### Subcommands
 
@@ -270,11 +285,18 @@ these integration rules apply:
   in the paired ODF/MS Office file (see `spacecraft-document-format` skill).
 - **Reference the palette by token name in prose** when describing UI elements
   (e.g., "the background uses Void Navy (`#000027`)").
-- **Companion documents** (paired with a tier-1 office file) must include the
-  following HTML comment immediately after the front-matter block:
+- **Companion documents** (paired with a tier-1 office file) must open with the
+  **canonical companion metadata comment** defined by
+  [`spacecraft-document-format`](../spacecraft-document-format/SKILL.md)
+  (`references/markdown-companion.md` §C) — that skill owns the companion-pairing
+  policy and the single authoritative comment format. It is the multi-line form
+  naming the source file, palette (Standard §11), typography, and GFM flavour:
 
   ```markdown
-  <!-- companion: <source-file-basename>.<ext> | palette: Spacecraft Software §9 -->
+  <!-- Spacecraft Software document — companion to <source-basename>.<ext>
+       Palette: Standard §11 (Void Navy background, Molten Amber body)
+       Typography: Share Tech Mono headings, Inconsolata body
+       Format: GitHub-Flavored Markdown (GFM) -->
   ```
 
 - Every Spacecraft Software `.md` file lives beside a `LICENSE` or `COPYING` file
@@ -391,9 +413,15 @@ Before delivering any `.md` output, verify:
 
 ## §10 — Cross-References
 
+This skill is the **GFM execution layer** beneath `spacecraft-document-format`
+(the format router): the router decides *which* format a deliverable needs and
+delegates GFM authoring and companion generation here. Prose authoring is the
+sibling spoke `spacecraft-texinfo`.
+
 | Need                                      | Skill to load                  |
 |-------------------------------------------|--------------------------------|
-| ODF / MS Office document with GFM pair    | `spacecraft-document-format`   |
+| Format choice / ODF / MS Office + GFM pair | `spacecraft-document-format`  |
+| Canonical prose (manuals, guides) in Texinfo | `spacecraft-texinfo`        |
 | Brand colours, typography, palette tokens | `spacecraft-brand-guidelines`  |
 | Full Spacecraft Software compliance       | `spacecraft-standard`          |
 | CLI output in Markdown or plain text      | `spacecraft-cli-standard`      |
