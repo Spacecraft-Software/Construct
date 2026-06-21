@@ -71,7 +71,7 @@ Every `.odt`/`.ods`/`.odp` and every `.docx`/`.xlsx`/`.pptx` deliverable lands w
 
 Why: the `.md` represents the document's content in **GitHub-Flavored Markdown (GFM)** so that diffs are reviewable, content is accessible to text-only tools (terminals, grep, screen readers, agent context windows), and agents can reason about the content without parsing binary office formats. The `.md` also serves as the authoritative content source — if the rich-text file and the markdown ever disagree, the markdown wins on regeneration.
 
-**Texinfo is exempt from the pairing rule.** A `.texi` source is already plain text — diffable, greppable, and agent-readable — so it needs no separate `.md` companion. GFM is instead an **optional generated output** of Texinfo (via `pandoc -f texinfo -t gfm`); produce it only when a consumer wants a Markdown rendering. See `texinfo-authoring.md` §E.
+**Texinfo is exempt from the pairing rule.** A `.texi` source is already plain text — diffable, greppable, and agent-readable — so it needs no separate `.md` companion. GFM is instead an **optional generated output** of Texinfo (via `pandoc -f texinfo -t gfm`); produce it only when a consumer wants a Markdown rendering. See the `spacecraft-texinfo` skill (`references/converting.md`).
 
 Markdown cannot carry page colour, fonts, or page geometry. Do **not** try to render visual styling in `.md` (no inline HTML, no colour markup); the visual layer lives only in the source file. The companion `.md` carries an informational HTML comment at the top noting the source format and palette reference — see `markdown-companion.md`.
 
@@ -81,9 +81,9 @@ If both an ODF and an MS Office version of the same content are produced (rare),
 
 These bind every format you produce. Violations are blockers, not preferences.
 
-- **Page/slide/HTML background: Void Navy `#000027`** — Standard §11 mandate. Non-negotiable. The per-format recipes (`texinfo-authoring.md` §D for HTML/PDF, `odf-authoring.md` §C, `ms-office-authoring.md` §B) are not optional shortcuts; the colour silently drops in major readers if the layers aren't all applied.
+- **Page/slide/HTML background: Void Navy `#000027`** — Standard §11 mandate. Non-negotiable. The per-format recipes (the `spacecraft-texinfo` skill for HTML/PDF, `odf-authoring.md` §C, `ms-office-authoring.md` §B) are not optional shortcuts; the colour silently drops in major readers if the layers aren't all applied.
 - **Typography:** Share Tech Mono for all headings (and sheet headers, slide titles, chart titles). Inconsolata for body, cell content, code, slide bullets, captions. Standard §12.
-- **Texinfo brand output.** Carry the palette and typography into Texinfo **HTML** via a bundled CSS (`makeinfo --css-include`); apply Void Navy as the **PDF** page colour where the TeX toolchain allows; `.info`/plain-text output inherits the reader/terminal theme (which already follows the palette on Steelbore OS). Details in `texinfo-authoring.md` §D.
+- **Texinfo brand output.** Carry the palette and typography into Texinfo **HTML** via a bundled CSS (`makeinfo --css-include`); apply Void Navy as the **PDF** page colour where the TeX toolchain allows; `.info`/plain-text output inherits the reader/terminal theme (which already follows the palette on Steelbore OS). Details in the `spacecraft-texinfo` skill (`references/building.md`).
 - **Page geometry:**
   - Texinfo PDF / ODT / DOCX — ISO A4 portrait (210 × 297 mm). Never Letter, Legal, or any non-A4 size.
   - Spreadsheets (`.ods`/`.xlsx`) — A4 portrait print area; portrait orientation in print settings.
@@ -170,7 +170,7 @@ Run through this before declaring a document done:
 
 This skill describes **output properties**, not specific tools. References cover toolchain recommendations:
 
-- Texinfo — `texinfo-authoring.md` §C (`makeinfo`/`texi2any` for Info & HTML, `texi2pdf` for PDF, `make info`/`make html`/`make pdf` targets).
+- Texinfo — the `spacecraft-texinfo` skill (`references/building.md`): `makeinfo`/`texi2any` for Info & HTML, `texi2pdf` for PDF, `make info`/`make html`/`make pdf` targets.
 - ODF — `odf-authoring.md` §E (LibreOffice headless, odfpy, etc.).
 - MS Office — `ms-office-authoring.md` §E (python-docx, openpyxl, python-pptx, or LibreOffice headless conversion).
 - PDF from ODF/MS-Office — `pdf-export.md` §B (LibreOffice headless `--convert-to pdf:<filter>`).

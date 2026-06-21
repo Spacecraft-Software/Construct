@@ -288,7 +288,7 @@ these integration rules apply:
 - **Companion documents** (paired with a tier-1 office file) must open with the
   **canonical companion metadata comment** defined by
   [`spacecraft-document-format`](../spacecraft-document-format/SKILL.md)
-  (`references/markdown-companion.md` §C) — that skill owns the companion-pairing
+  (`references/markdown-companion.md` §B) — that skill owns the companion-pairing
   policy and the single authoritative comment format. It is the multi-line form
   naming the source file, palette (Standard §11), typography, and GFM flavour:
 
