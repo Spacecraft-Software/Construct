@@ -58,11 +58,6 @@ impl Context {
             absolute_time: g.absolute_time,
         }
     }
-
-    /// True when the resolved mode is one of the machine-readable formats.
-    pub(crate) fn is_machine(&self) -> bool {
-        self.mode.is_machine()
-    }
 }
 
 /// The full command line with `argv[0]` normalized to the canonical binary name

@@ -30,6 +30,7 @@ toml = "0.8"
 # drops the optional `defmt` integration (and its unmaintained transitive deps).
 jiff = { version = "0.2", default-features = false, features = ["std"] }
 owo-colors = "4"
+ratatui = "0.29"
 
 [dev-dependencies]
 assert_cmd = "2"

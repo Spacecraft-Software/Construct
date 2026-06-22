@@ -57,7 +57,7 @@ pub(crate) fn resolve(g: &GlobalArgs) -> OutputMode {
             FormatArg::Jsonl => OutputMode::Jsonl,
             FormatArg::Yaml => OutputMode::Yaml,
             FormatArg::Csv => OutputMode::Csv,
-            FormatArg::Explore => resolve_explore(g),
+            FormatArg::Explore => resolve_explore(),
         };
     }
 
@@ -78,22 +78,21 @@ pub(crate) fn resolve(g: &GlobalArgs) -> OutputMode {
     }
 }
 
-/// Resolve `--format explore`. The interactive TUI is not yet implemented
-/// (planned for a later phase), so this always falls back — to human output on
-/// an interactive terminal, or to JSON otherwise — and warns on stderr. The
-/// never-trap-an-agent rule (Standard §5) is preserved: agents always get JSON.
-fn resolve_explore(g: &GlobalArgs) -> OutputMode {
-    const REASON: &str = "interactive explore mode is not yet implemented";
-    if is_agent_env() || is_ci() || is_dumb_term() || !std::io::stdout().is_terminal() {
-        warn_tui_fallback(REASON, "json");
+/// Resolve `--format explore`. The interactive TUI runs only on a real
+/// terminal (both stdout and stdin must be TTYs); for agents, CI, dumb
+/// terminals, or pipes it falls back to JSON and warns — never trapping an
+/// agent in a render loop (Standard §5).
+fn resolve_explore() -> OutputMode {
+    if is_agent_env()
+        || is_ci()
+        || is_dumb_term()
+        || !std::io::stdout().is_terminal()
+        || !std::io::stdin().is_terminal()
+    {
+        warn_tui_fallback("no interactive terminal available", "json");
         OutputMode::Json
     } else {
-        warn_tui_fallback(REASON, "human");
-        if should_use_color(g) {
-            OutputMode::HumanWithColor
-        } else {
-            OutputMode::HumanNoColor
-        }
+        OutputMode::Explore
     }
 }
 

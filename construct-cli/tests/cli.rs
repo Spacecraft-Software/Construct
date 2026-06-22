@@ -157,6 +157,20 @@ fn missing_flake_dir_is_structured_not_found() {
 }
 
 #[test]
+fn explore_falls_back_to_json_when_not_a_tty() {
+    // assert_cmd runs with a piped (non-TTY) stdout, so `--format explore` must
+    // not launch the TUI — it falls back to JSON with a warning on stderr.
+    let assertion = bin().args(["--format", "explore"]).assert().success();
+    let out = assertion.get_output();
+    serde_json::from_slice::<Value>(&out.stdout).expect("JSON fallback on stdout");
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(
+        stderr.contains("TUI_FALLBACK"),
+        "missing TUI fallback warning"
+    );
+}
+
+#[test]
 fn version_names_maintainer_and_site() {
     let out = bin()
         .arg("--version")

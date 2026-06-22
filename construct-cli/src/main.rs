@@ -32,6 +32,7 @@ mod output;
 mod registry;
 mod sources;
 mod time;
+mod tui;
 
 use std::panic::AssertUnwindSafe;
 

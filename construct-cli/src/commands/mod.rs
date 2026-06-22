@@ -10,16 +10,16 @@
 
 pub(crate) mod agent;
 pub(crate) mod describe;
+pub(crate) mod explore;
 pub(crate) mod schema;
 pub(crate) mod ship;
 pub(crate) mod skill;
 pub(crate) mod sync;
 
-use clap::CommandFactory as _;
-
 use crate::cli::{AgentCommand, Cli, Command, SkillCommand};
 use crate::context::Context;
 use crate::output::error::AppError;
+use crate::output::mode::OutputMode;
 use crate::output::CommandOutput;
 
 /// Route the parsed command to its handler.
@@ -27,6 +27,10 @@ use crate::output::CommandOutput;
 /// `Ok(Some(output))` is rendered by the caller; `Ok(None)` means the handler
 /// already emitted its own output (help, schema, describe).
 pub(crate) fn dispatch(cli: &Cli, ctx: &Context) -> Result<Option<CommandOutput>, AppError> {
+    // `--format explore` launches the interactive TUI regardless of sub-command.
+    if ctx.mode == OutputMode::Explore {
+        return explore::run(ctx);
+    }
     match &cli.command {
         Some(Command::Skill { verb }) => match verb {
             SkillCommand::Add(args) => skill::add(ctx, args).map(Some),
@@ -51,19 +55,17 @@ pub(crate) fn dispatch(cli: &Cli, ctx: &Context) -> Result<Option<CommandOutput>
             Ok(None)
         }
         None => {
-            no_command(ctx);
-            Ok(None)
+            // A bare invocation on a real terminal opens the explore TUI;
+            // agents and pipelines get the structured capability manifest.
+            if matches!(
+                ctx.mode,
+                OutputMode::HumanWithColor | OutputMode::HumanNoColor
+            ) {
+                explore::run(ctx)
+            } else {
+                let _ = describe::run(ctx, None, None);
+                Ok(None)
+            }
         }
-    }
-}
-
-/// Behavior when no sub-command is given. Agents and pipelines get the
-/// structured capability manifest; an interactive user gets help text. (A later
-/// phase replaces the interactive branch with the explore TUI.)
-fn no_command(ctx: &Context) {
-    if ctx.is_machine() {
-        let _ = describe::run(ctx, None, None);
-    } else {
-        let _ = Cli::command().print_long_help();
     }
 }

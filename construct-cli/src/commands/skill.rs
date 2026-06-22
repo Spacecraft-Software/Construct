@@ -153,7 +153,7 @@ pub(crate) fn init(ctx: &Context, args: &InitArgs) -> Result<CommandOutput, AppE
 // ── helpers ───────────────────────────────────────────────────────────────-
 
 /// Wrap an [`InstallReport`] into machine `data` plus a human table.
-fn report_output(report: &InstallReport) -> CommandOutput {
+pub(crate) fn report_output(report: &InstallReport) -> CommandOutput {
     let rows = report
         .items
         .iter()
