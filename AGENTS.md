@@ -1,8 +1,10 @@
 # AGENTS.md — Construct skill catalogue
 
 Tool-agnostic guidance for any agent (Claude, Codex, Gemini, Grok, …) editing
-skills in this repo. The full, detailed workflow lives in `CLAUDE.md` (local,
-gitignored); this file is the committed digest of the rules that bite.
+skills in this repo. The full, version-controlled workflow lives in
+[`CONTRIBUTING.md`](CONTRIBUTING.md); this file is the committed digest of the
+rules that bite. (A maintainer-local `CLAUDE.md` overlay adds host-specific notes
+— Home Manager fan-out, local config — and is gitignored.)
 
 ## Hard rules
 
@@ -23,5 +25,6 @@ gitignored); this file is the committed digest of the rules that bite.
 - **Keep the README §2 catalogue row in sync** when adding, removing, or
   re-scoping a skill.
 
-See `CLAUDE.md` for the bundling commands, the drift sweep, the push procedure,
-and the Home Manager local fan-out.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the bundling commands, the drift
+sweep, and the push procedure. The maintainer-local `CLAUDE.md` adds the Home
+Manager local fan-out (host-specific).
