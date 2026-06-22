@@ -36,3 +36,13 @@ path = ["spacecraft-rust-guidelines/references/idioms.md", "spacecraft-rust-guid
 precedence = "override"
 SPDX-FileCopyrightText = ["2024 Apollo Graph, Inc.", "2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"]
 SPDX-License-Identifier = "GPL-3.0-or-later"
+
+# Third-party-derived data: the construct CLI's agent registry is ported from
+# vercel-labs/skills (src/agents.ts, MIT, © Vercel, Inc.). Dual-licensed
+# GPL-3.0-or-later OR MIT by Spacecraft Software (the MIT arm preserves Vercel's
+# notice; MIT→GPL compatible), §4.2. See construct-cli/CREDITS.md.
+[[annotations]]
+path = "construct-cli/registry/agents.toml"
+precedence = "override"
+SPDX-FileCopyrightText = ["Vercel, Inc.", "2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"]
+SPDX-License-Identifier = "GPL-3.0-or-later OR MIT"

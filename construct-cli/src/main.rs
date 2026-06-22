@@ -26,8 +26,10 @@
 mod cli;
 mod commands;
 mod context;
+mod install;
 mod manifest;
 mod output;
+mod registry;
 mod time;
 
 use std::panic::AssertUnwindSafe;

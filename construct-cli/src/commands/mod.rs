@@ -8,13 +8,15 @@
 //! `describe`). Handlers never call `std::process::exit`; `main` owns the exit
 //! code.
 
+pub(crate) mod agent;
 pub(crate) mod describe;
 pub(crate) mod schema;
+pub(crate) mod skill;
 pub(crate) mod sync;
 
 use clap::CommandFactory as _;
 
-use crate::cli::{Cli, Command, SkillCommand};
+use crate::cli::{AgentCommand, Cli, Command, SkillCommand};
 use crate::context::Context;
 use crate::output::error::AppError;
 use crate::output::CommandOutput;
@@ -26,7 +28,14 @@ use crate::output::CommandOutput;
 pub(crate) fn dispatch(cli: &Cli, ctx: &Context) -> Result<Option<CommandOutput>, AppError> {
     match &cli.command {
         Some(Command::Skill { verb }) => match verb {
+            SkillCommand::Add(args) => skill::add(ctx, args).map(Some),
+            SkillCommand::List(args) => skill::list(ctx, args).map(Some),
+            SkillCommand::Remove(args) => skill::remove(ctx, args).map(Some),
+            SkillCommand::Update(args) => skill::update(ctx, args).map(Some),
             SkillCommand::Sync(args) => sync::run(ctx, args).map(Some),
+        },
+        Some(Command::Agent { verb }) => match verb {
+            AgentCommand::List => Ok(Some(agent::list(ctx))),
         },
         Some(Command::Schema { noun, verb }) => {
             schema::run(ctx, noun.as_deref(), verb.as_deref())?;

@@ -120,6 +120,12 @@ pub(crate) enum Command {
         verb: SkillCommand,
     },
 
+    /// Inspect the registry of supported agents.
+    Agent {
+        #[command(subcommand)]
+        verb: AgentCommand,
+    },
+
     /// Emit JSON Schema (Draft 2020-12) for the tool or a specific command.
     #[command(after_help = "Examples:\n  construct schema\n  construct schema skill sync")]
     Schema {
@@ -139,14 +145,135 @@ pub(crate) enum Command {
     },
 }
 
+/// Verbs under the `agent` noun.
+#[derive(Debug, Subcommand)]
+pub(crate) enum AgentCommand {
+    /// List every supported agent, its paths, and detection status.
+    #[command(
+        visible_alias = "ls",
+        after_help = "Examples:\n  construct agent list\n  construct agent list --json --fields id,global_path"
+    )]
+    List,
+}
+
 /// Verbs under the `skill` noun.
 #[derive(Debug, Subcommand)]
 pub(crate) enum SkillCommand {
+    /// Install skills from a catalogue source into one or more agents.
+    #[command(
+        after_help = "Examples:\n  construct skill add --agents claude-code,cursor\n  construct skill add --skills spacecraft-rust-guidelines --all --json\n  construct skill add --global --copy --agents gemini-cli"
+    )]
+    Add(AddArgs),
+
+    /// List installed skills per agent.
+    #[command(
+        visible_alias = "ls",
+        after_help = "Examples:\n  construct skill list\n  construct skill list --global --json"
+    )]
+    List(ScopeQueryArgs),
+
+    /// Remove installed skills from one or more agents.
+    #[command(
+        visible_alias = "rm",
+        after_help = "Examples:\n  construct skill remove --skills foo --agents cursor\n  construct skill remove --all --global --dry-run"
+    )]
+    Remove(RemoveArgs),
+
+    /// Refresh installed skills from the source (overwrites in place).
+    #[command(
+        after_help = "Examples:\n  construct skill update --agents claude-code\n  construct skill update --all --json"
+    )]
+    Update(AddArgs),
+
     /// Update the Construct flake input in a consuming flake (no rebuild).
     #[command(
         after_help = "Examples:\n  construct skill sync\n  construct skill sync --json\n  construct skill sync --flake-dir /etc/nixos --dry-run"
     )]
     Sync(SyncArgs),
+}
+
+/// Arguments for `construct skill add` / `construct skill update`.
+#[derive(Debug, Args)]
+pub(crate) struct AddArgs {
+    /// Catalogue source path (default: the local Construct clone).
+    pub(crate) source: Option<String>,
+
+    /// Target agents (comma-separated ids); defaults to detected-installed.
+    #[arg(
+        short = 'a',
+        long = "agents",
+        value_delimiter = ',',
+        value_name = "ID[,ID...]"
+    )]
+    pub(crate) agents: Vec<String>,
+
+    /// Restrict to these skills (comma-separated); defaults to all in source.
+    #[arg(
+        short = 's',
+        long = "skills",
+        value_delimiter = ',',
+        value_name = "NAME[,NAME...]"
+    )]
+    pub(crate) skills: Vec<String>,
+
+    /// Install into each agent's global (home) skills dir instead of the project.
+    #[arg(short = 'g', long = "global")]
+    pub(crate) global: bool,
+
+    /// Copy skills instead of symlinking them.
+    #[arg(long)]
+    pub(crate) copy: bool,
+
+    /// Target every known agent (not just detected ones).
+    #[arg(long)]
+    pub(crate) all: bool,
+}
+
+/// Arguments for `construct skill list`.
+#[derive(Debug, Args)]
+pub(crate) struct ScopeQueryArgs {
+    /// Restrict to these agents (comma-separated ids).
+    #[arg(
+        short = 'a',
+        long = "agents",
+        value_delimiter = ',',
+        value_name = "ID[,ID...]"
+    )]
+    pub(crate) agents: Vec<String>,
+
+    /// Inspect the global (home) skills dirs instead of the project.
+    #[arg(short = 'g', long = "global")]
+    pub(crate) global: bool,
+}
+
+/// Arguments for `construct skill remove`.
+#[derive(Debug, Args)]
+pub(crate) struct RemoveArgs {
+    /// Skills to remove (comma-separated); defaults to all installed.
+    #[arg(
+        short = 's',
+        long = "skills",
+        value_delimiter = ',',
+        value_name = "NAME[,NAME...]"
+    )]
+    pub(crate) skills: Vec<String>,
+
+    /// Agents to remove from (comma-separated ids).
+    #[arg(
+        short = 'a',
+        long = "agents",
+        value_delimiter = ',',
+        value_name = "ID[,ID...]"
+    )]
+    pub(crate) agents: Vec<String>,
+
+    /// Operate on the global (home) skills dirs instead of the project.
+    #[arg(short = 'g', long = "global")]
+    pub(crate) global: bool,
+
+    /// Required to remove across all agents when no `--skills`/`--agents` given.
+    #[arg(long)]
+    pub(crate) all: bool,
 }
 
 /// Arguments for `construct skill sync`.

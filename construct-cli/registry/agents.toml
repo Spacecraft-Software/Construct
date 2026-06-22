@@ -1,0 +1,525 @@
+# SPDX-FileCopyrightText: 2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+# SPDX-FileCopyrightText: Vercel, Inc.
+# SPDX-License-Identifier: GPL-3.0-or-later OR MIT
+#
+# Agent registry — the AI coding agents `construct` can install skills into. Each
+# entry maps an agent id to its project-relative (`project_path`) and
+# home-relative (`global_path`) skills directory. Embedded into the binary at
+# compile time (see registry/mod.rs). Add an agent = append one [[agent]] table.
+#
+# `format` is "directory" (skills live at <path>/<name>/SKILL.md) or "flat"
+# (SKILL.md at the path root, e.g. Grok). Agents with no `global_path` support
+# only project-local installs.
+#
+# Derived from vercel-labs/skills (`src/agents.ts`, MIT) — see ../CREDITS.md and
+# the REUSE.toml annotation. Home-relative defaults; the upstream's env-var
+# overrides (CODEX_HOME, CLAUDE_CONFIG_DIR, XDG_CONFIG_HOME, …) are not modeled.
+
+[[agent]]
+id = "adal"
+display_name = "AdaL"
+project_path = ".adal/skills"
+global_path = ".adal/skills"
+format = "directory"
+
+[[agent]]
+id = "aider-desk"
+display_name = "AiderDesk"
+project_path = ".aider-desk/skills"
+global_path = ".aider-desk/skills"
+format = "directory"
+
+[[agent]]
+id = "amp"
+display_name = "Amp"
+project_path = ".agents/skills"
+global_path = ".config/agents/skills"
+format = "directory"
+
+[[agent]]
+id = "antigravity"
+display_name = "Antigravity"
+project_path = ".agents/skills"
+global_path = ".gemini/antigravity/skills"
+format = "directory"
+
+[[agent]]
+id = "antigravity-cli"
+display_name = "Antigravity CLI"
+project_path = ".agents/skills"
+global_path = ".gemini/antigravity-cli/skills"
+format = "directory"
+
+[[agent]]
+id = "astrbot"
+display_name = "AstrBot"
+project_path = "data/skills"
+global_path = ".astrbot/data/skills"
+format = "directory"
+
+[[agent]]
+id = "augment"
+display_name = "Augment"
+project_path = ".augment/skills"
+global_path = ".augment/skills"
+format = "directory"
+
+[[agent]]
+id = "autohand-code"
+display_name = "Autohand Code CLI"
+project_path = ".autohand/skills"
+global_path = ".autohand/skills"
+format = "directory"
+
+[[agent]]
+id = "bob"
+display_name = "IBM Bob"
+project_path = ".bob/skills"
+global_path = ".bob/skills"
+format = "directory"
+
+[[agent]]
+id = "claude-code"
+display_name = "Claude Code"
+project_path = ".claude/skills"
+global_path = ".claude/skills"
+format = "directory"
+
+[[agent]]
+id = "cline"
+display_name = "Cline"
+project_path = ".agents/skills"
+global_path = ".agents/skills"
+format = "directory"
+
+[[agent]]
+id = "codearts-agent"
+display_name = "CodeArts Agent"
+project_path = ".codeartsdoer/skills"
+global_path = ".codeartsdoer/skills"
+format = "directory"
+
+[[agent]]
+id = "codebuddy"
+display_name = "CodeBuddy"
+project_path = ".codebuddy/skills"
+global_path = ".codebuddy/skills"
+format = "directory"
+
+[[agent]]
+id = "codemaker"
+display_name = "Codemaker"
+project_path = ".codemaker/skills"
+global_path = ".codemaker/skills"
+format = "directory"
+
+[[agent]]
+id = "codestudio"
+display_name = "Code Studio"
+project_path = ".codestudio/skills"
+global_path = ".codestudio/skills"
+format = "directory"
+
+[[agent]]
+id = "codex"
+display_name = "Codex"
+project_path = ".agents/skills"
+global_path = ".codex/skills"
+format = "directory"
+
+[[agent]]
+id = "command-code"
+display_name = "Command Code"
+project_path = ".commandcode/skills"
+global_path = ".commandcode/skills"
+format = "directory"
+
+[[agent]]
+id = "continue"
+display_name = "Continue"
+project_path = ".continue/skills"
+global_path = ".continue/skills"
+format = "directory"
+
+[[agent]]
+id = "cortex"
+display_name = "Cortex Code"
+project_path = ".cortex/skills"
+global_path = ".snowflake/cortex/skills"
+format = "directory"
+
+[[agent]]
+id = "crush"
+display_name = "Crush"
+project_path = ".crush/skills"
+global_path = ".config/crush/skills"
+format = "directory"
+
+[[agent]]
+id = "cursor"
+display_name = "Cursor"
+project_path = ".agents/skills"
+global_path = ".cursor/skills"
+format = "directory"
+
+[[agent]]
+id = "deepagents"
+display_name = "Deep Agents"
+project_path = ".agents/skills"
+global_path = ".deepagents/agent/skills"
+format = "directory"
+
+[[agent]]
+id = "devin"
+display_name = "Devin for Terminal"
+project_path = ".devin/skills"
+global_path = ".config/devin/skills"
+format = "directory"
+
+[[agent]]
+id = "dexto"
+display_name = "Dexto"
+project_path = ".agents/skills"
+global_path = ".agents/skills"
+format = "directory"
+
+[[agent]]
+id = "droid"
+display_name = "Droid"
+project_path = ".factory/skills"
+global_path = ".factory/skills"
+format = "directory"
+
+[[agent]]
+id = "eve"
+display_name = "Eve"
+project_path = "agent/skills"
+format = "directory"
+
+[[agent]]
+id = "firebender"
+display_name = "Firebender"
+project_path = ".agents/skills"
+global_path = ".firebender/skills"
+format = "directory"
+
+[[agent]]
+id = "forgecode"
+display_name = "ForgeCode"
+project_path = ".forge/skills"
+global_path = ".forge/skills"
+format = "directory"
+
+[[agent]]
+id = "gemini-cli"
+display_name = "Gemini CLI"
+project_path = ".agents/skills"
+global_path = ".gemini/skills"
+format = "directory"
+
+[[agent]]
+id = "github-copilot"
+display_name = "GitHub Copilot"
+project_path = ".agents/skills"
+global_path = ".copilot/skills"
+format = "directory"
+
+[[agent]]
+id = "goose"
+display_name = "Goose"
+project_path = ".goose/skills"
+global_path = ".config/goose/skills"
+format = "directory"
+
+[[agent]]
+id = "hermes-agent"
+display_name = "Hermes Agent"
+project_path = ".hermes/skills"
+global_path = ".hermes/skills"
+format = "directory"
+
+[[agent]]
+id = "iflow-cli"
+display_name = "iFlow CLI"
+project_path = ".iflow/skills"
+global_path = ".iflow/skills"
+format = "directory"
+
+[[agent]]
+id = "inference-sh"
+display_name = "inference.sh"
+project_path = ".inferencesh/skills"
+global_path = ".inferencesh/skills"
+format = "directory"
+
+[[agent]]
+id = "jazz"
+display_name = "Jazz"
+project_path = ".jazz/skills"
+global_path = ".jazz/skills"
+format = "directory"
+
+[[agent]]
+id = "junie"
+display_name = "Junie"
+project_path = ".junie/skills"
+global_path = ".junie/skills"
+format = "directory"
+
+[[agent]]
+id = "kilo"
+display_name = "Kilo Code"
+project_path = ".kilocode/skills"
+global_path = ".kilocode/skills"
+format = "directory"
+
+[[agent]]
+id = "kimi-code-cli"
+display_name = "Kimi Code CLI"
+project_path = ".agents/skills"
+global_path = ".agents/skills"
+format = "directory"
+
+[[agent]]
+id = "kiro-cli"
+display_name = "Kiro CLI"
+project_path = ".kiro/skills"
+global_path = ".kiro/skills"
+format = "directory"
+
+[[agent]]
+id = "kode"
+display_name = "Kode"
+project_path = ".kode/skills"
+global_path = ".kode/skills"
+format = "directory"
+
+[[agent]]
+id = "lingma"
+display_name = "Lingma"
+project_path = ".lingma/skills"
+global_path = ".lingma/skills"
+format = "directory"
+
+[[agent]]
+id = "loaf"
+display_name = "Loaf"
+project_path = ".agents/skills"
+global_path = ".agents/skills"
+format = "directory"
+
+[[agent]]
+id = "mcpjam"
+display_name = "MCPJam"
+project_path = ".mcpjam/skills"
+global_path = ".mcpjam/skills"
+format = "directory"
+
+[[agent]]
+id = "mistral-vibe"
+display_name = "Mistral Vibe"
+project_path = ".vibe/skills"
+global_path = ".vibe/skills"
+format = "directory"
+
+[[agent]]
+id = "moxby"
+display_name = "Moxby"
+project_path = ".moxby/skills"
+global_path = ".moxby/skills"
+format = "directory"
+
+[[agent]]
+id = "mux"
+display_name = "Mux"
+project_path = ".mux/skills"
+global_path = ".mux/skills"
+format = "directory"
+
+[[agent]]
+id = "neovate"
+display_name = "Neovate"
+project_path = ".neovate/skills"
+global_path = ".neovate/skills"
+format = "directory"
+
+[[agent]]
+id = "ona"
+display_name = "Ona"
+project_path = ".ona/skills"
+global_path = ".ona/skills"
+format = "directory"
+
+[[agent]]
+id = "openclaw"
+display_name = "OpenClaw"
+project_path = "skills"
+global_path = ".openclaw/skills"
+format = "directory"
+
+[[agent]]
+id = "opencode"
+display_name = "OpenCode"
+project_path = ".agents/skills"
+global_path = ".config/opencode/skills"
+format = "directory"
+
+[[agent]]
+id = "openhands"
+display_name = "OpenHands"
+project_path = ".openhands/skills"
+global_path = ".openhands/skills"
+format = "directory"
+
+[[agent]]
+id = "pi"
+display_name = "Pi"
+project_path = ".pi/skills"
+global_path = ".pi/agent/skills"
+format = "directory"
+
+[[agent]]
+id = "pochi"
+display_name = "Pochi"
+project_path = ".pochi/skills"
+global_path = ".pochi/skills"
+format = "directory"
+
+[[agent]]
+id = "promptscript"
+display_name = "PromptScript"
+project_path = ".agents/skills"
+format = "directory"
+
+[[agent]]
+id = "qoder"
+display_name = "Qoder"
+project_path = ".qoder/skills"
+global_path = ".qoder/skills"
+format = "directory"
+
+[[agent]]
+id = "qoder-cn"
+display_name = "Qoder CN"
+project_path = ".qoder/skills"
+global_path = ".qoder-cn/skills"
+format = "directory"
+
+[[agent]]
+id = "qwen-code"
+display_name = "Qwen Code"
+project_path = ".qwen/skills"
+global_path = ".qwen/skills"
+format = "directory"
+
+[[agent]]
+id = "reasonix"
+display_name = "Reasonix"
+project_path = ".reasonix/skills"
+global_path = ".reasonix/skills"
+format = "directory"
+
+[[agent]]
+id = "replit"
+display_name = "Replit"
+project_path = ".agents/skills"
+global_path = ".config/agents/skills"
+format = "directory"
+
+[[agent]]
+id = "roo"
+display_name = "Roo Code"
+project_path = ".roo/skills"
+global_path = ".roo/skills"
+format = "directory"
+
+[[agent]]
+id = "rovodev"
+display_name = "Rovo Dev"
+project_path = ".rovodev/skills"
+global_path = ".rovodev/skills"
+format = "directory"
+
+[[agent]]
+id = "tabnine-cli"
+display_name = "Tabnine CLI"
+project_path = ".tabnine/agent/skills"
+global_path = ".tabnine/agent/skills"
+format = "directory"
+
+[[agent]]
+id = "terramind"
+display_name = "Terramind"
+project_path = ".terramind/skills"
+global_path = ".terramind/skills"
+format = "directory"
+
+[[agent]]
+id = "tinycloud"
+display_name = "Tinycloud"
+project_path = ".tinycloud/skills"
+global_path = ".tinycloud/skills"
+format = "directory"
+
+[[agent]]
+id = "trae"
+display_name = "Trae"
+project_path = ".trae/skills"
+global_path = ".trae/skills"
+format = "directory"
+
+[[agent]]
+id = "trae-cn"
+display_name = "Trae CN"
+project_path = ".trae/skills"
+global_path = ".trae-cn/skills"
+format = "directory"
+
+[[agent]]
+id = "universal"
+display_name = "Universal"
+project_path = ".agents/skills"
+global_path = ".config/agents/skills"
+format = "directory"
+
+[[agent]]
+id = "warp"
+display_name = "Warp"
+project_path = ".agents/skills"
+global_path = ".agents/skills"
+format = "directory"
+
+[[agent]]
+id = "windsurf"
+display_name = "Windsurf"
+project_path = ".windsurf/skills"
+global_path = ".codeium/windsurf/skills"
+format = "directory"
+
+[[agent]]
+id = "zed"
+display_name = "Zed"
+project_path = ".agents/skills"
+global_path = ".agents/skills"
+format = "directory"
+
+[[agent]]
+id = "zencoder"
+display_name = "Zencoder"
+project_path = ".zencoder/skills"
+global_path = ".zencoder/skills"
+format = "directory"
+
+[[agent]]
+id = "zenflow"
+display_name = "Zenflow"
+project_path = ".zencoder/skills"
+global_path = ".zencoder/skills"
+format = "directory"
+
+[[agent]]
+id = "grok"
+display_name = "Grok"
+project_path = ".grok/skills"
+global_path = ".grok/skills"
+format = "flat"

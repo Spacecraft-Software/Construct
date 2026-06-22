@@ -94,6 +94,32 @@ fn pairs(items: &[(&str, &str)]) -> Vec<(String, String)> {
         .collect()
 }
 
+/// The `data` schema shared by the installer commands (add/list/remove/update).
+fn install_output_schema() -> Value {
+    json!({
+        "type": "object",
+        "properties": {
+            "source": { "type": ["string", "null"] },
+            "scope": { "type": "string" },
+            "mode": { "type": ["string", "null"] },
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "agent": { "type": "string" },
+                        "skill": { "type": "string" },
+                        "scope": { "type": "string" },
+                        "target": { "type": "string" },
+                        "action": { "type": "string" },
+                        "detail": { "type": ["string", "null"] }
+                    }
+                }
+            }
+        }
+    })
+}
+
 /// Every command the binary currently implements. Extended as later phases add
 /// commands; kept in lockstep with [`crate::cli`] by `tests::manifest_in_sync`.
 #[allow(
@@ -158,6 +184,206 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             ]),
             supports_json: true,
             supports_dry_run: true,
+            idempotent: true,
+            destructive: false,
+        },
+        CommandSpec {
+            name: "construct skill add".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "add".to_owned(),
+            description: "Install skills from a catalogue source into one or more agents"
+                .to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "source": { "type": "string", "description": "Catalogue source path (default: the local Construct clone)" },
+                    "agents": { "type": "array", "items": { "type": "string" }, "description": "Target agent ids (default: detected-installed)" },
+                    "skills": { "type": "array", "items": { "type": "string" }, "description": "Skills to install (default: all in source)" },
+                    "global": { "type": "boolean", "default": false, "description": "Install into each agent's home skills dir" },
+                    "copy": { "type": "boolean", "default": false, "description": "Copy instead of symlink" },
+                    "all": { "type": "boolean", "default": false, "description": "Target every known agent" }
+                }
+            }),
+            output_data: install_output_schema(),
+            exit_codes: pairs(&[
+                (
+                    "0",
+                    "SUCCESS — install plan applied (or planned under --dry-run)",
+                ),
+                (
+                    "1",
+                    "GENERAL_FAILURE / FEATURE_UNAVAILABLE — filesystem error or remote source",
+                ),
+                (
+                    "2",
+                    "MISSING_ARGUMENT — no agents specified and none detected",
+                ),
+                ("3", "NOT_FOUND — unknown agent, skill, or source path"),
+                (
+                    "5",
+                    "CONFLICT — explicit --global into a Home-Manager-managed dir",
+                ),
+            ]),
+            examples: pairs(&[
+                (
+                    "construct skill add --agents claude-code,cursor",
+                    "Install all catalogue skills into two agents (project-local)",
+                ),
+                (
+                    "construct skill add --skills spacecraft-rust-guidelines --all --json",
+                    "Install one skill into every agent",
+                ),
+            ]),
+            supports_json: true,
+            supports_dry_run: true,
+            idempotent: true,
+            destructive: false,
+        },
+        CommandSpec {
+            name: "construct skill list".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "list".to_owned(),
+            description: "List installed skills per agent".to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "agents": { "type": "array", "items": { "type": "string" } },
+                    "global": { "type": "boolean", "default": false }
+                }
+            }),
+            output_data: install_output_schema(),
+            exit_codes: pairs(&[("0", "SUCCESS"), ("3", "NOT_FOUND — unknown agent")]),
+            examples: pairs(&[
+                (
+                    "construct skill list",
+                    "List project-local installed skills",
+                ),
+                (
+                    "construct skill list --global --json",
+                    "List globally installed skills",
+                ),
+            ]),
+            supports_json: true,
+            supports_dry_run: false,
+            idempotent: true,
+            destructive: false,
+        },
+        CommandSpec {
+            name: "construct skill remove".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "remove".to_owned(),
+            description: "Remove installed skills from one or more agents".to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "skills": { "type": "array", "items": { "type": "string" } },
+                    "agents": { "type": "array", "items": { "type": "string" } },
+                    "global": { "type": "boolean", "default": false },
+                    "all": { "type": "boolean", "default": false }
+                }
+            }),
+            output_data: install_output_schema(),
+            exit_codes: pairs(&[
+                ("0", "SUCCESS — removed (or planned under --dry-run)"),
+                (
+                    "2",
+                    "MISSING_ARGUMENT — refused to remove everything without a selection",
+                ),
+                ("3", "NOT_FOUND — unknown agent"),
+            ]),
+            examples: pairs(&[
+                (
+                    "construct skill remove --skills foo --agents cursor",
+                    "Remove one skill from one agent",
+                ),
+                (
+                    "construct skill remove --all --global --dry-run",
+                    "Preview removing all globally installed skills",
+                ),
+            ]),
+            supports_json: true,
+            supports_dry_run: true,
+            idempotent: true,
+            destructive: true,
+        },
+        CommandSpec {
+            name: "construct skill update".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "update".to_owned(),
+            description: "Refresh installed skills from the source (overwrites in place)"
+                .to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "source": { "type": "string" },
+                    "agents": { "type": "array", "items": { "type": "string" } },
+                    "skills": { "type": "array", "items": { "type": "string" } },
+                    "global": { "type": "boolean", "default": false },
+                    "copy": { "type": "boolean", "default": false },
+                    "all": { "type": "boolean", "default": false }
+                }
+            }),
+            output_data: install_output_schema(),
+            exit_codes: pairs(&[
+                ("0", "SUCCESS"),
+                ("1", "GENERAL_FAILURE — filesystem error"),
+                ("3", "NOT_FOUND — unknown agent, skill, or source"),
+                (
+                    "5",
+                    "CONFLICT — explicit --global into a Home-Manager-managed dir",
+                ),
+            ]),
+            examples: pairs(&[
+                (
+                    "construct skill update --agents claude-code",
+                    "Refresh a single agent's skills",
+                ),
+                ("construct skill update --all --json", "Refresh every agent"),
+            ]),
+            supports_json: true,
+            supports_dry_run: true,
+            idempotent: true,
+            destructive: false,
+        },
+        CommandSpec {
+            name: "construct agent list".to_owned(),
+            noun: "agent".to_owned(),
+            verb: "list".to_owned(),
+            description: "List every supported agent and its install paths".to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+            }),
+            output_data: json!({
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": { "type": "string" },
+                        "display_name": { "type": "string" },
+                        "project_path": { "type": "string" },
+                        "global_path": { "type": ["string", "null"] },
+                        "format": { "type": "string", "enum": ["directory", "flat"] },
+                        "installed": { "type": "boolean" },
+                        "hm_managed": { "type": "boolean" }
+                    }
+                }
+            }),
+            exit_codes: pairs(&[("0", "SUCCESS")]),
+            examples: pairs(&[
+                ("construct agent list", "List all supported agents"),
+                (
+                    "construct agent list --json --fields id,global_path",
+                    "Just ids and global paths",
+                ),
+            ]),
+            supports_json: true,
+            supports_dry_run: false,
             idempotent: true,
             destructive: false,
         },
