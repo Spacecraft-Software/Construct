@@ -1,0 +1,3 @@
+# Build artifacts — never tracked, and excluded from the Nix flake source so the
+# package derivation stays reproducible. Cargo.lock IS tracked (binary crate).
+/target

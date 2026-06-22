@@ -14,7 +14,7 @@
       # A "cross-platform" skill is any top-level directory that contains a
       # SKILL.md and is not in the excluded list. A "Grok" skill is any
       # subdirectory of grok-skills/ that contains a SKILL.md.
-      excludedDirs = [ "grok-skills" "Excluded" ".claude" ".git" ];
+      excludedDirs = [ "grok-skills" "Excluded" ".claude" ".git" "construct-cli" ];
 
       hasSkillMd = parent: name:
         builtins.pathExists (parent + "/${name}/SKILL.md");
@@ -75,6 +75,23 @@
           name = "grok-${n}";
           value = mkSkillPackage pkgs (self + "/grok-skills") n;
         }) grokSkills))
+        // {
+          # First executable in the catalogue: the `construct` skills CLI.
+          # Its source lives in construct-cli/ (excluded from skill detection
+          # above). Built from the in-tree Cargo.lock for reproducibility.
+          construct = pkgs.rustPlatform.buildRustPackage {
+            pname = "construct";
+            version = "0.1.0";
+            src = self + "/construct-cli";
+            cargoLock.lockFile = self + "/construct-cli/Cargo.lock";
+            meta = {
+              description = "Spacecraft Software Construct skills package manager";
+              homepage = "https://Construct.SpacecraftSoftware.org/";
+              license = pkgs.lib.licenses.gpl3Plus;
+              mainProgram = "construct";
+            };
+          };
+        }
       );
 
       # ───────────────────────────────────────────────────────────────────
