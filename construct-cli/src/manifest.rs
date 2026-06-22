@@ -188,6 +188,61 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             destructive: false,
         },
         CommandSpec {
+            name: "construct skill ship".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "ship".to_owned(),
+            description: "Commit (signed) + push local skill edits, then sync".to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "repo": { "type": "string", "description": "Construct clone to ship from" },
+                    "skills": { "type": "array", "items": { "type": "string" }, "description": "Restrict to these skills (default: all changed)" },
+                    "message": { "type": "string", "description": "Commit message subject" },
+                    "no_sync": { "type": "boolean", "default": false, "description": "Skip the final flake sync" }
+                }
+            }),
+            output_data: json!({
+                "type": "object",
+                "properties": {
+                    "repo": { "type": "string" },
+                    "status": { "type": "string" },
+                    "shipped_skills": { "type": "array", "items": { "type": "string" } },
+                    "committed": { "type": "boolean" },
+                    "commit_sha": { "type": "string" },
+                    "signed": { "type": "boolean" },
+                    "pushed": { "type": "boolean" },
+                    "flake_updated": { "type": "boolean" },
+                    "synced_at": { "type": ["string", "null"] }
+                }
+            }),
+            exit_codes: pairs(&[
+                ("0", "SUCCESS — shipped (or planned under --dry-run)"),
+                ("1", "GENERAL_FAILURE — a git or nix command failed"),
+                ("2", "USAGE_ERROR — repo is not the Construct work tree"),
+                ("3", "NOT_FOUND — repo path does not exist"),
+                (
+                    "5",
+                    "CONFLICT — skill source changed without rebuilt .zip/.skill bundles",
+                ),
+                ("127", "DEPENDENCY_MISSING — git or nix not on PATH"),
+            ]),
+            examples: pairs(&[
+                (
+                    "construct skill ship --dry-run",
+                    "Preview what would be committed and pushed",
+                ),
+                (
+                    "construct skill ship --skills spacecraft-rust-guidelines",
+                    "Ship one skill's edits",
+                ),
+            ]),
+            supports_json: true,
+            supports_dry_run: true,
+            idempotent: false,
+            destructive: false,
+        },
+        CommandSpec {
             name: "construct skill add".to_owned(),
             noun: "skill".to_owned(),
             verb: "add".to_owned(),

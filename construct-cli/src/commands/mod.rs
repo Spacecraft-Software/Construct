@@ -11,6 +11,7 @@
 pub(crate) mod agent;
 pub(crate) mod describe;
 pub(crate) mod schema;
+pub(crate) mod ship;
 pub(crate) mod skill;
 pub(crate) mod sync;
 
@@ -33,6 +34,7 @@ pub(crate) fn dispatch(cli: &Cli, ctx: &Context) -> Result<Option<CommandOutput>
             SkillCommand::Remove(args) => skill::remove(ctx, args).map(Some),
             SkillCommand::Update(args) => skill::update(ctx, args).map(Some),
             SkillCommand::Sync(args) => sync::run(ctx, args).map(Some),
+            SkillCommand::Ship(args) => ship::run(ctx, args).map(Some),
         },
         Some(Command::Agent { verb }) => match verb {
             AgentCommand::List => Ok(Some(agent::list(ctx))),

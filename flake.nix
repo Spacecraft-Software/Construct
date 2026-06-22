@@ -84,6 +84,9 @@
             version = "0.1.0";
             src = self + "/construct-cli";
             cargoLock.lockFile = self + "/construct-cli/Cargo.lock";
+            # The ship-loop tests shell out to `git`; make it available to the
+            # check phase (the binary itself invokes the user's system git/nix).
+            nativeCheckInputs = [ pkgs.git ];
             meta = {
               description = "Spacecraft Software Construct skills package manager";
               homepage = "https://Construct.SpacecraftSoftware.org/";

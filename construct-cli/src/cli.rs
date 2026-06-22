@@ -190,6 +190,12 @@ pub(crate) enum SkillCommand {
         after_help = "Examples:\n  construct skill sync\n  construct skill sync --json\n  construct skill sync --flake-dir /etc/nixos --dry-run"
     )]
     Sync(SyncArgs),
+
+    /// Ship local skill edits: commit (signed) + push, then sync.
+    #[command(
+        after_help = "Examples:\n  construct skill ship --dry-run\n  construct skill ship --skills spacecraft-rust-guidelines\n  construct skill ship --message \"docs: clarify X\" --json"
+    )]
+    Ship(ShipArgs),
 }
 
 /// Arguments for `construct skill add` / `construct skill update`.
@@ -282,6 +288,31 @@ pub(crate) struct SyncArgs {
     /// Directory of the consuming flake whose `construct` input is updated.
     #[arg(long, value_name = "DIR")]
     pub(crate) flake_dir: Option<PathBuf>,
+}
+
+/// Arguments for `construct skill ship`.
+#[derive(Debug, Args)]
+pub(crate) struct ShipArgs {
+    /// The Construct clone to ship from (default: the local catalogue clone).
+    #[arg(long, value_name = "DIR")]
+    pub(crate) repo: Option<PathBuf>,
+
+    /// Restrict to these skills (comma-separated); defaults to all changed.
+    #[arg(
+        short = 's',
+        long = "skills",
+        value_delimiter = ',',
+        value_name = "NAME[,NAME...]"
+    )]
+    pub(crate) skills: Vec<String>,
+
+    /// Commit message subject (default: derived from shipped skills).
+    #[arg(short = 'm', long = "message", value_name = "MSG")]
+    pub(crate) message: Option<String>,
+
+    /// Commit and push but skip the final `skill sync` step.
+    #[arg(long)]
+    pub(crate) no_sync: bool,
 }
 
 /// Render a clap parse outcome (help, version, or error) and return the exit

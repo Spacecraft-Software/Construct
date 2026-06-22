@@ -6,9 +6,9 @@
 //! to the bravais `skills-sync` Nushell function: it runs
 //! `nix flake update construct` in the target directory and **does not** run
 //! `nixos-rebuild` — applying the refreshed skills is a separate, deliberate
-//! step.
+//! step. The core [`flake_update`] is reused by `skill ship`.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command as Proc;
 
 use serde_json::json;
@@ -19,9 +19,9 @@ use crate::output::error::{AppError, ErrorCode};
 use crate::output::{CommandOutput, HumanRender};
 
 /// Default consuming flake — the bravais NixOS configuration.
-const DEFAULT_FLAKE_DIR: &str = "/spacecraft-software/bravais";
+pub(crate) const DEFAULT_FLAKE_DIR: &str = "/spacecraft-software/bravais";
 /// The flake input that carries the Construct skill catalogue.
-const INPUT_NAME: &str = "construct";
+pub(crate) const INPUT_NAME: &str = "construct";
 
 /// Run the sync (or, under `--dry-run`, report what it would do).
 pub(crate) fn run(ctx: &Context, args: &SyncArgs) -> Result<CommandOutput, AppError> {
@@ -29,17 +29,12 @@ pub(crate) fn run(ctx: &Context, args: &SyncArgs) -> Result<CommandOutput, AppEr
         .flake_dir
         .clone()
         .unwrap_or_else(|| PathBuf::from(DEFAULT_FLAKE_DIR));
-
-    if !flake_dir.is_dir() {
-        return Err(AppError::not_found(
-            ctx,
-            format!("flake directory '{}' does not exist", flake_dir.display()),
-            "construct skill sync --flake-dir <existing-dir>",
-        ));
-    }
     let flake_dir_str = flake_dir.display().to_string();
 
     if ctx.dry_run {
+        if !flake_dir.is_dir() {
+            return Err(missing_dir(ctx, &flake_dir));
+        }
         let data = json!({
             "flake_dir": flake_dir_str,
             "input": INPUT_NAME,
@@ -53,6 +48,28 @@ pub(crate) fn run(ctx: &Context, args: &SyncArgs) -> Result<CommandOutput, AppEr
         return Ok(CommandOutput::new(data, human));
     }
 
+    let synced_at = flake_update(ctx, &flake_dir)?;
+    let data = json!({
+        "flake_dir": flake_dir_str,
+        "input": INPUT_NAME,
+        "updated": true,
+        "executed": true,
+        "synced_at": synced_at,
+    });
+    let human = HumanRender::Message(format!(
+        "{synced_at}  construct flake input updated in {flake_dir_str} — rebuild to apply"
+    ));
+    Ok(CommandOutput::new(data, human))
+}
+
+/// Run `nix flake update construct` in `flake_dir`, returning the ISO 8601 UTC
+/// timestamp of the update. Shared by `skill sync` and `skill ship`.
+pub(crate) fn flake_update(ctx: &Context, flake_dir: &Path) -> Result<String, AppError> {
+    if !flake_dir.is_dir() {
+        return Err(missing_dir(ctx, flake_dir));
+    }
+    let flake_dir_str = flake_dir.display().to_string();
+
     let result = Proc::new("nix")
         .args([
             "--extra-experimental-features",
@@ -61,7 +78,7 @@ pub(crate) fn run(ctx: &Context, args: &SyncArgs) -> Result<CommandOutput, AppEr
             "update",
             INPUT_NAME,
         ])
-        .current_dir(&flake_dir)
+        .current_dir(flake_dir)
         .output();
 
     let output = match result {
@@ -104,18 +121,16 @@ pub(crate) fn run(ctx: &Context, args: &SyncArgs) -> Result<CommandOutput, AppEr
         .with_extension("nix_exit_code", json!(output.status.code())));
     }
 
-    let synced_at = crate::time::now_iso8601();
-    let data = json!({
-        "flake_dir": flake_dir_str,
-        "input": INPUT_NAME,
-        "updated": true,
-        "executed": true,
-        "synced_at": synced_at,
-    });
-    let human = HumanRender::Message(format!(
-        "{synced_at}  construct flake input updated in {flake_dir_str} — rebuild to apply"
-    ));
-    Ok(CommandOutput::new(data, human))
+    Ok(crate::time::now_iso8601())
+}
+
+/// The "flake dir does not exist" error.
+fn missing_dir(ctx: &Context, flake_dir: &Path) -> AppError {
+    AppError::not_found(
+        ctx,
+        format!("flake directory '{}' does not exist", flake_dir.display()),
+        "construct skill sync --flake-dir <existing-dir>",
+    )
 }
 
 /// The last few lines of captured stderr, joined for a one-line error message.
