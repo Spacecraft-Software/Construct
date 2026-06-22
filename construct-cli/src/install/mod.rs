@@ -24,6 +24,7 @@ use serde::Serialize;
 use crate::context::Context;
 use crate::output::error::{AppError, ErrorCode};
 use crate::registry::{self, detect, Agent, SkillFormat};
+use crate::sources::{self, DiscoveredSkill};
 use plan::{AddOptions, Scope};
 
 /// One (agent, skill) outcome.
@@ -62,27 +63,11 @@ pub(crate) struct RemoveOptions {
 
 /// Install skills from a catalogue source into the selected agents.
 pub(crate) fn add(ctx: &Context, opts: &AddOptions) -> Result<InstallReport, AppError> {
-    let source_str = opts.source.to_string_lossy().into_owned();
-    if plan::looks_remote(&source_str) {
-        return Err(AppError::new(
-            ctx,
-            ErrorCode::FeatureUnavailable,
-            1,
-            "remote git sources are not supported yet",
-            "construct skill add /spacecraft-software/construct",
-        ));
-    }
-    let source = opts.source.canonicalize().map_err(|_| {
-        AppError::not_found(
-            ctx,
-            format!("source '{source_str}' does not exist"),
-            "construct skill add /spacecraft-software/construct",
-        )
-    })?;
-
+    // Resolve the source (local path, git URL, or owner/repo — cloned to cache).
+    let source = sources::resolve_source(ctx, &opts.source, opts.refresh)?;
     let registry = registry::all();
     let agents = plan::resolve_agents(ctx, opts, &registry)?;
-    let skills = plan::resolve_skills(ctx, &source, &opts.skills)?;
+    let skills = sources::select_skills(ctx, &source, &opts.skills)?;
     let root = plan::project_root();
 
     // Pre-flight: an explicit `--agents` + `--global` into an HM-managed dir is
@@ -110,7 +95,7 @@ pub(crate) fn add(ctx: &Context, opts: &AddOptions) -> Result<InstallReport, App
 
     let mut items = Vec::new();
     for agent in &agents {
-        place_agent(ctx, agent, &source, &skills, opts, &root, &mut items)?;
+        place_agent(ctx, agent, &skills, opts, &root, &mut items)?;
     }
 
     Ok(InstallReport {
@@ -125,8 +110,7 @@ pub(crate) fn add(ctx: &Context, opts: &AddOptions) -> Result<InstallReport, App
 fn place_agent(
     ctx: &Context,
     agent: &Agent,
-    source: &Path,
-    skills: &[String],
+    skills: &[DiscoveredSkill],
     opts: &AddOptions,
     root: &Path,
     items: &mut Vec<ItemResult>,
@@ -164,9 +148,9 @@ fn place_agent(
         for skill in skills {
             items.push(ItemResult {
                 agent: agent.id.clone(),
-                skill: skill.clone(),
+                skill: skill.name.clone(),
                 scope,
-                target: base.join(skill).display().to_string(),
+                target: base.join(&skill.name).display().to_string(),
                 action: "refused_hm_managed",
                 detail: Some("symlinked to ~/.agents/skills by Home Manager".to_owned()),
             });
@@ -179,12 +163,11 @@ fn place_agent(
     }
 
     for skill in skills {
-        let target = base.join(skill);
-        let skill_source = source.join(skill);
-        let (action, detail) = place(ctx, &skill_source, &target, opts.copy, opts.force)?;
+        let target = base.join(&skill.name);
+        let (action, detail) = place(ctx, &skill.dir, &target, opts.copy, opts.force)?;
         items.push(ItemResult {
             agent: agent.id.clone(),
-            skill: skill.clone(),
+            skill: skill.name.clone(),
             scope,
             target: target.display().to_string(),
             action,
@@ -379,7 +362,7 @@ pub(crate) fn remove(ctx: &Context, opts: &RemoveOptions) -> Result<InstallRepor
 fn push_all(
     items: &mut Vec<ItemResult>,
     agent: &Agent,
-    skills: &[String],
+    skills: &[DiscoveredSkill],
     scope: &'static str,
     target: &str,
     action: &'static str,
@@ -388,7 +371,7 @@ fn push_all(
     for skill in skills {
         items.push(ItemResult {
             agent: agent.id.clone(),
-            skill: skill.clone(),
+            skill: skill.name.clone(),
             scope,
             target: target.to_owned(),
             action,

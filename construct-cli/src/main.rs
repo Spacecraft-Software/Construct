@@ -30,6 +30,7 @@ mod install;
 mod manifest;
 mod output;
 mod registry;
+mod sources;
 mod time;
 
 use std::panic::AssertUnwindSafe;

@@ -47,13 +47,16 @@ impl Scope {
 /// Resolved options for `skill add` / `skill update`.
 #[derive(Debug)]
 pub(crate) struct AddOptions {
-    pub(crate) source: PathBuf,
+    /// Raw source spec (local path, git URL, or `owner/repo`).
+    pub(crate) source: String,
     pub(crate) skills: Vec<String>,
     pub(crate) agents: Vec<String>,
     pub(crate) all_agents: bool,
     pub(crate) scope: Scope,
     pub(crate) copy: bool,
     pub(crate) force: bool,
+    /// Re-clone a cached remote source before installing.
+    pub(crate) refresh: bool,
 }
 
 /// Heuristic: does this source string look like a remote git source (which is
@@ -64,63 +67,6 @@ pub(crate) fn looks_remote(source: &str) -> bool {
         || (source.matches('/').count() == 1
             && !source.starts_with('.')
             && !Path::new(source).exists())
-}
-
-/// Resolve which skills to install from a catalogue source directory. With no
-/// explicit request, every top-level skill (a dir containing `SKILL.md`) is
-/// selected; otherwise the requested names are validated against the source.
-pub(crate) fn resolve_skills(
-    ctx: &Context,
-    source: &Path,
-    requested: &[String],
-) -> Result<Vec<String>, AppError> {
-    let entries = std::fs::read_dir(source).map_err(|e| {
-        AppError::not_found(
-            ctx,
-            format!("cannot read source '{}': {e}", source.display()),
-            "construct skill add /spacecraft-software/construct",
-        )
-    })?;
-
-    let mut found = Vec::new();
-    for entry in entries.flatten() {
-        if !entry.file_type().is_ok_and(|t| t.is_dir()) {
-            continue;
-        }
-        let name = entry.file_name().to_string_lossy().into_owned();
-        if name.starts_with('.') || NON_SKILL_DIRS.contains(&name.as_str()) {
-            continue;
-        }
-        if source.join(&name).join("SKILL.md").is_file() {
-            found.push(name);
-        }
-    }
-    found.sort();
-
-    if requested.is_empty() {
-        if found.is_empty() {
-            return Err(AppError::not_found(
-                ctx,
-                format!("no skills found in '{}'", source.display()),
-                "construct skill add --skills <name> /spacecraft-software/construct",
-            ));
-        }
-        return Ok(found);
-    }
-
-    let mut chosen = Vec::with_capacity(requested.len());
-    for want in requested {
-        if found.iter().any(|f| f == want) {
-            chosen.push(want.clone());
-        } else {
-            return Err(AppError::not_found(
-                ctx,
-                format!("skill '{want}' not found in source"),
-                "construct skill find",
-            ));
-        }
-    }
-    Ok(chosen)
 }
 
 /// Resolve which agents to target: explicit `--agents` (validated), else

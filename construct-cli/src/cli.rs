@@ -185,6 +185,25 @@ pub(crate) enum SkillCommand {
     )]
     Update(AddArgs),
 
+    /// Browse a source's catalogue (name + description from SKILL.md).
+    #[command(
+        visible_alias = "search",
+        after_help = "Examples:\n  construct skill find\n  construct skill find rust\n  construct skill find --source vercel-labs/skills --json"
+    )]
+    Find(FindArgs),
+
+    /// Print selected skills' prompts to stdout without installing.
+    #[command(
+        after_help = "Examples:\n  construct skill use --skills spacecraft-rust-guidelines\n  construct skill use vercel-labs/skills --skills find-skills"
+    )]
+    Use(UseArgs),
+
+    /// Scaffold a new skill directory with a SKILL.md template.
+    #[command(
+        after_help = "Examples:\n  construct skill init my-skill\n  construct skill init my-skill --dir ./skills"
+    )]
+    Init(InitArgs),
+
     /// Update the Construct flake input in a consuming flake (no rebuild).
     #[command(
         after_help = "Examples:\n  construct skill sync\n  construct skill sync --json\n  construct skill sync --flake-dir /etc/nixos --dry-run"
@@ -233,6 +252,10 @@ pub(crate) struct AddArgs {
     /// Target every known agent (not just detected ones).
     #[arg(long)]
     pub(crate) all: bool,
+
+    /// Re-clone a cached remote source before installing.
+    #[arg(long)]
+    pub(crate) refresh: bool,
 }
 
 /// Arguments for `construct skill list`.
@@ -288,6 +311,44 @@ pub(crate) struct SyncArgs {
     /// Directory of the consuming flake whose `construct` input is updated.
     #[arg(long, value_name = "DIR")]
     pub(crate) flake_dir: Option<PathBuf>,
+}
+
+/// Arguments for `construct skill find`.
+#[derive(Debug, Args)]
+pub(crate) struct FindArgs {
+    /// Filter skills whose name or description contains this query.
+    pub(crate) query: Option<String>,
+
+    /// Source to browse (local path, git URL, or owner/repo; default Construct).
+    #[arg(long, value_name = "SRC")]
+    pub(crate) source: Option<String>,
+}
+
+/// Arguments for `construct skill use`.
+#[derive(Debug, Args)]
+pub(crate) struct UseArgs {
+    /// Source (local path, git URL, or owner/repo); default the Construct clone.
+    pub(crate) source: Option<String>,
+
+    /// Skills whose prompts to print (comma-separated); default all in source.
+    #[arg(
+        short = 's',
+        long = "skills",
+        value_delimiter = ',',
+        value_name = "NAME[,NAME...]"
+    )]
+    pub(crate) skills: Vec<String>,
+}
+
+/// Arguments for `construct skill init`.
+#[derive(Debug, Args)]
+pub(crate) struct InitArgs {
+    /// Name (directory) of the new skill.
+    pub(crate) name: String,
+
+    /// Parent directory to create the skill under (default: current dir).
+    #[arg(long, value_name = "DIR")]
+    pub(crate) dir: Option<PathBuf>,
 }
 
 /// Arguments for `construct skill ship`.

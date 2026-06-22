@@ -243,6 +243,135 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             destructive: false,
         },
         CommandSpec {
+            name: "construct skill find".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "find".to_owned(),
+            description: "Browse a source's catalogue (name + description)".to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "query": { "type": "string", "description": "Filter by name/description substring" },
+                    "source": { "type": "string", "description": "Source to browse (default: Construct)" }
+                }
+            }),
+            output_data: json!({
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": { "type": "string" },
+                        "description": { "type": ["string", "null"] }
+                    }
+                }
+            }),
+            exit_codes: pairs(&[
+                ("0", "SUCCESS"),
+                (
+                    "3",
+                    "NOT_FOUND — source has no skills or cannot be resolved",
+                ),
+                (
+                    "127",
+                    "DEPENDENCY_MISSING — git not on PATH (remote source)",
+                ),
+            ]),
+            examples: pairs(&[
+                ("construct skill find", "List the local Construct catalogue"),
+                (
+                    "construct skill find --source vercel-labs/skills --json",
+                    "Browse a remote source",
+                ),
+            ]),
+            supports_json: true,
+            supports_dry_run: false,
+            idempotent: true,
+            destructive: false,
+        },
+        CommandSpec {
+            name: "construct skill use".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "use".to_owned(),
+            description: "Print selected skills' prompts without installing".to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "source": { "type": "string" },
+                    "skills": { "type": "array", "items": { "type": "string" } }
+                }
+            }),
+            output_data: json!({
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "skill": { "type": "string" },
+                        "content": { "type": "string" }
+                    }
+                }
+            }),
+            exit_codes: pairs(&[
+                ("0", "SUCCESS"),
+                ("3", "NOT_FOUND — source or skill not found"),
+            ]),
+            examples: pairs(&[
+                (
+                    "construct skill use --skills spacecraft-rust-guidelines",
+                    "Print one skill's prompt",
+                ),
+                (
+                    "construct skill use vercel-labs/skills --skills find-skills",
+                    "Print from a remote source",
+                ),
+            ]),
+            supports_json: true,
+            supports_dry_run: false,
+            idempotent: true,
+            destructive: false,
+        },
+        CommandSpec {
+            name: "construct skill init".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "init".to_owned(),
+            description: "Scaffold a new skill directory with a SKILL.md template".to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                    "name": { "type": "string", "description": "Skill (directory) name" },
+                    "dir": { "type": "string", "description": "Parent directory (default: current)" }
+                }
+            }),
+            output_data: json!({
+                "type": "object",
+                "properties": {
+                    "created": { "type": "boolean" },
+                    "path": { "type": "string" }
+                }
+            }),
+            exit_codes: pairs(&[
+                ("0", "SUCCESS — created (or planned under --dry-run)"),
+                ("1", "GENERAL_FAILURE — filesystem error"),
+                ("5", "CONFLICT — a SKILL.md already exists at that path"),
+            ]),
+            examples: pairs(&[
+                (
+                    "construct skill init my-skill",
+                    "Scaffold ./my-skill/SKILL.md",
+                ),
+                (
+                    "construct skill init my-skill --dir ./skills",
+                    "Scaffold under ./skills",
+                ),
+            ]),
+            supports_json: true,
+            supports_dry_run: true,
+            idempotent: false,
+            destructive: false,
+        },
+        CommandSpec {
             name: "construct skill add".to_owned(),
             noun: "skill".to_owned(),
             verb: "add".to_owned(),
