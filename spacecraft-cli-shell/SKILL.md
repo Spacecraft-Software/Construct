@@ -105,7 +105,7 @@ These are the high-frequency offenders. Catching them up front saves a reference
 
 Full table: `references/bashisms.md`.
 
-## Spacecraft Software Standard Requirements (Shell Scripts)
+## Steelbore Standard Requirements (Shell Scripts)
 
 When writing Spacecraft Software shell script files, these rules from
 [The Steelbore Standard](../spacecraft-standard/SKILL.md) apply.

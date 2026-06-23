@@ -4,7 +4,7 @@
 //! Time formatting helpers.
 //!
 //! Every timestamp the tool stores, transmits, or logs is ISO 8601 in UTC with
-//! a mandatory `Z` suffix (Spacecraft Software Standard §12.2, CLI Standard §1).
+//! a mandatory `Z` suffix (Steelbore Standard §14.2, CLI Standard §1).
 //! Local time and offset notation are forbidden in all machine-readable output,
 //! so this module is the single place timestamps are produced.
 

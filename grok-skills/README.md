@@ -80,11 +80,11 @@ into `~/.grok/skills/`.
 <!-- §6 — Standards -->
 ## Standards
 
-These skills follow the Spacecraft Software Standard's licensing (§4,
-GPL-3.0-or-later) and ISO 8601 UTC date rules (§12), but use Grok's minimal
+These skills follow the Steelbore Standard's licensing (§4,
+GPL-3.0-or-later) and ISO 8601 UTC date rules (§14), but use Grok's minimal
 frontmatter schema (`name` + `description`) rather than the
 Claude/Gemini/Codex schema with `license` / `maintainer` / `website` fields.
-See [The Spacecraft Software Standard](../spacecraft-standard/) for the full
+See [The Steelbore Standard](../spacecraft-standard/) for the full
 compliance reference.
 
 <!-- §7 — License -->

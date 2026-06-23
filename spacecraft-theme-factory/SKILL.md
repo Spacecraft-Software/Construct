@@ -12,7 +12,7 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-> **Source of truth:** The Steelbore Standard v1.18 (§9 Colors, §10 Typography)
+> **Source of truth:** The Steelbore Standard (§11 Colour Palette, §12 Typography)
 > and the `spacecraft-brand-guidelines` skill. Themes may not introduce
 > colors, fonts, or naming outside what these sources define.
 
@@ -47,11 +47,11 @@ Never use proprietary fonts. Outfit, Inter, Roboto, and similar non-OFL fonts ar
 ## Theme Generation Workflow
 
 1. **Select a target platform** — VS Code, JetBrains, terminal emulator, Material UI app, etc.
-2. **Map the §9 palette** into the platform's color-key schema, preserving
+2. **Map the §11 palette** into the platform's color-key schema, preserving
    role semantics — Molten Amber for primary text, Steel Blue for structural
    accent, Radium Green for success states, Red Oxide for errors, Liquid
    Coolant for info/links. Never invent new color names or shift hex codes.
-3. **Apply the §10 typography** (Share Tech Mono headings, Inconsolata body)
+3. **Apply the §12 typography** (Share Tech Mono headings, Inconsolata body)
    wherever the platform supports font selection.
 4. **Verify WCAG 2.1 AA contrast** against Void Navy for every color pair
    before shipping.
@@ -71,8 +71,8 @@ Never use proprietary fonts. Outfit, Inter, Roboto, and similar non-OFL fonts ar
 
 Before shipping any generated theme:
 
-- All hex codes match §9 verbatim — no variants, no near-matches.
-- All fonts are FOSS-licensed and listed in §10.
+- All hex codes match §11 verbatim — no variants, no near-matches.
+- All fonts are FOSS-licensed and listed in §12.
 - Every color pair against Void Navy passes WCAG 2.1 Level AA.
 - Output references only `spacecraft-brand-guidelines` (lowercase) for
   upstream brand context; no claims of `/themes`, `/scripts`, or

@@ -2,7 +2,7 @@
 
 The `microsoft-rust-guidelines` skill is a Spacecraft Software adaptation of publicly released
 work by Microsoft. This file records the upstream source it builds on, in
-accordance with [The Spacecraft Software Standard §13.3](../spacecraft-standard/SKILL.md).
+accordance with [The Steelbore Standard §15.3](../spacecraft-standard/SKILL.md).
 
 ## Microsoft Pragmatic Rust Guidelines
 
@@ -12,7 +12,7 @@ accordance with [The Spacecraft Software Standard §13.3](../spacecraft-standard
 | Author(s)  | Microsoft Corporation                          |
 | License    | MIT License                                    |
 | Source URL | https://github.com/microsoft/rust-guidelines   |
-| Scope      | All twelve files under `references/` (`01_ai_guidelines.md` through `12_libraries_ux_guidelines.md`) are adapted from the upstream text. Section structure, naming, and most rule prose originate with Microsoft; the Spacecraft Software adaptation adds skill-loading triggers, the **Current compliance date** mechanism in `SKILL.md`, and integration with the wider Spacecraft Software Standard. |
+| Scope      | All twelve files under `references/` (`01_ai_guidelines.md` through `12_libraries_ux_guidelines.md`) are adapted from the upstream text. Section structure, naming, and most rule prose originate with Microsoft; the Spacecraft Software adaptation adds skill-loading triggers, the **Current compliance date** mechanism in `SKILL.md`, and integration with the wider Steelbore Standard. |
 
 ## License of the Spacecraft Software adaptation
 

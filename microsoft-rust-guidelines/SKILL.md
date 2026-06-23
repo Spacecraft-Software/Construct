@@ -163,7 +163,7 @@ Use when:
 
 ---
 
-## Spacecraft Software Standard Requirements (Rust)
+## Steelbore Standard Requirements (Rust)
 
 When writing Rust code for any Spacecraft Software project, these additional rules
 from [The Steelbore Standard](../spacecraft-standard/SKILL.md) apply on top of the

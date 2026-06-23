@@ -67,7 +67,7 @@ diverge. Verify with `unzip -l <name>.zip` before committing.
    ```
    **Never `git add -A` / `git add .`** — other root `.skill` files may carry
    unrelated uncommitted changes that must not be swept into your commit.
-3. **Commit in UTC.** The Steelbore Standard §12.2 forbids offset notation
+3. **Commit in UTC.** The Steelbore Standard §14.2 forbids offset notation
    (`+0300`); only `Z` / `+0000` is permitted:
    ```sh
    TZ=UTC GIT_COMMITTER_DATE="$(TZ=UTC date)" \
@@ -95,7 +95,7 @@ install surface, sweep:
 
 ```sh
 for d in */; do n="${d%/}"; [ -f "$n/SKILL.md" ] || continue
-  case "$n" in grok-skills|Excluded) continue;; esac
+  case "$n" in grok-skills|Excluded|construct-cli) continue;; esac
   inzip="$(unzip -Z1 "$n.zip" 2>/dev/null | grep -v '/$')"
   # (a) content drift: every file inside the bundle must match the working tree
   printf '%s\n' "$inzip" | while read -r f; do [ -n "$f" ] || continue
@@ -157,7 +157,7 @@ in sync with the subdirectory listing.
   adding a matching **alphabetical** row to the table; removing one means deleting
   the row. The README catalogue and the directory list must always agree.
 - **Dates are ISO 8601 UTC** wherever they appear (SKILL.md, references,
-  changelogs) — `YYYY-MM-DD`, no AM/PM or local-time strings (Standard §12).
+  changelogs) — `YYYY-MM-DD`, no AM/PM or local-time strings (Standard §14).
 - **Licensing / REUSE.** Skills are software-class → `GPL-3.0-or-later` by default
   (Standard §4.1.1); third-party-derived skills preserve their upstream license
   (`microsoft-rust-guidelines` is MIT, `gnu-coding-standards` is GFDL-1.3-or-later).

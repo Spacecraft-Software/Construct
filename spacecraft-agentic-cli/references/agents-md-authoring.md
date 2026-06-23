@@ -219,7 +219,7 @@ during normal operation. Standard sections:
 - Setup: dev environment, toolchain, optional tools
 - Workflow: branching strategy, PR checklist, commit conventions
 - Code review: what reviewers look for
-- Spacecraft Software Standard compliance: link to spec, audit command
+- Steelbore Standard compliance: link to spec, audit command
 - Reporting bugs / proposing changes
 
 Keep it human-focused. Repeating AGENTS.md content here is fine because

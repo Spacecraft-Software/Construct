@@ -75,7 +75,7 @@ The TUI MUST implement:
 | Help | F1 | `?` |
 
 Both binding sets MUST be live simultaneously — no mode toggle. This is the
-Spacecraft Software Standard dual-keybinding requirement.
+Steelbore Standard dual-keybinding requirement.
 
 ### Required interactions
 

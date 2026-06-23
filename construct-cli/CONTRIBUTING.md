@@ -4,7 +4,7 @@ This covers the **`construct` binary** under `construct-cli/`. For the skill
 *catalogue* workflow (editing skills, rebuilding `.zip`/`.skill` bundles), see
 the repository-root [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
-Construct is a personal hobby project (Spacecraft Software Standard §5, Personal
+Construct is a personal hobby project (Steelbore Standard §5, Personal
 posture): external input is welcome but discretionary, with no warranty or SLA.
 
 ## Development workflow

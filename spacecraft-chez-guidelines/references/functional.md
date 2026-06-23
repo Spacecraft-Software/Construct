@@ -209,5 +209,5 @@ per-thread context in a threaded build, use Chez's **`make-thread-parameter`** (
 
 Declare dependencies in `Akku.manifest`; `akku install` resolves and writes `Akku.lock`
 (commit both). Typical functional deps: `(srfi :1)`, a `match` package, `(srfi :64)` for
-tests. Keep the dependency set small and GPL-compatible (Steelbore §10 gate); every addition
+tests. Keep the dependency set small and GPL-compatible (Steelbore §4 licensing gate); every addition
 is a deliberate choice recorded in the manifest.

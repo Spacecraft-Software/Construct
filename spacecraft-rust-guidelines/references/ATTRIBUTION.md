@@ -7,8 +7,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
 # Attribution — Steelbore Rust Idiom Layer
 
 [`idioms.md`](idioms.md) is a Steelbore-authored distillation (GPL-3.0-or-later) of
-rules adapted from the **Apollo GraphQL Rust Best Practices skill**. Per Spacecraft
-Software Standard §4.2 (upstream license compliance) and §13.3 (third-party
+rules adapted from the **Apollo GraphQL Rust Best Practices skill**. Per the
+Steelbore Standard §4.2 (upstream license compliance) and §15.3 (third-party
 attribution), the upstream MIT notice is preserved verbatim below.
 
 - **Adapted work:** Apollo GraphQL — *Rust Best Practices* skill (`rust-best-practices`)

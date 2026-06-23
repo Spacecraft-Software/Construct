@@ -2,10 +2,9 @@
 
 Spacecraft Software conventions for `.texi` source, with copy-paste templates.
 The Steelbore Standard is canonical; where this file and the Standard disagree,
-the Standard wins. Section numbers below cite the on-disk Standard (v1.22): §4
-licensing/REUSE, §10 palette, §11 typography, §13 dates, §14 attribution. (When a
-dedicated "Documentation" section lands in the Standard, those later numbers shift
-down by one — cite by *name* if unsure.)
+the Standard wins. Section numbers below cite the Steelbore Standard: §4
+licensing/REUSE, §8 Documentation (Texinfo), §11 palette, §12 typography,
+§14 dates, §15 attribution.
 
 ## 1. The inline SPDX/REUSE header (§4.3)
 
@@ -24,7 +23,7 @@ Rules:
 
 - Use the **full** address `Mohamed.Hammad@SpacecraftSoftware.org` here. `reuse
   lint` parses this line; the `[at]` obfuscation form breaks it and is forbidden
-  in SPDX headers (§14.2).
+  in SPDX headers (§15.2).
 - The `SPDX-License-Identifier` must match the licence declared in `@copying`
   (CC-BY-SA-4.0 *or* GFDL-1.3-or-later — pick one, keep them in sync).
 - A `Makefile`, `build.sh`, or other **software** shipped beside the manual keeps
@@ -85,7 +84,7 @@ When GFDL is used, include the licence text as an appendix
 `fdl.texi` include from the Texinfo distribution does this; `@include fdl.texi`.
 Default house choice (CC-BY-SA-4.0) needs no such appendix.
 
-## 4. Title page & attribution (§14)
+## 4. Title page & attribution (§15)
 
 ```texinfo
 @titlepage
@@ -107,16 +106,16 @@ Maintained by Mohamed Hammad
   (GNU's own example is `@email{bug-texinfo@@gnu.org}`). The SPDX `@c` header is
   the one place to write the address *un*-escaped — comment lines are not parsed
   for `@`-commands, and `reuse lint` needs the raw address.
-- **Email obfuscation (§14.2):** the `[at]` form is for *plain running prose*
+- **Email obfuscation (§15.2):** the `[at]` form is for *plain running prose*
   where the address is not a live link, e.g. `Mohamed.Hammad [at]
   SpacecraftSoftware.org`. Do not use it inside `@email{}` (which builds a real
   `mailto:` link) or in the SPDX header.
-- Replace `PROJECT` with the project subdomain from Standard §14.1 (e.g.
+- Replace `PROJECT` with the project subdomain from Standard §15.1 (e.g.
   `https://Gitway.SpacecraftSoftware.org/`).
 - The copyright year is the first-release year or current year, or a range
   (`2025-2026`) for multi-year projects.
 
-## 5. Dates (§13)
+## 5. Dates (§14)
 
 - ISO 8601 only: `YYYY-MM-DD`. Today is rendered `2026-06-19`.
 - **Never `@today{}`** — it emits "19 June 2026"-style output, not ISO. If a
@@ -124,7 +123,7 @@ Maintained by Mohamed Hammad
   reference `@value{UPDATED}`.
 - Durations (rare in manuals) use ISO 8601 (`PT1H30M`); units metric-primary.
 
-## 6. Palette & typography → applied at OUTPUT (§10/§11)
+## 6. Palette & typography → applied at OUTPUT (§11/§12)
 
 Texinfo source is format-agnostic; the brand is applied when rendering.
 
@@ -136,10 +135,10 @@ Texinfo source is format-agnostic; the brand is applied when rendering.
 | **PDF** (TeX) | A4 via `@afourpaper`; font/colour theming is limited in `texinfo.tex` — see `building.md` §PDF for the supported subset (paper size + body font note). Do not promise full palette parity in PDF. |
 | **DocBook / EPUB** | Structural; downstream tools apply their own styling. |
 
-Palette tokens (Standard §10, cached): Void Navy `#000027` (background),
+Palette tokens (Standard §11, cached): Void Navy `#000027` (background),
 Molten Amber `#D98E32` (body), Steel Blue `#4B7EB0` (H1/accent/visited link),
 Radium Green `#50FA7B` (H2/success), Liquid Coolant `#8BE9FD` (H3/info/link),
-Red Oxide `#FF5C5C` (warning/error). Fonts (Standard §11): Share Tech Mono
+Red Oxide `#FF5C5C` (warning/error). Fonts (Standard §12): Share Tech Mono
 (headings), Inconsolata (body/code) — both OFL.
 
 ## 7. File naming

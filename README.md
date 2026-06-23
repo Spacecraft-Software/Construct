@@ -45,7 +45,7 @@ the rules re-attached to every prompt.
 | [`spacecraft-markdown-document`](spacecraft-markdown-document/) | Produces well-formed GFM documents conforming to the GitHub Flavored Markdown spec and Spacecraft Software house style. Slash-command only: `/spacecraft-markdown-document`. |
 | [`spacecraft-missing-pkg`](spacecraft-missing-pkg/) | Handles missing-package situations in the Spacecraft Software workflow. |
 | [`spacecraft-rust-guidelines`](spacecraft-rust-guidelines/) | High-performance concurrent Rust guidance — concurrency model selection, lock-free synchronisation, memory layout, tooling gates, and unsafe hygiene — plus a distilled idiom layer (`references/idioms.md`, adapted from Apollo's Rust Best Practices, MIT) covering borrowing, clippy discipline, testing, dispatch, and type-state. |
-| [`spacecraft-standard`](spacecraft-standard/) | Authoritative compliance reference (The Spacecraft Software Standard v1.2). |
+| [`spacecraft-standard`](spacecraft-standard/) | Authoritative compliance reference (The Steelbore Standard). |
 | [`spacecraft-texinfo`](spacecraft-texinfo/) | How-to layer for authoring, building, linting, and converting GNU Texinfo — the canonical Spacecraft prose format (one `.texi` → Info/HTML/PDF/DocBook/text/EPUB); house-style header/licensing, node/menu discipline, `@def*` API docs, the `texi2any`/`texi2pdf` toolchain, and HTML/PDF brand theming. |
 | [`spacecraft-theme-factory`](spacecraft-theme-factory/) | Generates Spacecraft Software-compliant themes for IDEs and terminals. |
 | [`spacecraft-zig-guidelines`](spacecraft-zig-guidelines/) | Memory-safe high-performance concurrent Zig guidance — `std.Thread.Pool` / `std.Io.Threaded`, atomics, allocator discipline, comptime safety, and CPU-bound scaling patterns. |
@@ -59,7 +59,7 @@ Every skill follows the same shape:
 <skill-name>/
 ├── SKILL.md           # Frontmatter + the agent-facing instructions
 ├── LICENSE.md         # Skill license (Standard §4.1.1: skills are GPL-3.0-or-later; third-party-derived skills keep their upstream license)
-├── CREDITS.md         # Required when the skill builds on third-party work (Standard §13.3)
+├── CREDITS.md         # Required when the skill builds on third-party work (Standard §15.3)
 └── references/        # Optional; consulted only when depth is needed
     ├── <topic>.md
     └── ATTRIBUTION.md # Optional deeper credit file for adapted references
@@ -145,12 +145,12 @@ differs (flat zip root); see the section's README for details.
 ## Standards
 
 All skills in this repository are expected to conform to
-[The Spacecraft Software Standard](spacecraft-standard/) — including:
+[The Steelbore Standard](spacecraft-standard/) — including:
 
 - **§4** SPDX/REUSE-compliant licensing (§4.3): two-tag headers / `REUSE.toml`, a
   `LICENSES/` directory, `reuse lint`-clean. Skills are GPL-3.0-or-later (§4.1.1);
   third-party-derived skills preserve their upstream license (§4.2).
-- **§11** ISO 8601 dates throughout.
+- **§14** ISO 8601 dates throughout.
 - Functional naming (no codenames for skill IDs).
 
 <!-- §6 — License -->

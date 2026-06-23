@@ -3,7 +3,7 @@
 
    Spacecraft Software HTML theme for texi2any output.
    Apply with:  texi2any --html --no-split --css-include=spacecraft.css FILE.texi
-   Palette: Steelbore Standard §10.  Typography: §11 (Share Tech Mono / Inconsolata, both OFL).
+   Palette: Steelbore Standard §11.  Typography: §12 (Share Tech Mono / Inconsolata, both OFL).
    Fonts load from Google Fonts; system monospace is the offline fallback. */
 
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&family=Share+Tech+Mono&display=swap');

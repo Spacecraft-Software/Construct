@@ -88,18 +88,18 @@ Standard; the full rationale and copy-paste templates are in
   `@documentlanguage en` (or the project's locale) in the header. UTF-8 is the
   default but stating it is house style.
 
-- **ISO 8601 dates only (Standard §13).** Write dates as `YYYY-MM-DD`
+- **ISO 8601 dates only (Standard §14).** Write dates as `YYYY-MM-DD`
   (e.g., `2026-06-19`). **Do not use `@today{}`** — it renders the non-ISO
   "1 Jan 2000" style. Put the date in an `@set UPDATED 2026-06-19` flag and
   reference `@value{UPDATED}`, or write it literally.
 
-- **Attribution (Standard §14).** The `@copying` block and `@titlepage` carry the
+- **Attribution (Standard §15).** The `@copying` block and `@titlepage` carry the
   maintainer (Mohamed Hammad), the contact `Mohamed.Hammad@SpacecraftSoftware.org`,
   the project subdomain `https://<Project>.SpacecraftSoftware.org/`, and an ISO
   copyright year. In running prose (not the SPDX header) the scraper-resistant
   `Mohamed.Hammad [at] SpacecraftSoftware.org` form is permitted.
 
-- **Palette & typography apply to OUTPUT, not source (Standard §10/§11).** Info
+- **Palette & typography apply to OUTPUT, not source (Standard §11/§12).** Info
   and plain text are inherently unstyled — that is fine. **HTML** gets the full
   Spacecraft theme via `assets/spacecraft.css` (Void Navy `#000027` background,
   Share Tech Mono headings, Inconsolata body, palette links/code). **PDF** is
@@ -180,8 +180,8 @@ preference).
 - `spacecraft-document-format` — the format hierarchy that declares Texinfo
   canonical for prose; load it when the deliverable also needs ODF/MS-Office
   renderings or a generated Markdown companion.
-- `spacecraft-standard` — The Steelbore Standard: §4 licensing/REUSE, §10 palette,
-  §11 typography, §13 dates/UTC, §14 attribution. The Standard always wins on
+- `spacecraft-standard` — The Steelbore Standard: §4 licensing/REUSE, §11 palette,
+  §12 typography, §14 dates/UTC, §15 attribution. The Standard always wins on
   conflict.
 - `gnu-coding-standards` — when the manual targets an actual GNU package; that
   skill names Texinfo as canonical and this skill is its execution layer.
