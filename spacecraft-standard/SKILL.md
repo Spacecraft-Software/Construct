@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.25 (§3.3 renamed to "Security by Design"; §8 Documentation (Texinfo); §7 Shell Environment; §15.2 email obfuscation note) so
+  The Steelbore Standard v1.29 (Texinfo source pipeline; §2.1 Aetheric+Ferrocast Deprecated; §15.1 Vacuum+Loran Pages subdomains; §3.3 Security by Design; §8 Texinfo; §7 Shell Environment) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.25 | **Date:** 2026-06-20 | **Author:** Mohamed Hammad
+**Version:** 1.29 | **Date:** 2026-06-23 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -93,10 +93,10 @@ back-rename.
 | Codename    | Status                | Description                                                    |
 |-------------|-----------------------|----------------------------------------------------------------|
 | `Steelbore` | Renamed to Spacecraft Software (umbrella, v1.7) | Former umbrella organization name. Renamed 2026-05-15 under the v1.7 brand consolidation. The OS line (`Steelbore OS`, `Steelbore OS Bravais`, `Steelbore OS Lattice`) retains the Steelbore name. |
-| `Aetheric`  | Active                | Next-generation extensible text editor (Pulsar + Quasar + Nebula IPC). |
+| `Aetheric`  | Deprecated            | Next-generation extensible text editor (Pulsar + Quasar + Nebula IPC). Superseded by another project. |
 | `Zamak`     | Active                | Rust bootloader (Limine rewrite)                               |
 | `Bravais`   | Completed (renamed)   | NixOS flake configuration. Renamed from `Lattice` due to collision with Lattice OS. `Bravais` is still a metallurgical-era name (Bravais lattice) and predates the v1.2 convention. |
-| `Ferrocast` | Planning              | Rust PowerShell rewrite (16-crate workspace)                   |
+| `Ferrocast` | Deprecated            | Rust PowerShell rewrite (16-crate workspace). Superseded by another project.                   |
 | `Craton`    | Reserved              | Rust universal package manager — codename registered; no work started yet. |
 | `Ironway`   | Active                | Rust OpenTTD rewrite                                           |
 | `Caliper`   | Active                | Rust raster-to-vector tracing engine (CLI+TUI)                 |
@@ -723,7 +723,9 @@ project-level outputs; use `https://SpacecraftSoftware.org/` only for umbrella r
 | Lode                       | https://Lode.SpacecraftSoftware.org/             |
 | Sonde                      | https://Sonde.SpacecraftSoftware.org/            |
 | Vault                      | https://Vault.SpacecraftSoftware.org/            |
+| Vacuum                     | https://Vacuum.SpacecraftSoftware.org/           |
 | Docs                       | https://Docs.SpacecraftSoftware.org/             |
+| Loran Pages                | https://Loran-Pages.SpacecraftSoftware.org/      |
 
 When a new project is created, add its subdomain to this table immediately.
 
@@ -861,8 +863,8 @@ for a pure Rust library), note it as N/A rather than silently skipping it.
 |---------------------------------------|----------------------------------------------------|
 | Writing any Rust code                 | `microsoft-rust-guidelines`                        |
 | Writing or reviewing shell scripts    | `spacecraft-cli-shell` + `spacecraft-cli-preference` |
-| Generating DOCX / ODT / PDF documents | `spacecraft-document-format`                       |
-| Authoring a Texinfo manual            | `spacecraft-standard` (§8)                         |
+| Generating DOCX / ODT / PDF on demand | `spacecraft-document-format`                       |
+| Authoring or building a Texinfo manual | `spacecraft-texinfo`                              |
 | Creating IDE / terminal themes        | `spacecraft-theme-factory`                         |
 | All other Spacecraft Software work    | `spacecraft-standard`                              |
 
