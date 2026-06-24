@@ -4,7 +4,7 @@ description: >-
   Apply the GNU Coding Standards faithfully — including the free-software philosophy
   (GPL licensing, FSF copyright assignment, Texinfo-canonical documentation, the
   policy against promoting nonfree software) — extended so GNU's conventions are
-  expressed idiomatically in C, Rust, GNU Guile (Scheme), Go, and Python. The gate
+  expressed idiomatically in C, Rust, GNU Guile, Go, and Python. The gate
   is GNU intent: consult this skill whenever the user is writing, reviewing,
   planning, or auditing software meant to be GNU-compliant, GNU-targeted, or a GNU
   package. Triggers include "GNU coding standards", "make this
