@@ -15,6 +15,7 @@ description: Use for writing memory-safe very high-quality high-speed high-perfo
 
 - Zig's explicitness enables memory safety without GC or borrow checker — leverage comptime, safety modes, allocators, and disciplined ownership.
 - Target near-linear scaling across all CPU cores for CPU-bound workloads.
+- **Match concurrency to the workload (Standard §3.2):** adopt it where it advances performance (data-parallel, CPU-bound, high-throughput I/O); where the workload is inherently serial or small, or concurrency would add synchronization overhead/contention or compromise Stability (Priority 1), keep it serial and **document the trade-off**. Benchmark to decide.
 - Prefer zero-overhead abstractions, manual memory control, lock-free atomics, and data-parallel designs.
 - Use ReleaseSafe/Debug during development and verification; switch to ReleaseFast only after proving correctness and measuring.
 - Measure scaling efficiency, cache behavior, and contention before and after every change.

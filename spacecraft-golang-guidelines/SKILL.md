@@ -14,6 +14,7 @@ description: Use for writing memory-safe very high-quality high-speed high-perfo
 ## Core Philosophy
 - Go's goroutines + channels + race detector deliver memory safety and fearless concurrency — the compiler and runtime prevent most data races and use-after-free.
 - Target near-linear scaling across CPU cores for CPU-bound workloads with minimal GC pressure.
+- **Match concurrency to the workload (Standard §3.2):** adopt it where it advances performance (data-parallel, CPU-bound, high-throughput I/O); where the workload is inherently serial or small, or concurrency would add synchronization overhead/contention or compromise Stability (Priority 1), keep it serial and **document the trade-off**. Benchmark to decide.
 - Prefer structured concurrency (errgroup, context, worker pools) over raw `go` statements.
 - Zero-overhead where possible: value types, sync.Pool, escape analysis, contiguous memory.
 - Measure everything: benchmarks, pprof (CPU/heap/goroutine/mutex), go tool trace, and `-race` before claiming "fast".
