@@ -26,6 +26,16 @@ precedence = "override"
 SPDX-FileCopyrightText = "Free Software Foundation, Inc.; Spacecraft Software adaptation 2026 Mohamed Hammad"
 SPDX-License-Identifier = "GFDL-1.3-or-later"
 
+# Independent, distributable skill: gnu-free-software is free-standing free-software
+# guidance authored by Mohamed Hammad — personal copyright, no Spacecraft branding (it
+# restates FSF/GNU source in original prose; see its ATTRIBUTION.md / CREDITS.md). The
+# override keeps its distribution metadata honest (not the @SpacecraftSoftware.org default).
+[[annotations]]
+path = ["gnu-free-software/**", "gnu-free-software.skill", "gnu-free-software.zip"]
+precedence = "override"
+SPDX-FileCopyrightText = "2026 Mohamed Hammad"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
 # Idiom layer in spacecraft-rust-guidelines: distilled from Apollo GraphQL's Rust Best
 # Practices (upstream MIT, §4.2) into Spacecraft Software's own GPL-3.0-or-later expression.
 # Credit both rights-holders; the upstream MIT notice is preserved verbatim in

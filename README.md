@@ -28,7 +28,7 @@ the rules re-attached to every prompt.
 | Skill | Purpose |
 |-------|---------|
 | [`gnu-coding-standards`](gnu-coding-standards/) | Applies the GNU Coding Standards to C, Rust, GNU Guile, Go, and Python — error-message grammar, CLI contract, i18n, build conventions, and free-software philosophy. |
-| [`pure-fsf-gnu`](pure-fsf-gnu/) | The GNU-compliant (pure-FSF) posture — forces full GNU/FSF compliance for real GNU packages (off-GitHub, FSF copyright, GFDL manuals, no Steelbore branding) and composes `gnu-coding-standards`. For GNU-compatible interop that keeps Steelbore identity, use `gnu-coding-standards` instead. |
+| [`gnu-free-software`](gnu-free-software/) | Self-sufficient, distributable skill to produce and enforce **free software** in the FSF/GNU tradition — free license + `COPYING`, GNU Coding Standards (`--version`/`--help`, Texinfo, ChangeLog) across C/Guile/Rust/Go/Python, the JavaScript Trap, and GNU vocabulary. FSF-default; stands alone (no other skill required). |
 | [`spacecraft-guile-guidelines`](spacecraft-guile-guidelines/) | Write idiomatic, functional, concurrent GNU Guile (Guile Scheme 3.x) — fibers/CSP, SRFI-1, tail calls, hygienic macros. |
 | [`microsoft-rust-guidelines`](microsoft-rust-guidelines/) | Enforces Microsoft Pragmatic Rust Guidelines before any `.rs` edit. |
 | [`spacecraft-ada-guidelines`](spacecraft-ada-guidelines/) | Provably-correct safety-critical Ada/SPARK guidance — the `gnatprove` assurance ladder (Stone→Platinum), design-by-contract (`Pre`/`Post`/`Global`/`Depends`), strong typing, SPARK ownership, Ravenscar/Jorvik tasking, the AdaCore Safe & Secure 41-rule catalogue (adapted, in `references/`), and the Alire/GNAT toolchain. |

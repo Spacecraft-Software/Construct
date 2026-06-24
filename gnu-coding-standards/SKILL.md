@@ -52,23 +52,24 @@ trigger; GNU intent is the trigger.
 
 ## Two GNU postures (compatible vs. compliant)
 
-GNU intent comes in two strengths that differ only in how far they go:
+GNU intent comes in two strengths:
 
 - **GNU-compatible** — a Spacecraft/Steelbore project that adopts GNU's conventions where
   they aid interoperability while **staying itself**: on GitHub, under the Steelbore
   palette/brand and `Mohamed.Hammad@SpacecraftSoftware.org` attribution. `spacecraft-standard`
-  stays primary; this skill's *technical* conventions apply, and its free-software *political*
-  mandates ("Keeping free software free") are **advisory** here — Steelbore identity stands.
-- **GNU-compliant (pure FSF)** — the artifact's goal is to *be* a GNU package (official GNU,
-  upstreamed to GNU/FSF, on Savannah), so it **sheds** Steelbore identity for GNU. Every
-  mandate in this skill, including the political ones, becomes **binding**, and GNU overrides
-  the Standard's identity clauses. Load the **`pure-fsf-gnu`** skill — the posture/identity
-  layer that sits on top of this one.
+  stays primary; **this skill** supplies the GNU conventions for interop, and the
+  free-software *political* mandates are advisory here — Steelbore identity stands. This is
+  this skill's home turf.
+- **GNU-compliant (full free software)** — the artifact's goal is to *be* a GNU package
+  (official GNU, upstreamed to GNU/FSF, on Savannah), shedding Steelbore identity for GNU.
+  Use the **`gnu-free-software`** skill — a self-sufficient, distributable skill that produces
+  and enforces free software in the FSF/GNU tradition (free license + `COPYING`, the
+  JavaScript Trap, GNU vocabulary, the full GNU-package contract). It stands alone and carries
+  its own conventions, so you do **not** also load this skill under that posture.
 
-This skill is the shared **technical base** under both postures; `pure-fsf-gnu`, when present,
-flips it to full binding fidelity. The differentiator is identity-stripping: if Steelbore
-identity is being given up for GNU, you are *compliant* (use `pure-fsf-gnu`); otherwise you
-are *compatible*.
+The differentiator is identity-stripping: producing a real free-software/GNU package →
+`gnu-free-software`; styling Spacecraft code to GNU conventions while staying Steelbore →
+this skill (with `spacecraft-standard`).
 
 ## How to use this skill
 
