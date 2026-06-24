@@ -182,11 +182,21 @@ are not manifests) are exempt; software source files are not.
 
 ### §3.2 — Performance
 
-- Concurrency must be **designed-in from the start**, never bolted on retroactively.
-- Release profiles must use `-C target-cpu=native` (or `RUSTFLAGS=-C target-cpu=native`),
-  LTO (`lto = true`), and PGO where the toolchain supports it.
-- Benchmarking is **mandatory** before and after any optimization work; regressions
-  must be documented and justified.
+- Concurrency is an **architecture-level concern** — designed in from the start, never
+  bolted on. Adopt it where it genuinely advances performance; where it would degrade
+  performance (synchronization overhead, lock contention, inherently serial or small
+  workloads) or compromise Stability (Priority 1), choose the simpler serial approach and
+  **document the trade-off**.
+- Release profiles should use `-C target-cpu=native` (or `RUSTFLAGS=-C target-cpu=native`),
+  LTO (`lto = true`), and PGO where the toolchain supports them reliably. **Note every
+  applied flag and every disabled flag (with its reason)** — a comment in `Cargo.toml` /
+  `build.rs` or a build-time message — so flag state is visible at compile time. Any flag
+  that breaks or destabilizes the build on a given platform/toolchain (e.g. LTO under some
+  NixOS, cross-compilation, or static-linking setups) MUST be disabled; Stability
+  (Priority 1) outranks Performance. See `spacecraft-standard` §3.2.1.
+- Benchmarking is **mandatory** before and after any optimization work; regressions must
+  be documented and justified — it is also the evidence for the concurrency-vs-serial
+  trade-off above.
 
 ### §3.3 — Security & Dependency Auditing
 
