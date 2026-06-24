@@ -141,11 +141,16 @@ Three Rust skills coexist; they occupy different planes and must not compete to 
   — but never leak `parking_lot` (or any third-party) types across a **public API**
   surface. Keep them behind your own types/`std` types at the boundary. This resolves
   the "prefer `parking_lot`" vs "don't leak third-party types" tension cleanly.
-- **Default posture by project class.** Match aggression to the target:
-  **restraint** (profile first, don't pre-optimise) for CLIs and tools;
-  **aggression** (design concurrency in from the start) for kernels, daemons, and
-  perf-critical paths. The skills can't tell which project they're in — you decide by
-  class, then apply the matching default.
+- **Match concurrency to the workload, decided up front.** Per the Steelbore Standard
+  §3.2, concurrency is an architecture-level concern — designed in from the ground up,
+  never bolted on — but the lever is the *workload*, not the project class. Adopt
+  parallelism wherever it genuinely advances performance (data-parallel, CPU-bound, or
+  high-throughput I/O — kernels, daemons, perf-critical paths, **and** the many CLIs/tools
+  that do real work, e.g. parallel scanners). Choose a simpler serial design where the
+  workload is inherently serial or small, or where concurrency would degrade performance
+  (synchronization overhead, lock contention) or compromise Stability (Priority 1) — and
+  **document that trade-off**. Don't pre-optimise blindly: benchmark to decide. The skill
+  can't tell which workload you're in — you make the call from its shape, not its label.
 
 ## Closing Directive
 The code you write must be the code you would trust on a spacecraft: robust,
