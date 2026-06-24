@@ -28,14 +28,16 @@ const LONG_VERSION: &str = concat!(
 
 /// The Spacecraft Software Construct skills package manager.
 #[derive(Debug, Parser)]
+// `help` stays enabled (clap default) so `construct help [CMD]` works; the
+// `manifest_in_sync_with_cli` test skips the auto-generated `help` leaf. Do
+// NOT add `disable_help_subcommand` — it regresses `construct help` to exit 2.
 #[command(
     name = "construct",
     version,
     long_version = LONG_VERSION,
     about = "Install, discover, sync, and ship Spacecraft Software agent skills",
     after_help = "Project: https://Construct.SpacecraftSoftware.org/  \u{2014}  Maintainer: Mohamed Hammad",
-    propagate_version = true,
-    disable_help_subcommand = true
+    propagate_version = true
 )]
 pub(crate) struct Cli {
     #[command(flatten)]

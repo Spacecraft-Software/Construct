@@ -186,3 +186,23 @@ fn version_names_maintainer_and_site() {
         "version omits project URL"
     );
 }
+
+#[test]
+fn help_subcommand_succeeds() {
+    let out = bin()
+        .arg("help")
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let text = String::from_utf8(out).expect("valid UTF-8");
+    assert!(text.contains("Usage"), "help omits usage");
+    assert!(text.contains("skill"), "help omits the skill noun");
+}
+
+#[test]
+fn help_for_nested_command_succeeds() {
+    // `construct help skill sync` resolves the nested path and exits 0.
+    bin().args(["help", "skill", "sync"]).assert().success();
+}
