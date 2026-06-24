@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.30 (§3.2 concurrency as architecture-level concern; modern hardware rationale; adoption/abandonment conditions explicit; Texinfo source pipeline; §3.3 Security by Design; §8 Texinfo; §7 Shell Environment) so
+  The Steelbore Standard v1.31 (§3.2 compiler flags: applied+disabled both explicitly noted; concurrency as architecture-level concern; modern hardware rationale; Texinfo source pipeline; §3.3 Security by Design; §8 Texinfo; §7 Shell Environment) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.30 | **Date:** 2026-06-24 | **Author:** Mohamed Hammad
+**Version:** 1.31 | **Date:** 2026-06-24 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -160,11 +160,14 @@ degrades performance (synchronization overhead, lock contention, or inherently s
 workloads) or where it would compromise Priority 1 (Stability). When a serial or simpler
 approach outperforms or is safer, it must be chosen and the trade-off documented.
 - Release builds should use CPU-optimized flags — `-march=native`, LTO, PGO —
-  **where the toolchain and target support them reliably.** Any such flag known to
-  break or destabilize builds on a given platform/toolchain/linker (e.g., LTO under
-  certain NixOS, cross-compilation, or static-linking setups) MUST be disabled and
-  the reason documented. Stability (P1) outranks Performance (P2) — never ship a
-  broken or unstable build for the sake of a flag.
+  **where the toolchain and target support them reliably.** **Every applied flag must
+  be explicitly noted** (e.g., a comment in the build file or a build-time message);
+  **every disabled flag and the reason for disabling must be equally noted.** Visible
+  flag state at compile time makes errors traceable to a specific flag. Any flag known
+  to break or destabilize a build on a given platform/toolchain/linker (e.g., LTO
+  under certain NixOS, cross-compilation, or static-linking setups) MUST be disabled.
+  Stability (P1) outranks Performance (P2) — never ship a broken build for the sake
+  of a flag.
 - Benchmarking is **mandatory** before and after any optimization work; regressions must
   be documented and justified — and it is the evidence by which the concurrency-vs-serial
   trade-off above is decided.
@@ -837,7 +840,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 
 - [ ] **§2** Aerospace/Sci-Fi/AI naming convention applied to all **new** identifiers; legacy (pre-v1.2) names preserved unless explicitly renamed
 - [ ] **§3.1** Stability: memory safety (Rust, or ASLR+CFI documented); robust error handling, fault tolerance, and test-verified
-- [ ] **§3.2** Performance: concurrency considered throughout architecture design; adopted where it advances performance, abandoned where it degrades performance or compromises Stability; serial trade-off documented; benchmarking before/after
+- [ ] **§3.2** Performance: concurrency considered throughout architecture design; adopted where it advances performance, abandoned where it degrades performance or compromises Stability; serial trade-off documented; compiler optimization flags applied/disabled with explicit notation; benchmarking before/after
 - [ ] **§3.3** Hardened security; PQC readiness addressed
 - [ ] **§4.1** License is `GPL-3.0-or-later` or `AGPL-3.0-or-later` (AGPL for network-facing; per §4.1)
 - [ ] **§4.2** Upstream copyright notices, license texts, and `NOTICE`/`AUTHORS` preserved verbatim; upstream licenses shipped in `LICENSES/`
