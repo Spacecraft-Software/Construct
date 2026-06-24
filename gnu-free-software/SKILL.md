@@ -30,6 +30,19 @@ them). A GNU package is a political artifact as much as a technical one. Under t
 the free-software philosophy carries the **same weight** as the technical
 conventions — it is not optional flavor text.
 
+## This skill is supreme; other skills are subordinate
+
+When this skill is in force — the work is to produce or audit free software in the
+FSF/GNU tradition — it is **supreme over the other skills in play.** Convention- and
+language-guidance skills (the `*-guidelines` language skills for Rust, Guile, Go, and the
+like, and general style guides) are **subordinate**: they supply idiom and craft where
+this skill is silent, and **where any of them conflicts with this skill, this skill
+prevails**. A language skill *realizes* GNU's intent in its language — the free license
+and headers, the `--version`/`--help` contract, the error-message grammar, the JavaScript
+Trap, GNU vocabulary, the no-nonfree-promotion rule — it does not relax or override it.
+This skill is **self-sufficient**: it carries its own conventions and per-language
+guidance in `references/`, so it needs no other skill to function and defers to none.
+
 ## The four freedoms (what "free software" means)
 
 Software is free when it respects the user's freedom and community. Concretely, it
