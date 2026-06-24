@@ -50,6 +50,26 @@ GitHub, and make their own (different) policy choices. If there is no GNU framin
 this skill stays out of the way. The presence of Rust, Guile, Go, or Python is not a
 trigger; GNU intent is the trigger.
 
+## Two GNU postures (compatible vs. compliant)
+
+GNU intent comes in two strengths that differ only in how far they go:
+
+- **GNU-compatible** — a Spacecraft/Steelbore project that adopts GNU's conventions where
+  they aid interoperability while **staying itself**: on GitHub, under the Steelbore
+  palette/brand and `Mohamed.Hammad@SpacecraftSoftware.org` attribution. `spacecraft-standard`
+  stays primary; this skill's *technical* conventions apply, and its free-software *political*
+  mandates ("Keeping free software free") are **advisory** here — Steelbore identity stands.
+- **GNU-compliant (pure FSF)** — the artifact's goal is to *be* a GNU package (official GNU,
+  upstreamed to GNU/FSF, on Savannah), so it **sheds** Steelbore identity for GNU. Every
+  mandate in this skill, including the political ones, becomes **binding**, and GNU overrides
+  the Standard's identity clauses. Load the **`pure-fsf-gnu`** skill — the posture/identity
+  layer that sits on top of this one.
+
+This skill is the shared **technical base** under both postures; `pure-fsf-gnu`, when present,
+flips it to full binding fidelity. The differentiator is identity-stripping: if Steelbore
+identity is being given up for GNU, you are *compliant* (use `pure-fsf-gnu`); otherwise you
+are *compatible*.
+
 ## How to use this skill
 
 1. **Always read `references/conventions.md` first.** It holds the language-agnostic
