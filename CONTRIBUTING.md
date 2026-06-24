@@ -135,11 +135,12 @@ in sync with the subdirectory listing.
 
 ## Editing rules
 
-- **`SKILL.md` frontmatter `description` ≤ 1024 characters (hard limit).** The
-  loader rejects anything longer. YAML folded scalars (`description: >`) join lines
-  with spaces and add a trailing newline, so the **rendered** length is what
-  counts. Keep a margin — **target ≤ 1000** — and re-check after any description
-  edit:
+- **`SKILL.md` frontmatter `description` — hard cap 1000 characters.** The loader's
+  absolute limit is 1024 (it rejects anything longer), but this repo caps the
+  *rendered* description at **1000** — a description MUST NOT exceed 1000 chars.
+  YAML folded scalars (`description: >`) join lines with spaces and add a trailing
+  newline, so the **rendered** length is what counts. Re-check after any
+  description edit:
   ```sh
   python3 - "$skill/SKILL.md" <<'PY'
   import sys
@@ -153,6 +154,11 @@ in sync with the subdirectory listing.
   print(len('\n'.join(out))+1)
   PY
   ```
+- **`microsoft-rust-guidelines` is intentionally `user-invocable: false`.** It is
+  the mandatory auto-load Rust base — `spacecraft-standard` mandates loading it
+  before any Rust and `spacecraft-rust-guidelines` defers to it as "load first," so
+  it fires automatically and is hidden from the `/` menu on purpose. Do **not**
+  remove the field to "fix" a perceived load failure — that is by design.
 - **`README.md` §2 catalogue is load-bearing.** Adding a skill directory means
   adding a matching **alphabetical** row to the table; removing one means deleting
   the row. The README catalogue and the directory list must always agree.

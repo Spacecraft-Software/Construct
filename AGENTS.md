@@ -8,12 +8,12 @@ rules that bite. (A maintainer-local `CLAUDE.md` overlay adds host-specific note
 
 ## Hard rules
 
-- **`SKILL.md` frontmatter `description` ≤ 1024 characters.** The loader rejects
-  any skill over the limit (`field 'description' in SKILL.md must be at most
-  1024 characters`). Folded `description: >` blocks render by joining lines with
-  spaces (blank lines → newlines, plus a trailing newline); that *rendered*
-  length is what counts, not the raw line count. Keep a margin — target ≤ 1000.
-  Some descriptions already run close, so re-check after any description edit.
+- **`SKILL.md` frontmatter `description` — hard cap 1000 characters.** The loader's
+  absolute limit is 1024 (`field 'description' in SKILL.md must be at most 1024
+  characters`), but this repo caps the *rendered* description at **1000** — it
+  MUST NOT exceed 1000 chars. Folded `description: >` blocks render by joining
+  lines with spaces (blank lines → newlines, plus a trailing newline); that
+  rendered length is what counts, not the raw line count. Re-check after any edit.
 - **Rebuild BOTH bundles after any skill-dir edit**, in the same commit:
   `<name>.zip` (`zip -qr`, keeps dir entries) and `<name>.skill` (`zip -qrD`,
   drops them). A bundle that lags its `SKILL.md`/`references/` ships broken
