@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.29 (Texinfo source pipeline; §2.1 Aetheric+Ferrocast Deprecated; §15.1 Vacuum+Loran Pages subdomains; §3.3 Security by Design; §8 Texinfo; §7 Shell Environment) so
+  The Steelbore Standard v1.30 (§3.2 concurrency as architecture-level concern; modern hardware rationale; adoption/abandonment conditions explicit; Texinfo source pipeline; §3.3 Security by Design; §8 Texinfo; §7 Shell Environment) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.29 | **Date:** 2026-06-23 | **Author:** Mohamed Hammad
+**Version:** 1.30 | **Date:** 2026-06-24 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -148,12 +148,17 @@ not the whole of Priority 1.**
   and fuzz/property where applicable) gating CI, not asserted by inspection alone.
 
 ### §3.2 — Priority 2: Performance
-Performance is the foremost priority after stability. The default means of achieving it is
-**multi-core, multi-thread concurrency** — parallelism is the expected baseline, not an
-afterthought — *unless* concurrency would materially degrade performance (synchronization
-overhead, lock contention, or inherently serial / small workloads outweighing the gains),
-in which case a simpler or serial approach must be chosen and the trade-off documented.
-- Concurrency must be **designed-in from the start**, never bolted on retroactively.
+Performance is the foremost priority after stability. Modern hardware universally provides
+**multi-core, multi-thread** capability; harnessing that concurrency is the primary means of
+achieving performance. Concurrency is not an afterthought — it must be **considered from the
+ground up**, throughout architecture design: data ownership, thread boundaries, synchronization
+points, and parallelism opportunities must be identified during design, not discovered during
+optimization.
+
+Concurrency is adopted where it genuinely advances performance. It is **abandoned** where it
+degrades performance (synchronization overhead, lock contention, or inherently serial / small
+workloads) or where it would compromise Priority 1 (Stability). When a serial or simpler
+approach outperforms or is safer, it must be chosen and the trade-off documented.
 - Release builds should use CPU-optimized flags — `-march=native`, LTO, PGO —
   **where the toolchain and target support them reliably.** Any such flag known to
   break or destabilize builds on a given platform/toolchain/linker (e.g., LTO under
@@ -832,7 +837,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 
 - [ ] **§2** Aerospace/Sci-Fi/AI naming convention applied to all **new** identifiers; legacy (pre-v1.2) names preserved unless explicitly renamed
 - [ ] **§3.1** Stability: memory safety (Rust, or ASLR+CFI documented); robust error handling, fault tolerance, and test-verified
-- [ ] **§3.2** Performance: multi-core/multi-thread concurrency by default (or serial trade-off documented); concurrency designed-in; benchmarking before/after
+- [ ] **§3.2** Performance: concurrency considered throughout architecture design; adopted where it advances performance, abandoned where it degrades performance or compromises Stability; serial trade-off documented; benchmarking before/after
 - [ ] **§3.3** Hardened security; PQC readiness addressed
 - [ ] **§4.1** License is `GPL-3.0-or-later` or `AGPL-3.0-or-later` (AGPL for network-facing; per §4.1)
 - [ ] **§4.2** Upstream copyright notices, license texts, and `NOTICE`/`AUTHORS` preserved verbatim; upstream licenses shipped in `LICENSES/`
