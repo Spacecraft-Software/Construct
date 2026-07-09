@@ -95,7 +95,7 @@ install surface, sweep:
 
 ```sh
 for d in */; do n="${d%/}"; [ -f "$n/SKILL.md" ] || continue
-  case "$n" in grok-skills|Excluded|construct-cli) continue;; esac
+  case "$n" in grok-skills|android-skills|Excluded|construct-cli) continue;; esac
   inzip="$(unzip -Z1 "$n.zip" 2>/dev/null | grep -v '/$')"
   # (a) content drift: every file inside the bundle must match the working tree
   printf '%s\n' "$inzip" | while read -r f; do [ -n "$f" ] || continue

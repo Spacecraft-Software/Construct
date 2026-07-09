@@ -14,7 +14,7 @@
       # A "cross-platform" skill is any top-level directory that contains a
       # SKILL.md and is not in the excluded list. A "Grok" skill is any
       # subdirectory of grok-skills/ that contains a SKILL.md.
-      excludedDirs = [ "grok-skills" "Excluded" ".claude" ".git" "construct-cli" ];
+      excludedDirs = [ "grok-skills" "android-skills" "Excluded" ".claude" ".git" "construct-cli" ];
 
       hasSkillMd = parent: name:
         builtins.pathExists (parent + "/${name}/SKILL.md");
@@ -32,6 +32,13 @@
       grokSkills =
         if builtins.pathExists (self + "/grok-skills") then
           skillNamesIn (self + "/grok-skills")
+        else
+          [];
+      # Vendored Google Android skills — same open-standard SKILL.md format as
+      # the cross-platform skills, so they can share the canonical install tree.
+      androidSkills =
+        if builtins.pathExists (self + "/android-skills") then
+          skillNamesIn (self + "/android-skills")
         else
           [];
 
@@ -75,6 +82,11 @@
           name = "grok-${n}";
           value = mkSkillPackage pkgs (self + "/grok-skills") n;
         }) grokSkills))
+        //
+        (builtins.listToAttrs (map (n: {
+          name = "android-${n}";
+          value = mkSkillPackage pkgs (self + "/android-skills") n;
+        }) androidSkills))
         // {
           # First executable in the catalogue: the `construct` skills CLI.
           # Its source lives in construct-cli/ (excluded from skill detection
@@ -110,6 +122,23 @@
           combinedCrossPlatform =
             mkCombined pkgs self crossPlatformSkills "construct-skills";
 
+          # Cross-platform skills + vendored Android skills in one tree. Leaf
+          # names don't collide (cross-platform skills are all spacecraft-* /
+          # gnu-* / microsoft-*; Android leaves are distinct), so a flat merge
+          # is safe. Used as the canonical source when enableAndroid is on.
+          combinedWithAndroid =
+            pkgs.runCommandLocal "construct-skills-with-android" { } (''
+              mkdir -p $out
+            '' + nixpkgs.lib.concatMapStringsSep "\n" (n: ''
+              mkdir -p $out/${n}
+              cp -r ${self}/${n}/. $out/${n}/
+            '') crossPlatformSkills
+              + "\n"
+              + nixpkgs.lib.concatMapStringsSep "\n" (n: ''
+              mkdir -p $out/${n}
+              cp -r ${self + "/android-skills"}/${n}/. $out/${n}/
+            '') androidSkills);
+
           combinedGrok =
             if grokSkills == [] then null
             else mkCombined pkgs (self + "/grok-skills") grokSkills
@@ -133,6 +162,9 @@
             enableGrok = lib.mkEnableOption
               "Spacecraft Software Construct Grok-specific agent skills";
 
+            enableAndroid = lib.mkEnableOption
+              "vendored Google Android skills (merged into ~/.agents/skills/)";
+
             agentPaths = lib.mkOption {
               type = lib.types.listOf lib.types.str;
               default = defaultAgentPaths;
@@ -146,8 +178,14 @@
 
           config = lib.mkMerge [
             (lib.mkIf cfg.enable {
-              # Canonical install — agents resolve all paths through here.
-              home.file.".agents/skills".source = combinedCrossPlatform;
+              # Canonical install — agents resolve all paths through here. When
+              # enableAndroid is on (and any Android skills exist), the tree also
+              # contains the vendored Android skills; otherwise cross-platform only.
+              home.file.".agents/skills".source =
+                if cfg.enableAndroid && androidSkills != [] then
+                  combinedWithAndroid
+                else
+                  combinedCrossPlatform;
 
               # Per-harness directory symlinks. Done via activation so the
               # symlink can point at the home-relative ~/.agents/skills
@@ -183,7 +221,7 @@
       # Convenience: list of detected skill names (useful for `nix eval`).
       # ───────────────────────────────────────────────────────────────────
       lib = {
-        inherit crossPlatformSkills grokSkills;
+        inherit crossPlatformSkills grokSkills androidSkills;
       };
     };
 }

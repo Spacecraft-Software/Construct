@@ -56,3 +56,14 @@ path = "construct-cli/registry/agents.toml"
 precedence = "override"
 SPDX-FileCopyrightText = ["Vercel, Inc.", "2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"]
 SPDX-License-Identifier = "GPL-3.0-or-later OR MIT"
+
+# Third-party-vendored, unmodified: Google's Android skills (github:android/skills,
+# Apache-2.0, © Google LLC). Vendored verbatim under android-skills/ — NOT adapted, so
+# the upstream license is preserved as-is with no Spacecraft relicensing/dual-licensing
+# (§4.2), unlike the adapted microsoft-rust / Apollo-idioms entries above. Single
+# copyright holder, single license. See android-skills/CREDITS.md for provenance.
+[[annotations]]
+path = "android-skills/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Google LLC"
+SPDX-License-Identifier = "Apache-2.0"

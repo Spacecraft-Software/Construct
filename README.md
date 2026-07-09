@@ -143,6 +143,18 @@ Skills authored for the Grok agent platform live in
 [`grok-skills/`](grok-skills/) with their own catalogue. The bundle layout
 differs (flat zip root); see the section's README for details.
 
+### Android skills
+
+Google's official **[Android skills](https://github.com/android/skills)** are
+vendored verbatim (Apache-2.0, © Google LLC) under
+[`android-skills/`](android-skills/) with their own catalogue. They use the same
+open-standard `SKILL.md` format, so `spacecraft.construct.enableAndroid = true`
+merges them into the canonical `~/.agents/skills/` tree alongside the
+cross-platform skills. They are not first-party skills, so they are kept out of
+the §2 catalogue above and ship no `.zip`/`.skill` bundles (Google's `android`
+CLI installs them from upstream). See the section's README for provenance and
+the upstream→vendored path mapping.
+
 <!-- §5 — Contributing / standards -->
 ## Standards
 
