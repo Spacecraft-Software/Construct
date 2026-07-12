@@ -35,6 +35,7 @@ the rules re-attached to every prompt.
 | [`spacecraft-agentic-cli`](spacecraft-agentic-cli/) | Agent-facing UX layer for Spacecraft Software CLIs — pairs with `spacecraft-cli-standard`. |
 | [`spacecraft-brand-guidelines`](spacecraft-brand-guidelines/) | Applies Spacecraft Software's official colors and typography to artifacts. |
 | [`spacecraft-chez-guidelines`](spacecraft-chez-guidelines/) | Functional, safe, concurrent Chez Scheme guidance — R6RS libraries + Akku, pure-first design, `optimize-level` as the safety lever (level 3 = `unsafe`), hand-built mailboxes/channels over real threads (no Fibers), the FFI + AOT/whole-program compilation, and Guile-habit guardrails. |
+| [`spacecraft-clang-guidelines`](spacecraft-clang-guidelines/) | Memory-safe highly-hardened C guidance — NASA Power of 10 Rules (no runtime heap allocation, bounded loops, small functions, high assertion density), MISRA C safety subsets, CERT C secure coding rules, Clang `-fbounds-safety` compiler extensions, and C11 atomics. |
 | [`spacecraft-cli-preference`](spacecraft-cli-preference/) | Modern CLI substitutions: `eza` for `ls`, `rg` for `grep`, `gitway` for Git SSH, etc. |
 | [`spacecraft-cli-standard`](spacecraft-cli-standard/) | Enforces the Spacecraft Software Dual-Mode Self-Documenting CLI Standard (SFRS v1.0.0) on every CLI. |
 | [`spacecraft-cli-shell`](spacecraft-cli-shell/) | Syntax-compliance guard for Nushell / Ion / POSIX / Bash commands. |
