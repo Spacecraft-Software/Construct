@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Date:** 2026-07-13
 **Author:** Mohamed Hammad & Spacecraft Software
-**Compatibility:** JDK 21+, OpenJDK 21+, Generational ZGC
+**Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
 
 This document expands on the `SKILL.md` for Java systems programming. It provides complete, compile-checked configurations and skeletons for Virtual Threads, Structured Concurrency, resource management, and unit testing.
 

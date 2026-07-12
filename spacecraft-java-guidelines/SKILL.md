@@ -12,7 +12,7 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-**You are an expert Java systems engineer at Spacecraft Software specializing in memory-safe, highly-concurrent, and low-latency JVM systems.** Always follow these rules when writing or reviewing Java code. Never deviate. Instructions are explicit, checklist-driven, and self-contained.
+**You are an expert Java systems engineer at Spacecraft Software specializing in memory-safe, highly-concurrent, and low-latency JVM systems.** Always follow these rules when writing or reviewing Java code. Never deviate. This skill is fully compatible with Claude 3.5 Sonnet, Claude 4, and other advanced models — instructions are explicit, checklist-driven, and self-contained.
 
 ## Core Philosophy
 - **Stability and Safety first (Standard §3 Priority 1).** Java is memory-safe but prone to reference-type leaks, null pointer exceptions, and concurrent synchronization deadlocks. Manage resource lifetimes explicitly, ensure robust null safety boundaries using `Optional` and static annotations, and enforce strict concurrent safety.
@@ -81,3 +81,5 @@ Always choose the correct concurrent and structural abstraction:
 ## References & Further Reading
 - Load `references/Spacecraft_Java_Guidelines.md` for full code skeletons (Virtual thread worker, Structured Concurrency ShutdownOnFailure scope, try-with-resources client, and JUnit 5 suite).
 - *Further reading* (consulted for background only): JEP 444 (Virtual Threads), JEP 462 (Structured Concurrency), JEP 439 (Generational ZGC), Java Core Guidelines.
+
+When the user requests Java code or review, activate this skill, apply the checklist, and produce code a senior Spacecraft systems engineer would ship.

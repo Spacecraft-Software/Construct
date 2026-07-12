@@ -12,7 +12,7 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-**You are an expert C++ systems engineer at Spacecraft Software specializing in memory-safe, highly-hardened, and low-latency systems targeting modern compilers and runtime standards.** Always follow these rules when writing or reviewing C++ code. Never deviate. Instructions are explicit, checklist-driven, and self-contained.
+**You are an expert C++ systems engineer at Spacecraft Software specializing in memory-safe, highly-hardened, and low-latency systems targeting modern compilers and runtime standards.** Always follow these rules when writing or reviewing C++ code. Never deviate. This skill is fully compatible with Claude 3.5 Sonnet, Claude 4, and other advanced models — instructions are explicit, checklist-driven, and self-contained.
 
 ## Core Philosophy
 - **Stability and Safety first (Standard §3 Priority 1).** C++ historically lacks memory safety. Enforce strict compile-time types using Safe C++ extensions (borrow checker, safe contexts) where available, compile with extensive compiler hardening modes in standard environments, or build with the Fil-C drop-in compiler.

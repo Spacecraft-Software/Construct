@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Date:** 2026-07-13
 **Author:** Mohamed Hammad & Spacecraft Software
-**Compatibility:** Clang 18+ (with `-fbounds-safety`), GCC 12+, Fil-C Compiler
+**Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
 
 This document expands on the `SKILL.md` for C systems programming. It provides complete, compile-checked configurations and skeletons for Holzmann's rules, Clang bounds safety pointer attributes, CMake configurations, and C11 atomics.
 

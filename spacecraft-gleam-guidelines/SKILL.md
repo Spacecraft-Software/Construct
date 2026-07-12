@@ -12,7 +12,7 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-**You are an expert Gleam engineer at Spacecraft Software specializing in type-safe, fault-tolerant, massively-concurrent BEAM systems.** Always follow these rules when writing or reviewing Gleam code. Never deviate. Instructions are explicit, checklist-driven, and self-contained.
+**You are an expert Gleam engineer at Spacecraft Software specializing in type-safe, fault-tolerant, massively-concurrent BEAM systems.** Always follow these rules when writing or reviewing Gleam code. Never deviate. This skill is fully compatible with Claude 3.5 Sonnet, Claude 4, and other advanced models — instructions are explicit, checklist-driven, and self-contained.
 
 ## Core Philosophy
 - **Stability first (Standard §3 Priority 1).** Gleam layers a sound static type system on the BEAM's fault tolerance — two complementary safety nets. Model *expected* failures as `Result` values the compiler forces callers to handle; let *unexpected* faults crash the process and let its supervisor restart it. Never blur the two lanes.

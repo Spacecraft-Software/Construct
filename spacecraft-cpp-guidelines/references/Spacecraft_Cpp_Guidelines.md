@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Date:** 2026-07-13
 **Author:** Mohamed Hammad & Spacecraft Software
-**Compatibility:** Circle Compiler (Safe C++), Clang 18+, GCC 13+, Fil-C Compiler
+**Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
 
 This document expands on the `SKILL.md` for C++ systems programming. It provides complete, compile-checked configurations and skeletons for Safe C++ syntax, hardened CMake setups, `std::jthread` concurrency, and testing.
 

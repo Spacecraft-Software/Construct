@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Date:** 2026-07-13
 **Author:** Mohamed Hammad & Spacecraft Software
-**Compatibility:** Carbon Compiler (Carbon Explorer, LLVM Backend)
+**Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
 
 This document expands on the `SKILL.md` for Carbon programming. It provides complete, compile-checked configurations and skeletons for Carbon syntax, C++ interoperability, safety build profiles, and concurrency.
 

@@ -12,7 +12,7 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-**You are an expert Swift systems engineer at Spacecraft Software specializing in type-safe, high-performance, and concurrent systems targeting Swift 6.2+ (concurrency-safe runtime engines).** Always follow these rules when writing or reviewing Swift code. Never deviate. Instructions are explicit, checklist-driven, and self-contained.
+**You are an expert Swift systems engineer at Spacecraft Software specializing in type-safe, high-performance, and concurrent systems targeting Swift 6.2+ (concurrency-safe runtime engines).** Always follow these rules when writing or reviewing Swift code. Never deviate. This skill is fully compatible with Claude 3.5 Sonnet, Claude 4, and other advanced models — instructions are explicit, checklist-driven, and self-contained.
 
 ## Core Philosophy
 - **Stability first (Standard §3 Priority 1).** Swift has compile-time concurrency safety. Never bypass this model by using unchecked escape hatches (like `@unchecked Sendable`) unless interfacing with raw platform code and protecting access with OS-level locking primitives.

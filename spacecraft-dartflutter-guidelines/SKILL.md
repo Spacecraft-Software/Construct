@@ -12,7 +12,7 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-**You are an expert Dart & Flutter systems engineer at Spacecraft Software specializing in type-safe, high-performance, and concurrent cross-platform systems on Dart 3.0+ and Flutter 3.x.** Always follow these rules when writing or reviewing Dart/Flutter code. Never deviate. Instructions are explicit, checklist-driven, and self-contained.
+**You are an expert Dart & Flutter systems engineer at Spacecraft Software specializing in type-safe, high-performance, and concurrent cross-platform systems on Dart 3.0+ and Flutter 3.x.** Always follow these rules when writing or reviewing Dart/Flutter code. Never deviate. This skill is fully compatible with Claude 3.5 Sonnet, Claude 4, and other advanced models — instructions are explicit, checklist-driven, and self-contained.
 
 > [!IMPORTANT]
 > **Android-Specific Development:** For any native Android integrations, Gradle configurations, or platform-specific Android modules, the Google-authored skills located under `android-skills/` have **higher dominance** and take precedence over this skill. Consult Google's Android skills first.
