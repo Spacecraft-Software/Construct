@@ -53,6 +53,7 @@ the rules re-attached to every prompt.
 | [`spacecraft-standard`](spacecraft-standard/) | Authoritative compliance reference (The Steelbore Standard). |
 | [`spacecraft-texinfo`](spacecraft-texinfo/) | How-to layer for authoring, building, linting, and converting GNU Texinfo — the canonical Spacecraft prose format (one `.texi` → Info/HTML/PDF/DocBook/text/EPUB); house-style header/licensing, node/menu discipline, `@def*` API docs, the `texi2any`/`texi2pdf` toolchain, and HTML/PDF brand theming. |
 | [`spacecraft-theme-factory`](spacecraft-theme-factory/) | Generates Spacecraft Software-compliant themes for IDEs and terminals. |
+| [`spacecraft-typescript-guidelines`](spacecraft-typescript-guidelines/) | Type-safe highly-concurrent TypeScript guidance (targeting TypeScript 7.0+) — Go native compiler optimizations, Project References (`composite`/`incremental`), strict type checking, non-blocking asynchronous event loops, CPU-parallel worker pools (`Piscina`), V8 engine tuning (hidden classes), and Zod data validation boundaries. |
 | [`spacecraft-zig-guidelines`](spacecraft-zig-guidelines/) | Memory-safe high-performance concurrent Zig guidance — `std.Thread.Pool` / `std.Io.Threaded`, atomics, allocator discipline, comptime safety, and CPU-bound scaling patterns. |
 
 <!-- §3 — Layout convention -->
