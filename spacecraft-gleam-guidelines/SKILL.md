@@ -1,6 +1,9 @@
 ---
 name: spacecraft-gleam-guidelines
 description: Use for writing type-safe fault-tolerant highly-concurrent Gleam code on the BEAM following Spacecraft Software standards. Triggers on any request involving Gleam, .gleam files, gleam.toml, the gleam CLI (build, check, test, format, add, publish, export), gleam_stdlib, typed OTP — gleam_otp actors, static_supervisor, factory_supervisor, supervision child specs — gleam_erlang processes, Subjects, selectors, named processes, Result/Option error handling, use expressions, exhaustive case, opaque types, @external FFI, the JavaScript target, or gleeunit/qcheck/birdie testing. Trigger even when implicit, e.g. "write a typed actor", "port this GenServer to Gleam", "supervise this Gleam process", or "make this Gleam code faster". Do NOT trigger for Erlang (spacecraft-erlang-guidelines) or Elixir (spacecraft-elixir-guidelines) — Gleam's typed actor and supervision APIs differ sharply from raw OTP, and generic BEAM advice gets them wrong. By Mohamed Hammad and Spacecraft Software.
+license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Gleam Guidelines
@@ -13,11 +16,27 @@ description: Use for writing type-safe fault-tolerant highly-concurrent Gleam co
 
 ## Core Philosophy
 - **Stability first (Standard §3 Priority 1).** Gleam layers a sound static type system on the BEAM's fault tolerance — two complementary safety nets. Model *expected* failures as `Result` values the compiler forces callers to handle; let *unexpected* faults crash the process and let its supervisor restart it. Never blur the two lanes.
-- **Then Performance (Priority 2).** Concurrency is the default lever — cheap isolated BEAM processes, one scheduler per core, share-nothing message passing through typed `Subject`s. No locks, because nothing is shared.
+- **Then Performance (Priority 2).** Concurrency is the default lever — cheap isolated BEAM processes, one scheduler per core, share-nothing message passing through typed `Subject`s. Avoid process bottlenecks; keep stateless operations synchronous.
 - **Types are the design tool.** No nulls, no exceptions, exhaustive `case`. Make invalid states unrepresentable with custom types and `opaque` constructors instead of validating at every call site.
 - **Immutable, functional core.** All data is immutable; transform with pure functions, pattern matching, and pipelines. Keep side effects at the process boundary.
 - **Target discipline.** The Erlang target is the Spacecraft default for services — OTP, supervision, and `gleam_otp` exist only there. The JavaScript target has **no supervision**: a panic kills the whole runtime, so "let it crash" is Erlang-target advice only.
 - **Current APIs only.** `gleam_otp` and `gleam_erlang` had breaking 1.0 redesigns (2025-06-12). Verify against hexdocs for the pinned version — most older tutorials (and model memory) show APIs that no longer exist.
+
+## Memory Safety & Type Guarantees
+- **Compile-Time Soundness:** Gleam's compiler enforces type-safe boundaries. It contains no `null` or `nil` values (use `Option` or `Result`), requires exhaustive matching on `case` patterns (no unhandled paths), and prevents mutable state bugs.
+- **Process Heap Isolation:** On the BEAM, every process has its own private heap. Garbage collection runs per-process and does not block the entire VM ("stop-the-world"). A crash or memory leak in one process is isolated and does not affect the rest of the application.
+- **FFI Protection:** FFI allows unsafe operations to escape compiler checks. Always wrap foreign calls in thin, safe wrappers, decode untyped data immediately using `gleam/dynamic/decode`, and convert Erlang/JS exceptions/throws into Gleam `Result`s.
+
+## Concurrency vs. Performance Tradeoffs
+- **When Concurrency Helps (Do Spawn):**
+  - Stateful services that require serialized updates (e.g. database connections, user sessions).
+  - Highly concurrent independent I/O tasks (e.g. parallel HTTP requests or parallel file operations).
+  - Isolating failure domains so a crash in one connection does not take down others.
+- **When Concurrency Hurts (Do NOT Spawn):**
+  - Stateless calculations: Wrapping stateless logic in an actor serializes requests, introducing a CPU bottleneck and overhead from message passing.
+  - Trivial tasks: The overhead of spawning a process and copying data exceeds execution time for small computations.
+  - Large data transfer: BEAM copies message payloads between process heaps (except ref-counted binaries >64 bytes). For large terms, keep data process-local or use read-optimized ETS only if benchmarked.
+
 
 ## Mandatory Abstraction Choice
 Always match the abstraction to the workload — and **prefer a plain module of pure functions when no state or isolation is needed** (do not wrap pure logic in a process):

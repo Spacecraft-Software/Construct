@@ -1,6 +1,7 @@
 # Spacecraft Gleam Guidelines — Full Reference
 
-**Version:** 1.0
+**Version:** 1.1
+**Date:** 2026-07-12
 **Author:** Mohamed Hammad & Spacecraft Software
 **Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
 
@@ -11,6 +12,37 @@ Gleam service. All examples are hand-written illustrations of public idioms,
 verified 2026-07-04 against Gleam 1.17.0, gleam_otp 1.2.0, gleam_erlang 1.3.0,
 and gleam_stdlib 1.0.3. `gleam_otp`/`gleam_erlang` broke compatibility at 1.0
 (2025-06-12) — reject any pattern from pre-1.0 tutorials.
+
+## Concurrency vs. Performance: When it Helps vs. When it Hurts
+
+BEAM processes are extremely cheap, but they are not free. Concurrency is an architectural decision that must be guided by the workload shape:
+
+1. **When Concurrency Helps (Spawn Processes):**
+   - **State Isolation:** When you need a serialized service managing state that changes over time (e.g., an actor maintaining a pool connection or session state).
+   - **I/O Parallelism:** Offloading concurrent I/O operations (HTTP queries, file system access).
+   - **Failure Isolation:** Running independent tasks (like client connection handlers) in isolated processes so that a crash in one task does not crash other sessions.
+2. **When Concurrency Hurts (Keep it Serial / Synchronous):**
+   - **Stateless Calculations:** Wrapping pure algorithms (e.g., parsing, string transformations, math) in processes serializes requests. This forces caller processes to block on a single actor's mailbox, turning the actor into a serialized bottleneck.
+   - **Trivial/Small Tasks:** The overhead of spawning a process and scheduling it is larger than executing simple synchronous code.
+   - **Data Copying Overhead:** BEAM processes share nothing; sending a message copies the payload from the sender's heap to the receiver's heap. While ref-counted binaries >64 bytes are shared via a global heap, large nested terms (large dicts, custom records) suffer significant copying overhead. Keep large data structures in the process that processes them, or use a read-optimized ETS table (via thin FFI modules) only if benchmarking proves a performance gain.
+
+## Memory Safety & Runtime Isolation
+
+Gleam delivers memory safety at two levels: the compile-time type system and the BEAM runtime's process model.
+
+1. **Compile-Time Safety:**
+   - **No Nulls/Exceptions:** Gleam eliminates null pointer exceptions by using `Option(Type)` and `Result(Type, Error)` types.
+   - **Exhaustive Matching:** The compiler guarantees that all pattern matches (`case` expressions) are total. You cannot compile a program with unhandled variants or missing cases.
+   - **Immutability:** All data structures are immutable. This eliminates class-level bugs like data races on shared memory, pointer aliasing, or accidental mutation.
+2. **Runtime Isolation (BEAM Heap Model):**
+   - **Per-Process Heaps:** Unlike traditional VMs (JVM, V8) that use a single shared heap with a global garbage collector, the BEAM allocates a small private heap for each process.
+   - **Non-Blocking GC:** Garbage collection runs per-process. A process only collects its own heap when idle or when its heap is full. This prevents "stop-the-world" pauses from impacting other processes.
+   - **Crash Containment:** A process crash terminates only the offending process and its linked children. Memory is reclaimed instantly when the process dies, avoiding VM-wide leaks.
+3. **Safe FFI Boundaries:**
+   - Since FFI targets (Erlang/JavaScript) bypass Gleam's compiler safety checks, foreign functions must be isolated behind a thin wrapper module.
+   - Always catch exceptions thrown in foreign code (using the `exception` package on Erlang or standard try-catch on JavaScript) and map them to Gleam `Result` types.
+   - External raw terms must be validated at the boundary using decoders (`gleam/dynamic/decode`) before passing them to the rest of the application.
+
 
 ## 1. Program shape: `main` + root supervisor (the backbone)
 
