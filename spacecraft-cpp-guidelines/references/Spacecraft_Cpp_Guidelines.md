@@ -91,21 +91,23 @@ add_executable(telemetry_node main.cpp telemetry_worker.cpp)
 
 ---
 
-## 3. Concurrency: Safe Thread Management via `std::jthread`
+## 3. Concurrency: Safe Thread Management, Named Locks, scoped_lock, and Condition Predicates
 
-Avoid raw `std::thread` to prevent crashes due to unjoined threads. Use C++20 `std::jthread` to automatically join upon scope exit and handle cooperative thread cancellation.
+Avoid raw `std::thread` to prevent crashes due to unjoined threads. Use C++20 `std::jthread` to automatically join upon scope exit, and always name your lock guards to prevent immediate release vulnerabilities.
 
 ```cpp
 #include <iostream>
 #include <vector>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include <chrono>
 #include <atomic>
 
 class TelemetryWorker {
 private:
     std::mutex mtx_;
+    std::condition_variable cv_;
     std::vector<double> readings_;
     std::atomic<bool> status_active_{false};
     std::jthread worker_thread_;
@@ -118,18 +120,21 @@ private:
             // Simulating sensor poll
             double mock_reading = 42.0;
 
-            // Lock context safely using RAII guard
+            // Lock context safely using a NAMED RAII guard
             {
+                // CRITICAL: Always name the lock variable (here: 'lock'). 
+                // DO NOT write: std::lock_guard<std::mutex>(mtx_); which creates a temporary that is immediately destroyed!
                 std::lock_guard<std::mutex> lock(mtx_);
                 readings_.push_back(mock_reading);
             }
+            cv_.notify_one();
         }
     }
 
 public:
     TelemetryWorker() = default;
     
-    // Non-copyable
+    // Non-copyable (Rule of Five)
     TelemetryWorker(const TelemetryWorker&) = delete;
     TelemetryWorker& operator=(const TelemetryWorker&) = delete;
 
@@ -139,26 +144,150 @@ public:
 
     void start() {
         status_active_.store(true);
-        // jthread takes a function accepting a std::stop_token automatically
         worker_thread_ = std::jthread(&TelemetryWorker::run_loop, this);
     }
 
     void stop() {
         status_active_.store(false);
-        // Request thread interruption cooperatively
         worker_thread_.request_stop();
     }
 
-    std::vector<double> get_readings() {
-        std::lock_guard<std::mutex> lock(mtx_);
-        return readings_;
+    // Safely await new reading using a condition variable predicate loop
+    double await_next_reading() {
+        std::unique_lock<std::mutex> lock(mtx_);
+        
+        // CRITICAL: Always pass a predicate lambda to cv.wait to prevent spurious wakeup bugs
+        cv_.wait(lock, [this] { return !readings_.empty(); });
+        
+        double val = readings_.back();
+        readings_.pop_back();
+        return val;
+    }
+};
+
+// Deadlock-free Multi-Mutex Locking
+struct Account {
+    std::mutex mtx_;
+    double balance_ = 0.0;
+};
+
+void transfer_funds(Account& from, Account& to, double amount) {
+    // CRITICAL: Use std::scoped_lock to acquire multiple mutexes atomically and deadlock-free
+    std::scoped_lock lock(from.mtx_, to.mtx_);
+    
+    from.balance_ -= amount;
+    to.balance_ += amount;
+}
+```
+
+---
+
+## 4. Lifecycle Management: Rule of Zero & Rule of Five
+
+If a class does not manage resources directly, rely on the compiler-generated defaults (**Rule of Zero**). If a class manages resources manually, you must explicitly declare or delete all five special member functions (**Rule of Five**).
+
+```cpp
+#include <cstddef>
+#include <memory>
+#include <algorithm>
+#include <stdexcept>
+
+class SafeBufferManager {
+private:
+    std::unique_ptr<char[]> buffer_;
+    std::size_t size_;
+
+public:
+    explicit SafeBufferManager(std::size_t size)
+        : buffer_(std::make_unique<char[]>(size)), size_(size) {}
+
+    // --- RULE OF FIVE IMPLEMENTATION ---
+
+    // 1. Destructor
+    ~SafeBufferManager() = default; // unique_ptr handles cleanup automatically
+
+    // 2. Copy Constructor (Deep copy allocation)
+    SafeBufferManager(const SafeBufferManager& other)
+        : buffer_(std::make_unique<char[]>(other.size_)), size_(other.size_) {
+        std::copy_n(other.buffer_.get(), size_, buffer_.get());
+    }
+
+    // 3. Copy Assignment Operator (Strong exception safety)
+    SafeBufferManager& operator=(const SafeBufferManager& other) {
+        if (this != &other) {
+            auto temp_buffer = std::make_unique<char[]>(other.size_);
+            std::copy_n(other.buffer_.get(), other.size_, temp_buffer.get());
+            
+            buffer_ = std::move(temp_buffer);
+            size_ = other.size_;
+        }
+        return *this;
+    }
+
+    // 4. Move Constructor
+    SafeBufferManager(SafeBufferManager&& other) noexcept
+        : buffer_(std::move(other.buffer_)), size_(other.size_) {
+        other.size_ = 0;
+    }
+
+    // 5. Move Assignment Operator
+    SafeBufferManager& operator=(SafeBufferManager&& other) noexcept {
+        if (this != &other) {
+            buffer_ = std::move(other.buffer_);
+            size_ = other.size_;
+            other.size_ = 0;
+        }
+        return *this;
+    }
+
+    // Safe accessor
+    char& at(std::size_t index) {
+        if (index >= size_) {
+            throw std::out_of_range("Buffer bounds overflow");
+        }
+        return buffer_[index];
     }
 };
 ```
 
 ---
 
-## 4. Drop-In Memory Safety: Fil-C Compiler Setup
+## 5. Type-Safe Interfaces: Scoped Enums, std::array, and Ownership
+
+Do not use legacy C-style features. Enforce type safety at the API boundary.
+
+```cpp
+#include <array>
+#include <string_view>
+#include <iostream>
+
+// CRITICAL: Prefer scoped enum class to prevent global scope contamination and implicit casting
+enum class TelemetryChannel {
+    velocity,
+    altitude,
+    temperature,
+    pressure
+};
+
+// CRITICAL: Prefer std::array over raw C arrays to maintain bounds safety information
+struct SensorCalibration {
+    TelemetryChannel channel;
+    std::array<double, 4> coefficients; // Safe bounds
+};
+
+// Use std::string_view for zero-overhead, read-only string references
+void log_calibration(std::string_view sensor_name, const SensorCalibration& cal) {
+    std::cout << "Sensor: " << sensor_name << ", coeffs: ";
+    for (double val : cal.coefficients) {
+        std::cout << val << " ";
+    }
+    std::cout << "\n";
+}
+```
+
+---
+
+## 6. Drop-In Memory Safety: Fil-C Compiler Setup
 
 To run legacy C++ code safely, use the **Fil-C** compiler toolchain. Fil-C replaces raw pointers with capabilities (InvisiCaps) and implements a concurrent garbage collector to block all spatial and temporal bugs.
 
@@ -177,9 +306,9 @@ $CXX -O3 -std=c++20 main.cpp -o telemetry_node_safe
 
 ---
 
-## 5. Testing: GoogleTest Assertions
+## 7. Testing: GoogleTest Assertions
 
-Test concurrent code and bounds assertions using GoogleTest.
+Test concurrent code, condition variables, and bounds assertions using GoogleTest.
 
 ```cpp
 #include <gtest/gtest.h>
@@ -192,36 +321,41 @@ TEST(TelemetryWorkerTest, CaptureReadingsSuccessfully) {
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     worker.stop();
 
-    auto readings = worker.get_readings();
-    
-    // Verify that data was appended by background jthread
-    EXPECT_FALSE(readings.empty());
-    for (double val : readings) {
-        EXPECT_DOUBLE_EQ(val, 42.0);
-    }
+    double latest_value = worker.await_next_reading();
+    EXPECT_DOUBLE_EQ(latest_value, 42.0);
 }
 ```
 
 ---
 
-## 6. Common Pitfalls & Troubleshooting
+## 8. Common Pitfalls & Troubleshooting
 
 | Pitfall | Symptom | Corrective Action |
 | :--- | :--- | :--- |
 | **Raw Pointer allocation** | Use-after-free, memory leaks | Use `std::make_unique` or `std::make_shared`. |
 | **Raw `std::thread` destruction** | `std::terminate()` aborts runtime | Replace thread with C++20 `std::jthread`. |
 | **Unprotected shared container** | Data races, memory corruptions | Synchronize accesses using `std::mutex` and `std::lock_guard`. |
+| **Unnamed Lock Guards** | Data races on protected resources | Always name the lock variable: `std::lock_guard<std::mutex> lock(mtx);`. |
+| **Spurious Wakeups** | Program proceeds with invalid data | Always wait on condition variables using a predicate lambda. |
+| **Rule of Five Violation** | Double free, slice copies, memory leaks | If writing a destructor or copy/move operation, implement all 5. |
+| **C-Style raw arrays** | Buffer overflows, decay to pointer | Use `std::array` or `std::vector` combined with hardening. |
+| **Plain enums or macros** | Namespace clashes, implicit cast bugs | Use scoped `enum class` and compile-time `constexpr` values. |
 | **Out-of-bounds indexing** | Security exploits, silent bugs | Enable `-fhardened` / `_LIBCPP_HARDENING_MODE_EXTENSIVE`. |
-| **Recursive mutex locking** | Thread deadlocks | Redesign lock domains; avoid calling locked functions from within locks. |
+| **Recursive mutex locking** | Thread deadlocks | Redesign lock domains; use `std::scoped_lock` for multi-locking. |
 
 ---
 
-## 7. Code Review Compliance Gate
+## 9. Code Review Compliance Gate
 
 Before merging C++ code, verify:
 1. No raw `new`/`delete` operators or manual pointer arithmetic exists in production files.
 2. Background threading utilizes `std::jthread` instead of raw `std::thread`.
-3. Mutex locks are managed exclusively using RAII class constructs (`std::lock_guard`).
-4. GCC/Clang extensive hardening flags are configured in CMakeLists.txt.
-5. Safe C++ blocks utilize `safe` keywords and `std2` library classes.
-6. Compilations pass cleanly without diagnostic warnings under `-Werror`.
+3. Mutex locks are managed exclusively using *named* RAII class constructs.
+4. Multi-mutex acquisition is handled atomically using `std::scoped_lock`.
+5. All condition variable wait loops include a predicate checking lambda to prevent spurious wakeups.
+6. Custom resource managers conform fully to the Rule of Zero or Rule of Five guidelines.
+7. C-style arrays are banned in favor of `std::array` or `std::vector`.
+8. Enums are declared as scoped `enum class` to prevent implicit casts.
+9. GCC/Clang extensive hardening flags are configured in CMakeLists.txt.
+10. Safe C++ blocks utilize `safe` keywords and `std2` library classes.
+11. Compilations pass cleanly without diagnostic warnings under `-Werror`.

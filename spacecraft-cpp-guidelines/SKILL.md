@@ -18,7 +18,7 @@ website: https://Construct.SpacecraftSoftware.org/
 - **Stability and Safety first (Standard §3 Priority 1).** C++ historically lacks memory safety. Enforce strict compile-time types using Safe C++ extensions (borrow checker, safe contexts) where available, compile with extensive compiler hardening modes in standard environments, or build with the Fil-C drop-in compiler.
 - **Then Performance (Priority 2).** Do not sacrifice low-latency execution patterns. Utilize zero-overhead compiler hardening options that trap out-of-bounds access with minimal CPU cost.
 - **Modern Concurrency.** Prevent thread leaks and raw thread crashes by using `std::jthread` (C++20+) which provides cooperative thread cancellation tokens and auto-joining destructors.
-- **Deterministic Lifetime Management.** Enforce RAII (Resource Acquisition Is Initialization). Keep allocations bounded, ban raw pointers (`new`/`delete`), and manage resources using smart pointers (`std::unique_ptr`, `std::shared_ptr`).
+- **Deterministic Lifetime Management.** Enforce RAII (Resource Acquisition Is Initialization). Keep allocations bounded, ban raw pointers (`new`/`delete`), and manage resources using smart pointers (`std::unique_ptr`, `std::shared_ptr`). Apply the Rule of Zero (compiler-generated defaults) or Rule of Five (fully handle all copy/move/destructor lifecycle members if one is custom defined).
 
 ## Memory Safety & Hardening Mode
 - **Safe C++ (safecpp.org) Syntax:** When using Safe C++ compiler extensions (Circle), structure safety-critical paths inside explicit `safe` blocks. Inside `safe {}` contexts, the borrow checker restricts pointer arithmetic, dynamic casting, and raw references, enforcing Rust-like static mutability and lifetime verification.
@@ -26,7 +26,7 @@ website: https://Construct.SpacecraftSoftware.org/
   - **GCC:** Configure `-D_GLIBCXX_ASSERTIONS` and `-fhardened` to trap out-of-bound vector/span access.
   - **Clang:** Configure `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE` to enable extensive runtime bounds and precondition assertions.
 - **Fil-C Drop-in Safety:** When targeting legacy C++ components, compile code with the Fil-C compiler toolchain fork. Fil-C utilizes garbage collection and InvisiCaps capabilities to trap spatial and temporal access violations, panic-aborting instead of permitting undefined behavior.
-- **Smart Resource Management:** Raw pointer management is prohibited. All dynamic heap allocations must be wrapped in `std::unique_ptr` or `std::shared_ptr`. Avoid `std::shared_ptr` cyclic dependencies.
+- **Smart Resource Management:** Raw pointer management is prohibited. All dynamic heap allocations must be wrapped in `std::unique_ptr` or `std::shared_ptr`. Ownership must never be transferred via raw pointers or references. Prefer `std::array` or `std::vector` over C-style raw arrays, and scoped `enum class` over plain `enum` to prevent implicit casting and namespace pollution.
 
 ## Concurrency vs. Performance Tradeoffs
 - **When Concurrency Helps (Do Thread Safety):**
@@ -37,6 +37,9 @@ website: https://Construct.SpacecraftSoftware.org/
   - **Dynamic Shared Mutation:** Modifying standard containers (e.g., `std::vector`, `std::unordered_map`) across threads without explicit synchronization.
   - **Thread Leakage / Crashes:** Spawning raw `std::thread` elements without joining or detaching before destruction, raising `std::terminate()` crashes.
   - **Contended Mutex Locking:** Performing long-lived blocking mutex locks inside high-frequency real-time loops. Use lock-free structures or fine-grained locks.
+  - **Unnamed Lock Guards:** Never declare an unnamed lock guard or unique lock (e.g., `std::lock_guard<std::mutex>(mtx);` is a temporary object that destroys immediately, releasing the mutex instantly and exposing the critical section to data races).
+  - **Deadlock Multi-mutex Locking:** Acquiring multiple mutexes individually in different orders. Use `std::scoped_lock` to acquire multiple mutexes atomically and deadlock-free. Never call unknown callbacks or code while holding a lock.
+  - **Condition Spurious Wakeups:** Waiting on condition variables without a predicate check, resulting in spurious wakeups and out-of-order execution.
 
 ## Mandatory Abstraction Choice
 Always choose the safety abstraction corresponding to the compiling environment:
@@ -50,8 +53,10 @@ Always choose the safety abstraction corresponding to the compiling environment:
 1. **jthread over raw thread:** Replace all instances of `std::thread` with `std::jthread`. jthreads auto-join upon exiting their scope and carry interruption tokens.
 2. **Hardened CMake Configuration:** CMake build files must explicitly append GCC/Clang hardening mode compiler flags for compile steps.
 3. **C++26 Span Boundaries:** Use `std::span` to wrap arrays and raw pointers. Hardened runtime flags ensure subscript index queries are trapped upon out-of-bounds attempts.
-4. **RAII Lock Management:** Use `std::lock_guard` or `std::unique_lock` to manage mutex critical sections. Never call `.lock()` and `.unlock()` manually.
+4. **RAII Lock Management:** Use `std::lock_guard` or `std::unique_lock` to manage mutex critical sections, and ensure every lock guard is named. Use `std::scoped_lock` for acquiring multiple mutexes.
 5. **Warnings-as-Errors:** Configure `-Werror` and strict diagnostic flags (`-Wall -Wextra -Wpedantic`) to prevent compilation warnings.
+6. **Rule of Zero/Five:** Enforce the Rule of Zero for resource-free classes, or Rule of Five when manual resource tracking is required.
+7. **Condition variable predicates:** Always invoke condition variable waits using the predicate overload: `cv.wait(lock, [] { return condition; });`.
 
 ## Build, Tooling & CI (Non-Negotiable)
 - **Toolchain floor:** C++20 compliant compiler, CMake ≥ 3.20.
@@ -60,21 +65,32 @@ Always choose the safety abstraction corresponding to the compiling environment:
 - **Testing:** Unit test targets written using GoogleTest or Catch2.
 
 ## Anti-Patterns (Never Do These)
-- Allocating memory using `new` or deallocating using `delete` (use `std::make_unique`).
+- Allocating memory using `new` or deallocating using `delete` (use `std::make_unique` or `std::make_shared`).
 - Spawning raw `std::thread` instances.
 - Performing pointer arithmetic on raw pointers (use `std::span` or `std::array`).
-- Blocking threads manually using busy-wait loops (use condition variables or atomic waits).
+- Blocking threads manually using busy-wait loops.
 - Locking mutexes without using RAII lock guards.
+- Declaring unnamed lock guards (e.g. `std::lock_guard<std::mutex>(mtx);`).
+- Calling foreign callbacks or unknown code while holding a mutex.
+- Invoking `cv.wait(lock)` without a condition predicate.
+- Violating the Rule of Zero / Five (e.g., custom destructor without custom copy/move constructors or assignment operators).
+- Using C-style raw arrays (use `std::array` or `std::vector`).
+- Declaring plain enums or macro constants (use scoped `enum class` and `constexpr` variables).
 - Swallowing compilation warnings via compiler ignore macros.
 
 ## Pre-Commit Checklist (Verify Every Time)
 - [ ] No raw `new`/`delete` or unchecked pointer arithmetic remains in production paths
 - [ ] Raw `std::thread` usage replaced with `std::jthread`
 - [ ] CMakeLists.txt configures Clang extensive or GCC hardened compilation flags
-- [ ] Mutex locking paths manage resource allocation using `std::lock_guard`
+- [ ] Mutex locking paths manage resource allocation using *named* `std::lock_guard` or `std::unique_lock` instances
+- [ ] Multi-mutex locking is handled atomically using `std::scoped_lock`
+- [ ] Condition variable waits include an explicit predicate lambda check: `cv.wait(lock, [] { ... })`
+- [ ] Non-owning pointers do not transfer resource ownership (ownership managed by `std::unique_ptr`/`std::shared_ptr`)
+- [ ] All custom resource lifecycle classes conform to the Rule of Zero or Rule of Five
 - [ ] Array references are passed using bounds-checked `std::span` or `std::array` wrappers
+- [ ] Enums are scoped `enum class` declarations
 - [ ] Safe C++ code uses `safe` contexts and `std2` library equivalents where available
-- [ ] compiler diagnostics compile clean under `-Werror -Wall -Wextra -Wpedantic`
+- [ ] Compiler diagnostics compile clean under `-Werror -Wall -Wextra -Wpedantic`
 - [ ] GoogleTest or Catch2 tests execute and pass successfully
 - [ ] Clang-Tidy reports zero static analysis errors
 
