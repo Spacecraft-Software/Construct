@@ -172,3 +172,34 @@ group_imports = "StdExternalCrate"
 ```
 
 (`group_imports` currently needs `cargo +nightly fmt`.)
+
+## 10. Smart pointers & thread safety
+
+Rust tracks thread safety via compiler-enforced auto-traits:
+- `Send` indicates that ownership of a type can be transferred across thread boundaries.
+- `Sync` indicates that references to a type (`&T`) can be shared safely across threads.
+
+### Smart Pointer Comparison
+
+| Pointer Type | Description | Send / Sync | Use Case |
+| :--- | :--- | :--- | :--- |
+| `&T` | Shared reference | `Send + Sync` (if `T: Sync`) | Immutable shared access. |
+| `&mut T` | Exclusive mutable reference | `Send + Sync` (if `T: Send + Sync`) | Exclusive temporary mutation. |
+| `Box<T>` | Unique heap-allocated pointer | `Send + Sync` (if `T: Send + Sync`) | Owned indirection / recursive types. |
+| `Rc<T>` | Non-atomic reference-counted | **Neither** `Send` nor `Sync` | Shared ownership within a single thread. |
+| `Arc<T>` | Atomic reference-counted | `Send + Sync` (if `T: Send + Sync`) | Shared ownership across multiple threads. |
+| `Cell<T>` | Interior mutability for `Copy` types | `Send` (if `T: Send`), **not** `Sync` | Zero-overhead single-thread mutability. |
+| `RefCell<T>` | Interior mutability (dynamic borrow) | `Send` (if `T: Send`), **not** `Sync` | Single-thread runtime-checked mutation. |
+| `Mutex<T>` | Thread-safe mutual exclusion lock | `Send + Sync` (if `T: Send`) | Shared mutable access across threads. |
+| `RwLock<T>` | Thread-safe readers-writer lock | `Send + Sync` (if `T: Send + Sync`) | Read-heavy shared mutable thread access. |
+
+### Lazy Initialization & One-Time Cells
+
+Avoid complex custom setups with `Option` or unsafe blocks for lazy values. Use standard library cells:
+
+- **Single-Threaded (`std::cell`):**
+  - `OnceCell<T>`: Write-once container for single-threaded deferred initialization.
+  - `LazyCell<T>` (stabilized in Rust 1.80): Lazy value initialized via a closure on first deref.
+- **Thread-Safe / Shared (`std::sync`):**
+  - `OnceLock<T>` (stabilized in Rust 1.70): Thread-safe `OnceCell` for global/shared resources.
+  - `LazyLock<T>` (stabilized in Rust 1.80): Thread-safe `LazyCell` for lazy thread-safe globals.

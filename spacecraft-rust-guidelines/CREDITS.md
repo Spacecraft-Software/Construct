@@ -13,7 +13,7 @@ in accordance with [The Steelbore Standard §15.3](../spacecraft-standard/SKILL.
 | Author(s)  | Apollo Graph, Inc.                             |
 | License    | MIT License                                    |
 | Source URL | https://github.com/apollographql/skills        |
-| Scope      | Idiom/readability rules distilled into `references/idioms.md` — borrowing-vs-cloning, `Copy` sizing, idiomatic `Option`/`Result` flow, iterators-vs-`for`, clippy lint names + `expect`-over-`allow`, testing conventions (one assertion per test, `insta` snapshots), static-vs-dynamic dispatch, the type-state pattern, comments-vs-docs, and import ordering. Apollo's error-handling and performance-mindset chapters were **not** adapted (this skill's SKILL.md and `microsoft-rust-guidelines` cover those). |
+| Scope      | Idiom/readability rules distilled into `references/idioms.md` — borrowing-vs-cloning, `Copy` sizing, idiomatic `Option`/`Result` flow, iterators-vs-`for`, clippy lint names + `expect`-over-`allow`, testing conventions (one assertion per test, `insta` snapshots), static-vs-dynamic dispatch, the type-state pattern, comments-vs-docs, import ordering, flamegraph profiling (adapted from Chapter 3), and smart pointers / thread-safety (adapted from Chapter 9). Apollo's error-handling chapter was **not** adapted (this skill's SKILL.md and `microsoft-rust-guidelines` cover those). |
 
 The verbatim upstream MIT notice is preserved in
 [`references/ATTRIBUTION.md`](references/ATTRIBUTION.md) (Standard §4.2).

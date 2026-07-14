@@ -18,8 +18,9 @@ attribution), the upstream MIT notice is preserved verbatim below.
   sizing, idiomatic `Option`/`Result` flow, iterators-vs-`for`, clippy lint names and
   `expect`-over-`allow` discipline, testing conventions (one assertion per test,
   descriptive names, `insta` snapshots), static-vs-dynamic dispatch, the type-state
-  pattern, comments-vs-docs, and import ordering. Apollo's error-handling and
-  performance-mindset chapters were intentionally **not** adapted (covered by this
+  pattern, comments-vs-docs, import ordering, flamegraph profiling details (adapted
+  from Chapter 3), and smart pointers / thread-safety guidelines (adapted from Chapter 9).
+  Apollo's error-handling chapter was intentionally **not** adapted (covered by this
   skill's SKILL.md and by `microsoft-rust-guidelines`).
 
 > Note: the *skill* we adapted from (the `apollographql/skills` repository) is MIT. A

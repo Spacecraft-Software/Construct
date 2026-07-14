@@ -86,6 +86,19 @@ characteristics, and a clear understanding of the trade‑offs involved.
 - `cargo audit` and `cargo deny` to keep dependencies secure and minimal.
 - CI must run fmt, clippy, all tests, doc tests, and at least a sample benchmark.
 
+### Performance Profiling with Flamegraph
+When profiling to identify performance bottlenecks (Standard §3.2):
+- **Installation:** `cargo install flamegraph`
+- **Execution (always use `--release`):**
+  - Run binary: `cargo flamegraph`
+  - Run specific binary: `cargo flamegraph --bin=<name>`
+  - Run unit tests: `cargo flamegraph --unit-test -- <test_name>`
+  - Run benchmarks (e.g., criterion): `cargo flamegraph --bench <name> -- --bench`
+- **Reading a Flamegraph:**
+  - **Y-axis:** Stack depth. The entry point (e.g., `main`) is at the bottom; called functions stack on top.
+  - **X-axis (Width):** Total CPU time/percentage spent on that function or its callees. Wider box = more CPU time.
+  - **Color:** Randomized (has no performance/semantic meaning). Focus on wide boxes and thick stacks.
+
 ## Error Handling & Resilience
 - Libraries: precise error types via `thiserror`, avoid `unwrap()`.
 - Applications: `anyhow`/`eyre` for propagation, with `.context()`.
