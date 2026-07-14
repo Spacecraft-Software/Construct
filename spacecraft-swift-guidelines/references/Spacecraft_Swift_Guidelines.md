@@ -279,3 +279,194 @@ Before merging Swift code, verify:
 3. Every asynchronous closure capturing `self` uses the `[weak self]` capture list.
 4. ViewModels update state variables on the `@MainActor`.
 5. Unit tests run on the modern `Testing` framework (not `XCTest`).
+
+---
+
+## 8. SwiftUI State Ownership & View Composition
+
+Ensure every view uses the correct property wrapper based on ownership, and keep data flow unidirectional: data flows down, events flow up.
+
+### Property Wrapper Decision Tree
+1. **Ephemeral Local Value Type:** View owns the state and it should reset when the view is destroyed -> Use `@State`.
+2. **Parent-Owned Value Type:** Parent view owns the state and this view only reads and writes to it -> Use `@Binding`.
+3. **Reference-Type Model (iOS 17+):** Model has complex business logic/derived state -> Use `@Observable` macro on the class, and reference it directly in the view.
+4. **Reference-Type Model (Legacy / Backwards Compatibility):** Model supports iOS 16- -> Use `@StateObject` in the owner view, and `@ObservedObject` in child views.
+5. **Shared App-Wide/Feature-Wide State:** State is shared across many child views in the hierarchy -> Inject via `@Environment` (for `@Observable` models) or `@EnvironmentObject` (for legacy `ObservableObject`).
+
+### Skeleton: Parent-Child Unidirectional Data Flow
+```swift
+import SwiftUI
+
+// 1. Immutable Data Model
+public struct TaskItem: Identifiable, Sendable, Hashable {
+    public let id: UUID
+    public let title: String
+    public let isCompleted: Bool
+}
+
+// 2. Main ViewModel (MainActor isolated state owner)
+@MainActor
+@Observable
+public final class TaskListViewModel {
+    public var tasks: [TaskItem] = []
+    
+    public init() {}
+    
+    public func toggleTask(id: UUID) {
+        if let index = tasks.firstIndex(where: { $0.id == id }) {
+            let task = tasks[index]
+            tasks[index] = TaskItem(id: task.id, title: task.title, isCompleted: !task.isCompleted)
+        }
+    }
+}
+
+// 3. Parent View (Owns layout and coordinates events)
+public struct TaskListView: View {
+    @State private var viewModel = TaskListViewModel()
+    @State private var isFilterActive = false
+
+    public var body: some View {
+        NavigationStack {
+            List(viewModel.tasks) { task in
+                // Pass immutable value for display, and callback closure for actions
+                TaskRowView(task: task) {
+                    viewModel.toggleTask(id: task.id)
+                }
+            }
+            .navigationTitle("Tasks")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Toggle("Filter", isOn: $isFilterActive) // Pass binding for edits
+                }
+            }
+        }
+    }
+}
+
+// 4. Child View (Reusable, display-only + action callback)
+struct TaskRowView: View {
+    let task: TaskItem // Display-only immutable
+    let onToggle: () -> Void // Event callback
+
+    var body: some View {
+        HStack {
+            Text(task.title)
+                .strikethrough(task.isCompleted)
+            Spacer()
+            Button(action: onToggle) {
+                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(task.isCompleted ? .green : .secondary)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+}
+```
+
+---
+
+## 9. SwiftUI List Performance & Identity
+
+To avoid layout churn, rendering lags, and state loss, lists and loop containers must use stable and unique identity.
+
+### Guidelines
+- **Always use `Identifiable` objects** in `ForEach` and `List` containers.
+- **Never use `.indices` or `id: \.self` on mutable/dynamic arrays.** If items shift (inserts, deletes), index-based identity breaks SwiftUI's diffing engine, causing row churn and animation glitching.
+- **Choose Container Wisely:** Use `List` for standard system features (selection, swipe-to-delete, refreshable). Use `ScrollView` + `LazyVStack` (with `LazyVStack` wrapping ONLY the repeating items) for fully custom layouts.
+
+### Skeleton: Performant List with Stable Identity
+```swift
+import SwiftUI
+
+public struct TelemetryNode: Identifiable, Sendable {
+    public let id: String // Unique and stable identifier (e.g. device serial number)
+    public let name: String
+    public let signalStrength: Double
+}
+
+struct NodeMonitorView: View {
+    let nodes: [TelemetryNode]
+
+    var body: some View {
+        // Correct: List bound to Identifiable elements
+        List(nodes) { node in
+            HStack {
+                Text(node.name)
+                Spacer()
+                Text("\(Int(node.signalStrength * 100))%")
+                    .foregroundStyle(node.signalStrength < 0.2 ? .red : .primary)
+            }
+        }
+    }
+}
+```
+
+---
+
+## 10. SwiftUI Lifecycle-Scoped Concurrency
+
+SwiftUI views should tie async tasks to their lifecycle using `.task` to automatically cancel active background tasks when the view disappears.
+
+### Lifecycle Comparison
+- **View-scoped loading:** Use `.task { await loadData() }`.
+- **State-driven reload:** Use `.task(id: filterID) { await loadFilteredData() }`. Cancels the current task and restarts it when the ID changes.
+- **Avoid:** `onAppear { Task { ... } }` since tasks spawned this way escape the view's lifecycle and will continue running in the background even if the user navigates away, leading to leaks and stale updates.
+
+### Skeleton: Lifecycle-Scoped Async Task
+```swift
+import SwiftUI
+
+struct LogMonitorView: View {
+    let sourceURL: URL
+    @State private var logs: [String] = []
+    @State private var isRefreshing = false
+
+    var body: some View {
+        List(logs, id: \.self) { log in
+            Text(log)
+        }
+        // Runs when view appears, automatically cancelled when view disappears
+        .task {
+            await fetchLogs()
+        }
+        // Automatically cancels and restarts if sourceURL changes
+        .task(id: sourceURL) {
+            await fetchLogs()
+        }
+    }
+
+    private func fetchLogs() async {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: sourceURL)
+            if let decodedLogs = try? JSONDecoder().decode([String].self, from: data) {
+                self.logs = decodedLogs
+            }
+        } catch {
+            // Handle error or cancel
+        }
+    }
+}
+```
+
+---
+
+## 11. Modern SwiftUI API Migration Checklist
+
+Prefer modern SwiftUI APIs to optimize performance and take advantage of advanced compiler checks.
+
+### Legacy → Modern API Mapping
+
+| Legacy Pattern | Modern Replacement (iOS 17+) | Notes / Rationale |
+| :--- | :--- | :--- |
+| `NavigationView` | `NavigationStack(path:)` | Decouples links from destinations; type-safe, value-driven routing. |
+| `NavigationLink(destination:)` | `NavigationLink(value:)` + `.navigationDestination(for:)` | Prevents destination views from being eagerly instantiated before tap. |
+| `foregroundColor(_:)` | `foregroundStyle(_:)` | Supports rich styles, gradients, semantic shapes, and system materials. |
+| `accentColor(_:)` | `tint(_:)` | Localized view-scoped styling without global pollution. |
+| `cornerRadius(_:)` | `clipShape(.rect(cornerRadius:))` | Standardized, shape-aware clipping with selective corner support. |
+| `@StateObject` | `@State` with `@Observable` | No wrapper overhead; fields tracked automatically. |
+| `@EnvironmentObject` | `@Environment(MyType.self)` | Strictly type-safe environment lookup. |
+| `onChange(of: value) { val in }` | `onChange(of: value) { old, new in }` | Access both preceding and current states (iOS 17+). |
+| `onAppear { Task { await work() } }` | `.task { await work() }` | Automates task cancellation when the view hierarchy is dismissed. |
+| `UIScreen.main.bounds` | `containerRelativeFrame()` | Avoids hardcoded screen sizes; adapts properly to multi-window split views. |
+| `.sheet(isPresented:)` | `.sheet(item:)` | Cleaner state-driven presentation flow. |
+

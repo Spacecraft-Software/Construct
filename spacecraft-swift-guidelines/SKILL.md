@@ -19,6 +19,7 @@ website: https://Construct.SpacecraftSoftware.org/
 - **Then Performance (Priority 2).** Minimize thread hopping. Swift 6.2 defaults to staying on the current actor. Only offload heavy CPU tasks to the global pool explicitly using `@concurrent` functions or background actors.
 - **Safety over convenience.** Swift optionals protect against null pointers. Avoid force-unwrapping optionals (`!`) or force-casting types (`as!`). Use safe bindings (`if let`, `guard let`) and supply fallback default values.
 - **Cooperative Thread Scheduling.** Do not block threads with synchronous loops or heavy operations. Yield often inside loops, or isolate intensive calculations to dedicated background actors.
+- **Data flows down, events flow up.** Keep a single source of truth. Avoid child views mutating parent state directly; hoist state or pass explicit `@Binding`/callbacks.
 
 ## Memory Safety & Code Integrity
 - **Reference Management:** Always use `weak` or `unowned` references inside closures to prevent reference cycles and memory leaks. Use the Xcode memory graph or profiling tools to audit lifecycle boundaries.
@@ -50,6 +51,8 @@ Always choose the concurrency model corresponding to the workload:
 3. **Structured Cancel Check:** Ensure long-running loops check for task cancellation using `Task.checkCancellation()` or checking `Task.isCancelled`.
 4. **Zipped Arguments:** In parameter testing, use `zip()` to align test arguments instead of Cartesian products.
 5. **Thread Sanitizer:** Run tests with Thread Sanitizer (TSan) active in Xcode Diagnostics to catch runtime race conditions.
+6. **Lifecycle-Scoped Tasking:** Use `.task` or `.task(id:)` instead of `onAppear` + `Task {}` to tie async operations to the view lifecycle.
+7. **Identity Stability:** Prefer stable `Identifiable` elements in loops (`ForEach`/`List`) over indices to avoid layout and state rendering issues.
 
 ## Build, Tooling & CI (Non-Negotiable)
 - **Toolchain floor:** Swift 6.2, Xcode 26+.
@@ -64,6 +67,9 @@ Always choose the concurrency model corresponding to the workload:
 - Updating UI-bound properties from background threads (always isolate ViewModels to `@MainActor`).
 - Spawning detached unstructured tasks in hot loops.
 - Mixing legacy `XCTestCase` and modern `Testing` frameworks in the same test targets.
+- Performing expensive sorting, formatting, or image decoding inside `body`.
+- Using `.indices` for dynamic `ForEach`/`List` loops.
+- Child views mutating shared/parent state via unchecked environment objects instead of using explicit bindings or callback closures.
 
 ## Pre-Commit Checklist (Verify Every Time)
 - [ ] Concurrency checking set to Strict Mode; warnings treated as errors
@@ -75,9 +81,13 @@ Always choose the concurrency model corresponding to the workload:
 - [ ] Test suites use the new Swift Testing `@Suite` and `@Test` macros
 - [ ] Parameterized tests use `arguments` and `zip` to keep inputs aligned
 - [ ] All tests execute and pass cleanly under Thread Sanitizer (TSan) active
+- [ ] List views and `ForEach` utilize stable `Identifiable` objects instead of `.indices`
+- [ ] Expensive view operations (e.g. formatters, complex parsing) are computed outside of `body`
+- [ ] Subviews communicate changes back via `@Binding` or event callback closures
+- [ ] Async actions in views are tied to `.task` or `.task(id:)` for automatic lifetime management
 
 ## References & Further Reading
-- Load `references/Spacecraft_Swift_Guidelines.md` for full skeletons (Swift 6.2 concurrent offloader, MainActor ViewModel, Zipped parameterized test, and optional binding) when deeper patterns are needed.
+- Load `references/Spacecraft_Swift_Guidelines.md` for full skeletons (Swift 6.2 concurrent offloader, MainActor ViewModel, Zipped parameterized test, optional binding, SwiftUI state composition, list performance, lifecycle tasking, and API migration charts) when deeper patterns are needed.
 - *Further reading* (consulted for background only): Swift Concurrency Proposals (SE-0461, SE-0470), SwiftUI Performance Audits, Swift Testing Guide, and Apple Security Guidelines.
 
 When the user requests Swift code or review, activate this skill, apply the checklist, and produce code a senior Spacecraft systems engineer would ship.
