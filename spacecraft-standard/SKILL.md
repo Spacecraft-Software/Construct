@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.31 (§3.2 compiler flags: applied+disabled both explicitly noted; concurrency as architecture-level concern; modern hardware rationale; Texinfo source pipeline; §3.3 Security by Design; §8 Texinfo; §7 Shell Environment) so
+  The Steelbore Standard v1.32 (§17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §8 Texinfo; §7 Shell Environment) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.31 | **Date:** 2026-06-24 | **Author:** Mohamed Hammad
+**Version:** 1.32 | **Date:** 2026-07-15 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -836,6 +836,34 @@ shaped the Spacecraft Software artifact.
 
 ---
 
+## §17 — Development Progress Tracking & Reporting
+
+When implementing features or writing code based on a Product Requirements Document (PRD) or project plan, coding assistants and developers must continuously track and report progress. This reporting ensures transparency, early detection of drift, and alignment on the implementation status of key milestones.
+
+### §17.1 — Progress Reporting Format
+
+Every progress report must include the percentage of completion for individual milestones, the overall progress of the Minimum Viable Product (MVP), and the total progress of the PRD.
+
+**Format template:**
+```
+[Progress: ▰▰▰▰▰▰▰▰▰▰▰▰▰▰▱▱▱▱▱▱] 70%
+Milestones: M0: 100% | M1: 100% | M2: 70% | M3: 0% | M4: 0%
+Product Status: MVP: 90% | PRD: 70%
+```
+
+### §17.2 — Progress Bar Style
+
+The progress bar must use high-visibility Unicode block characters (e.g., `▰` for filled and `▱` for empty) to form a clean, static, 20-character visual representation of total PRD completion. Do not use legacy ASCII characters like `#` or `-` for the progress bar.
+
+### §17.3 — Reporting Cadence
+
+Progress must be reported:
+- At the start of a coding task (initial estimate/baseline)
+- At the completion of each logical component or milestone task
+- When summarizing the work done at the end of a turn/message
+
+---
+
 ## §16 — Compliance Checklist (Audit Gate)
 
 Before finalising **any** Spacecraft Software artifact, mentally verify:
@@ -860,6 +888,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§14** ISO 8601 dates; 24h time; UTC Z is the default primary timestamp (companion local time with UTC offset permitted, never a replacement) — unless the project filed the §14.2.1 domain exception for inherently local-time-bound data; ISO 8601 durations; metric units
 - [ ] **§15** Attribution present: maintainer name (`Mohamed Hammad`), contact (`Mohamed.Hammad@SpacecraftSoftware.org`), and project URL in `--version` / README / About
 - [ ] **§15.3** Third-party work credited in `CREDITS.md` at project/skill root when triggers apply; deeper `references/ATTRIBUTION.md` present where reference content is adapted from external sources
+- [ ] **§17** Development progress tracked and reported continuously with milestone percentages, MVP, total PRD completion, and a Unicode progress bar
 - [ ] **§6.3** All commits to Spacecraft Software Git remotes cryptographically signed with the `Mohamed.Hammad@SpacecraftSoftware.org` key and showing "Verified" on the hosting platform; rewrites preserve signatures; programmatic and assistant-driven commits signed too
 
 If any item is not applicable to the current artifact type (e.g., color palette
