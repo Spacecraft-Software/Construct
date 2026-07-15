@@ -155,7 +155,7 @@ in sync with the subdirectory listing.
   PY
   ```
 - **`microsoft-rust-guidelines` is intentionally `user-invocable: false`.** It is
-  the mandatory auto-load Rust base — `spacecraft-standard` mandates loading it
+  the mandatory auto-load Rust base — `spacecraft-standard-constitution` mandates loading it
   before any Rust and `spacecraft-rust-guidelines` defers to it as "load first," so
   it fires automatically and is hidden from the `/` menu on purpose. Do **not**
   remove the field to "fix" a perceived load failure — that is by design.

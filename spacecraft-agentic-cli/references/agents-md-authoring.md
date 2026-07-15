@@ -132,7 +132,7 @@ copying AGENTS.md, then add Claude-specific sections:
 <!-- All AGENTS.md content above -->
 
 ## Skills referenced
-- `spacecraft-standard` — master Standard
+- `spacecraft-standard-constitution` — master Standard
 - `spacecraft-cli-standard` — structural CLI Standard
 - `spacecraft-agentic-cli` — agent-facing UX
 - `spacecraft-brand-guidelines` — color palette

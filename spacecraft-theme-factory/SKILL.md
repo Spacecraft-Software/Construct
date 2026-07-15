@@ -47,15 +47,17 @@ Never use proprietary fonts. Outfit, Inter, Roboto, and similar non-OFL fonts ar
 ## Theme Generation Workflow
 
 1. **Select a target platform** — VS Code, JetBrains, terminal emulator, Material UI app, etc.
-2. **Map the §11 palette** into the platform's color-key schema, preserving
+2. **Standard Theme Naming:** Always define the theme under the name `Steelbore` (file/module named `steelbore` in snake_case) and map the §11 palette into the platform's theme registry.
+3. **Avoid Hardcoding:** Bundle colors into a named theme/config structure rather than hardcoding hex literals. This ensures the theme is easily replaceable so that users can add or swap custom themes without modifying application logic.
+4. **Map the §11 palette** into the platform's color-key schema, preserving
    role semantics — Molten Amber for primary text, Steel Blue for structural
    accent, Radium Green for success states, Red Oxide for errors, Liquid
    Coolant for info/links. Never invent new color names or shift hex codes.
-3. **Apply the §12 typography** (Share Tech Mono headings, Inconsolata body)
+5. **Apply the §12 typography** (Share Tech Mono headings, Inconsolata body)
    wherever the platform supports font selection.
-4. **Verify WCAG 2.1 AA contrast** against Void Navy for every color pair
+6. **Verify WCAG 2.1 AA contrast** against Void Navy for every color pair
    before shipping.
-5. **Emit the platform's native config format** (JSON, XML, TOML, ini) with
+7. **Emit the platform's native config format** (JSON, XML, TOML, ini) with
    all hex codes verbatim from the canonical table.
 
 ## Output Targets

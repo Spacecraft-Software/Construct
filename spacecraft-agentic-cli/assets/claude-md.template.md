@@ -45,7 +45,7 @@
 The following Spacecraft Software skills apply to this project. Claude should
 consult them when their triggers match:
 
-- `spacecraft-standard` — master Steelbore Standard
+- `spacecraft-standard-constitution` — master Steelbore Standard
 - `spacecraft-cli-standard` — structural CLI Standard rules
 - `spacecraft-agentic-cli` — agent-facing UX for the CLI
 - `spacecraft-brand-guidelines` — six-token color palette

@@ -58,6 +58,7 @@ Quick reference:
 
 ## UI / Visual Design
 
+- **Steelbore Theme Standard:** When implementing colors and themes, always opt to create a named theme called `Steelbore` (Snake case `steelbore` for file/module names) that bundles these colors, rather than hardcoding hex values directly in UI/styling logic. This allows users to easily swap or customize themes by registering a new named theme without modifying application logic (Standard §11.1).
 - Apply the palette to Material Design components (the required UI system for Spacecraft Software GUIs).
 - All new color pairings must pass WCAG 2.1 Level AA contrast verification before adoption.
 - For IDE and terminal themes, load the `spacecraft-theme-factory` skill.

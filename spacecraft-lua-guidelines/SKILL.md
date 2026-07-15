@@ -1,6 +1,6 @@
 ---
 name: spacecraft-lua-guidelines
-description: Expert guidelines for writing memory-safe, high-performance, and concurrent Lua code targeting Lua 5.1/LuaJIT and Lua 5.4+. Triggers on any request involving Lua script files (.lua), LuaJIT, Neovim configuration, metatable design, tables, to-be-closed (<close>) variables, constant (<const>) attributes, error handling (pcall/xpcall), LuaCATS annotations, or StyLua formatting. By Spacecraft Software.
+description: Expert guidelines for writing memory-safe, high-performance, and concurrent Lua code targeting Lua 5.1/LuaJIT and Lua 5.4+. Triggers on any request involving Lua script files (.lua), LuaJIT, Neovim configuration, metatable design, tables, to-be-closed (close) variables, constant (const) attributes, error handling (pcall/xpcall), LuaCATS annotations, or StyLua formatting. By Spacecraft Software.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/

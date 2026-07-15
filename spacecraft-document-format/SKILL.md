@@ -7,7 +7,7 @@ description: >
   are defined once (Standard §8). ODF (.odt) is the secondary prose format and the primary
   format for spreadsheets (.ods) and presentations (.odp); Microsoft Office
   (.docx/.xlsx/.pptx) is the last resort, only when a consumer requires an MS-native file.
-  Routes prose authoring to the spacecraft-texinfo skill and GFM rendering/companions to
+  Routes prose authoring to the spacecraft-texinfo-document skill and GFM rendering/companions to
   spacecraft-markdown-document. Every binary ODF/MS-Office deliverable MUST ship a
   same-named GFM (.md) companion; Texinfo is exempt (the .texi is already plain text). PDF
   is always an export, never hand-authored. Documents default to CC-BY-SA-4.0
@@ -71,7 +71,7 @@ Every `.odt`/`.ods`/`.odp` and every `.docx`/`.xlsx`/`.pptx` deliverable lands w
 
 Why: the `.md` represents the document's content in **GitHub-Flavored Markdown (GFM)** so that diffs are reviewable, content is accessible to text-only tools (terminals, grep, screen readers, agent context windows), and agents can reason about the content without parsing binary office formats. The `.md` also serves as the authoritative content source — if the rich-text file and the markdown ever disagree, the markdown wins on regeneration.
 
-**Texinfo is exempt from the pairing rule.** A `.texi` source is already plain text — diffable, greppable, and agent-readable — so it needs no separate `.md` companion. GFM is instead an **optional generated output** of Texinfo (via `pandoc -f texinfo -t gfm`); produce it only when a consumer wants a Markdown rendering. See the `spacecraft-texinfo` skill (`references/converting.md`).
+**Texinfo is exempt from the pairing rule.** A `.texi` source is already plain text — diffable, greppable, and agent-readable — so it needs no separate `.md` companion. GFM is instead an **optional generated output** of Texinfo (via `pandoc -f texinfo -t gfm`); produce it only when a consumer wants a Markdown rendering. See the `spacecraft-texinfo-document` skill (`references/converting.md`).
 
 Markdown cannot carry page colour, fonts, or page geometry. Do **not** try to render visual styling in `.md` (no inline HTML, no colour markup); the visual layer lives only in the source file. The companion `.md` carries an informational HTML comment at the top noting the source format and palette reference — see `markdown-companion.md`.
 
@@ -81,9 +81,9 @@ If both an ODF and an MS Office version of the same content are produced (rare),
 
 These bind every format you produce. Violations are blockers, not preferences.
 
-- **Page/slide/HTML background: Void Navy `#000027`** — Standard §11 mandate. Non-negotiable. The per-format recipes (the `spacecraft-texinfo` skill for HTML/PDF, `odf-authoring.md` §C, `ms-office-authoring.md` §B) are not optional shortcuts; the colour silently drops in major readers if the layers aren't all applied.
+- **Page/slide/HTML background: Void Navy `#000027`** — Standard §11 mandate. Non-negotiable. The per-format recipes (the `spacecraft-texinfo-document` skill for HTML/PDF, `odf-authoring.md` §C, `ms-office-authoring.md` §B) are not optional shortcuts; the colour silently drops in major readers if the layers aren't all applied.
 - **Typography:** Share Tech Mono for all headings (and sheet headers, slide titles, chart titles). Inconsolata for body, cell content, code, slide bullets, captions. Standard §12.
-- **Texinfo brand output.** Carry the palette and typography into Texinfo **HTML** via a bundled CSS (`makeinfo --css-include`); apply Void Navy as the **PDF** page colour where the TeX toolchain allows; `.info`/plain-text output inherits the reader/terminal theme (which already follows the palette on Steelbore OS). Details in the `spacecraft-texinfo` skill (`references/building.md`).
+- **Texinfo brand output.** Carry the palette and typography into Texinfo **HTML** via a bundled CSS (`makeinfo --css-include`); apply Void Navy as the **PDF** page colour where the TeX toolchain allows; `.info`/plain-text output inherits the reader/terminal theme (which already follows the palette on Steelbore OS). Details in the `spacecraft-texinfo-document` skill (`references/building.md`).
 - **Page geometry:**
   - Texinfo PDF / ODT / DOCX — ISO A4 portrait (210 × 297 mm). Never Letter, Legal, or any non-A4 size.
   - Spreadsheets (`.ods`/`.xlsx`) — A4 portrait print area; portrait orientation in print settings.
@@ -120,19 +120,19 @@ Both fonts are OFL-licensed, embed-permitted, and hosted on Google Fonts (so Goo
 ## §6 — Load-order index
 
 This skill is the **router**: it decides the format, then delegates the how-to to the execution-layer
-skills — **`spacecraft-texinfo`** for prose authoring/building, **`spacecraft-markdown-document`** for
+skills — **`spacecraft-texinfo-document`** for prose authoring/building, **`spacecraft-markdown-document`** for
 GFM rendering and companions. The local `references/` carry only the document-format-specific glue
 (format priority, pairing policy, office recipes). Pull only what the task needs. **Do not eagerly
 load all of them** — that defeats the token-economy split.
 
 | Situation                                                | Load                                                                  |
 |----------------------------------------------------------|-----------------------------------------------------------------------|
-| Any prose document (default → Texinfo)                   | **`spacecraft-texinfo` skill** (+ `references/texinfo-authoring.md` for routing glue) |
+| Any prose document (default → Texinfo)                   | **`spacecraft-texinfo-document` skill** (+ `references/texinfo-authoring.md` for routing glue) |
 | Prose deliverable as a word-processor file (`.odt`)      | `references/odf-authoring.md` + `references/markdown-companion.md` (+ `spacecraft-markdown-document` skill for the `.md`) |
 | Prose deliverable as MS Word (`.docx`, on request)       | `references/ms-office-authoring.md` + `references/markdown-companion.md` (+ `spacecraft-markdown-document` skill) |
 | Spreadsheet (`.ods`, or `.xlsx` on request)              | `references/odf-authoring.md` *or* `references/ms-office-authoring.md` + `references/markdown-companion.md` (+ `spacecraft-markdown-document` skill) |
 | Presentation (`.odp`, or `.pptx` on request)             | same as spreadsheet                                                   |
-| GFM Markdown rendering of a `.texi`                       | **`spacecraft-texinfo` skill** (`references/converting.md`)           |
+| GFM Markdown rendering of a `.texi`                       | **`spacecraft-texinfo-document` skill** (`references/converting.md`)           |
 | PDF from an ODF/MS-Office source                         | **add** `references/pdf-export.md`                                    |
 | Quick palette / font / geometry lookup                   | SKILL.md only — no references needed                                  |
 
@@ -170,7 +170,7 @@ Run through this before declaring a document done:
 
 This skill describes **output properties**, not specific tools. References cover toolchain recommendations:
 
-- Texinfo — the `spacecraft-texinfo` skill (`references/building.md`): `makeinfo`/`texi2any` for Info & HTML, `texi2pdf` for PDF, `make info`/`make html`/`make pdf` targets.
+- Texinfo — the `spacecraft-texinfo-document` skill (`references/building.md`): `makeinfo`/`texi2any` for Info & HTML, `texi2pdf` for PDF, `make info`/`make html`/`make pdf` targets.
 - ODF — `odf-authoring.md` §E (LibreOffice headless, odfpy, etc.).
 - MS Office — `ms-office-authoring.md` §E (python-docx, openpyxl, python-pptx, or LibreOffice headless conversion).
 - PDF from ODF/MS-Office — `pdf-export.md` §B (LibreOffice headless `--convert-to pdf:<filter>`).
@@ -182,14 +182,14 @@ Pick whatever toolchain reliably produces output that passes §8's acceptance ch
 This skill is the **hub** of a hub-and-spoke trio: it picks the format and delegates the how-to to two
 execution-layer spokes. Keep the policy here; keep the mechanics in the spokes.
 
-- **`spacecraft-texinfo`** — the prose execution layer. Load it for authoring, building, linting,
+- **`spacecraft-texinfo-document`** — the prose execution layer. Load it for authoring, building, linting,
   converting, packaging, and the HTML/PDF brand output of any `.texi`. It auto-fires on `.texi`; this
   router hands prose deliverables to it.
 - **`spacecraft-markdown-document`** — the GFM execution layer. Load it for the mandatory `.md`
   companions (§2) and any house-style GFM authoring/audit. This router delegates companion generation
   to it; it also responds to its own `/spacecraft-markdown-document` slash command.
 - The Steelbore Standard §8 (Documentation / Texinfo), §11 (Colour Palette), §12 (Typography), §4 (Licensing: §4.1.1 artifact classes, §4.3 SPDX/REUSE), §15 (Attribution surfaces).
-- `spacecraft-standard` — the full Standard, including §8 Texinfo requirements for user-facing programs.
+- `spacecraft-standard-constitution` — the full Standard, including §8 Texinfo requirements for user-facing programs.
 - `gnu-coding-standards` — deeper GNU Texinfo conventions (for GNU-targeted work; Spacecraft projects follow Standard §8 and this skill).
 - `spacecraft-theme-factory` — for IDE and terminal themes (separate concern; shares the §11 palette).
 - `spacecraft-brand-guidelines` — brand colors and typography quick-reference; shares the §11 palette.

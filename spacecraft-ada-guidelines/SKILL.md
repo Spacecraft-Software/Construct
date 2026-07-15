@@ -149,6 +149,6 @@ Ada catches at compile/proof time what other languages catch at runtime — *if*
 - **Rule catalogue (cite IDs from here):** `references/AdaCore_Safe_Secure_Rules.md` — all 41 DYN/RCL/CON/RPP/EXU/OOP/SWE rules with Levels and standards mappings.
 - Extended patterns, full worked examples, and a proof-debugging guide: `references/Spacecraft_Ada_SPARK_Guidelines.md`
 - Conceptual sources, the source PDF, and the SPARK Reference Manual: `CREDITS.md` and `references/ATTRIBUTION.md`
-- Related skills: `spacecraft-rust-guidelines` (the Rust side of the same high-assurance posture), `spacecraft-standard` (cross-cutting compliance); cross-apply the NASA/JPL *Power of Ten* rules (loop/recursion/scope budgets).
+- Related skills: `spacecraft-rust-guidelines` (the Rust side of the same high-assurance posture), `spacecraft-standard-constitution` (cross-cutting compliance); cross-apply the NASA/JPL *Power of Ten* rules (loop/recursion/scope budgets).
 
 When the user provides Ada/SPARK code for review or asks to write a high-assurance unit, immediately apply the rules above: strengthen the types, add and discharge contracts, declare the assurance target, and produce code that passes `gnatprove` at that level. Cite the exact rule or unproved check in any feedback. Prioritize machine-checked correctness and AoRTE above all else.

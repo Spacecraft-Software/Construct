@@ -108,7 +108,7 @@ Full table: `references/bashisms.md`.
 ## Steelbore Standard Requirements (Shell Scripts)
 
 When writing Spacecraft Software shell script files, these rules from
-[The Steelbore Standard](../spacecraft-standard/SKILL.md) apply.
+[The Steelbore Standard](../spacecraft-standard-constitution/SKILL.md) apply.
 
 ### §4 — SPDX License Header (mandatory)
 

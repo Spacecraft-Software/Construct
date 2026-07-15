@@ -416,14 +416,14 @@ Before delivering any `.md` output, verify:
 This skill is the **GFM execution layer** beneath `spacecraft-document-format`
 (the format router): the router decides *which* format a deliverable needs and
 delegates GFM authoring and companion generation here. Prose authoring is the
-sibling spoke `spacecraft-texinfo`.
+sibling spoke `spacecraft-texinfo-document`.
 
 | Need                                      | Skill to load                  |
 |-------------------------------------------|--------------------------------|
 | Format choice / ODF / MS Office + GFM pair | `spacecraft-document-format`  |
-| Canonical prose (manuals, guides) in Texinfo | `spacecraft-texinfo`        |
+| Canonical prose (manuals, guides) in Texinfo | `spacecraft-texinfo-document`        |
 | Brand colours, typography, palette tokens | `spacecraft-brand-guidelines`  |
-| Full Spacecraft Software compliance       | `spacecraft-standard`          |
+| Full Spacecraft Software compliance       | `spacecraft-standard-constitution`          |
 | CLI output in Markdown or plain text      | `spacecraft-cli-standard`      |
 
 ---

@@ -235,7 +235,7 @@ build part of the program, never to substitute one behavior for another.
 > explicitly pointing GCC's linker to the LTO plugin via `-fuse-ld=mold` (preferred) or
 > `-fuse-ld=bfd` (fallback) because `/nix/store` isolation keeps the plugin off the default
 > linker path. Just as systemd-specific settings do not apply to non-systemd distros, LTO
-> and linker flags must be adapted to the target platform. See `spacecraft-standard` §3.2.1.
+> and linker flags must be adapted to the target platform. See `spacecraft-standard-constitution` §3.2.1.
 
 ### Directory variables
 

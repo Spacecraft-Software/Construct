@@ -82,11 +82,11 @@ Never fall back to raw `std.Thread.spawn` in hot paths — always go through a p
 - Safe development: `zig build -Doptimize=ReleaseSafe` (or Debug).
 - Production verification: same + `std.testing.allocator` runs that must pass with zero leaks.
 - Final performance: `zig build -Doptimize=ReleaseFast` (Zig enables LTO-like behavior via its pipeline).
-  Per `spacecraft-standard` §3.2, note every applied optimization flag and every disabled one
+  Per `spacecraft-standard-constitution` §3.2, note every applied optimization flag and every disabled one
   (with the reason) — in `build.zig` or a build-time message — so flag state is visible at compile time.
   > **OS-specific note:** When wrapping C libraries or using an external linker on NixOS,
   > LTO may require `-fuse-ld=mold` (preferred) or `-fuse-ld=bfd` because `/nix/store`
-  > isolation keeps the GCC LTO plugin off the default linker path. See `spacecraft-standard`
+  > isolation keeps the GCC LTO plugin off the default linker path. See `spacecraft-standard-constitution`
   > §3.2.1.
 - CI requirements: build + test in both ReleaseSafe and Debug; allocator leak checks enabled.
 - Benchmark harness: `std.time.Timer` with warm-up iterations + statistical reporting (min/median/p99).

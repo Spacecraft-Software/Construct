@@ -1,5 +1,5 @@
 ---
-name: spacecraft-standard
+name: spacecraft-standard-constitution
 description: >
   The authoritative compliance reference for ALL work on Spacecraft Software-umbrella projects and
   subprojects (Zamak, Bravais, Ferrocast, Craton, Ironway, Caliper, Mawaqit, and any future
@@ -116,7 +116,7 @@ this table and §15.1's subdomain table in the same commit.
 ### §2.2 — Skill IDs are functional, not codenamed
 
 Skill directory names and SKILL.md `name` fields are **functional identifiers**
-(e.g., `spacecraft-standard`, `spacecraft-document-format`) and are not subject to
+(e.g., `spacecraft-standard-constitution`, `spacecraft-document-format`) and are not subject to
 the §2 codename convention. §2 reserves codenames for projects/modules/utilities/releases,
 not for skill identifiers.
 
@@ -236,7 +236,7 @@ The GPL/AGPL choice above governs **software**. License by artifact class:
 
 Skills are **software-class** → `GPL-3.0-or-later` (no skill is network-facing → no AGPL).
 Deliberate split for the Standard: the **published Standard document** is `CC-BY-SA-4.0`,
-while this `spacecraft-standard` **skill** encoding is `GPL-3.0-or-later`.
+while this `spacecraft-standard-constitution` **skill** encoding is `GPL-3.0-or-later`.
 
 ### §4.2 — Upstream License Compliance (preserve what you build on)
 
@@ -903,9 +903,9 @@ for a pure Rust library), note it as N/A rather than silently skipping it.
 | Writing any Rust code                 | `microsoft-rust-guidelines`                        |
 | Writing or reviewing shell scripts    | `spacecraft-cli-shell` + `spacecraft-cli-preference` |
 | Generating DOCX / ODT / PDF on demand | `spacecraft-document-format`                       |
-| Authoring or building a Texinfo manual | `spacecraft-texinfo`                              |
+| Authoring or building a Texinfo manual | `spacecraft-texinfo-document`                              |
 | Creating IDE / terminal themes        | `spacecraft-theme-factory`                         |
-| All other Spacecraft Software work    | `spacecraft-standard`                              |
+| All other Spacecraft Software work    | `spacecraft-standard-constitution`                 |
 
 ---
 

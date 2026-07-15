@@ -61,9 +61,9 @@ the rules re-attached to every prompt.
 | [`spacecraft-ocamel-guidelines`](spacecraft-ocamel-guidelines/) | Type-safe highly-concurrent OCaml guidance — direct-style I/O fibers via `Eio` and Domainslib task parallelism pools, Saturn lock-free structures, Software Transactional Memory with Kcas, C FFI memory safety (`CAMLparam`/`CAMLlocal`/`CAMLreturn`), and warning-as-errors compilation flags. |
 | [`spacecraft-python-guidelines`](spacecraft-python-guidelines/) | Type-safe highly-concurrent Python guidance (targeting Python 3.12+) — strict static typing (`mypy`), boundary validation (`Pydantic v2`), non-blocking asynchronous event loops (`asyncio`), multiprocess CPU scaling (`ProcessPoolExecutor`), memory-optimized slots classes, and Ruff linting rules. |
 | [`spacecraft-rust-guidelines`](spacecraft-rust-guidelines/) | High-performance concurrent Rust guidance — concurrency model selection, lock-free synchronisation, memory layout, tooling gates, and unsafe hygiene — plus a distilled idiom layer (`references/idioms.md`, adapted from Apollo's Rust Best Practices, MIT) covering borrowing, clippy discipline, testing, dispatch, and type-state. |
-| [`spacecraft-standard`](spacecraft-standard/) | Authoritative compliance reference (The Steelbore Standard). |
+| [`spacecraft-standard-constitution`](spacecraft-standard-constitution/) | Authoritative compliance reference (The Steelbore Standard). |
 | [`spacecraft-swift-guidelines`](spacecraft-swift-guidelines/) | Type-safe highly-concurrent Swift guidance (targeting Swift 6.2+) — Swift 6.2 concurrency, explicit `@concurrent` background offloading, isolated conformances, `@MainActor` isolated ViewModels, Swift Testing `@Suite` and `@Test` parameterized checks, and ARC reference cycle safety. |
-| [`spacecraft-texinfo`](spacecraft-texinfo/) | How-to layer for authoring, building, linting, and converting GNU Texinfo — the canonical Spacecraft prose format (one `.texi` → Info/HTML/PDF/DocBook/text/EPUB); house-style header/licensing, node/menu discipline, `@def*` API docs, the `texi2any`/`texi2pdf` toolchain, and HTML/PDF brand theming. |
+| [`spacecraft-texinfo-document`](spacecraft-texinfo-document/) | How-to layer for authoring, building, linting, and converting GNU Texinfo — the canonical Spacecraft prose format (one `.texi` → Info/HTML/PDF/DocBook/text/EPUB); house-style header/licensing, node/menu discipline, `@def*` API docs, the `texi2any`/`texi2pdf` toolchain, and HTML/PDF brand theming. |
 | [`spacecraft-theme-factory`](spacecraft-theme-factory/) | Generates Spacecraft Software-compliant themes for IDEs and terminals. |
 | [`spacecraft-typescript-guidelines`](spacecraft-typescript-guidelines/) | Type-safe highly-concurrent TypeScript guidance (targeting TypeScript 7.0+) — Go native compiler optimizations, Project References (`composite`/`incremental`), strict type checking, non-blocking asynchronous event loops, CPU-parallel worker pools (`Piscina`), V8 engine tuning (hidden classes), and Zod data validation boundaries. |
 | [`spacecraft-zig-guidelines`](spacecraft-zig-guidelines/) | Memory-safe high-performance concurrent Zig guidance — `std.Thread.Pool` / `std.Io.Threaded`, atomics, allocator discipline, comptime safety, and CPU-bound scaling patterns. |
@@ -150,7 +150,7 @@ To pick up the latest commit, run `nix flake update construct` in the consumer
 flake and rebuild.
 
 Individual skills are also exposed as packages — e.g.
-`nix build github:Spacecraft-Software/Construct#spacecraft-standard` produces
+`nix build github:Spacecraft-Software/Construct#spacecraft-standard-constitution` produces
 a `result/` directory with that skill's contents.
 
 ### Grok skills
@@ -175,7 +175,7 @@ the upstream→vendored path mapping.
 ## Standards
 
 All skills in this repository are expected to conform to
-[The Steelbore Standard](spacecraft-standard/) — including:
+[The Steelbore Standard](spacecraft-standard-constitution/) — including:
 
 - **§4** SPDX/REUSE-compliant licensing (§4.3): two-tag headers / `REUSE.toml`, a
   `LICENSES/` directory, `reuse lint`-clean. Skills are GPL-3.0-or-later (§4.1.1);
@@ -191,7 +191,7 @@ This repository follows the [REUSE specification](https://reuse.software) — se
 §4.1.1, skills are **GPL-3.0-or-later** by default; third-party-derived skills keep
 their upstream license (e.g. `microsoft-rust-guidelines` is MIT, `gnu-coding-standards`
 is GFDL-1.3-or-later). The published Standard *document* is CC-BY-SA-4.0, but the
-`spacecraft-standard` *skill* here is GPL-3.0-or-later.
+`spacecraft-standard-constitution` *skill* here is GPL-3.0-or-later.
 
 ---
 

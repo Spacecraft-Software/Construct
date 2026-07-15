@@ -2,7 +2,7 @@ version = 1
 
 # Default: all Construct skills and tooling are GPL-3.0-or-later (software-class per
 # Standard §4.1.1). "override" precedence so example SPDX headers embedded in skill prose
-# (e.g. spacecraft-standard's §4.3 example) are not parsed as real license tags.
+# (e.g. spacecraft-standard-constitution's §4.3 example) are not parsed as real license tags.
 [[annotations]]
 path = "**"
 precedence = "override"

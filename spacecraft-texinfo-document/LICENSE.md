@@ -2,7 +2,7 @@
 
 Copyright (C) 2026 Mohamed Hammad & Spacecraft Software
 
-The `spacecraft-texinfo` skill is **software-class** under The Steelbore Standard
+The `spacecraft-texinfo-document` skill is **software-class** under The Steelbore Standard
 §4.1.1 and is licensed under the **GNU General Public License, version 3 or later
 (`GPL-3.0-or-later`)**.
 

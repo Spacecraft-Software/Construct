@@ -56,7 +56,7 @@ GNU intent comes in two strengths:
 
 - **GNU-compatible** — a Spacecraft/Steelbore project that adopts GNU's conventions where
   they aid interoperability while **staying itself**: on GitHub, under the Steelbore
-  palette/brand and `Mohamed.Hammad@SpacecraftSoftware.org` attribution. `spacecraft-standard`
+  palette/brand and `Mohamed.Hammad@SpacecraftSoftware.org` attribution. `spacecraft-standard-constitution`
   stays primary; **this skill** supplies the GNU conventions for interop, and the
   free-software *political* mandates are advisory here — Steelbore identity stands. This is
   this skill's home turf.
@@ -69,7 +69,7 @@ GNU intent comes in two strengths:
 
 The differentiator is identity-stripping: producing a real free-software/GNU package →
 `gnu-free-software`; styling Spacecraft code to GNU conventions while staying Steelbore →
-this skill (with `spacecraft-standard`).
+this skill (with `spacecraft-standard-constitution`).
 
 ## How to use this skill
 

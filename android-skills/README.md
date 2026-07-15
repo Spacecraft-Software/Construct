@@ -11,7 +11,7 @@ Google's official **[Android skills](https://github.com/android/skills)**,
 vendored **verbatim and unmodified** into the Construct catalogue. These are
 third-party Apache-2.0 skills authored by Google LLC — not Spacecraft Software
 originals. See [`CREDITS.md`](CREDITS.md) for full provenance and the
-[Standard §4.2](../spacecraft-standard/) upstream-preservation rationale.
+[Standard §4.2](../spacecraft-standard-constitution/) upstream-preservation rationale.
 
 Android skills follow the [open-standard agent-skills](https://agentskills.io/)
 `SKILL.md` format — the same format Claude / Gemini / Codex already load — so

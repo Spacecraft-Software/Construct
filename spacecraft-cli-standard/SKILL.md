@@ -220,7 +220,7 @@ Full matrix + verification methods: `references/testing-compliance.md`.
 
 ## §10 — Relation to Other Spacecraft Software Skills
 
-- **`spacecraft-standard`** — the master Standard. This skill is subordinate; master wins on conflict.
+- **`spacecraft-standard-constitution`** — the master Standard. This skill is subordinate; master wins on conflict.
 - **`spacecraft-cli-preference`** — governs which *external* CLI tools to invoke (e.g., `rg` over `grep`). Complementary: that skill picks tools, this one defines how the CLI you're *building* should behave.
 - **`spacecraft-cli-shell`** — governs shell syntax (Nushell / Ion / POSIX) in generated commands. Complementary.
 - **`microsoft-rust-guidelines`** — Microsoft Pragmatic Rust Guidelines. Consult alongside `references/rust-implementation.md`.
