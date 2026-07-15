@@ -7,7 +7,7 @@
 //! discovering, syncing, and shipping agent *skills* across the ~70 AI coding
 //! agents Construct knows about. It is the first executable artifact in the
 //! Construct catalogue repository and conforms to the Spacecraft Software
-//! Dual-Mode Self-Documenting CLI Standard (SFRS v1.0.0).
+//! Dual-Mode Self-Documenting CLI Standard (v1.0.0).
 //!
 //! The binary is intentionally thin: argument parsing lives in [`cli`], the
 //! output contract (envelope, structured errors, mode detection) lives in
