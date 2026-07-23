@@ -12,9 +12,12 @@ description: >
   "accessibility", "a11y", "screen reader", "NVDA", "Orca", "VoiceOver",
   "AccessKit", "AT-SPI", "high contrast", "color contrast", "reduced motion",
   "keyboard navigation", "no-animation", "NO_COLOR", "linear mode", "WCAG",
-  "EN 301 549", and "EAA". Every Spacecraft Software application must ship a
-  working accessible mode (§18), so consult this the moment user-facing output
-  — terminal or graphical — appears on the horizon.
+  "EN 301 549", and "EAA". Every Spacecraft Software application other than a
+  registered game must ship a working accessible mode (§18), so consult this
+  the moment user-facing output — terminal or graphical — appears on the
+  horizon. Also consult it when working on a game (§18.5 exempts games from
+  §18 and §10 entirely; accessibility there is optional and unenforced) so
+  those rules are not applied where they do not belong.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
@@ -30,6 +33,20 @@ website: https://Construct.SpacecraftSoftware.org/
 > (key bindings), §11/§11.1.1 (palette and theme variants), and §13 (design
 > system). This skill is the *how*; §18 is the *what*. Where they appear to
 > diverge, §18 governs — fix this skill.
+
+## Stop here if this is a game
+
+**Projects registered as games under §18.5 are exempt from §18 in full and
+from §10 in full.** Accessibility in a game is **optional, nothing is
+enforced**, and its absence is never a compliance failure.
+
+If you are working on a registered game — today that is **Ironway** — do not
+apply the rest of this skill as requirements. Do not add compliance gates, do
+not flag missing accessibility as a defect, and do not ask for a remediation
+entry. Jump to [Games](#games) for the recommendations a game may freely
+decline, then stop.
+
+Everything below this section applies to **non-game** projects.
 
 ## The rule that governs everything else
 
@@ -146,6 +163,52 @@ mechanism GitHub adopted for `gh a11y`.
 
 - Every pointer-reachable action must be keyboard-reachable; focus order
   linear, focused element visibly indicated.
+
+## Games
+
+Standard §18.5. Games are exempt from §18 and §10 in full — **nothing here is
+required**, and a game that ships no accessibility features at all is fully
+compliant.
+
+**Why the carve-out exists.** §18 assumes a character grid, or a widget tree
+with roles and names. Games are neither: they are real-time simulations
+rendering custom, non-widget interfaces where play itself is the purpose. The
+accessibility techniques that suit games are a genuinely different discipline
+from the one §18 codifies, so applying §18 to a game would enforce the wrong
+requirements at disproportionate cost.
+
+**Registry** (§18.5.1) — a project is a game when it declares so in its
+`README.md` *and* appears here:
+
+| Project | Class |
+|---------|-------|
+| Ironway | **Game** — exempt from §18 and §10 |
+| (all other projects) | Standard — §18 and §10 apply in full |
+
+The carve-out is narrow. It covers registered projects, not any project that
+merely has a playful or game-like interface. A TUI with animated ASCII art is
+not a game.
+
+### Recommended for games (never required)
+
+Offer these; never require them. A game may decline any or all without
+justification:
+
+- **Remappable controls** — already standard practice in games, independent of
+  accessibility.
+- **Leave screen-reader chords alone** — `Insert`, `CapsLock`, `KP_Insert`,
+  `Ctrl`+`Option` belong to NVDA, Orca, and VoiceOver. Capturing them collides
+  with a screen reader the player may be running.
+- **Colorblind-safe signalling** — pair hue with shape, icon, or text.
+- **Subtitles and captions** for spoken or plot-critical audio.
+- **Honor the system reduced-motion preference** where the engine exposes it.
+
+### If a game does ship a toggle
+
+Use the §18.1 names (`--accessible`, `SPACECRAFT_A11Y`) and the §11.1.1
+variant names rather than inventing new ones. This constrains only the
+*naming* of something the game already chose to build — it requires no feature
+to exist.
 
 ## Normative targets
 

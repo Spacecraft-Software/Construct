@@ -3,6 +3,16 @@
 Standard §18.4. An accessibility claim is **not satisfied by inspection**.
 Every item below is something you run, not something you read.
 
+## Gate 0 — Is this a registered game?
+
+- [ ] Check the §18.5 registry (today: **Ironway**).
+
+**If yes: stop.** §18 and §10 do not apply. There is nothing to audit, no gate
+to pass, and no remediation entry to file. Report the project as exempt, not
+as failing. Do not run gates 1–9.
+
+**If no:** continue.
+
 ## Gate 1 — Activation (§18.1)
 
 - [ ] `--accessible` turns it on; `--no-accessible` turns it off.
@@ -132,7 +142,8 @@ def contrast(a: str, b: str) -> float:
 
 ## Gate 9 — Remediation record (§18.4)
 
-For any project not yet conforming:
+Registered games (Gate 0) are excluded — they owe no remediation entry,
+because they owe no conformance. For any other project not yet conforming:
 
 - [ ] A **dated remediation entry** exists in `PROJECTS.md` recording the
       current accessibility state and the intended remediation.
