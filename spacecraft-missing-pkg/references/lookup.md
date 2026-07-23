@@ -7,6 +7,26 @@ authoritative sources below.
 If a lookup returns nothing, the package is not available via that manager.
 Do not fabricate a name. Move down the priority chain.
 
+**Prefer a live query over a web page.** On the user's own machine the managers
+are right there, and a local query is faster, offline-capable, and exactly
+matches the channel/commit the host will actually resolve against:
+
+```sh
+nix search nixpkgs <term>              # authoritative for this host's nixpkgs
+nix eval --raw nixpkgs#<pkg>.name      # confirm an attribute path resolves
+guix search <regex>                    # authoritative for this host's Guix
+brew search <regex>
+flatpak search <term>
+snap find <term>                       # read-only, no root needed
+```
+
+If the harness exposes a package-search tool or MCP server for the manager (a
+NixOS-aware search server, for example), prefer it over scraping the web UI —
+it is current, structured, and cheaper than fetching HTML.
+
+Fall back to the web pages below when no local manager is installed or the
+host is offline from the registry but you still need the canonical name.
+
 ---
 
 ## Lookup sources
@@ -21,8 +41,13 @@ Do not fabricate a name. Move down the priority chain.
 ### Nix
 
 - **Online:** <https://search.nixos.org/packages>
-- **CLI:** `nix search nixpkgs#<tool-name>`
+- **CLI:** `nix search nixpkgs <tool-name>`
   - Extract the attribute name after `legacyPackages.x86_64-linux.`
+  - Confirm it resolves: `nix eval --raw nixpkgs#<pkg>.name`
+- **NixOS / Home Manager options** (needed when proposing a Band C edit):
+  <https://search.nixos.org/options>, <https://home-manager-options.extranix.com/>
+- The same attribute names are what go into `environment.systemPackages` /
+  `home.packages` — see [declarative.md](declarative.md).
 
 ### One-shot runners (`npx` / `uvx`)
 
