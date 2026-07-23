@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.32 (§17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §8 Texinfo; §7 Shell Environment) so
+  The Steelbore Standard v1.33 (§18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §8 Texinfo; §7 Shell Environment) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.32 | **Date:** 2026-07-15 | **Author:** Mohamed Hammad
+**Version:** 1.33 | **Date:** 2026-07-23 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -502,6 +502,21 @@ All interactive applications must support **both**:
 | **CUA**   | Standard bindings (Ctrl+C/X/V/Z/S) must work in all text input contexts  |
 | **Vim**   | Modal editing layer (Normal / Insert / Visual mode) as opt-in feature. Minimum: hjkl navigation where full Vim layer is impractical |
 
+**Remappability (mandatory).** Every binding must be user-remappable through the
+project's configuration layer — a fixed, non-configurable keymap is non-compliant.
+
+**Reserved assistive-technology chords.** These are claimed by screen readers and
+**must not** be captured by a Spacecraft Software application:
+
+| Chord | Claimed by |
+|-------|------------|
+| `Insert` / `CapsLock` | NVDA (Windows) — the NVDA modifier key |
+| `Insert` / `KP_Insert` | Orca (GNOME/Linux) — the screen reader's own modifier |
+| `Ctrl`+`Option` | VoiceOver (macOS) — the "VO" modifier |
+
+Every action reachable by pointer must also be reachable by keyboard; focus order
+must be linear and the focused element visibly indicated. See §18.
+
 ---
 
 ## §11 — Spacecraft Software Color Palette (WCAG-Compliant)
@@ -519,6 +534,19 @@ The **only** permitted colors for Spacecraft Software interfaces and documents:
 
 **`#000027` (Void Navy) is the mandatory background for ALL Spacecraft Software surfaces.**
 No alternative background is permitted. This is non-negotiable.
+
+**Scope of the contrast guarantee.** Every foreground token above passes WCAG AA
+against Void Navy (Molten Amber 7.64:1, Steel Blue 4.77:1, Radium Green 14.87:1,
+Red Oxide 6.74:1, Liquid Coolant 14.74:1). That covers **foreground-on-background
+pairings only**. Palette tokens paired with *each other* are mostly far below the
+3:1 floor — Molten Amber on Red Oxide is 1.13:1; Radium Green on Liquid Coolant is
+1.01:1 (indistinguishable). Therefore:
+
+- Rendering palette-colored **text on a palette-colored fill** (chip, badge, filled
+  button, selected row) is **forbidden** unless that specific pair is measured at
+  ≥4.5:1 for text, or ≥3:1 for non-text UI boundaries.
+- Color may never be the **sole** carrier of meaning — every colored status also
+  carries a text tag or symbol (§18.2).
 
 For document/file generation → load the `spacecraft-document-format` skill.
 For IDE/terminal themes → load the `spacecraft-theme-factory` skill.
@@ -549,6 +577,37 @@ swap the theme, not every hex literal.
   Use theme tokens exclusively.
 - Existing apps are encouraged but not required to migrate; new apps are required.
 
+#### §11.1.1 — Accessibility Variants (additive siblings)
+
+`steelbore` is and remains the **sole default theme**. The variants below are
+**additive siblings** in the same registry, selected only by explicit user action
+or by the §18.1 accessible-mode toggle. They never alter, replace, or take
+precedence over `steelbore`, and the §11 canonical palette is unchanged.
+
+| Variant | Selected by | Behavior |
+|---------|-------------|----------|
+| `steelbore` | **Default** — always, unless overridden | Canonical §11 palette, unchanged |
+| `steelbore-high-contrast` | §18.1 accessible mode, or explicit selection | Every role token lifted to ≥7:1 (WCAG AAA) on Void Navy |
+| `steelbore-mono` | Explicit selection, or `NO_COLOR` | 4-bit ANSI only — defers to the user's terminal palette |
+
+`steelbore-high-contrast` lifts **only the two tokens that need it**; tokens
+already ≥7:1 carry over untouched:
+
+| Theme token  | Base token     | Variant hex | Contrast |
+|--------------|----------------|-------------|----------|
+| `background` | Void Navy      | `#000027`   | (canvas) |
+| `foreground` | Molten Amber   | `#D98E32`   | 7.64:1   |
+| `accent`     | Steel Blue     | `#7FAEDC`   | 8.73:1   |
+| `success`    | Radium Green   | `#50FA7B`   | 14.87:1  |
+| `error`      | Red Oxide      | `#FF8080`   | 8.41:1   |
+| `info`       | Liquid Coolant | `#8BE9FD`   | 14.74:1  |
+
+Only `accent` (`#4B7EB0` → `#7FAEDC`) and `error` (`#FF5C5C` → `#FF8080`) shift;
+the other four are §11 values verbatim. **Void Navy remains the background in every
+variant** — high contrast comes from lifting foregrounds, never from abandoning the
+canvas. These two hexes are accessibility-derived lifts of existing role tokens,
+not new brand colors, and may not be used outside the variant.
+
 ---
 
 ## §12 — Typography (FOSS-Licensed Fonts Only)
@@ -570,10 +629,12 @@ verify they are available on Google Fonts or another FOSS-licensed repository.
 
 - **Material Design** is the required component system for all graphical applications.
   Theme Material components with the §11 color palette.
-- **WCAG 2.1 Level AA** contrast is the minimum for all color pairings.
-  Any new color additions must be WCAG-verified before adoption.
-- **Accessibility:** screen readers, keyboard-only navigation, and system accessibility
-  preferences (reduced motion, high contrast) must all be respected.
+- **WCAG 2.2 Level AA** contrast is the minimum for all color pairings.
+  Any new color additions must be WCAG-verified before adoption, and the
+  verification must state *which pairing* was measured (§11).
+- **Accessibility** is governed by **§18**, which applies to CLI, TUI, and GUI
+  alike. §13 is the graphical design system; §18 is the accessibility contract.
+  Where the two overlap, §18 governs.
 
 ---
 
@@ -864,6 +925,133 @@ Progress must be reported:
 
 ---
 
+## §18 — Accessibility (Opt-In Mode Layer)
+
+Spacecraft Software applications must be usable by people who navigate by screen
+reader, by keyboard alone, or with low vision. This chapter is the accessibility
+contract for **all** application classes — CLI, TUI, and GUI — and supersedes §13's
+design-system framing wherever the two overlap.
+
+**Two-sided rule.** Accessibility support is **mandatory for the developer to
+implement** and **optional for the user to activate**:
+
+- **Every** Spacecraft Software application MUST ship a working accessible mode.
+  This applies to new and existing projects alike — no new-projects-only phase-in.
+- Accessible mode is **off by default**. The default experience is the `Steelbore`
+  theme and standard rendering, entirely unchanged. Enabling accessibility never
+  becomes a precondition for normal use, and shipping it never degrades the default.
+
+**Normative targets.** **WCAG 2.2 Level AA** where the success criteria apply, and
+**EN 301 549 clause 11 (non-web software)** as the anchor for CLI and TUI, which
+WCAG addresses only indirectly. Clause 11 is the only normative text that speaks to
+terminal software; the European Accessibility Act has been enforceable since
+2025-06-28.
+
+### §18.1 — Activation
+
+Resolved once at startup from four sources. Precedence, highest first:
+
+| Source | Form |
+|--------|------|
+| **1. Command-line flag** | `--accessible` / `--no-accessible` |
+| **2. Environment** | `SPACECRAFT_A11Y=1` / `SPACECRAFT_A11Y=0` |
+| **3. Configuration** | `[accessibility] enabled = true` in the project config |
+| **4. Auto-detect hints** | `TERM=dumb`, `NO_COLOR`, or `GTK_MODULES` containing `gail:atk` |
+
+- A hint (source 4) **may** enable accessible mode, but never from an ambiguous
+  signal. An explicit `--no-accessible` / `SPACECRAFT_A11Y=0` always wins.
+- Unset at every source ⇒ **standard `Steelbore` rendering, unchanged.** Silence is
+  never read as consent to change the default presentation.
+- The resolved state and the source that decided it must be reported under
+  `--verbose`.
+- The toggle is a **single switch** governing §18.2 and §18.3 together.
+  Per-feature accessibility flags fragment the contract and are not a substitute.
+
+### §18.2 — CLI & TUI Requirements
+
+**The constraint that shapes everything here:** a terminal has no accessibility
+tree. No ARIA, no roles, no live regions. A screen reader reads the emulator's
+character grid, so a redraw-based interface produces re-reads and speech loops
+rather than useful speech. No terminal UI library provides accessibility — the
+application must supply a linear fallback itself.
+
+#### §18.2.1 — Rules that apply in every mode
+
+Not gated behind the toggle; correctness requirements for all output, always:
+
+- **Color is never the sole carrier of meaning.** Every colored status carries a
+  text tag: `[OK]`, `[ERROR]`, `[WARN]`, `[INFO]`. A red line reading only "failed
+  to connect" is non-compliant; `[ERROR] failed to connect` is compliant.
+- **No text on colored fills** unless that pair is verified per §11.
+- **Diagnostics to `stderr`, results to `stdout`** — never interleaved into one
+  visual block.
+- **`NO_COLOR`, `FORCE_COLOR`, `CLICOLOR`, `TERM=dumb`** honored with the
+  precedence defined by `spacecraft-cli-standard`.
+
+#### §18.2.2 — Rules that apply in accessible mode
+
+| Requirement | Rule |
+|-------------|------|
+| **No animation** | Spinners, marquees, blinking text, and progress animations become a single static line with monotonic progress (`Working… 40%`), rewritten at most once per second |
+| **No decorative art** | ASCII art, banners, box-drawing decoration, figlet headers suppressed. Where art is *informational*, emit an equivalent text description — do not simply drop it |
+| **Linear output** | Append-only, reads correctly top-to-bottom; blank lines separate logical sections for paragraph navigation |
+| **Tabular fallback** | Every table offers a non-columnar rendering — one `field: value` per line — since alignment conveys nothing through speech |
+| **Prompt legibility** | Prompts state question, choices, and default in plain text before awaiting input. Prompts relying on cursor positioning or redraw are non-compliant |
+
+#### §18.2.3 — TUI linear mode
+
+Any full-screen TUI MUST additionally provide a **non-redraw, append-only stream
+mode** reachable through the same §18.1 toggle: new state written as new lines
+rather than repainted regions, without taking over the alternate screen buffer.
+
+Where a TUI would otherwise be the only way to perform an operation, an equivalent
+**non-interactive CLI path** must exist — flags plus `--json` — so the operation
+stays scriptable and reachable without navigating a visual grid. Per §8, document
+it in the project's Texinfo manual alongside the interactive path.
+
+### §18.3 — GUI Requirements
+
+| UI stack | Required bridge |
+|----------|-----------------|
+| **Rust, custom-drawn UI** | **AccessKit** (Apache-2.0) — one API over UI Automation (Windows), NSAccessibility (macOS), AT-SPI (Linux). Integrated in egui, Slint, Bevy, Freya, Xilem, winit |
+| **GTK 4** | `GtkAccessible` — WAI-ARIA roles and states over AT-SPI |
+| **Flutter** | `Semantics` widgets and `SemanticsRole` |
+| **Qt** | `QAccessible` |
+
+Custom-drawn widgets are the failure case: a canvas-rendered control is invisible
+to assistive technology unless the application publishes its role and state
+explicitly. That is the gap AccessKit closes — hence required, not suggested, for
+Rust GUI work (§3.1 already makes Rust the preferred language).
+
+- Every interactive element carries an explicit accessible **name** and **role**.
+  Decorative elements are explicitly marked decorative so they are skipped.
+- State changes that matter to the user are **announced**, not merely repainted.
+- System **reduced motion** and **high contrast** preferences are honored
+  independently of the §18.1 toggle — the user already expressed them system-wide.
+- Keyboard reachability and focus visibility follow §10.
+
+### §18.4 — Verification & Remediation
+
+**Verification** — an accessibility claim is not satisfied by inspection:
+
+- **CLI/TUI:** pipe accessible-mode output through a speech synthesizer (e.g.
+  `espeak-ng`) and confirm it is comprehensible heard rather than seen. Confirm the
+  non-interactive path completes the same operations as the interactive one.
+- **GUI:** exercise with a real screen reader — Orca (Linux), NVDA (Windows),
+  VoiceOver (macOS) — confirming every interactive element announces name and role.
+- **Contrast:** measure the actual pairings used, not just foreground-on-background,
+  and record the ratios (§11).
+- **Keyboard:** complete every primary task without a pointing device.
+
+**Remediation for existing projects.** §18 applies to every project immediately on
+adoption of v1.33, so projects predating it are non-compliant until retrofitted.
+Until a project conforms it MUST carry a **dated remediation entry** in
+`PROJECTS.md` recording its accessibility state and intended remediation. An absent
+entry is itself a compliance failure — a project may be unfinished, but it may not
+be silently unfinished.
+
+---
+
 ## §16 — Compliance Checklist (Audit Gate)
 
 Before finalising **any** Spacecraft Software artifact, mentally verify:
@@ -881,14 +1069,15 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§7** Shell scripts are POSIX-compatible; Nushell/Ion native variants provided where shell-native idioms are required; no Bashisms in shared scripts
 - [ ] **§8** Texinfo manual present for user-facing programs (`doc/<project>.texi`); builds to `.info`, `.html`, and `.pdf`; `install-info` hook present in all three package manifests (§5.5) — N/A for scripts and internal tooling
 - [ ] **§9** PFA: no tracking, minimal permissions, local storage default
-- [ ] **§10** CUA + Vim-like key bindings planned/implemented
+- [ ] **§10** CUA + Vim-like key bindings planned/implemented; bindings user-remappable; assistive-technology modifier chords (NVDA/Orca/VoiceOver) not captured
 - [ ] **§11** Spacecraft Software color palette used; Void Navy background mandatory; new apps expose colors via a named `Steelbore` theme (§11.1) — no bare hex literals in UI logic
 - [ ] **§12** FOSS-licensed fonts only (Share Tech Mono / Inconsolata)
-- [ ] **§13** Material Design UI/UX; WCAG 2.1 AA verified
+- [ ] **§13** Material Design UI/UX; WCAG 2.2 AA verified, stating which pairing was measured
 - [ ] **§14** ISO 8601 dates; 24h time; UTC Z is the default primary timestamp (companion local time with UTC offset permitted, never a replacement) — unless the project filed the §14.2.1 domain exception for inherently local-time-bound data; ISO 8601 durations; metric units
 - [ ] **§15** Attribution present: maintainer name (`Mohamed Hammad`), contact (`Mohamed.Hammad@SpacecraftSoftware.org`), and project URL in `--version` / README / About
 - [ ] **§15.3** Third-party work credited in `CREDITS.md` at project/skill root when triggers apply; deeper `references/ATTRIBUTION.md` present where reference content is adapted from external sources
 - [ ] **§17** Development progress tracked and reported continuously with milestone percentages, MVP, total PRD completion, and a Unicode progress bar
+- [ ] **§18** Accessible mode implemented and off by default; §18.1 toggle honored with correct precedence; status never color-only; no animation or decorative art in accessible mode; TUI ships a linear mode and a non-interactive CLI path; GUI publishes accessible names and roles (AccessKit for Rust); verified with a real screen reader; existing projects carry a dated remediation entry in `PROJECTS.md` until they conform
 - [ ] **§6.3** All commits to Spacecraft Software Git remotes cryptographically signed with the `Mohamed.Hammad@SpacecraftSoftware.org` key and showing "Verified" on the hosting platform; rewrites preserve signatures; programmatic and assistant-driven commits signed too
 
 If any item is not applicable to the current artifact type (e.g., color palette
@@ -905,6 +1094,7 @@ for a pure Rust library), note it as N/A rather than silently skipping it.
 | Generating DOCX / ODT / PDF on demand | `spacecraft-document-format`                       |
 | Authoring or building a Texinfo manual | `spacecraft-texinfo-document`                              |
 | Creating IDE / terminal themes        | `spacecraft-theme-factory`                         |
+| Implementing or auditing accessibility (§18) | `spacecraft-accessibility`                  |
 | All other Spacecraft Software work    | `spacecraft-standard-constitution`                 |
 
 ---

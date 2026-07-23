@@ -16,9 +16,17 @@ website: https://Construct.SpacecraftSoftware.org/
 > and the `spacecraft-brand-guidelines` skill. Themes may not introduce
 > colors, fonts, or naming outside what these sources define.
 
-## Color Palette (WCAG 2.1 AA Compliant)
+## Color Palette (WCAG AA Compliant against Void Navy)
 
-All colors are verified for contrast against the Void Navy (`#000027`) background.
+All colors are verified for contrast **against the Void Navy (`#000027`)
+background** — Molten Amber 7.64:1, Steel Blue 4.77:1, Radium Green 14.87:1,
+Red Oxide 6.74:1, Liquid Coolant 14.74:1. All pass Level AA.
+
+**This guarantee does not extend to token-on-token pairings.** Most palette
+tokens paired with each other fall below the 3:1 floor (Molten Amber on Red
+Oxide is 1.13:1; Radium Green on Liquid Coolant is 1.01:1). Never emit a theme
+that places palette-colored text on a palette-colored fill unless you have
+measured that specific pair at ≥4.5:1 (Standard §11).
 
 | Token          | Hex       | RGB                | Role                          |
 |----------------|-----------|--------------------|-------------------------------|
@@ -55,9 +63,17 @@ Never use proprietary fonts. Outfit, Inter, Roboto, and similar non-OFL fonts ar
    Coolant for info/links. Never invent new color names or shift hex codes.
 5. **Apply the §12 typography** (Share Tech Mono headings, Inconsolata body)
    wherever the platform supports font selection.
-6. **Verify WCAG 2.1 AA contrast** against Void Navy for every color pair
+6. **Emit the accessibility variants alongside the default** (Standard §11.1.1)
+   whenever the target platform supports more than one theme: `steelbore`
+   (default, canonical palette), `steelbore-high-contrast` (`accent` →
+   `#7FAEDC`, `error` → `#FF8080`; the other four tokens verbatim — every token
+   ≥7:1 on Void Navy), and `steelbore-mono` (4-bit ANSI, deferring to the
+   user's terminal palette). `steelbore` remains the sole default; the variants
+   are additive siblings and never replace it. Void Navy stays the background
+   in all three.
+7. **Verify WCAG 2.2 AA contrast** against Void Navy for every color pair
    before shipping.
-7. **Emit the platform's native config format** (JSON, XML, TOML, ini) with
+8. **Emit the platform's native config format** (JSON, XML, TOML, ini) with
    all hex codes verbatim from the canonical table.
 
 ## Output Targets
@@ -75,7 +91,14 @@ Before shipping any generated theme:
 
 - All hex codes match §11 verbatim — no variants, no near-matches.
 - All fonts are FOSS-licensed and listed in §12.
-- Every color pair against Void Navy passes WCAG 2.1 Level AA.
+- Every foreground token against Void Navy passes WCAG 2.2 Level AA. (Scope
+  the claim precisely — token-on-token pairings are *not* covered and mostly
+  fail; see the palette note above.)
+- No generated theme places palette-colored text on a palette-colored fill
+  without a measured ≥4.5:1 ratio for that specific pair.
+- Where the platform supports multiple themes, `steelbore-high-contrast` and
+  `steelbore-mono` are emitted alongside `steelbore`, and `steelbore` is still
+  the default.
 - Output references only `spacecraft-brand-guidelines` (lowercase) for
   upstream brand context; no claims of `/themes`, `/scripts`, or
   `/templates` subdirectories (this skill ships as `SKILL.md` only).
