@@ -22,8 +22,9 @@ keybindings, the Spacecraft Software palette mapping, and implementation constra
    activate. Fall back to `--format json`, emit a warning to stderr, and
    serve the full data payload.
 
-2. **Agent environment.** If `AI_AGENT=1` or `AGENT=1` is set, the TUI MUST
-   NOT activate. Fall back to `--format json` and warn on stderr. This
+2. **Agent environment.** If `AI_AGENT` or `AGENT` is set (to any non-empty
+   value — not just `1`), the TUI MUST NOT activate. Fall back to `--format
+   json` and warn on stderr. This
    prevents agents from being trapped in an interactive render loop — a
    well-documented failure mode in the pre-Standard era.
 
@@ -197,7 +198,7 @@ navigable view.
 - Omitting the panic hook. A panic mid-TUI leaves the terminal in a broken state (cursor hidden, raw mode on).
 - Emitting TUI rendering to stdout instead of stderr / alt-screen. Breaks pipelines.
 - Using hard-coded colors instead of palette tokens. Violates the Spacecraft Software brand.
-- Activating the TUI when `AI_AGENT=1`. Agents get trapped.
+- Activating the TUI when `AI_AGENT` is set (any value). Agents get trapped.
 - Omitting the `tui` feature flag. Headless builds drag in `ratatui` + `crossterm` unnecessarily.
 - Making `e` (export) require interactive file-picker confirmation in non-TTY fallback mode. (It shouldn't even be reachable in non-TTY mode, but double-check.)
 

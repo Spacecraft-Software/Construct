@@ -14,17 +14,25 @@ The output mode is determined by a strict precedence. First match wins.
 
 1. **Explicit flag.** `--format <fmt>` or `--json` → that mode, unconditionally.
    `--json` is equivalent to `--format json`.
-2. **Agent environment variable.**
-   - `AI_AGENT=1` or `AI_AGENT=true` → full agent mode: `json` output, no color, no TUI, no interactive prompts.
-   - `AGENT=1` / `AGENT=true` / `AGENT=<name>` → same effect as `AI_AGENT`.
-   - `CI=true` → CI mode: `json` output, no color, no interactive prompts (but not strictly "agent mode" — a full TUI may still be requested explicitly).
+2. **Agent environment variable.** Detection is **presence-based**: the trigger
+   is that the variable is *set to a non-empty value*, whatever that value is —
+   real harnesses export descriptive strings, not `1` (a live Claude Code
+   session sets `AI_AGENT=claude-code_2-1-218_agent`). Matching `== "1"` is the
+   value-matching bug; test set-and-non-empty.
+   - `AI_AGENT=<any non-empty value>` → full agent mode: `json` output, no color, no TUI, no interactive prompts.
+   - `AGENT=<any non-empty value>` → same effect as `AI_AGENT`.
+   - `CI` truthy (set and not `""`, `0`, or `false`) → CI mode: `json` output, no color, no interactive prompts (but not strictly "agent mode" — a full TUI may still be requested explicitly). `CI` is the one value-carrying exception; the agent vars are pure presence.
+
+   The reference implementation in [rust-implementation.md](rust-implementation.md)
+   (`is_agent_env`) is presence-based and authoritative; this prose must not
+   regress to value-matching. See [local-host-authoring.md](local-host-authoring.md).
 3. **TTY detection.** `isatty(stdout) == true` → human mode with color.
 4. **Non-TTY.** stdout is piped or redirected → `json` mode (the `ant` CLI auto-switch).
 5. **Fallback.** None of the above → human mode.
 
 Also honor:
 - `TERM=dumb` → disable color, disable cursor movement, disable TUI activation even if `--format explore` was requested (emit a warning to stderr and fall back to `--format json`).
-- `CLAUDECODE=1`, `CURSOR_AGENT=1`, `GEMINI_CLI=1` — informational only. MUST NOT alter output format on their own; `AI_AGENT` handles that. MAY be recorded in `metadata.tool_agent` in JSON output.
+- `CLAUDECODE`, `CURSOR_AGENT`, `GEMINI_CLI` (set to any value — presence-based, like the agent vars) — informational only. MUST NOT alter output format on their own; `AI_AGENT` handles that. MAY be recorded in `metadata.tool_agent` in JSON output.
 
 ---
 

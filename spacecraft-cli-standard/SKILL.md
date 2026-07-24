@@ -126,14 +126,24 @@ to stderr. Full schema: `references/exit-codes-errors.md`.
 First matching condition wins:
 
 1. **Explicit flag.** `--format <fmt>` or `--json` → that mode unconditionally.
-2. **Agent env var.** `AI_AGENT=1`, `AGENT=1`, or `CI=true` → json mode, no color, no TUI, no interactivity.
+2. **Agent env var.** `AI_AGENT` or `AGENT` **set** (to any non-empty value), or `CI` truthy → json mode, no color, no TUI, no interactivity.
 3. **TTY.** `isatty(stdout) == true` → human mode with color.
 4. **Non-TTY.** stdout piped/redirected → json mode (the `ant` CLI pattern).
 5. **Fallback.** → human mode.
 
-`--format explore` has an extra constraint: if `AI_AGENT=1` or `AGENT=1` is
-set, the TUI MUST NOT activate — fall back to `--format json` and warn on
-stderr. Never trap an agent in an interactive render loop.
+**Detection is presence-based, not value-based.** The signal is that
+`AI_AGENT` / `AGENT` is *set to a non-empty value* — **not** that it equals
+`1`. Real harnesses export descriptive strings: a live Claude Code session sets
+`AI_AGENT=claude-code_2-1-218_agent`. A detector that matches `AI_AGENT == "1"`
+fails to recognise the agent it runs under. `CI` is the lone exception — it
+carries a truthy/falsy value, so it triggers when set and not `false`/`0`. The
+reference implementation (`references/rust-implementation.md`, `is_agent_env`)
+is already presence-based and is authoritative; keep prose and tests aligned
+with it. See `references/local-host-authoring.md`.
+
+`--format explore` has an extra constraint: if `AI_AGENT` or `AGENT` is set,
+the TUI MUST NOT activate — fall back to `--format json` and warn on stderr.
+Never trap an agent in an interactive render loop.
 
 Full color precedence (`NO_COLOR`, `FORCE_COLOR`, `CLICOLOR`, `TERM=dumb`)
 and machine-mode details: `references/output-modes.md`.
@@ -181,6 +191,7 @@ Read before implementing; don't fly blind.
 | `references/mcp-surface.md` | Tools with >10 sub-commands; implementing `<tool> mcp`, lazy schema loading, stdio/sse/streamable-http transports |
 | `references/testing-compliance.md` | CI test suite, compliance matrix (BLOCKER/CRITICAL/MAJOR), cross-shell roundtrip tests, required test categories |
 | `references/rust-implementation.md` | Crate choices (clap, serde, chrono/jiff, ratatui, crossterm, rmcp, ...), concrete Rust scaffolds for every section above |
+| `references/local-host-authoring.md` | Authoring on the user's own machine: presence-based agent detection (never `== "1"`), run-to-verify compliance, no-clobber scaffolding, `--dry-run` when testing, routing to the local-host-aware sibling skills |
 
 ---
 
@@ -197,7 +208,7 @@ logic. Each step has a reference file to consult.
 6. **Structured error type.** Single `AppError` struct with all `error.*` fields. See `references/exit-codes-errors.md`.
 7. **Noun-verb tree.** Draft the full sub-command tree using singular nouns and the standard verb set before implementing any leaf.
 8. **`schema` + `describe` sub-commands.** Wire these early; they force introspectability.
-9. **Context files.** Add `CLAUDE.md`, `AGENTS.md`, `SKILL.md`, `CONTRIBUTING.md` at repo root on day one.
+9. **Context files.** Add `CLAUDE.md`, `AGENTS.md`, `SKILL.md`, `CONTRIBUTING.md` at repo root on day one — **no-clobber**: on a real repo one may already exist with project context, so read it first and merge/propose a diff rather than overwriting. See `references/local-host-authoring.md`.
 10. **Test stubs.** Add all categories from `references/testing-compliance.md` (JSON schema validation, exit codes, TTY/non-TTY, agent env, idempotency, input validation, cross-shell, UTF-8) as failing stubs so nothing gets forgotten.
 
 ---
@@ -210,7 +221,7 @@ come from the CLI Standard §11.2 Compliance Matrix.
 - **BLOCKER** — does not ship. Fix before merge.
   Missing ISO 8601 UTC timestamps, BOM in output, wrong exit codes, missing `--json` on a data command, missing `schema` / `describe`, unstructured errors in JSON mode.
 - **CRITICAL** — fix this release cycle.
-  `NO_COLOR` not honored, missing `--dry-run` on a write command, `AI_AGENT` env var not detected.
+  `NO_COLOR` not honored, missing `--dry-run` on a write command, `AI_AGENT` not detected when **set to any non-empty value** (matching only `=1` is the bug — real harnesses set descriptive strings).
 - **MAJOR** — fix before next minor release.
   TUI doesn't fall back when stdout is piped, missing `CLAUDE.md` / `AGENTS.md` / `SKILL.md`.
 
@@ -218,13 +229,40 @@ Full matrix + verification methods: `references/testing-compliance.md`.
 
 ---
 
-## §10 — Relation to Other Spacecraft Software Skills
+## §10 — Authoring on the User's Machine
+
+Scaffolding, testing, and auditing a Spacecraft Software CLI happen on a real
+workstation, not a throwaway sandbox. Four rules; detail in
+**`references/local-host-authoring.md`**.
+
+1. **Detect agents by presence, not by `=1`.** `AI_AGENT` / `AGENT` set to any
+   non-empty value triggers agent mode; only `CI` carries a truthy/falsy value.
+   The reference code is already presence-based — keep prose and tests aligned,
+   never regress to `== "1"`. (§5.)
+2. **Verify compliance by running, not reading.** Drive the binary under the
+   host's *actual* `AI_AGENT` value (a descriptive string) and observe the
+   mode; a source read misses a value-matching regression. Probe the live env
+   first.
+3. **Scaffolding is no-clobber.** Read existing context files, merge, propose a
+   diff — never overwrite. (§8.)
+4. **Test destructive commands with `--dry-run`.** Use the CLI's own safety net
+   on the user's real machine rather than executing; the built CLI's
+   `--yes`/`--force` consent model is unchanged.
+
+---
+
+## §11 — Relation to Other Spacecraft Software Skills
 
 - **`spacecraft-standard-constitution`** — the master Standard. This skill is subordinate; master wins on conflict.
-- **`spacecraft-cli-preference`** — governs which *external* CLI tools to invoke (e.g., `rg` over `grep`). Complementary: that skill picks tools, this one defines how the CLI you're *building* should behave.
-- **`spacecraft-cli-shell`** — governs shell syntax (Nushell / Ion / POSIX) in generated commands. Complementary.
+- **`spacecraft-agentic-cli`** — the agent-facing UX layer built directly atop this Standard (error hints, MCP lazy-loading, token economy). Paired: this skill defines structure, that one adds agent-UX depth. Now local-host aware.
+- **`spacecraft-missing-pkg`** — provisioning. When building or testing the CLI needs a toolchain, linter, or interpreter that isn't installed, this owns getting it — ephemeral-first, consent before any durable install.
+- **`spacecraft-cli-preference`** — governs which *external* CLI tools to invoke (e.g., `rg` over `grep`). Complementary: that skill picks tools, this one defines how the CLI you're *building* should behave. Now local-host aware (substitutes only when the tool is present).
+- **`spacecraft-cli-shell`** — governs shell syntax for any command you scaffold, test, or document. Now local-host aware (routes by who executes the command — agent vs user vs file).
 - **`microsoft-rust-guidelines`** — Microsoft Pragmatic Rust Guidelines. Consult alongside `references/rust-implementation.md`.
 - **`spacecraft-brand-guidelines`** — source of truth for the six-token color palette (Void Navy, Molten Amber, Steel Blue, Radium Green, Liquid Coolant, Red Oxide).
+
+The four CLI/shell/provisioning/UX siblings were all retargeted at the local
+host; route to them rather than restating their rules.
 
 ---
 
