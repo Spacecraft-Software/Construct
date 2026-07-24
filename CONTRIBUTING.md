@@ -154,6 +154,8 @@ in sync with the subdirectory listing.
   print(len('\n'.join(out))+1)
   PY
   ```
+  The [pre-commit hook](#pre-commit-hook) enforces this automatically on every
+  staged skill — no need to remember the snippet, but do activate the hook.
 - **`microsoft-rust-guidelines` is intentionally `user-invocable: false`.** It is
   the mandatory auto-load Rust base — `spacecraft-standard-constitution` mandates loading it
   before any Rust and `spacecraft-rust-guidelines` defers to it as "load first," so
@@ -175,6 +177,33 @@ in sync with the subdirectory listing.
 - **`Excluded/`** is the holding pen for inputs that produce skill content but must
   not ship with it; never reference it from inside a `SKILL.md`. Session exports
   (`Chat*.txt`) are gitignored — never commit them.
+
+## Pre-commit hook
+
+A tracked hook enforces the description cap so a stale or over-long count can
+never reach a commit. Git does **not** honour tracked hooks automatically, so
+activate it **once per clone**:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+On every `git commit`, `.githooks/pre-commit` checks the **staged** `SKILL.md`
+files (root and Grok) with `.githooks/check-description-length.py`, which
+reproduces the folded-scalar rendering above and aborts the commit if any
+rendered description exceeds **1000** characters. It validates the *staged blob*,
+not the working tree, so a fixup you forgot to re-stage is still caught. The
+only dependency is `python3`.
+
+Run the same checker by hand over the whole catalogue any time:
+
+```sh
+python3 .githooks/check-description-length.py */SKILL.md grok-skills/*/SKILL.md
+```
+
+It exits non-zero and lists each offender (with how many chars over) when any
+description is too long, and is silent for files with no frontmatter or no
+`description` key.
 
 ## Nix flake
 

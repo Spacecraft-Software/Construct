@@ -1,0 +1,36 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Construct pre-commit hook.
+#
+# Enforces the SKILL.md `description` cap (<= 1000 rendered chars) on every
+# staged skill, validating the *staged blob* (not the working tree) so a
+# fixup that is edited-but-not-re-staged cannot slip through. Tracked hooks in
+# .git/hooks are not honoured automatically — activate this once per clone:
+#
+#     git config core.hooksPath .githooks
+#
+# Requires python3 (already assumed by the repo's description checker).
+set -eu
+
+root=$(git rev-parse --show-toplevel)
+checker="$root/.githooks/check-description-length.py"
+
+# Staged SKILL.md files (added / copied / modified).
+staged=$(git diff --cached --name-only --diff-filter=ACM \
+         | grep -E '(^|/)SKILL\.md$' || true)
+[ -z "$staged" ] && exit 0
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT INT TERM
+
+set --
+for f in $staged; do
+    dest="$tmp/$f"
+    mkdir -p "$(dirname "$dest")"
+    git show ":$f" > "$dest"
+    set -- "$@" "$dest"
+done
+
+python3 "$checker" "$@"
