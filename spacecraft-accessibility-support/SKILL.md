@@ -1,5 +1,5 @@
 ---
-name: spacecraft-accessibility
+name: spacecraft-accessibility-support
 description: >
   Implements and audits Standard §18 accessibility for Spacecraft Software
   applications — CLI, TUI, and GUI. ALWAYS consult when adding, reviewing, or

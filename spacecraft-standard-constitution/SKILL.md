@@ -1158,7 +1158,7 @@ for a pure Rust library), note it as N/A rather than silently skipping it.
 | Generating DOCX / ODT / PDF on demand | `spacecraft-document-format`                       |
 | Authoring or building a Texinfo manual | `spacecraft-texinfo-document`                              |
 | Creating IDE / terminal themes        | `spacecraft-theme-factory`                         |
-| Implementing or auditing accessibility (§18) | `spacecraft-accessibility`                  |
+| Implementing or auditing accessibility (§18) | `spacecraft-accessibility-support`          |
 | All other Spacecraft Software work    | `spacecraft-standard-constitution`                 |
 
 ---
