@@ -127,17 +127,12 @@ Manager — propose that edit and let the user apply it
 
 ### §1.3 — Shell syntax: whose shell?
 
-Two separate questions, routinely conflated:
+The target shell is decided by **who executes the command** — agent-run, handed
+to the user, or written to a file — and those three answers routinely differ.
 
-- **The shell the agent invokes.** Whatever the harness gives it — here a
-  non-interactive Bash. Its commands must be valid *there*, no matter what the
-  user's login shell is.
-- **The shell a script is authored for.** That follows the user's preference
-  and Standard §7 (Nushell, Ion, Brush, and Bash are all first-class); a
-  script committed to a repo stays POSIX unless the repo says otherwise.
-
-`spacecraft-cli-shell` is the syntax authority for both — consult it rather
-than guessing at `^`-prefixes, `$(…)`, or `&&` behaviour per shell.
+**`spacecraft-cli-shell` owns this routing** (its Step 0 host probe and Step 0.5
+executor table). Consult it rather than guessing at `^`-prefixes, `$(…)`, or
+`&&` behaviour per shell; this skill does not restate the rules.
 
 ---
 

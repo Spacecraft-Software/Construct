@@ -70,3 +70,17 @@ it is installed at that path.
 `shellcheck -s sh script.sh` catches the bashisms above. For the strongest
 signal, run the script under `dash` (or in a `busybox sh`) — both reject
 bashisms that `bash` silently tolerates.
+
+**Neither `ash` nor `dash` is installed on most development hosts**, and
+`shellcheck` often isn't either, so run them ephemerally rather than
+installing (see `spacecraft-missing-pkg`):
+
+```sh
+nix run nixpkgs#shellcheck -- -s sh script.sh
+nix run nixpkgs#dash -- script.sh
+nix run nixpkgs#busybox -- sh script.sh
+```
+
+Do **not** substitute `/bin/sh` for this check — it is bash on many systems,
+which defeats the entire purpose. Confirm with `readlink -f /bin/sh`; see
+[local-shells.md](local-shells.md).
