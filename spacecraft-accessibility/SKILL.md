@@ -3,21 +3,18 @@ name: spacecraft-accessibility
 description: >
   Implements and audits Standard §18 accessibility for Spacecraft Software
   applications — CLI, TUI, and GUI. ALWAYS consult when adding, reviewing, or
-  auditing accessibility support; when wiring the `--accessible` /
-  `SPACECRAFT_A11Y` toggle; when a TUI needs a linear (non-redraw) fallback
-  mode; when selecting a screen-reader bridge (AccessKit, GtkAccessible,
-  Flutter Semantics, QAccessible); when emitting or checking the
-  `steelbore-high-contrast` / `steelbore-mono` theme variants; or when
-  verifying WCAG 2.2 AA / EN 301 549 clause 11 conformance. Triggers include
-  "accessibility", "a11y", "screen reader", "NVDA", "Orca", "VoiceOver",
-  "AccessKit", "AT-SPI", "high contrast", "color contrast", "reduced motion",
-  "keyboard navigation", "no-animation", "NO_COLOR", "linear mode", "WCAG",
+  auditing accessibility; when wiring the `--accessible` / `SPACECRAFT_A11Y`
+  toggle; when a TUI needs a linear (non-redraw) fallback mode; when selecting
+  a screen-reader bridge (AccessKit, GtkAccessible, Flutter Semantics,
+  QAccessible); when emitting or checking the `steelbore-high-contrast` /
+  `steelbore-mono` theme variants; or when verifying WCAG 2.2 AA / EN 301 549
+  clause 11 conformance. Triggers include "accessibility", "a11y", "screen
+  reader", "NVDA", "Orca", "VoiceOver", "AccessKit", "AT-SPI", "high contrast",
+  "reduced motion", "keyboard navigation", "NO_COLOR", "linear mode", "WCAG",
   "EN 301 549", and "EAA". Every Spacecraft Software application other than a
-  registered game must ship a working accessible mode (§18), so consult this
-  the moment user-facing output — terminal or graphical — appears on the
-  horizon. Also consult it when working on a game (§18.5 exempts games from
-  §18 and §10 entirely; accessibility there is optional and unenforced) so
-  those rules are not applied where they do not belong.
+  registered game must ship a working accessible mode (§18). Also consult when
+  working on a game (§18.5 exempts games from §18 and §10 entirely;
+  accessibility there is optional).
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
