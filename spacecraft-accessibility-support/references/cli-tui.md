@@ -29,7 +29,7 @@ output, always:
 |------|-----|------|
 | Status carries a text tag | `\x1b[31mfailed to connect\x1b[0m` | `[ERROR] failed to connect` |
 | Diagnostics to `stderr`, results to `stdout` | both to `stdout`, interleaved | separated |
-| No text on unverified colored fills | amber text on a red chip (1.13:1) | amber text on Void Navy (7.64:1) |
+| No text on unverified colored fills | lime text on a mist chip (1.11:1) | mist text on Void Navy (15.09:1) |
 | `NO_COLOR` family honored | color forced on | per `spacecraft-cli-standard` precedence |
 
 ## Rules that apply in accessible mode

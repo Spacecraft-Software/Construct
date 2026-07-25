@@ -89,18 +89,21 @@ Steelbore Standard dual-keybinding requirement.
 
 ## §3 — Color Palette Mapping
 
-The TUI MUST use the Spacecraft Software six-token palette exclusively. No ad-hoc
-colors. Honor `NO_COLOR` — in that case, render monochromatic with attribute-
-based emphasis (bold, underline, reverse video) instead.
+The TUI MUST use the Spacecraft Software Steelbore 2 palette (Standard §11)
+exclusively. No ad-hoc colors. Honor `NO_COLOR` — in that case, render
+monochromatic with attribute-based emphasis (bold, underline, reverse video)
+instead.
 
 | Role | Token | Hex |
 |------|-------|-----|
 | Backgrounds, chrome fill | Void Navy | `#000027` |
-| Body data values | Molten Amber | `#D98E32` |
-| Borders, table headers, section dividers | Steel Blue | `#4B7EB0` |
-| Selected / active / success | Radium Green | `#50FA7B` |
-| Errors, invalid input | Red Oxide | `#FF5C5C` |
-| Metadata, type hints, dimmed text | Liquid Coolant | `#8BE9FD` |
+| Elevated panel / card fill (never text) | Quantum Blue | `#0E2A47` |
+| Body data values | Platinum Mist | `#D9DEE5` |
+| Borders, table headers, section dividers | Pulse Violet | `#8A6CFF` |
+| Selected / active / success | Acid Lime | `#B4FF00` |
+| Warnings | Plasma Magenta | `#E445FF` |
+| Errors, invalid input | Mars Red | `#FF3B3B` |
+| Metadata, type hints, dimmed text | Platinum Mist (dimmed) | `#D9DEE5` |
 
 Font choice is terminal-driven; the TUI does not specify typography.
 (Spacecraft Software's Share Tech Mono / Inconsolata preferences apply to the user's

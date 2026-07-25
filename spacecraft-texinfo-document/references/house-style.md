@@ -135,11 +135,13 @@ Texinfo source is format-agnostic; the brand is applied when rendering.
 | **PDF** (TeX) | A4 via `@afourpaper`; font/colour theming is limited in `texinfo.tex` — see `building.md` §PDF for the supported subset (paper size + body font note). Do not promise full palette parity in PDF. |
 | **DocBook / EPUB** | Structural; downstream tools apply their own styling. |
 
-Palette tokens (Standard §11, cached): Void Navy `#000027` (background),
-Molten Amber `#D98E32` (body), Steel Blue `#4B7EB0` (H1/accent/visited link),
-Radium Green `#50FA7B` (H2/success), Liquid Coolant `#8BE9FD` (H3/info/link),
-Red Oxide `#FF5C5C` (warning/error). Fonts (Standard §12): Share Tech Mono
-(headings), Inconsolata (body/code) — both OFL.
+Palette tokens (Standard §11, Steelbore 2, cached): Void Navy `#000027`
+(background), Platinum Mist `#D9DEE5` (body), Plasma Orange `#FF5E00`
+(H1/accent/visited link), Acid Lime `#B4FF00` (H2/success), Pulse Violet
+`#8A6CFF` (H3/structure/link), Mars Red `#FF3B3B` (error), Plasma Magenta
+`#E445FF` (warning), Deep Matrix `#0B1A12` (code-block fill), Quantum Blue
+`#0E2A47` (panel fill — surfaces are never text colours). Fonts (Standard
+§12): Share Tech Mono (headings), Inconsolata (body/code) — both OFL.
 
 ## 7. File naming
 

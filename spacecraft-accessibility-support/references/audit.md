@@ -107,19 +107,32 @@ Emulators do not count. Use the real thing for the platform:
 ## Gate 8 — Contrast (§11)
 
 Measure the pairings **actually used**, not just foreground-on-background, and
-record the ratios. Reference values against Void Navy `#000027`:
+record the ratios. Reference values (Steelbore 2, §11.0.2 matrix) — each
+foreground against all three legal backgrounds, plus its high-contrast lift:
 
-| Token | Base | High-contrast variant |
-|-------|------|----------------------|
-| Molten Amber | 7.64:1 | `#D98E32` — 7.64:1 |
-| Steel Blue | 4.77:1 | `#7FAEDC` — 8.73:1 |
-| Radium Green | 14.87:1 | `#50FA7B` — 14.87:1 |
-| Red Oxide | 6.74:1 | `#FF8080` — 8.41:1 |
-| Liquid Coolant | 14.74:1 | `#8BE9FD` — 14.74:1 |
+| Token | vs Void Navy | vs Quantum Blue | vs Deep Matrix | High-contrast variant |
+|-------|--------------|-----------------|----------------|-----------------------|
+| Platinum Mist  | 15.09:1 | 10.78:1        | 13.27:1 | `#D9DEE5` — 15.09:1 (verbatim) |
+| Plasma Orange  | 6.66:1  | 4.76:1         | 5.85:1  | `#FF8A3D` — 8.70:1  |
+| Pulse Violet   | 5.51:1  | **3.93:1** †   | 4.84:1  | `#B3A1FF` — 9.19:1  |
+| Acid Lime      | 16.75:1 | 11.97:1        | 14.73:1 | `#B4FF00` — 16.75:1 (verbatim) |
+| Mars Red       | 5.77:1  | **4.12:1** †   | 5.07:1  | `#FF7A7A` — 8.08:1  |
+| Plasma Magenta | 6.41:1  | 4.58:1         | 5.63:1  | `#EE7BFF` — 8.66:1  |
+
+† On Quantum Blue fills, Pulse Violet and Mars Red are restricted to large
+text, icons, and non-text UI (≥3:1); they miss the 4.5:1 normal-text floor.
+In the high-contrast variant all four lifted tokens clear 4.5:1 on both
+surfaces, so the restriction vanishes there.
+
+Surface tokens (Quantum Blue 1.40:1, Deep Matrix 1.14:1 vs Void Navy) are
+**never text colors**, and a meaningful surface boundary must be drawn —
+Pulse Violet (5.51:1 vs canvas) is the canonical edge (§11.0.1).
 
 - [ ] Every text pairing used measures ≥4.5:1 (AA), or ≥7:1 in the
       high-contrast variant.
 - [ ] Every non-text UI boundary measures ≥3:1.
+- [ ] No surface token is used as a text color, and no normal-size Mars Red
+      or Pulse Violet text sits on a Quantum Blue fill.
 - [ ] The recorded claim states **which pairing** was measured (§13).
 
 Contrast is deterministic — compute it rather than eyeballing it:

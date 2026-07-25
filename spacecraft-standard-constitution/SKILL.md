@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.33 (§18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §8 Texinfo; §7 Shell Environment) so
+  The Steelbore Standard v1.34 (§11 Steelbore 2 palette; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §8 Texinfo; §7 Shell Environment) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.33 | **Date:** 2026-07-24 | **Author:** Mohamed Hammad
+**Version:** 1.34 | **Date:** 2026-07-25 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -527,32 +527,71 @@ must be linear and the focused element visibly indicated. See §18.
 
 ## §11 — Spacecraft Software Color Palette (WCAG-Compliant)
 
-The **only** permitted colors for Spacecraft Software interfaces and documents:
+The **only** permitted colors for Spacecraft Software interfaces and documents
+(the **Steelbore 2** generation):
 
-| Token          | Hex       | RGB              | Role                        |
-|----------------|-----------|------------------|-----------------------------|
-| Void Navy      | `#000027` | RGB(0, 0, 39)    | **Background / Canvas**     |
-| Molten Amber   | `#D98E32` | RGB(217, 142, 50)| Primary Text / Active Readout |
-| Steel Blue     | `#4B7EB0` | RGB(75, 126, 176)| Primary Accent / Structural |
-| Radium Green   | `#50FA7B` | RGB(80, 250, 123)| Success / Safe Status       |
-| Red Oxide      | `#FF5C5C` | RGB(255, 92, 92) | Warning / Error Status      |
-| Liquid Coolant | `#8BE9FD` | RGB(139, 233, 253)| Info / Links               |
+| Token          | Hex       | RGB                | Class      | Role                            |
+|----------------|-----------|--------------------|------------|---------------------------------|
+| Void Navy      | `#000027` | RGB(0, 0, 39)      | Canvas     | **Background — all surfaces**   |
+| Quantum Blue   | `#0E2A47` | RGB(14, 42, 71)    | Surface    | Elevated panels / cards         |
+| Deep Matrix    | `#0B1A12` | RGB(11, 26, 18)    | Surface    | Code blocks / terminal wells    |
+| Platinum Mist  | `#D9DEE5` | RGB(217, 222, 229) | Foreground | Body text / default readout     |
+| Plasma Orange  | `#FF5E00` | RGB(255, 94, 0)    | Foreground | Primary accent / active readout |
+| Pulse Violet   | `#8A6CFF` | RGB(138, 108, 255) | Foreground | Structure / links / borders     |
+| Acid Lime      | `#B4FF00` | RGB(180, 255, 0)   | Foreground | Success / safe status / focus   |
+| Mars Red       | `#FF3B3B` | RGB(255, 59, 59)   | Foreground | Error status                    |
+| Plasma Magenta | `#E445FF` | RGB(228, 69, 255)  | Foreground | Warning / attention             |
 
-**`#000027` (Void Navy) is the mandatory background for ALL Spacecraft Software surfaces.**
-No alternative background is permitted. This is non-negotiable.
+**`#000027` (Void Navy) is the mandatory background for ALL Spacecraft Software
+surfaces.** No alternative background is permitted. This is non-negotiable.
+Surface-class tokens are *fills placed on* Void Navy, never replacements for it.
 
-**Scope of the contrast guarantee.** Every foreground token above passes WCAG AA
-against Void Navy (Molten Amber 7.64:1, Steel Blue 4.77:1, Radium Green 14.87:1,
-Red Oxide 6.74:1, Liquid Coolant 14.74:1). That covers **foreground-on-background
-pairings only**. Palette tokens paired with *each other* are mostly far below the
-3:1 floor — Molten Amber on Red Oxide is 1.13:1; Radium Green on Liquid Coolant is
-1.01:1 (indistinguishable). Therefore:
+### §11.0.1 — The Surface Class
 
-- Rendering palette-colored **text on a palette-colored fill** (chip, badge, filled
-  button, selected row) is **forbidden** unless that specific pair is measured at
-  ≥4.5:1 for text, or ≥3:1 for non-text UI boundaries.
-- Color may never be the **sole** carrier of meaning — every colored status also
-  carries a text tag or symbol (§18.2).
+New in Steelbore 2. Surface tokens carry the following hard rules:
+
+- Surface tokens are **never text colors**. Quantum Blue is 1.40:1 and Deep
+  Matrix 1.14:1 against Void Navy — both are illegible as foregrounds anywhere.
+- A surface's edge against the canvas (1.40:1 / 1.14:1) does not meet the 3:1
+  non-text floor. Where the boundary is meaningful, it **must** be drawn — a
+  Pulse Violet border (5.51:1 vs canvas) is the canonical edge.
+- Surfaces never nest on each other without a measured boundary.
+
+### §11.0.2 — Scope of the Contrast Guarantee
+
+Every foreground token is verified with the WCAG relative-luminance formula
+against all three backgrounds it may legally appear on. AA floors: **4.5:1**
+normal text (1.4.3); **3:1** large text and non-text UI (1.4.3, 1.4.11).
+EN 301 549 V4.1.1 clause 11 (11.1.4.3, 11.1.4.11) inherits the same criteria
+for non-web software; the EAA has been enforceable since 2025-06-28.
+
+| Foreground     | vs Void Navy | vs Quantum Blue | vs Deep Matrix |
+|----------------|--------------|-----------------|----------------|
+| Platinum Mist  | 15.09:1      | 10.78:1         | 13.27:1        |
+| Plasma Orange  | 6.66:1       | 4.76:1          | 5.85:1         |
+| Pulse Violet   | 5.51:1       | **3.93:1** †    | 4.84:1         |
+| Acid Lime      | 16.75:1      | 11.97:1         | 14.73:1        |
+| Mars Red       | 5.77:1       | **4.12:1** †    | 5.07:1         |
+| Plasma Magenta | 6.41:1       | 4.58:1          | 5.63:1         |
+
+† **Restricted pairings.** On Quantum Blue, Pulse Violet and Mars Red fall
+below 4.5:1 and are limited to **large text (≥18.66 px bold / ≥24 px regular),
+icons, and non-text UI** (≥3:1). Normal-size error prose on a surface is set in
+Platinum Mist carrying the mandatory `[ERROR]` tag (§18.2), with Mars Red as
+border or icon accent only.
+
+The guarantee covers the eighteen pairings in the matrix above **only**.
+Foreground tokens paired with *each other* mostly fail the 3:1 floor (Acid
+Lime on Platinum Mist is 1.11:1; Plasma Orange on Mars Red is 1.15:1).
+Therefore:
+
+- Rendering palette-colored **text on a palette-colored fill** (chip, badge,
+  filled button, selected row) is **forbidden** unless that specific pair is
+  measured at ≥4.5:1 for text, or ≥3:1 for non-text boundaries.
+- Color may never be the **sole** carrier of meaning — every colored status
+  also carries a text tag or symbol (§18.2). `[OK]` `[WARN]` `[ERROR]` `[INFO]`.
+- The visible **focus indicator** is Acid Lime (16.75:1) — comfortably above
+  the 3:1 indicator floor, satisfying WCAG 2.2 §2.4.11 on every background.
 
 For document/file generation → load the `spacecraft-document-format` skill.
 For IDE/terminal themes → load the `spacecraft-theme-factory` skill.
@@ -563,14 +602,19 @@ When building a new Spacecraft Software application (GUI, TUI, or web), all pale
 references **must** be accessed through a named theme called **`Steelbore`** rather than
 referenced as bare hex literals. The `Steelbore` theme is the canonical color contract:
 
-| Theme token  | Maps to palette token | Hex       |
-|--------------|-----------------------|-----------|
-| `background` | Void Navy             | `#000027` |
-| `foreground` | Molten Amber          | `#D98E32` |
-| `accent`     | Steel Blue            | `#4B7EB0` |
-| `success`    | Radium Green          | `#50FA7B` |
-| `error`      | Red Oxide             | `#FF5C5C` |
-| `info`       | Liquid Coolant        | `#8BE9FD` |
+| Theme token   | Maps to palette token | Hex       |
+|---------------|-----------------------|-----------|
+| `background`  | Void Navy             | `#000027` |
+| `surface`     | Quantum Blue          | `#0E2A47` |
+| `surface-alt` | Deep Matrix           | `#0B1A12` |
+| `foreground`  | Platinum Mist         | `#D9DEE5` |
+| `accent`      | Plasma Orange         | `#FF5E00` |
+| `structure`   | Pulse Violet          | `#8A6CFF` |
+| `success`     | Acid Lime             | `#B4FF00` |
+| `error`       | Mars Red              | `#FF3B3B` |
+| `warning`     | Plasma Magenta        | `#E445FF` |
+| `focus`       | Acid Lime             | `#B4FF00` |
+| `border`      | Pulse Violet          | `#8A6CFF` |
 
 **Rationale:** isolating palette references behind the `Steelbore` theme name makes it
 trivial for end users to substitute a custom theme without touching application logic —
@@ -582,6 +626,8 @@ swap the theme, not every hex literal.
 - Hard-coding palette hex values directly in UI logic is **forbidden** for new apps.
   Use theme tokens exclusively.
 - Existing apps are encouraged but not required to migrate; new apps are required.
+  Apps still shipping the v1.33 six-token palette remain compliant until their
+  next minor release, after which the Steelbore 2 contract applies.
 
 #### §11.1.1 — Accessibility Variants (additive siblings)
 
@@ -596,23 +642,35 @@ precedence over `steelbore`, and the §11 canonical palette is unchanged.
 | `steelbore-high-contrast` | §18.1 accessible mode, or explicit selection | Every role token lifted to ≥7:1 (WCAG AAA) on Void Navy |
 | `steelbore-mono` | Explicit selection, or `NO_COLOR` | 4-bit ANSI only — defers to the user's terminal palette |
 
-`steelbore-high-contrast` lifts **only the two tokens that need it**; tokens
+`steelbore-high-contrast` lifts **only the four tokens that need it**; tokens
 already ≥7:1 carry over untouched:
 
-| Theme token  | Base token     | Variant hex | Contrast |
-|--------------|----------------|-------------|----------|
-| `background` | Void Navy      | `#000027`   | (canvas) |
-| `foreground` | Molten Amber   | `#D98E32`   | 7.64:1   |
-| `accent`     | Steel Blue     | `#7FAEDC`   | 8.73:1   |
-| `success`    | Radium Green   | `#50FA7B`   | 14.87:1  |
-| `error`      | Red Oxide      | `#FF8080`   | 8.41:1   |
-| `info`       | Liquid Coolant | `#8BE9FD`   | 14.74:1  |
+| Theme token  | Base token     | Variant hex | Contrast vs Void Navy |
+|--------------|----------------|-------------|-----------------------|
+| `background` | Void Navy      | `#000027`   | (canvas)              |
+| `foreground` | Platinum Mist  | `#D9DEE5`   | 15.09:1               |
+| `accent`     | Plasma Orange  | **`#FF8A3D`** | 8.70:1              |
+| `structure`  | Pulse Violet   | **`#B3A1FF`** | 9.19:1              |
+| `success`    | Acid Lime      | `#B4FF00`   | 16.75:1               |
+| `error`      | Mars Red       | **`#FF7A7A`** | 8.08:1              |
+| `warning`    | Plasma Magenta | **`#EE7BFF`** | 8.66:1              |
 
-Only `accent` (`#4B7EB0` → `#7FAEDC`) and `error` (`#FF5C5C` → `#FF8080`) shift;
-the other four are §11 values verbatim. **Void Navy remains the background in every
-variant** — high contrast comes from lifting foregrounds, never from abandoning the
-canvas. These two hexes are accessibility-derived lifts of existing role tokens,
-not new brand colors, and may not be used outside the variant.
+Only `accent`, `structure`, `error`, and `warning` shift; the other tokens are
+§11 values verbatim. In the variant, all four lifted tokens also clear 4.5:1
+on both surfaces (weakest pairing: `error` `#FF7A7A` on Quantum Blue, 5.77:1),
+so the §11.0.2 † restrictions do not apply under high contrast. **Void Navy
+remains the background in every variant** — high contrast comes from lifting
+foregrounds, never from abandoning the canvas. The lifted hexes are
+accessibility-derived lifts of existing role tokens, not new brand colors, and
+may not be used outside the variant.
+
+### §11.2 — Retired Tokens (v1.33 → v1.34)
+
+Molten Amber `#D98E32`, Steel Blue `#4B7EB0`, Radium Green `#50FA7B`, Red
+Oxide `#FF5C5C`, and Liquid Coolant `#8BE9FD` are **retired** from §11 and may
+not appear in new artifacts. Existing artifacts carrying them are grandfathered
+per §11.1 until their next minor release. The `#7FAEDC` / `#FF8080`
+high-contrast lifts of v1.33 are retired with their base tokens.
 
 ---
 

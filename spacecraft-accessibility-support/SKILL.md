@@ -27,9 +27,10 @@ website: https://Construct.SpacecraftSoftware.org/
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 > **Source of truth:** The Steelbore Standard **§18** (Accessibility), with §10
-> (key bindings), §11/§11.1.1 (palette and theme variants), and §13 (design
-> system). This skill is the *how*; §18 is the *what*. Where they appear to
-> diverge, §18 governs — fix this skill.
+> (key bindings), §11/§11.1.1 (palette and theme variants — v1.34, the
+> **Steelbore 2** generation), and §13 (design system). This skill is the
+> *how*; §18 is the *what*. Where they appear to diverge, §18 governs — fix
+> this skill.
 
 ## Stop here if this is a game
 
@@ -108,11 +109,15 @@ emulator's character grid, so a redraw-based interface produces re-reads and
 speech loops. No terminal UI library (ratatui included) provides
 accessibility. **The application must supply the linear fallback itself.**
 
-**3. Text on a palette-colored fill.** §11 verifies palette tokens against
-Void Navy, *not* against each other. Molten Amber on Red Oxide is 1.13:1;
-Radium Green on Liquid Coolant is 1.01:1 — indistinguishable. Never place
-palette-colored text on a palette-colored fill without measuring that
-specific pair (≥4.5:1 text, ≥3:1 non-text boundaries).
+**3. Text on a palette-colored fill.** §11 verifies foreground tokens against
+Void Navy and the two surface tokens (§11.0.2 matrix), *not* against each
+other. Acid Lime on Platinum Mist is 1.11:1; Plasma Orange on Mars Red is
+1.15:1 — indistinguishable. Never place palette-colored text on a
+palette-colored fill without measuring that specific pair (≥4.5:1 text, ≥3:1
+non-text boundaries). Two measured restrictions already exist: on Quantum Blue
+surfaces, Mars Red (4.12:1) and Pulse Violet (3.93:1) are large-text/UI only —
+normal-size error prose on a surface is Platinum Mist carrying the `[ERROR]`
+tag, with Mars Red as border or icon accent.
 
 ## Theme variants (§11.1.1)
 
@@ -125,19 +130,25 @@ siblings, never replacements:
 | `steelbore-high-contrast` | Accessible mode, or explicit | Every token ≥7:1 (AAA) on Void Navy |
 | `steelbore-mono` | Explicit, or `NO_COLOR` | 4-bit ANSI only — defers to the user's terminal palette |
 
-High contrast lifts **only the two tokens that need it**:
+High contrast lifts **only the four tokens that need it**:
 
 | Token | Base | Variant | Contrast |
 |-------|------|---------|----------|
 | `background` | Void Navy `#000027` | `#000027` | (canvas) |
-| `foreground` | Molten Amber | `#D98E32` | 7.64:1 |
-| `accent` | Steel Blue `#4B7EB0` | **`#7FAEDC`** | 8.73:1 |
-| `success` | Radium Green | `#50FA7B` | 14.87:1 |
-| `error` | Red Oxide `#FF5C5C` | **`#FF8080`** | 8.41:1 |
-| `info` | Liquid Coolant | `#8BE9FD` | 14.74:1 |
+| `foreground` | Platinum Mist | `#D9DEE5` | 15.09:1 |
+| `accent` | Plasma Orange | **`#FF8A3D`** | 8.70:1 |
+| `structure` | Pulse Violet | **`#B3A1FF`** | 9.19:1 |
+| `success` | Acid Lime | `#B4FF00` | 16.75:1 |
+| `error` | Mars Red | **`#FF7A7A`** | 8.08:1 |
+| `warning` | Plasma Magenta | **`#EE7BFF`** | 8.66:1 |
+
+In the variant, all four lifted tokens also clear 4.5:1 on Quantum Blue and
+Deep Matrix (weakest pairing: `#FF7A7A` on Quantum Blue, 5.77:1), so the
+§11.0.2 large-text restrictions do not apply under high contrast — the variant
+is strictly safer than the default.
 
 **Void Navy remains the background in every variant** — high contrast comes
-from lifting foregrounds, never from abandoning the canvas. The two shifted
+from lifting foregrounds, never from abandoning the canvas. The shifted
 hexes are accessibility-derived lifts of existing role tokens, not new brand
 colors, and may not be used outside the variant.
 
@@ -159,7 +170,9 @@ mechanism GitHub adopted for `gh a11y`.
   | `Ctrl`+`Option` | VoiceOver (macOS) |
 
 - Every pointer-reachable action must be keyboard-reachable; focus order
-  linear, focused element visibly indicated.
+  linear, focused element visibly indicated. The visible focus indicator is
+  Acid Lime `#B4FF00` (16.75:1 on Void Navy) — WCAG 2.2 §2.4.11 compliant on
+  every background.
 
 ## Games
 
