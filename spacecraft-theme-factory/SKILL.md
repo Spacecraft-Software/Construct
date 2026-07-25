@@ -55,7 +55,7 @@ Violet (3.93:1) may only be used for large text, icons, and non-text UI.
 | Mars Red       | `#FF3B3B` | RGB(255, 59, 59)   | Foreground | Error status                    |
 | Plasma Magenta | `#E445FF` | RGB(228, 69, 255)  | Foreground | Warning / attention             |
 
-**`#000027` (Void Navy) is the mandatory background for ALL Spacecraft Software surfaces** —
+**`#000027` (Void Navy) is the mandatory canvas under Steelbore Modern**, the default palette —
 documents, terminals, editor themes, application UIs. No alternative background is
 permitted. Surface tokens are fills on Void Navy and are **never text colors**.
 
@@ -106,7 +106,8 @@ Never use proprietary fonts. Outfit, Inter, Roboto, and similar non-OFL fonts ar
 - **IDEs / editors**: VS Code, JetBrains, Helix, Zed, Neovim
 - **Terminal emulators**: Kitty, Alacritty, WezTerm, Foot
 - **Material Design GUI applications**
-- **Document formats** (DOCX, PDF): force `#000027` page background and ISO
+- **Document formats** (DOCX, PDF): force the declared palette's canvas as the
+  page background (`#000027` under Modern, the default) and ISO
   A4 (210 × 297 mm) page size; apply palette text colors per
   `spacecraft-document-format`.
 

@@ -33,6 +33,10 @@ standard = "The Steelbore Standard §11 (v1.35)"
 "Acid Lime" = "#B4FF00"
 "Mars Red" = "#FF3B3B"
 "Plasma Magenta" = "#E445FF"
+"Plasma Orange Lift" = "#FF8A3D"  # high-contrast only
+"Pulse Violet Lift" = "#B3A1FF"  # high-contrast only
+"Mars Red Lift" = "#FF7A7A"  # high-contrast only
+"Plasma Magenta Lift" = "#EE7BFF"  # high-contrast only
 
 [themes.steelbore]
 background   = "#000027"
@@ -120,6 +124,7 @@ border       = "9.19:1"
 "Ember Red" = "#FF6B6B"
 "Solar Amber" = "#FFC857"
 "Warm Thruster" = "#FF8A4B"
+"Ember Lift" = "#FF8F8F"  # high-contrast only
 
 [themes.steelbore-blue]
 background   = "#0A1024"
@@ -206,6 +211,8 @@ border       = "7.41:1"
 "Mint Signal" = "#5BE49B"
 "Ember Red" = "#FF6B6B"
 "Solar Amber" = "#FFC857"
+"Magenta Lift" = "#F07BFF"  # high-contrast only
+"Ember Lift" = "#FF8F8F"  # high-contrast only
 
 [themes.steelbore-blackpinkpanther]
 background   = "#141418"
@@ -291,6 +298,8 @@ border       = "8.94:1"
 "Lime Shadow" = "#8AC22A"
 "Ember Red" = "#FF6B6B"
 "Solar Amber" = "#FFC857"
+"Teal Lift" = "#2FD3BB"  # high-contrast only
+"Ember Lift" = "#FF8F8F"  # high-contrast only
 
 [themes.steelbore-matrixgreen]
 background   = "#0C1A2B"
@@ -337,6 +346,7 @@ border       = "14.32:1"
 
 [themes.steelbore-matrixgreen.rules]
 surface-tokens-as-text  = "forbidden"
+non-role-colors         = ["#8AC22A"]  # Lime Shadow — pressed/active state for Solar Lime; not bindable to a role token
 surface-boundary-border = "structure"
 
 [themes.steelbore-matrixgreen-high-contrast]  # §11.1.1 — accessible-mode sibling of steelbore-matrixgreen
@@ -376,6 +386,17 @@ border       = "12.44:1"
 "Verdant Deep" = "#2A6349"
 "Crimson Deep" = "#93211F"
 "Amber Deep" = "#6F4E0C"
+"Cerulean Lift" = "#1F4A73"  # high-contrast only
+"Verdant Lift" = "#16452F"  # high-contrast only
+"Crimson Lift" = "#7E1C1A"  # high-contrast only
+"Amber Lift" = "#5A3F09"  # high-contrast only
+# Source tints from the original design. They do NOT reach 4.5:1 on Pearl
+# Silver and are permitted as NON-TEXT FILLS ONLY (§11.3.4) — never as text
+# and never as a meaningful boundary. Not bindable to any role token.
+"Cerulean Edge (tint)" = "#3A6EA5"  # 4.22:1 — fill only
+"Success Green (tint)" = "#4C8C6F"  # 3.15:1 — fill only
+"Crimson Pulse (tint)" = "#B94A48"  # 4.03:1 — fill only
+"Amber Signal (tint)" = "#D9A441"  # 1.79:1 — fill only
 
 [themes.steelbore-navywhite]
 background   = "#E7E5E0"
@@ -422,6 +443,8 @@ border       = "10.30:1"
 
 [themes.steelbore-navywhite.rules]
 surface-tokens-as-text  = "forbidden"
+non-text-fill-only      = ["#3A6EA5", "#4C8C6F", "#B94A48", "#D9A441"]  # source tints, <4.5:1 on Pearl Silver (§11.3.4)
+high-contrast-direction = "darken"  # light canvas — variants darken foregrounds
 surface-boundary-border = "structure"
 
 [themes.steelbore-navywhite-high-contrast]  # §11.1.1 — accessible-mode sibling of steelbore-navywhite
@@ -460,6 +483,8 @@ border       = "12.36:1"
 "Radium Green" = "#50FA7B"
 "Red Oxide" = "#FF5C5C"
 "Liquid Coolant" = "#8BE9FD"
+"Steel Blue Lift" = "#7FAEDC"  # high-contrast only
+"Red Oxide Lift" = "#FF8080"  # high-contrast only
 
 [themes.steelbore-classic]
 background  = "#000027"

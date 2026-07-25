@@ -1258,7 +1258,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§8** Texinfo manual present for user-facing programs (`doc/<project>.texi`); builds to `.info`, `.html`, and `.pdf`; `install-info` hook present in all three package manifests (§5.5) — N/A for scripts and internal tooling
 - [ ] **§9** PFA: no tracking, minimal permissions, local storage default
 - [ ] **§10** CUA + Vim-like key bindings planned/implemented; bindings user-remappable; assistive-technology modifier chords (NVDA/Orca/VoiceOver) not captured — N/A for projects registered as games (§18.5)
-- [ ] **§11** Spacecraft Software color palette used; Void Navy background mandatory; new apps expose colors via a named `Steelbore` theme (§11.1) — no bare hex literals in UI logic
+- [ ] **§11** A registered palette is used — Steelbore Modern by default, or exactly one declared alternate (§11.4), never a mix; that palette's canvas is used unaltered; surface tokens are fills only, never text (§11.0.1); token-on-token pairings outside the palette's verified matrix measured before use; new apps expose colors via a named `Steelbore` theme binding the §11.1 role tokens — no bare hex literals in UI logic — and ship the palette's `-high-contrast` sibling
 - [ ] **§12** FOSS-licensed fonts only (Share Tech Mono / Inconsolata)
 - [ ] **§13** Material Design UI/UX; WCAG 2.2 AA verified, stating which pairing was measured
 - [ ] **§14** ISO 8601 dates; 24h time; UTC Z is the default primary timestamp (companion local time with UTC offset permitted, never a replacement) — unless the project filed the §14.2.1 domain exception for inherently local-time-bound data; ISO 8601 durations; metric units

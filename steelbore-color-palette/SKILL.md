@@ -73,12 +73,16 @@ The permitted colors for Steelbore Modern, the default palette:
 | Mars Red       | `#FF3B3B` | RGB(255, 59, 59)   | Foreground | Error status                    |
 | Plasma Magenta | `#E445FF` | RGB(228, 69, 255)  | Foreground | Warning / attention             |
 
-**`#000027` (Void Navy) is the mandatory background for ALL Spacecraft
-Software surfaces.** No alternative background is permitted. Non-negotiable.
+**`#000027` (Void Navy) is the mandatory canvas for every surface under
+Steelbore Modern** — and Modern is the default, so it is the background of
+every artifact that has not declared an alternate (§11.4). Within a palette
+the canvas is non-negotiable; a declared alternate uses *its* canvas instead
+(NavyWhite's is light).
 
 ### Class rules
 
-- **Canvas** — Void Navy underlies everything. Every variant keeps it.
+- **Canvas** — the palette's canvas underlies everything, and every variant
+  of that palette keeps it (Void Navy for Modern and Classic).
 - **Surface** — fills placed *on* Void Navy, never replacements for it, and
   **never text colors** (Quantum Blue 1.40:1, Deep Matrix 1.14:1 — illegible
   as foregrounds). A surface's edge against the canvas is below the 3:1

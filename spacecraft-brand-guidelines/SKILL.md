@@ -44,7 +44,7 @@ background *and* against both surface tokens (see the §11.0.2 matrix in the Sta
 | Mars Red       | `#FF3B3B` | RGB(255, 59, 59)   | Foreground | Error status                    |
 | Plasma Magenta | `#E445FF` | RGB(228, 69, 255)  | Foreground | Warning / attention             |
 
-**`#000027` (Void Navy) is the mandatory background for ALL Spacecraft Software surfaces** —
+**`#000027` (Void Navy) is the mandatory canvas under Steelbore Modern**, the default palette —
 documents, terminals, editor themes, application UIs. No alternative background is permitted.
 Surface tokens are fills *placed on* Void Navy, never replacements for it, and are
 **never text colors** (Quantum Blue 1.40:1, Deep Matrix 1.14:1 — illegible as foregrounds).
