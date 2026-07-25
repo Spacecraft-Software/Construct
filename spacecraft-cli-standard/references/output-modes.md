@@ -42,12 +42,12 @@ Human mode targets a live terminal emulator with a sighted operator.
 
 ### Required characteristics
 
-- **Color palette.** Use the Spacecraft Software six-token palette via ANSI escape sequences, with semantic mapping:
-  - Success messages → **Radium Green** (`#50FA7B`)
-  - Warnings → **Molten Amber** (`#D98E32`)
-  - Errors → **Red Oxide** (`#FF5C5C`)
-  - Informational text → **Steel Blue** (`#4B7EB0`)
-  - Data values → **Liquid Coolant** (`#8BE9FD`)
+- **Color palette.** Use the Spacecraft Software Steelbore 2 palette (Standard §11) via ANSI escape sequences, with semantic mapping:
+  - Success messages → **Acid Lime** (`#B4FF00`)
+  - Warnings → **Plasma Magenta** (`#E445FF`)
+  - Errors → **Mars Red** (`#FF3B3B`)
+  - Informational text → **Pulse Violet** (`#8A6CFF`)
+  - Data values → **Platinum Mist** (`#D9DEE5`)
   - Backgrounds / neutral chrome → **Void Navy** (`#000027`)
 - **Column-aligned tabular output** for `list` commands, using Unicode box-drawing characters for borders. Keep data on single lines where feasible so the output is still grep-parseable.
 - **Relative timestamps** for recency in human mode (e.g., "3 minutes ago"). The underlying data is always stored and transmitted as ISO 8601 UTC; relative display is a rendering convenience. `--absolute-time` toggles back to ISO 8601 UTC.

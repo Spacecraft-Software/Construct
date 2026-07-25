@@ -259,7 +259,7 @@ workstation, not a throwaway sandbox. Four rules; detail in
 - **`spacecraft-cli-preference`** — governs which *external* CLI tools to invoke (e.g., `rg` over `grep`). Complementary: that skill picks tools, this one defines how the CLI you're *building* should behave. Now local-host aware (substitutes only when the tool is present).
 - **`spacecraft-cli-shell`** — governs shell syntax for any command you scaffold, test, or document. Now local-host aware (routes by who executes the command — agent vs user vs file).
 - **`microsoft-rust-guidelines`** — Microsoft Pragmatic Rust Guidelines. Consult alongside `references/rust-implementation.md`.
-- **`spacecraft-brand-guidelines`** — source of truth for the six-token color palette (Void Navy, Molten Amber, Steel Blue, Radium Green, Liquid Coolant, Red Oxide).
+- **`spacecraft-brand-guidelines`** — application rules for the nine-token Steelbore 2 palette (Void Navy canvas; Quantum Blue / Deep Matrix surfaces; Platinum Mist, Plasma Orange, Pulse Violet, Acid Lime, Mars Red, Plasma Magenta foregrounds). Hex values are read from the `steelbore-color-palette` skill — never restate them from memory.
 
 The four CLI/shell/provisioning/UX siblings were all retargeted at the local
 host; route to them rather than restating their rules.

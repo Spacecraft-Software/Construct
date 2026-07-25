@@ -101,11 +101,14 @@ This is a local cache for fast lookup. **The canonical definition is The Steelbo
 | Token          | Hex       | Role                           |
 |----------------|-----------|--------------------------------|
 | Void Navy      | `#000027` | **Page / slide / HTML background** |
-| Molten Amber   | `#D98E32` | Body text, cells, active readout |
-| Steel Blue     | `#4B7EB0` | Heading 1, accents, chart titles, visited links |
-| Radium Green   | `#50FA7B` | Heading 2, success/safe status |
-| Liquid Coolant | `#8BE9FD` | Heading 3, info, unvisited links |
-| Red Oxide      | `#FF5C5C` | Warning / error status         |
+| Quantum Blue   | `#0E2A47` | Callout-panel fill (surface — never a text colour) |
+| Deep Matrix    | `#0B1A12` | Code-block fill (surface — never a text colour) |
+| Platinum Mist  | `#D9DEE5` | Body text, cells, active readout |
+| Plasma Orange  | `#FF5E00` | Heading 1, accents, chart titles, visited links |
+| Acid Lime      | `#B4FF00` | Heading 2, success/safe status |
+| Pulse Violet   | `#8A6CFF` | Heading 3, structure, borders, unvisited links |
+| Mars Red       | `#FF3B3B` | Error status                   |
+| Plasma Magenta | `#E445FF` | Warning / attention            |
 
 ## §5 — Typography cheatsheet (cited from Standard §12)
 
@@ -142,12 +145,12 @@ Within each format's native style system, map the Spacecraft Software styles as 
 
 | Style    | Font            | Size | Weight | Colour     | Used for                            |
 |----------|-----------------|------|--------|------------|-------------------------------------|
-| Normal   | Inconsolata     | 11 pt | regular | `#D98E32` | Body, cells, bullets                |
-| H1       | Share Tech Mono | 16 pt | bold    | `#4B7EB0` | Title, sheet name, slide title, `@chapter` |
-| H2       | Share Tech Mono | 14 pt | bold    | `#50FA7B` | Section heading, table header row, `@section` |
-| H3       | Share Tech Mono | format default | italic | `#8BE9FD` | Subsection, `@subsection`  |
-| Link (unvisited) | inherit | inherit | inherit | `#8BE9FD` | Hyperlinks before click        |
-| Link (visited)   | inherit | inherit | inherit | `#4B7EB0` | Hyperlinks after click         |
+| Normal   | Inconsolata     | 11 pt | regular | `#D9DEE5` | Body, cells, bullets                |
+| H1       | Share Tech Mono | 16 pt | bold    | `#FF5E00` | Title, sheet name, slide title, `@chapter` |
+| H2       | Share Tech Mono | 14 pt | bold    | `#B4FF00` | Section heading, table header row, `@section` |
+| H3       | Share Tech Mono | format default | italic | `#8A6CFF` | Subsection, `@subsection`  |
+| Link (unvisited) | inherit | inherit | inherit | `#8A6CFF` | Hyperlinks before click        |
+| Link (visited)   | inherit | inherit | inherit | `#FF5E00` | Hyperlinks after click         |
 
 Heading levels lock-step across formats: a Texinfo `@chapter` / a `# H1` in a markdown companion / Heading 1 in an ODF source all correspond. Don't break that mapping.
 

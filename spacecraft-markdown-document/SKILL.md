@@ -294,7 +294,7 @@ these integration rules apply:
 
   ```markdown
   <!-- Spacecraft Software document — companion to <source-basename>.<ext>
-       Palette: Standard §11 (Void Navy background, Molten Amber body)
+       Palette: Standard §11 (Void Navy background, Platinum Mist body)
        Typography: Share Tech Mono headings, Inconsolata body
        Format: GitHub-Flavored Markdown (GFM) -->
   ```

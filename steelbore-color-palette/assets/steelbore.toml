@@ -1,0 +1,131 @@
+# SPDX-FileCopyrightText: 2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Steelbore theme — canonical color contract (Standard §11.1)
+# Palette generation: "Steelbore 2" (Standard v1.34, published 2026-07-25)
+# All contrast ratios computed with the WCAG 2.2 relative-luminance formula.
+# Normative targets: WCAG 2.2 Level AA; EN 301 549 V4.1.1 clause 11 (non-web software).
+
+[meta]
+name = "Steelbore"
+slug = "steelbore"
+palette-generation = "steelbore-2"
+version = "2.0.0"
+date = "2026-07-25T00:00:00Z"
+maintainer = "Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"
+website = "https://Construct.SpacecraftSoftware.org/"
+license = "GPL-3.0-or-later"
+standard = "The Steelbore Standard §11 / §11.1 / §11.1.1"
+
+# ---------------------------------------------------------------------------
+# Canonical brand tokens (§11). Applications never read this table directly —
+# they read [themes.*] role tokens below (§11.1: no bare hex in UI logic).
+# ---------------------------------------------------------------------------
+[palette]
+void-navy      = "#000027"  # canvas — mandatory background, all surfaces
+quantum-blue   = "#0E2A47"  # elevated surface — never a text color (1.40:1)
+deep-matrix    = "#0B1A12"  # code/terminal surface — never a text color (1.14:1)
+platinum-mist  = "#D9DEE5"  # body text / default foreground
+plasma-orange  = "#FF5E00"  # primary accent / active readout
+pulse-violet   = "#8A6CFF"  # structural accent / links / panel borders
+acid-lime      = "#B4FF00"  # success / safe status / focus indicator
+mars-red       = "#FF3B3B"  # error status
+plasma-magenta = "#E445FF"  # warning / attention
+
+# ---------------------------------------------------------------------------
+# Default theme. Sole default per §11.1.1 — variants below are additive
+# siblings selected only by explicit user action or the §18.1 toggle.
+# ---------------------------------------------------------------------------
+[themes.steelbore]
+background   = "#000027"  # void-navy
+surface      = "#0E2A47"  # quantum-blue
+surface-alt  = "#0B1A12"  # deep-matrix
+foreground   = "#D9DEE5"  # platinum-mist
+accent       = "#FF5E00"  # plasma-orange
+structure    = "#8A6CFF"  # pulse-violet (links, borders, chrome)
+success      = "#B4FF00"  # acid-lime
+error        = "#FF3B3B"  # mars-red
+warning      = "#E445FF"  # plasma-magenta
+focus        = "#B4FF00"  # acid-lime — visible focus indicator (WCAG 2.2 §2.4.11)
+border       = "#8A6CFF"  # pulse-violet — required on surface/canvas boundaries
+
+# Measured contrast, foreground token vs each background it may appear on.
+# AA floors: 4.5:1 normal text; 3:1 large text and non-text UI (1.4.3, 1.4.11).
+[themes.steelbore.contrast.vs-background]  # vs void-navy #000027
+foreground = "15.09:1"
+accent     = "6.66:1"
+structure  = "5.51:1"
+success    = "16.75:1"
+error      = "5.77:1"
+warning    = "6.41:1"
+
+[themes.steelbore.contrast.vs-surface]  # vs quantum-blue #0E2A47
+foreground = "10.78:1"
+accent     = "4.76:1"
+structure  = "3.93:1"   # UI/large text only on this surface — below 4.5:1
+success    = "11.97:1"
+error      = "4.12:1"   # UI/large text only on this surface — below 4.5:1
+warning    = "4.58:1"
+
+[themes.steelbore.contrast.vs-surface-alt]  # vs deep-matrix #0B1A12
+foreground = "13.27:1"
+accent     = "5.85:1"
+structure  = "4.84:1"
+success    = "14.73:1"
+error      = "5.07:1"
+warning    = "5.63:1"
+
+[themes.steelbore.rules]
+# §11 token-on-token rule: the AA guarantee covers the pairings measured above
+# ONLY. Any other token-on-token pairing must be measured before use.
+# On quantum-blue surfaces, `error` and `structure` are restricted to large
+# text, icons, and non-text UI (>=3:1). Normal-size error text on a surface is
+# platinum-mist prose with the mandatory [ERROR] tag (§18.2) plus mars-red
+# border/icon — color is never the sole carrier of meaning.
+surface-tokens-as-text  = "forbidden"
+surface-boundary-border = "structure"      # 1.40:1 surface/canvas gap needs a drawn edge
+error-on-surface        = "large-text-or-ui-only"
+structure-on-surface    = "large-text-or-ui-only"
+
+# ---------------------------------------------------------------------------
+# High-contrast variant (§11.1.1): every foreground token >=7:1 on void-navy.
+# Lifts only the four tokens that need it; success and foreground carry over
+# verbatim. Lifted hexes are accessibility-derived, not new brand colors, and
+# may not be used outside this variant. Void Navy remains the background.
+# ---------------------------------------------------------------------------
+[themes.steelbore-high-contrast]
+background   = "#000027"
+surface      = "#0E2A47"
+surface-alt  = "#0B1A12"
+foreground   = "#D9DEE5"  # 15.09:1 — verbatim
+accent       = "#FF8A3D"  # lifted from #FF5E00 — 8.70:1
+structure    = "#B3A1FF"  # lifted from #8A6CFF — 9.19:1
+success      = "#B4FF00"  # 16.75:1 — verbatim
+error        = "#FF7A7A"  # lifted from #FF3B3B — 8.08:1
+warning      = "#EE7BFF"  # lifted from #E445FF — 8.66:1
+focus        = "#B4FF00"
+border       = "#B3A1FF"
+
+# ---------------------------------------------------------------------------
+# Mono variant (§11.1.1): 4-bit ANSI only — defers hue entirely to the user's
+# terminal palette. Roles map to conventional ANSI slots, not brand hues.
+# Selected explicitly or via NO_COLOR.
+# ---------------------------------------------------------------------------
+[themes.steelbore-mono]
+background = "default"
+foreground = "default"
+accent     = "bright-white"
+structure  = "blue"
+success    = "green"
+error      = "red"
+warning    = "yellow"
+focus      = "reverse-video"
+border     = "default"
+
+# ---------------------------------------------------------------------------
+# Typography (§12) — FOSS-licensed fonts only.
+# ---------------------------------------------------------------------------
+[typography]
+headings = { font = "Share Tech Mono", license = "OFL" }
+body     = { font = "Inconsolata", license = "OFL" }
+fallback = { font = "monospace", license = "system" }

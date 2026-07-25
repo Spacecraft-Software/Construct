@@ -27,7 +27,8 @@ nix build .#construct && ./result/bin/construct --version
   - `envelope.rs` — the `{ metadata, data }` JSON envelope.
   - `error.rs` — the structured `AppError` (machine: single-line `{"error":…}`).
   - `render.rs` — json / jsonl / yaml / csv / human renderers; `--fields`.
-  - `theme.rs` — the Steelbore six-token palette (no inline hex).
+  - `theme.rs` — the Steelbore palette (v1.33 tokens, grandfathered per
+    Standard §11.1 until the next minor release; no inline hex).
 - `src/commands/` — one handler per command.
 - `manifest.rs` — the single source of truth for `schema` and `describe`; the
   `tests::manifest_in_sync_with_cli` test fails if it drifts from the clap tree.
