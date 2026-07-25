@@ -82,6 +82,9 @@ focus        = "14.73:1"
 border       = "4.84:1"
 
 [themes.steelbore.rules]
+structure-on-surface     = "large-text-or-ui-only"  # 3.93:1
+error-on-surface     = "large-text-or-ui-only"  # 4.12:1
+border-on-surface     = "large-text-or-ui-only"  # 3.93:1
 surface-tokens-as-text  = "forbidden"
 surface-boundary-border = "structure"
 
@@ -142,6 +145,8 @@ border       = "#3390FF"
 [themes.steelbore-blue.contrast.vs-background]  # vs #0A1024
 foreground   = "16.42:1"
 accent       = "3.91:1"   # RESTRICTED — see [themes.steelbore-blue.rules]
+accent-on-surface     = "large-text-or-ui-only"  # 3.70:1
+accent-on-surface-alt = "large-text-or-ui-only"  # 3.21:1
 structure    = "5.91:1"
 success      = "8.53:1"
 error        = "6.80:1"
