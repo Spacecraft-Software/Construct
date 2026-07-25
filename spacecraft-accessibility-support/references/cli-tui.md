@@ -158,8 +158,12 @@ impl Accessibility {
     pub fn detect_hint() -> bool {
         std::env::var_os("NO_COLOR").is_some()
             || matches!(std::env::var("TERM").as_deref(), Ok("dumb"))
-            || std::env::var("GTK_MODULES")
-                .is_ok_and(|m| m.split(':').any(|p| p == "gail" || p == "atk"))
+            // Both must be present — `gail` or `atk` alone is not the
+            // AT-SPI bridge signal, and §18.1 admits unambiguous hints only.
+            || std::env::var("GTK_MODULES").is_ok_and(|m| {
+                let parts: Vec<&str> = m.split(':').collect();
+                parts.contains(&"gail") && parts.contains(&"atk")
+            })
     }
 
     pub fn theme(self) -> &'static str {

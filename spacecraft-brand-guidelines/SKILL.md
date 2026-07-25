@@ -12,11 +12,19 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-> **Source of truth:** The Steelbore Standard (§11 Colour Palette, §12 Typography), v1.34.
+> **Source of truth:** The Steelbore Standard (§11 Colour Palettes, §12 Typography), v1.35.
+>
+> **§11 is a palette family.** The tables below are **Steelbore Modern**, the
+> default — use it unless the project declares an alternate in its `README.md`
+> (§11.4). Also registered: `steelbore-classic`, `steelbore-blue`,
+> `steelbore-blackpinkpanther`, `steelbore-matrixgreen`, `steelbore-navywhite`
+> (light canvas). All values for all six live in the `steelbore-color-palette`
+> skill's `assets/steelbore.toml`. A project uses one palette; never mix.
 > All values here are canonical **Steelbore 2** generation tokens. Do not use any other
 > color or font values for Spacecraft Software artifacts. The five v1.33 foreground
 > tokens (Molten Amber, Steel Blue, Radium Green, Red Oxide, Liquid Coolant) and the
-> old `#7FAEDC`/`#FF8080` lifts are **retired** (§11.2); Void Navy carries forward.
+> old `#7FAEDC`/`#FF8080` lifts now belong to **Steelbore Classic** (§11.2), which is
+> preserved as a family member — they are valid only inside that palette.
 > Hex values are canonically served by the `steelbore-color-palette` skill.
 
 ## Color Palette — Steelbore 2 (WCAG 2.2 AA Compliant)

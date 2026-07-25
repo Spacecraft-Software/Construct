@@ -27,8 +27,8 @@ website: https://Construct.SpacecraftSoftware.org/
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 > **Source of truth:** The Steelbore Standard **§18** (Accessibility), with §10
-> (key bindings), §11/§11.1.1 (palette and theme variants — v1.34, the
-> **Steelbore 2** generation), and §13 (design system). This skill is the
+> (key bindings), §11/§11.1.1 (palette family and theme variants — v1.35;
+> Steelbore Modern is the default), and §13 (design system). This skill is the
 > *how*; §18 is the *what*. Where they appear to diverge, §18 governs — fix
 > this skill.
 
@@ -121,8 +121,18 @@ tag, with Mars Red as border or icon accent.
 
 ## Theme variants (§11.1.1)
 
-`steelbore` is and remains the **sole default**. The variants are additive
-siblings, never replacements:
+`steelbore` (Steelbore Modern) is and remains the **sole default**. The
+variants are additive siblings, never replacements.
+
+**If the project has declared an alternate palette** under §11.4
+(`steelbore-classic`, `steelbore-blue`, `steelbore-blackpinkpanther`,
+`steelbore-matrixgreen`, `steelbore-navywhite`), accessible mode selects
+*that palette's* `<slug>-high-contrast` sibling — take its lifts from
+`steelbore-color-palette`'s `assets/steelbore.toml`, not from the Modern
+table below. `steelbore-mono` is palette-independent and serves all of them.
+Note `steelbore-navywhite` has a **light canvas**, so its high-contrast
+variant darkens foregrounds instead of lightening them; the principle holds —
+contrast comes from moving the foreground, never from abandoning the canvas.
 
 | Variant | Selected by | Behavior |
 |---------|-------------|----------|

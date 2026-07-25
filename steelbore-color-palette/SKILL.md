@@ -1,31 +1,31 @@
 ---
 name: steelbore-color-palette
 description: >
-  Single source of truth for the Steelbore color palette (Steelbore 2,
-  Standard §11 v1.34) — canonical hex tokens, role semantics, the measured
-  WCAG contrast matrix, the §11.1 theme contract, and the §11.1.1
-  accessibility variants. ALWAYS consult whenever a color, hex value, palette
-  token, theme, contrast ratio, or brand hue is needed for ANY Spacecraft
-  Software or Steelbore OS artifact — UI code, TUI styling, editor/terminal
-  themes, documents, diagrams, SVGs, charts, or CSS — even if the user never
-  says "palette". Triggers: "Void Navy", "Plasma Orange", "Acid Lime",
-  "steelbore theme", "brand colors", "high contrast variant", any request to
-  color or style a Spacecraft deliverable, and any WCAG / EN 301 549 question
-  about Spacecraft colors. Consumer skills (brand-guidelines, theme-factory,
-  accessibility-support, document-format) defer here for color values — never
-  restate hexes from memory; read them here.
+  Single source of truth for the Steelbore palette family (Standard §11
+  v1.35) — six palettes, their hex tokens, measured WCAG contrast matrices,
+  the §11.1 role-token contract, and every §11.1.1 accessibility variant.
+  Steelbore Modern is the default; Classic, Blue, BlackPinkPanther,
+  MatrixGreen, and NavyWhite are opt-in per §11.4. ALWAYS consult whenever a
+  color, hex value, palette token, theme, contrast ratio, or brand hue is
+  needed for ANY Spacecraft Software or Steelbore OS artifact — UI code, TUI
+  styling, editor/terminal themes, documents, diagrams, SVGs, or CSS — even
+  if the user never says "palette". Triggers: "Void Navy", "Plasma Orange",
+  "Orbit Navy", "Solar Lime", "Pearl Silver", "steelbore theme", "brand
+  colors", "high contrast variant", and any WCAG / EN 301 549 question about
+  Spacecraft colors. Consumer skills defer here for values — never restate
+  hexes from memory; read them here.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
 ---
 
-# Steelbore Color Palette
+# Steelbore Color Palette Family
 
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-> **Authority chain:** The Steelbore Standard §11 (v1.34) is the normative
+> **Authority chain:** The Steelbore Standard §11 (v1.35) is the normative
 > text; this skill is its canonical machine-readable mirror and the **only**
 > place palette hexes should be read from. If this skill and the Standard ever
 > disagree, the Standard governs — and this skill must be fixed. Consumer
@@ -33,9 +33,33 @@ website: https://Construct.SpacecraftSoftware.org/
 > `spacecraft-accessibility-support`, `spacecraft-document-format`) define
 > *application* rules and defer here for *values*.
 
-## Canonical tokens — Steelbore 2
+## The family (§11)
 
-The **only** permitted colors for Spacecraft Software interfaces and documents:
+Six palettes. **Steelbore Modern is the default** — use it unless the project
+has declared an alternate in its `README.md` (§11.4). A project uses **exactly
+one** palette; tokens are never mixed across palettes, because every contrast
+guarantee is computed per-palette.
+
+| Theme slug | Palette | Canvas | Status |
+|---|---|---|---|
+| `steelbore` | Steelbore Modern | `#000027` Void Navy | **Default** |
+| `steelbore-classic` | Steelbore Classic | `#000027` Void Navy | Legacy six-role contract (§11.2) |
+| `steelbore-blue` | Steelbore Blue | `#0A1024` Orbit Navy | Alternate (§11.3.1) |
+| `steelbore-blackpinkpanther` | Steelbore BlackPinkPanther | `#141418` Core Black | Alternate (§11.3.2) |
+| `steelbore-matrixgreen` | Steelbore MatrixGreen | `#0C1A2B` Circuit Navy | Alternate (§11.3.3) |
+| `steelbore-navywhite` | Steelbore NavyWhite | `#E7E5E0` Pearl Silver | Alternate (§11.3.4) — **light canvas** |
+
+Each has a `<slug>-high-contrast` sibling for §18.1 accessible mode.
+`steelbore-mono` is palette-independent and serves them all.
+
+**All values for every palette are in
+[`assets/steelbore.toml`](assets/steelbore.toml) — read them there.** The
+tables below cover Modern (the default); §11.2–§11.3 of the Standard and the
+TOML carry the others.
+
+## Canonical tokens — Steelbore Modern
+
+The permitted colors for Steelbore Modern, the default palette:
 
 | Token          | Hex       | RGB                | Class      | Role                            |
 |----------------|-----------|--------------------|------------|---------------------------------|
@@ -141,12 +165,41 @@ Maps roles to conventional ANSI slots (success→green, error→red,
 warning→yellow, structure→blue, focus→reverse-video), deferring hue entirely
 to the user's terminal palette.
 
-## Retired tokens (§11.2)
+## Steelbore Classic (§11.2)
 
-The v1.33 palette is retired and must not appear in new artifacts: Molten
-Amber `#D98E32`, Steel Blue `#4B7EB0`, Radium Green `#50FA7B`, Red Oxide
-`#FF5C5C`, Liquid Coolant `#8BE9FD`, and the old lifts `#7FAEDC` / `#FF8080`.
-Existing artifacts are grandfathered until their next minor release.
+The pre-v1.34 six-token palette, **preserved as a named family member** — it
+was briefly retired at v1.34 and reinstated at v1.35. Shares Void Navy with
+Modern, keeps its **legacy six-role contract** (`background`, `foreground`,
+`accent`, `success`, `error`, `info`), and defines **no surface class**, so
+§11.0.1 does not apply and every foreground is measured against Void Navy
+alone.
+
+| Role | Token | Hex | vs Void Navy |
+|------|-------|-----|--------------|
+| `background` | Void Navy | `#000027` | (canvas) |
+| `foreground` | Molten Amber | `#D98E32` | 7.64:1 |
+| `accent` | Steel Blue | `#4B7EB0` | 4.77:1 |
+| `success` | Radium Green | `#50FA7B` | 14.87:1 |
+| `error` | Red Oxide | `#FF5C5C` | 6.74:1 |
+| `info` | Liquid Coolant | `#8BE9FD` | 14.74:1 |
+
+`steelbore-classic-high-contrast` lifts `accent` → `#7FAEDC` (8.73:1) and
+`error` → `#FF8080` (8.41:1). Classic's token-on-token failures are severe —
+Molten Amber on Red Oxide 1.13:1, Radium Green on Liquid Coolant 1.01:1.
+
+## Alternate palettes (§11.3)
+
+Four alternates, each anchored on two fixed colors that never change. Full
+role tables and three-background matrices are in
+[`assets/steelbore.toml`](assets/steelbore.toml); anchors and headline
+characteristics:
+
+| Palette | Canvas anchor | Accent anchor | Notes |
+|---------|---------------|---------------|-------|
+| Blue | Orbit Navy `#0A1024` | Electric Blue `#0066FF` | Electric Blue is **†restricted** — 3.91:1, large text / icons / non-text UI only |
+| BlackPinkPanther | Core Black `#141418` | Plasma Magenta `#E445FF` | No restricted pairings; accent shares a hex with Modern's `warning` |
+| MatrixGreen | Circuit Navy `#0C1A2B` | Solar Lime `#B6FF3B` | `surface-alt` is *darker* than canvas (Ambient Black); Lime Shadow `#8AC22A` is the pressed state, not a role token |
+| NavyWhite | Pearl Silver `#E7E5E0` | Lunar Navy `#111827` | **Light canvas.** Accent/status hues are deepened for AA; high contrast *darkens*. Source tints (`#3A6EA5`, `#4C8C6F`, `#B94A48`, `#D9A441`) are non-text fills only |
 
 ## Typography companion (§12)
 
@@ -157,7 +210,7 @@ Colors ship with type: **Share Tech Mono** (headings) and **Inconsolata**
 
 | File | What it is |
 |------|------------|
-| [`assets/steelbore.toml`](assets/steelbore.toml) | The canonical `Steelbore` theme contract — `[palette]`, `[themes.steelbore]` + measured contrast tables, `[themes.steelbore-high-contrast]`, `[themes.steelbore-mono]`, `[typography]`. Copy or parse it; never retype hexes. |
+| [`assets/steelbore.toml`](assets/steelbore.toml) | **The canonical contract for the whole family** — `[palettes.*]` for all six, `[themes.*]` (13 themes: six palettes, their `-high-contrast` siblings, and `steelbore-mono`) with measured per-background contrast tables and per-palette rules, plus `[typography]`. Copy or parse it; never retype hexes. |
 | [`assets/spacecraft.css`](assets/spacecraft.css) | The canonical Spacecraft HTML theme for `texi2any --css-include`. The copies in `standard/` and `spacecraft-texinfo-document/assets/` are synced derivatives — edit this one first, keep all three byte-identical. |
 
 ## Where application rules live
