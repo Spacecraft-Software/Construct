@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.35 (§11 palette family; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §8 Texinfo; §7 Shell Environment) so
+  The Steelbore Standard v1.36 (§4.3 LICENSE symlink; §11 palette family; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §8 Texinfo; §7 Shell Environment) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.35 | **Date:** 2026-07-25 | **Author:** Mohamed Hammad
+**Version:** 1.36 | **Date:** 2026-07-26 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -275,8 +275,25 @@ and the correct comment syntax for the file type.)
   replaces the former blanket "documents are exempt" rule).
 - **`LICENSES/` directory:** verbatim text of every license used lives in
   `LICENSES/<SPDX-id>.txt` (e.g., `LICENSES/GPL-3.0-or-later.txt`,
-  `LICENSES/AGPL-3.0-or-later.txt`, plus any upstream licenses per §4.2). A root
-  `LICENSE` file MAY remain as a pointer for GitHub's license detection.
+  `LICENSES/AGPL-3.0-or-later.txt`, plus any upstream licenses per §4.2).
+- **Root `LICENSE` is a symbolic link.** GitHub reads a repository's license from a
+  root `LICENSE` file; REUSE requires the verbatim texts under `LICENSES/`. Both are
+  satisfied with a single source of truth: the root `LICENSE` MUST be a symbolic link
+  to the project's primary license text inside `LICENSES/` — never a second,
+  duplicated copy of the text.
+
+  ```sh
+  ln -s LICENSES/GPL-3.0-or-later.txt LICENSE
+  git add LICENSE
+  ```
+
+  Git stores the result as a symlink (mode `120000`), GitHub follows it for license
+  detection, and `reuse lint` stays clean. The link target is the repository's
+  **primary** license per §4.1.1 — `GPL-3.0-or-later` (or `AGPL-3.0-or-later` when
+  network-facing) for a software-primary repo, `CC-BY-SA-4.0` for a document-primary
+  repo. A duplicated regular-file `LICENSE` is **non-compliant**: the two copies
+  drift, and a stale root `LICENSE` misreports the project's license to every GitHub
+  visitor.
 - **CI gate:** `reuse lint` MUST pass before shipping.
 
 When writing or reviewing any file, confirm REUSE coverage; when generating a new file,
@@ -317,7 +334,8 @@ root, derived from the canonical Spacecraft Software templates:
 | `README.md`       | Includes a "Project Posture" section linking to the two below |
 | `NOTICE.md`       | Full no-warranty / no-liability statement; defers to the project's GPL/AGPL license (§4.1) for binding terms |
 | `CONTRIBUTING.md` | Contribution scope, PR-acceptance discretion, sign-off, security reporting, license-of-contributions |
-| `LICENSES/`       | REUSE license directory (§4.3): verbatim text of every license used (`GPL-3.0-or-later` or `AGPL-3.0-or-later`, plus any upstream licenses per §4.2). A root `LICENSE` MAY remain as a GitHub-detection pointer. |
+| `LICENSES/`       | REUSE license directory (§4.3): verbatim text of every license used (`GPL-3.0-or-later` or `AGPL-3.0-or-later`, plus any upstream licenses per §4.2). |
+| `LICENSE`         | Symbolic link to the primary license text in `LICENSES/` (§4.3) — e.g. `ln -s LICENSES/GPL-3.0-or-later.txt LICENSE`. Not a duplicated copy of the text. |
 
 Customize only the project name, scope, and any project-specific carve-outs.
 
@@ -1250,7 +1268,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§3.3** Hardened security; PQC readiness addressed
 - [ ] **§4.1** License is `GPL-3.0-or-later` or `AGPL-3.0-or-later` (AGPL for network-facing; per §4.1)
 - [ ] **§4.2** Upstream copyright notices, license texts, and `NOTICE`/`AUTHORS` preserved verbatim; upstream licenses shipped in `LICENSES/`
-- [ ] **§4.3** REUSE-compliant: two-tag SPDX header (`SPDX-FileCopyrightText` + `SPDX-License-Identifier`) on every file (or `.license` sidecar / `REUSE.toml` entry); `LICENSES/` directory present; `reuse lint` passes
+- [ ] **§4.3** REUSE-compliant: two-tag SPDX header (`SPDX-FileCopyrightText` + `SPDX-License-Identifier`) on every file (or `.license` sidecar / `REUSE.toml` entry); `LICENSES/` directory present; root `LICENSE` is a symbolic link into `LICENSES/` (never a duplicated copy); `reuse lint` passes
 - [ ] **§5** Project Posture: README/NOTICE/CONTRIBUTING present; default personal-hobby stance applied; general-use carve-outs declared in project README
 - [ ] **§5.5** Package distribution: `packaging/guix.scm`, `packaging/default.nix`, and `packaging/PKGBUILD` present, buildable, and carrying correct version + SHA-256 checksum (in each package manager's native format) before any release tag is pushed
 - [ ] **§6.1** POSIX-compliant CLI/system tools
