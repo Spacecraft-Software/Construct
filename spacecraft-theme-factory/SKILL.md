@@ -12,11 +12,19 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-> **Source of truth:** The Steelbore Standard v1.34 (§11 Colour Palette, §12 Typography)
+> **Source of truth:** The Steelbore Standard v1.35 (§11 Colour Palettes, §12 Typography)
 > and the `spacecraft-brand-guidelines` skill. Themes may not introduce
 > colors, fonts, or naming outside what these sources define. The palette below
 > is the **Steelbore 2** generation; the five v1.33 foreground tokens and the old
-> lifts are retired (§11.2) — Void Navy carries forward.
+> lifts are Classic's, not Modern's (§11.2) — Void Navy carries forward.
+>
+> **§11 is a palette family (v1.35).** Steelbore Modern is the default and is
+> what you emit unless the requester names another. Five more are registered:
+> `steelbore-classic`, `steelbore-blue`, `steelbore-blackpinkpanther`,
+> `steelbore-matrixgreen`, `steelbore-navywhite`. **Read every value from the
+> `steelbore-color-palette` skill's `assets/steelbore.toml`** — it carries all
+> six palettes, all 13 themes, and every measured matrix. Never mix tokens
+> across palettes (§11.4).
 
 ## Color Palette — Steelbore 2 (WCAG 2.2 AA Compliant)
 
@@ -47,7 +55,7 @@ Violet (3.93:1) may only be used for large text, icons, and non-text UI.
 | Mars Red       | `#FF3B3B` | RGB(255, 59, 59)   | Foreground | Error status                    |
 | Plasma Magenta | `#E445FF` | RGB(228, 69, 255)  | Foreground | Warning / attention             |
 
-**`#000027` (Void Navy) is the mandatory background for ALL Spacecraft Software surfaces** —
+**`#000027` (Void Navy) is the mandatory canvas under Steelbore Modern**, the default palette —
 documents, terminals, editor themes, application UIs. No alternative background is
 permitted. Surface tokens are fills on Void Navy and are **never text colors**.
 
@@ -77,17 +85,19 @@ Never use proprietary fonts. Outfit, Inter, Roboto, and similar non-OFL fonts ar
 5. **Apply the §12 typography** (Share Tech Mono headings, Inconsolata body)
    wherever the platform supports font selection.
 6. **Emit the accessibility variants alongside the default** (Standard §11.1.1)
-   whenever the target platform supports more than one theme: `steelbore`
-   (default, canonical palette), `steelbore-high-contrast` (`accent` →
-   `#FF8A3D`, `structure` → `#B3A1FF`, `error` → `#FF7A7A`, `warning` →
-   `#EE7BFF`; `foreground` and `success` verbatim — every token ≥7:1 on Void
-   Navy, and all lifted tokens ≥4.5:1 on both surfaces), and `steelbore-mono`
-   (4-bit ANSI, deferring to the user's terminal palette). `steelbore` remains
-   the sole default; the variants are additive siblings and never replace it.
-   Void Navy stays the background in all three.
-7. **Verify WCAG 2.2 AA contrast** against Void Navy — and against Quantum
-   Blue / Deep Matrix for any token the theme places on a surface — for every
-   color pair before shipping.
+   whenever the target platform supports more than one theme: the palette
+   itself, its `<slug>-high-contrast` sibling, and `steelbore-mono` (4-bit
+   ANSI, palette-independent, deferring to the user's terminal palette). For
+   Modern the lifts are `accent` → `#FF8A3D`, `structure`/`border` →
+   `#B3A1FF`, `error` → `#FF7A7A`, `warning` → `#EE7BFF`, with `foreground`
+   and `success` verbatim; for every other palette take the lifts from
+   `steelbore.toml`. `steelbore` remains the sole default; variants are
+   additive siblings and never replace it. **The palette's own canvas stays
+   the background in all its variants** — note NavyWhite's canvas is light and
+   its high-contrast variant *darkens* foregrounds.
+7. **Verify WCAG 2.2 AA contrast** against the palette's canvas — and against
+   its two surface tokens for anything the theme places on a surface — for
+   every color pair before shipping.
 8. **Emit the platform's native config format** (JSON, XML, TOML, ini) with
    all hex codes verbatim from the canonical table.
 
@@ -96,7 +106,8 @@ Never use proprietary fonts. Outfit, Inter, Roboto, and similar non-OFL fonts ar
 - **IDEs / editors**: VS Code, JetBrains, Helix, Zed, Neovim
 - **Terminal emulators**: Kitty, Alacritty, WezTerm, Foot
 - **Material Design GUI applications**
-- **Document formats** (DOCX, PDF): force `#000027` page background and ISO
+- **Document formats** (DOCX, PDF): force the declared palette's canvas as the
+  page background (`#000027` under Modern, the default) and ISO
   A4 (210 × 297 mm) page size; apply palette text colors per
   `spacecraft-document-format`.
 
@@ -104,21 +115,25 @@ Never use proprietary fonts. Outfit, Inter, Roboto, and similar non-OFL fonts ar
 
 Before shipping any generated theme:
 
-- All hex codes match §11 (v1.34, Steelbore 2) verbatim — no variants, no
-  near-matches, no retired v1.33 tokens (`#D98E32`, `#4B7EB0`, `#50FA7B`,
-  `#FF5C5C`, `#8BE9FD`, and the old lifts `#7FAEDC` / `#FF8080`).
+- All hex codes match the emitted palette's entry in `steelbore.toml`
+  verbatim — no near-matches, and no tokens borrowed from a *different*
+  palette in the family (§11.4). Classic's tokens (`#D98E32`, `#4B7EB0`,
+  `#50FA7B`, `#FF5C5C`, `#8BE9FD`, lifts `#7FAEDC` / `#FF8080`) are valid
+  only inside `steelbore-classic`.
 - All fonts are FOSS-licensed and listed in §12.
-- Every foreground token against Void Navy passes WCAG 2.2 Level AA. (Scope
-  the claim precisely — only the eighteen §11.0.2 matrix pairings are covered;
-  other token-on-token pairings mostly fail; see the palette note above.)
+- Every foreground token against the palette's canvas passes WCAG 2.2 Level
+  AA. (Scope the claim precisely — only that palette's measured matrix is
+  covered; other token-on-token pairings mostly fail.)
 - No generated theme places palette-colored text on a palette-colored fill
-  without a measured ≥4.5:1 ratio for that specific pair, and no normal-size
-  Mars Red or Pulse Violet text appears on Quantum Blue fills.
-- Surface tokens (Quantum Blue, Deep Matrix) are mapped only to
-  background/fill keys — never to any text or foreground key.
-- Where the platform supports multiple themes, `steelbore-high-contrast` and
-  `steelbore-mono` are emitted alongside `steelbore`, and `steelbore` is still
-  the default.
+  without a measured ≥4.5:1 ratio for that specific pair. Honour each
+  palette's restricted pairings: in Modern, no normal-size Mars Red or Pulse
+  Violet text on Quantum Blue; in Blue, no normal-size Electric Blue
+  `#0066FF` text anywhere (3.91:1 — large text, icons, and non-text UI only).
+- Surface tokens are mapped only to background/fill keys — never to any text
+  or foreground key.
+- Where the platform supports multiple themes, the `<slug>-high-contrast`
+  sibling and `steelbore-mono` are emitted alongside the palette, and
+  `steelbore` is still the default.
 - Output references only `spacecraft-brand-guidelines` (lowercase) for
   upstream brand context; no claims of `/themes`, `/scripts`, or
   `/templates` subdirectories (this skill ships as `SKILL.md` only).

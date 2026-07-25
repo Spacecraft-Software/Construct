@@ -107,8 +107,27 @@ Emulators do not count. Use the real thing for the platform:
 ## Gate 8 — Contrast (§11)
 
 Measure the pairings **actually used**, not just foreground-on-background, and
-record the ratios. Reference values (Steelbore 2, §11.0.2 matrix) — each
-foreground against all three legal backgrounds, plus its high-contrast lift:
+record the ratios.
+
+**First establish which palette the project declared** (§11.4). Modern is the
+default; a project may declare `steelbore-classic`, `steelbore-blue`,
+`steelbore-blackpinkpanther`, `steelbore-matrixgreen`, or
+`steelbore-navywhite` in its `README.md`. **Audit against that palette's own
+canvas and surfaces** — reference values for all six, plus every
+`<slug>-high-contrast` sibling, are in `steelbore-color-palette`'s
+`assets/steelbore.toml`. Two things to carry into the audit:
+
+- **Restricted pairings are per-palette.** Modern: Pulse Violet (3.93:1) and
+  Mars Red (4.12:1) on Quantum Blue. Blue: Electric Blue `#0066FF` (3.91:1
+  canvas, 3.21:1 on `surface-alt`) on *every* background. Both are large
+  text / icons / non-text UI only. The other palettes have none.
+- **NavyWhite is a light canvas**, so its high-contrast variant *darkens*
+  foregrounds, and its lighter source tints (`#3A6EA5`, `#4C8C6F`,
+  `#B94A48`, `#D9A441`) are non-text fills only — flag any use as text.
+
+Reference values for **Steelbore Modern** (the default, §11.0.2 matrix) —
+each foreground against all three legal backgrounds, plus its high-contrast
+lift:
 
 | Token | vs Void Navy | vs Quantum Blue | vs Deep Matrix | High-contrast variant |
 |-------|--------------|-----------------|----------------|-----------------------|
@@ -131,8 +150,12 @@ Pulse Violet (5.51:1 vs canvas) is the canonical edge (§11.0.1).
 - [ ] Every text pairing used measures ≥4.5:1 (AA), or ≥7:1 in the
       high-contrast variant.
 - [ ] Every non-text UI boundary measures ≥3:1.
-- [ ] No surface token is used as a text color, and no normal-size Mars Red
-      or Pulse Violet text sits on a Quantum Blue fill.
+- [ ] No surface token is used as a text color, and the declared palette's
+      restricted pairings are respected — under Modern, no normal-size Mars
+      Red or Pulse Violet text on a Quantum Blue fill; under Blue, no
+      normal-size Electric Blue text on any background.
+- [ ] The audit was run against the **declared** palette's matrix, and the
+      accessible-mode target is that palette's `<slug>-high-contrast`.
 - [ ] The recorded claim states **which pairing** was measured (§13).
 
 Contrast is deterministic — compute it rather than eyeballing it:
