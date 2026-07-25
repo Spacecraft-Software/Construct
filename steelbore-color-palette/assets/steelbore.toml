@@ -3,7 +3,7 @@
 #
 # Steelbore theme — canonical color contract (Standard §11.1)
 # Palette generation: "Steelbore 2" (Standard v1.34, published 2026-07-25)
-# All contrast ratios computed with the WCAG 2.1/2.2 relative-luminance formula.
+# All contrast ratios computed with the WCAG 2.2 relative-luminance formula.
 # Normative targets: WCAG 2.2 Level AA; EN 301 549 V4.1.1 clause 11 (non-web software).
 
 [meta]

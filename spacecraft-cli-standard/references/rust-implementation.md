@@ -180,7 +180,7 @@ impl AppError {
     pub fn emit_human(&self) {
         use owo_colors::OwoColorize;
         eprintln!("{}: {}", "error".red().bold(), self.message.red());
-        eprintln!("       {}: {}", "hint".color(owo_colors::Rgb(217, 142, 50)), self.hint);
+        eprintln!("       {}: {}", "hint".color(owo_colors::Rgb(255, 94, 0)), self.hint);
     }
 }
 

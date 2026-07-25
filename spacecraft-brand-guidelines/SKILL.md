@@ -14,8 +14,10 @@ website: https://Construct.SpacecraftSoftware.org/
 
 > **Source of truth:** The Steelbore Standard (§11 Colour Palette, §12 Typography), v1.34.
 > All values here are canonical **Steelbore 2** generation tokens. Do not use any other
-> color or font values for Spacecraft Software artifacts. The v1.33 six-token palette
-> (Molten Amber, Steel Blue, Radium Green, Red Oxide, Liquid Coolant) is **retired** (§11.2).
+> color or font values for Spacecraft Software artifacts. The five v1.33 foreground
+> tokens (Molten Amber, Steel Blue, Radium Green, Red Oxide, Liquid Coolant) and the
+> old `#7FAEDC`/`#FF8080` lifts are **retired** (§11.2); Void Navy carries forward.
+> Hex values are canonically served by the `steelbore-color-palette` skill.
 
 ## Color Palette — Steelbore 2 (WCAG 2.2 AA Compliant)
 

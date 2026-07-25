@@ -118,9 +118,10 @@ new apps:
 only by explicit user action or the §18.1 toggle. Void Navy remains the
 background in every variant.
 
-**`steelbore-high-contrast`** — every token ≥7:1 on Void Navy. Lifts only the
-four tokens that need it; the lifted hexes are accessibility-derived, not
-brand colors, and may not be used outside the variant:
+**`steelbore-high-contrast`** — every foreground token ≥7:1 on Void Navy.
+Lifts only the four tokens that need it; the lifted hexes are
+accessibility-derived, not brand colors, and may not be used outside the
+variant:
 
 | Theme token | Base hex  | Variant hex   | vs Void Navy |
 |-------------|-----------|---------------|--------------|
@@ -129,7 +130,9 @@ brand colors, and may not be used outside the variant:
 | `error`     | `#FF3B3B` | **`#FF7A7A`** | 8.08:1       |
 | `warning`   | `#E445FF` | **`#EE7BFF`** | 8.66:1       |
 
-All other tokens carry over verbatim. In this variant every lifted token also
+All other tokens carry over verbatim, and alias tokens follow their bases:
+`focus` stays Acid Lime `#B4FF00`; `border` follows `structure` to `#B3A1FF`
+(see `assets/steelbore.toml`). In this variant every lifted token also
 clears 4.5:1 on both surfaces (weakest: `#FF7A7A` on Quantum Blue, 5.77:1), so
 the † restrictions do not apply — the variant is strictly safer.
 

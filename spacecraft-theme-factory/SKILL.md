@@ -15,15 +15,17 @@ website: https://Construct.SpacecraftSoftware.org/
 > **Source of truth:** The Steelbore Standard v1.34 (§11 Colour Palette, §12 Typography)
 > and the `spacecraft-brand-guidelines` skill. Themes may not introduce
 > colors, fonts, or naming outside what these sources define. The palette below
-> is the **Steelbore 2** generation; the v1.33 six-token palette is retired (§11.2).
+> is the **Steelbore 2** generation; the five v1.33 foreground tokens and the old
+> lifts are retired (§11.2) — Void Navy carries forward.
 
-## Color Palette — Steelbore 2 (WCAG 2.2 AA Compliant against Void Navy)
+## Color Palette — Steelbore 2 (WCAG 2.2 AA Compliant)
 
 All foreground colors are verified for contrast **against the Void Navy (`#000027`)
 background** — Platinum Mist 15.09:1, Plasma Orange 6.66:1, Pulse Violet 5.51:1,
 Acid Lime 16.75:1, Mars Red 5.77:1, Plasma Magenta 6.41:1. All pass Level AA.
 Per-surface ratios (vs Quantum Blue and Deep Matrix) are tabulated in Standard
-§11.0.2 and in the canonical `steelbore.toml`.
+§11.0.2 and in the canonical `steelbore.toml` (shipped by the
+`steelbore-color-palette` skill at `assets/steelbore.toml`).
 
 **This guarantee does not extend to unmeasured token-on-token pairings.** Most
 foreground tokens paired with each other fall below the 3:1 floor (Acid Lime on

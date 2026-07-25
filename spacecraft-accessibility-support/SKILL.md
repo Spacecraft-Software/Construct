@@ -127,7 +127,7 @@ siblings, never replacements:
 | Variant | Selected by | Behavior |
 |---------|-------------|----------|
 | `steelbore` | **Default** | Canonical §11 palette, unchanged |
-| `steelbore-high-contrast` | Accessible mode, or explicit | Every token ≥7:1 (AAA) on Void Navy |
+| `steelbore-high-contrast` | Accessible mode, or explicit | Every foreground token ≥7:1 (AAA) on Void Navy |
 | `steelbore-mono` | Explicit, or `NO_COLOR` | 4-bit ANSI only — defers to the user's terminal palette |
 
 High contrast lifts **only the four tokens that need it**:
@@ -142,10 +142,11 @@ High contrast lifts **only the four tokens that need it**:
 | `error` | Mars Red | **`#FF7A7A`** | 8.08:1 |
 | `warning` | Plasma Magenta | **`#EE7BFF`** | 8.66:1 |
 
-In the variant, all four lifted tokens also clear 4.5:1 on Quantum Blue and
-Deep Matrix (weakest pairing: `#FF7A7A` on Quantum Blue, 5.77:1), so the
-§11.0.2 large-text restrictions do not apply under high contrast — the variant
-is strictly safer than the default.
+Alias tokens follow their bases: `focus` stays Acid Lime `#B4FF00`; `border`
+follows `structure` to `#B3A1FF`. In the variant, all four lifted tokens also
+clear 4.5:1 on Quantum Blue and Deep Matrix (weakest pairing: `#FF7A7A` on
+Quantum Blue, 5.77:1), so the §11.0.2 large-text restrictions do not apply
+under high contrast — the variant is strictly safer than the default.
 
 **Void Navy remains the background in every variant** — high contrast comes
 from lifting foregrounds, never from abandoning the canvas. The shifted

@@ -379,8 +379,9 @@ This skill is the **agent-UX layer** in the Spacecraft Software CLI skill stack:
   — ephemeral-first, consent before any durable install.
 - **`microsoft-rust-guidelines`** — Microsoft Pragmatic Rust Guidelines. Consult
   when writing Rust.
-- **`spacecraft-brand-guidelines`** — six-token color palette source of
-  truth.
+- **`spacecraft-brand-guidelines`** — application rules for the nine-token
+  Steelbore 2 palette (Standard §11 v1.34); hex values are read from the
+  `steelbore-color-palette` skill.
 
 The three CLI/shell/provisioning siblings were all retargeted at the local
 host; route to them rather than restating their rules.

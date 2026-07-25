@@ -48,7 +48,7 @@ consult them when their triggers match:
 - `spacecraft-standard-constitution` — master Steelbore Standard
 - `spacecraft-cli-standard` — structural CLI Standard rules
 - `spacecraft-agentic-cli` — agent-facing UX for the CLI
-- `spacecraft-brand-guidelines` — six-token color palette
+- `spacecraft-brand-guidelines` — Steelbore 2 color palette (values from `steelbore-color-palette`)
 - `microsoft-rust-guidelines` — Microsoft Pragmatic Rust Guidelines
 - `spacecraft-cli-preference` — preferred external CLI tools (rg, fd, bat)
 - `spacecraft-cli-shell` — shell syntax for generated commands

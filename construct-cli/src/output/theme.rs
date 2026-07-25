@@ -1,7 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! The Steelbore six-token color palette (Steelbore Standard §11).
+//! The Steelbore v1.33 six-token color palette, grandfathered per Steelbore
+//! Standard §11.1/§11.2 (v1.34) until construct's next minor release, when it
+//! migrates to the nine-token Steelbore 2 palette.
 //!
 //! Colors are referenced through these named tokens, never as inline hex
 //! literals, so a future theme can be substituted in one place. Each token is
