@@ -90,8 +90,8 @@ compliance reference.
 <!-- §7 — License -->
 ## License
 
-GPL-3.0-or-later. See `../LICENSE.md` at the repository root for the full
-text.
+GPL-3.0-or-later. See `../LICENSE` at the repository root (a symlink to
+`../LICENSES/GPL-3.0-or-later.txt`, Standard §4.3) for the full text.
 
 ---
 
