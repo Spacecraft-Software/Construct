@@ -1,5 +1,5 @@
 ---
-name: spacecraft-dartflutter-guidelines
+name: spacecraft-flutterdart-guidelines
 description: Use for writing type-safe highly-concurrent memory-safe Dart and Flutter code following Spacecraft Software standards. Triggers on any request involving Dart, Flutter, pubspec.yaml, analysis_options.yaml, Sound Null Safety (avoiding !), Dart Isolates (Isolate.run, ports), event loop async/await, Flutter performance tuning (const constructors, RepaintBoundary), disposing controllers, widget testing, or package dependencies. Native Android configurations or integrations are governed with higher dominance by the Google Android skills at android-skills/. Trigger even when implicit, e.g. "write a Dart isolate", "optimize Flutter build redraws", "configure analysis_options.yaml", or "mock a widget test". Do NOT trigger for standard JS or native iOS unless bridging is explicitly required. By Mohamed Hammad and Spacecraft Software.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
