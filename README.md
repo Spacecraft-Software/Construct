@@ -173,6 +173,18 @@ the §2 catalogue above and ship no `.zip`/`.skill` bundles (Google's `android`
 CLI installs them from upstream). See the section's README for provenance and
 the upstream→vendored path mapping.
 
+### Perplexity skills
+
+Perplexity caps an uploaded skill zip at **100 files**, which the
+reference-heavy [`spacecraft-cli-preference`](spacecraft-cli-preference/) (110
+per-tool files) exceeds. [`perplexity-skills/`](perplexity-skills/) holds a
+**generated** consolidated bundle for it — the per-tool references merged into a
+handful of category files, same nested layout — produced by
+`perplexity-skills/build.py` from the canonical skill. It is a format variant of
+an existing skill (like the Grok bundles), not a new first-party skill, so it is
+kept out of the §2 catalogue above. See the section's README for the
+regeneration contract.
+
 <!-- §5 — Contributing / standards -->
 ## Standards
 

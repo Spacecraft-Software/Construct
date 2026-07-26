@@ -14,7 +14,7 @@
       # A "cross-platform" skill is any top-level directory that contains a
       # SKILL.md and is not in the excluded list. A "Grok" skill is any
       # subdirectory of grok-skills/ that contains a SKILL.md.
-      excludedDirs = [ "grok-skills" "android-skills" "Excluded" ".claude" ".git" "construct-cli" ];
+      excludedDirs = [ "grok-skills" "android-skills" "perplexity-skills" "Excluded" ".claude" ".git" "construct-cli" ];
 
       hasSkillMd = parent: name:
         builtins.pathExists (parent + "/${name}/SKILL.md");

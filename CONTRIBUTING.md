@@ -95,7 +95,7 @@ install surface, sweep:
 
 ```sh
 for d in */; do n="${d%/}"; [ -f "$n/SKILL.md" ] || continue
-  case "$n" in grok-skills|android-skills|Excluded|construct-cli) continue;; esac
+  case "$n" in grok-skills|android-skills|perplexity-skills|Excluded|construct-cli) continue;; esac
   inzip="$(unzip -Z1 "$n.zip" 2>/dev/null | grep -v '/$')"
   # (a) content drift: every file inside the bundle must match the working tree
   printf '%s\n' "$inzip" | while read -r f; do [ -n "$f" ] || continue
@@ -132,6 +132,32 @@ Verify the zip top level is `SKILL.md` (not `<name>/SKILL.md`) before committing
 a nested layout breaks Grok's loader. The same staging/commit contract applies.
 Grok bundles ship **inside** `grok-skills/`, and `grok-skills/README.md` must stay
 in sync with the subdirectory listing.
+
+## Perplexity bundle (`perplexity-skills/`)
+
+Perplexity rejects an uploaded zip with more than **100 files**. Only
+`spacecraft-cli-preference` (110 per-tool `references/` files) exceeds that.
+[`perplexity-skills/`](perplexity-skills/) ships a **generated** consolidated
+bundle for it: `build.py` merges the per-tool files into ~14 category files and
+emits `perplexity-skills/spacecraft-cli-preference.zip` (~18 entries) in the
+same nested layout Perplexity accepts. The canonical
+`spacecraft-cli-preference/` stays the single source of truth and is unchanged.
+
+**Regeneration contract.** After any edit to `spacecraft-cli-preference/SKILL.md`
+or its `references/`, re-run the generator and commit the regenerated zip in the
+**same commit** — the Perplexity analogue of the "bundles are the install
+surface" rule:
+
+```sh
+python3 perplexity-skills/build.py     # rebuilds the zip; self-checks anchors
+```
+
+Never hand-edit the category files or the zipped `SKILL.md` — edit the canonical
+skill and re-run. When a tool is added to or removed from the canonical skill,
+update `CATEGORY_MAP` in `build.py` (it asserts the map covers exactly the
+canonical tool set and fails loudly otherwise). `perplexity-skills/` is excluded
+from the flake skill auto-detection and from the drift sweep above (the
+consolidated zip intentionally differs from any on-disk tree).
 
 ## Editing rules
 
