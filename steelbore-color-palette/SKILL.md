@@ -1,19 +1,19 @@
 ---
 name: steelbore-color-palette
 description: >
-  Single source of truth for the Steelbore palette family (Standard §11
-  v1.35) — six palettes, their hex tokens, measured WCAG contrast matrices,
-  the §11.1 role-token contract, and every §11.1.1 accessibility variant.
-  Steelbore Modern is the default; Classic, Blue, BlackPinkPanther,
-  MatrixGreen, and NavyWhite are opt-in per §11.4. ALWAYS consult whenever a
-  color, hex value, palette token, theme, contrast ratio, or brand hue is
-  needed for ANY Spacecraft Software or Steelbore OS artifact — UI code, TUI
-  styling, editor/terminal themes, documents, diagrams, SVGs, or CSS — even
-  if the user never says "palette". Triggers: "Void Navy", "Plasma Orange",
-  "Orbit Navy", "Solar Lime", "Pearl Silver", "steelbore theme", "brand
-  colors", "high contrast variant", and any WCAG / EN 301 549 question about
-  Spacecraft colors. Consumer skills defer here for values — never restate
-  hexes from memory; read them here.
+  Single source of truth for the Steelbore palette family (Standard §11 v1.39)
+  — nine palettes, their hex tokens, WCAG contrast matrices, the §11.1
+  role-token contract, and every §11.1.1 accessibility variant. Modern is the
+  default; Classic, Blue, BlackPinkPanther, MatrixGreen, NavyWhite, and Tokyo
+  Night are opt-in (§11.4); Solarized Dark and Light are §11.5 fidelity
+  palettes — verbatim, non-conforming, never adoptable. ALWAYS consult whenever
+  a color, hex, palette token, theme, contrast ratio, or brand hue is needed for
+  ANY Spacecraft Software or Steelbore OS artifact — UI code, TUI styling,
+  editor/terminal themes, documents, diagrams, SVGs, or CSS — even if the user
+  never says "palette". Triggers: "Void Navy", "Plasma Orange", "Orbit Navy",
+  "Solar Lime", "Tokyo Night", "Solarized", "brand colors", "high contrast
+  variant", and any WCAG / EN 301 549 question about Spacecraft colors. Consumer
+  skills defer here for values — never restate hexes from memory.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
@@ -25,7 +25,7 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-> **Authority chain:** The Steelbore Standard §11 (v1.35) is the normative
+> **Authority chain:** The Steelbore Standard §11 (v1.39) is the normative
 > text; this skill is its canonical machine-readable mirror and the **only**
 > place palette hexes should be read from. If this skill and the Standard ever
 > disagree, the Standard governs — and this skill must be fixed. Consumer
@@ -35,7 +35,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 ## The family (§11)
 
-Six palettes. **Steelbore Modern is the default** — use it unless the project
+Nine palettes — seven conforming, two §11.5 fidelity. **Steelbore Modern is the default** — use it unless the project
 has declared an alternate in its `README.md` (§11.4). A project uses **exactly
 one** palette; tokens are never mixed across palettes, because every contrast
 guarantee is computed per-palette.
@@ -48,9 +48,22 @@ guarantee is computed per-palette.
 | `steelbore-blackpinkpanther` | Steelbore BlackPinkPanther | `#141418` Core Black | Alternate (§11.3.2) |
 | `steelbore-matrixgreen` | Steelbore MatrixGreen | `#0C1A2B` Circuit Navy | Alternate (§11.3.3) |
 | `steelbore-navywhite` | Steelbore NavyWhite | `#E7E5E0` Pearl Silver | Alternate (§11.3.4) — **light canvas** |
+| `tokyonight` | Tokyo Night | `#1A1B26` Night | Alternate (§11.3.5) — upstream theme, verbatim, no restricted pairings |
+| `solarized-dark` | Solarized Dark | `#002B36` base03 | **Fidelity (§11.5) — non-conforming**, not adoptable |
+| `solarized-light` | Solarized Light | `#FDF6E3` base3 | **Fidelity (§11.5) — non-conforming**, not adoptable; body text 4.13:1 |
 
-Each has a `<slug>-high-contrast` sibling for §18.1 accessible mode.
-`steelbore-mono` is palette-independent and serves them all.
+Each conforming palette has a `<slug>-high-contrast` sibling for §18.1
+accessible mode. The §11.5 fidelity palettes have **none** — lifting their
+tokens would change the values they exist to reproduce, so `steelbore-mono`
+(palette-independent) is the accessible path for them.
+
+**Reference names (§11.4.1)** are additive prose labels; the slug above stays
+the machine identifier: `steelbore-color-palette`,
+`steelboreclassic-color-palette`, `blue-color-palette`,
+`blackpinkpanther-color-palette`, `matrixgreen-color-palette`,
+`navywhite-color-palette`, `tokyonight-color-palette`,
+`solarizeddark-color-palette`, `solarizedlight-color-palette`. Each is carried
+in the TOML as its palette's `reference` key.
 
 **All values for every palette are in
 [`assets/steelbore.toml`](assets/steelbore.toml) — read them there.** The
@@ -214,7 +227,7 @@ Colors ship with type: **Share Tech Mono** (headings) and **Inconsolata**
 
 | File | What it is |
 |------|------------|
-| [`assets/steelbore.toml`](assets/steelbore.toml) | **The canonical contract for the whole family** — `[palettes.*]` for all six, `[themes.*]` (13 themes: six palettes, their `-high-contrast` siblings, and `steelbore-mono`) with measured per-background contrast tables and per-palette rules, plus `[typography]`. Copy or parse it; never retype hexes. |
+| [`assets/steelbore.toml`](assets/steelbore.toml) | **The canonical contract for the whole family** — `[palettes.*]` for all nine, `[themes.*]` (17 themes: seven conforming palettes with their `-high-contrast` siblings, two §11.5 fidelity palettes, and `steelbore-mono`) with measured per-background contrast tables and per-palette rules, plus `[typography]`. Copy or parse it; never retype hexes. |
 | [`assets/spacecraft.css`](assets/spacecraft.css) | The canonical Spacecraft HTML theme for `texi2any --css-include`. The copies in `standard/` and `spacecraft-texinfo-document/assets/` are synced derivatives — edit this one first, keep all three byte-identical. |
 
 ## Where application rules live

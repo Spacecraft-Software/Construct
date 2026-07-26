@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.38 (§4.3 LICENSE + LICENSES symlink; §11 palette family; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §8 Texinfo; §7 Shell Environment) so
+  The Steelbore Standard v1.39 (§11 palettes + §11.5 fidelity; §4.3 LICENSE symlink; §11 palette family; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §8 Texinfo; §7 Shell Environment) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.38 | **Date:** 2026-07-26 | **Author:** Mohamed Hammad
+**Version:** 1.39 | **Date:** 2026-07-26 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -742,7 +742,7 @@ Radium Green on Liquid Coolant 1.01:1.
 
 ### §11.3 — Alternate Palettes
 
-Four alternates, each anchored on two colors that never change, each verified
+Five alternates, each anchored on two colors that never change, each verified
 against its own canvas and surfaces. Full role tables and three-background
 matrices live in the `steelbore-color-palette` skill's
 `assets/steelbore.toml`; every token clears 4.5:1 on all three of its
@@ -754,6 +754,22 @@ backgrounds unless marked †.
 | Steelbore BlackPinkPanther | `steelbore-blackpinkpanther` | Core Black `#141418` | Plasma Magenta `#E445FF` | No restricted pairings |
 | Steelbore MatrixGreen | `steelbore-matrixgreen` | Circuit Navy `#0C1A2B` | Solar Lime `#B6FF3B` | `surface-alt` (Ambient Black `#05070A`) is darker than the canvas — permitted |
 | Steelbore NavyWhite | `steelbore-navywhite` | Pearl Silver `#E7E5E0` | Lunar Navy `#111827` (foreground) | **Light canvas**; high contrast *darkens*. Lighter source tints are non-text fills only |
+| Tokyo Night | `tokyonight` | Night `#1A1B26` | Tokyo Blue `#7AA2F7` | Verbatim from the upstream editor theme; no restricted pairings. `surface` is the Storm background `#24283B`, `surface-alt` the Night `bg_dark` `#16161E` (darker than the canvas — permitted) |
+
+#### §11.3.5 — Tokyo Night
+
+Registered verbatim from [enkia/tokyo-night-vscode-theme](https://github.com/enkia/tokyo-night-vscode-theme).
+It needed **no Spacecraft-derived substitutes** — every role token clears 4.5:1
+on all three backgrounds — so it is a conforming alternate, not a §11.5 fidelity
+palette: `foreground` `#C0CAF5` 10.59:1, `accent` `#7AA2F7` 6.79:1, `structure`
+`#BB9AF7` 7.39:1, `success` `#9ECE6A` 9.35:1, `error` `#F7768E` 6.46:1,
+`warning` `#E0AF68` 8.55:1, `focus` `#7DCFFF` 9.96:1 (vs canvas).
+
+`tokyonight-high-contrast` lifts the two tokens below 7:1 on the canvas —
+`accent` → `#97B6F9` (8.44:1) and `error` → `#F998AA` (8.22:1); the other six
+carry over verbatim. The upstream comment tone `#565F89` (2.76:1) clears neither
+the 4.5:1 text floor nor the 3:1 non-text floor and is **not bindable to a role
+token**; boundaries are drawn in `structure` per §11.0.1.
 
 ### §11.4 — Palette Selection
 
@@ -767,6 +783,59 @@ backgrounds unless marked †.
 - **The canvas is mandatory within its palette.** Substituting a different
   background for a declared palette is non-compliant.
 - **Values are read, never retyped** — from `assets/steelbore.toml`.
+- **Fidelity palettes are not adoptable.** The §11.5 palettes are registered for
+  interoperability only; a project may not declare one, and they ship no
+  high-contrast sibling.
+- **Palettes have reference names** (§11.4.1) alongside their slugs. The slug
+  stays the machine identifier.
+
+#### §11.4.1 — Reference Names
+
+Additive. The slug remains the machine identifier used by theme lookups and
+`steelbore.toml` keys; the reference name is for prose and conversation. Both
+ship in the canonical file, the reference name as each palette's `reference` key.
+
+| Slug | Reference name |
+|------|----------------|
+| `steelbore` | `steelbore-color-palette` |
+| `steelbore-classic` | `steelboreclassic-color-palette` |
+| `steelbore-blue` | `blue-color-palette` |
+| `steelbore-blackpinkpanther` | `blackpinkpanther-color-palette` |
+| `steelbore-matrixgreen` | `matrixgreen-color-palette` |
+| `steelbore-navywhite` | `navywhite-color-palette` |
+| `tokyonight` | `tokyonight-color-palette` |
+| `solarized-dark` | `solarizeddark-color-palette` |
+| `solarized-light` | `solarizedlight-color-palette` |
+
+### §11.5 — Fidelity Palettes (registered, non-conforming)
+
+A **fidelity palette** reproduces a widely used external theme **exactly**, so
+Spacecraft Software tooling can meet a user who already works in it. Values are
+copied verbatim; no token is substituted, deepened, or lifted to make a number
+pass. The consequence is stated plainly: **a fidelity palette is not required to
+satisfy §11's contrast guarantee, and neither registered one does.** The ratios
+below are *the measurement, not a target*.
+
+| Palette | Slug | Canvas | Body text | Worst pairings |
+|---------|------|--------|-----------|----------------|
+| Solarized Dark | `solarized-dark` | `base03` `#002B36` | `base0` 4.75:1 | 12 below 4.5:1; `structure`/`border` 2.97:1 and `error` 2.81:1 below 3:1 on `base02` |
+| Solarized Light | `solarized-light` | `base3` `#FDF6E3` | `base00` **4.13:1 — under the AA floor** | `success` 2.97:1, `warning` 2.98:1, `focus` 2.93:1 below 3:1 — status cannot be signalled by color at all |
+
+Rules:
+
+- A project **MUST NOT** adopt a fidelity palette as its declared §11.4 palette.
+  §13 (WCAG 2.2 AA) and §18 (accessible mode) are unaffected by this section.
+- Offered as a *user-selectable* theme, a conforming palette stays the default
+  and `steelbore-mono` (§11.1.1) stays the accessible-mode path.
+- **No `-high-contrast` sibling.** Lifting the tokens would change the values the
+  palette exists to reproduce.
+- Recorded in `steelbore.toml` under `meta.fidelity-palettes`, with
+  `conformance = "non-conforming"` in each theme's `rules` table.
+- † marks a worst pairing of 3:1–4.5:1 (large text, icons, non-text UI only);
+  ‡ marks below 3:1, which carries no legible use at any size.
+
+Solarized (Ethan Schoonover, [ethanschoonover.com/solarized](https://ethanschoonover.com/solarized/))
+defines one elevated tone per mode, so `surface-alt` shares `surface`.
 
 ---
 
