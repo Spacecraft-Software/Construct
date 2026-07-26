@@ -12,18 +12,20 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-> **Source of truth:** The Steelbore Standard v1.38 (§11 Colour Palettes, §12 Typography)
+> **Source of truth:** The Steelbore Standard v1.39 (§11 Colour Palettes, §12 Typography)
 > and the `spacecraft-brand-guidelines` skill. Themes may not introduce
 > colors, fonts, or naming outside what these sources define. The palette below
 > is the **Steelbore 2** generation; the five v1.33 foreground tokens and the old
 > lifts are Classic's, not Modern's (§11.2) — Void Navy carries forward.
 >
 > **§11 is a palette family (v1.35).** Steelbore Modern is the default and is
-> what you emit unless the requester names another. Five more are registered:
+> what you emit unless the requester names another. Six more are registered:
 > `steelbore-classic`, `steelbore-blue`, `steelbore-blackpinkpanther`,
-> `steelbore-matrixgreen`, `steelbore-navywhite`. **Read every value from the
+> `steelbore-matrixgreen`, `steelbore-navywhite`, and `tokyonight`; two
+> **fidelity palettes** (`solarized-dark`, `solarized-light`) are registered but
+> **non-conforming** and not adoptable (§11.5). **Read every value from the
 > `steelbore-color-palette` skill's `assets/steelbore.toml`** — it carries all
-> six palettes, all 13 themes, and every measured matrix. Never mix tokens
+> nine palettes, all 17 themes, and every measured matrix. Never mix tokens
 > across palettes (§11.4).
 
 ## Color Palette — Steelbore 2 (WCAG 2.2 AA Compliant)
