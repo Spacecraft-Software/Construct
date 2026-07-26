@@ -269,8 +269,9 @@ and the correct comment syntax for the file type.)
 - **Software source files** (`.rs`, `.ts`, `.js`, `.py`, `.sh`, `.ps1`, `.go`, etc.)
   and project manifests (`Cargo.toml`, `package.json`, `flake.nix`, etc.) carry both
   tags as an inline header.
-- **Files that cannot carry an inline header** — documents (`.odt`, `.docx`, `.pdf`, …),
-  images, binary assets, generated files — are covered by a `.license` sidecar file
+- **Files that cannot carry an inline header** — documents (`.odt`, `.ods`, `.odp`,
+  `.docx`, `.xlsx`, `.pptx`, `.pdf`, …), images, binary assets, generated files —
+  are covered by a `.license` sidecar file
   **or** an entry in the repo-root `REUSE.toml`. No file is left uncovered (this
   replaces the former blanket "documents are exempt" rule).
 - **`LICENSES/` directory:** verbatim text of every license used lives in

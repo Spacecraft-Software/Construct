@@ -11,3 +11,6 @@ CLAUDE.md
 # (includes elixir-erlang/ — cloned Elixir/Erlang reference repos + a copyrighted
 # PDF used only as background for the elixir/erlang guideline skills).
 Excluded/
+
+# Python bytecode cache from the .githooks/ description checker
+__pycache__/
