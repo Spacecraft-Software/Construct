@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.39 (§11 palettes + §11.5 fidelity; §4.3 LICENSE symlink; §11 palette family; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §8 Texinfo; §7 Shell Environment) so
+  The Steelbore Standard v1.40 (§6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.5 fidelity; §4.3 LICENSE symlink; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §7 Shell Environment) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.39 | **Date:** 2026-07-26 | **Author:** Mohamed Hammad
+**Version:** 1.40 | **Date:** 2026-07-27 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -396,6 +396,22 @@ Every released package **must** ship first-party package definitions for the fol
 - These files are software-class artifacts and inherit the project's GPL/AGPL license (§4.1); each file must carry the standard SPDX two-tag header (§4.3).
 - If a package manager's ecosystem imposes a stricter naming scheme or directory layout, comply with that scheme while still meeting the above requirements.
 
+### §5.6 — Skill Packaging Requirements
+
+Skills are software-class artifacts (§4.1.1) distributed as `SKILL.md` bundles.
+The loading agent imposes hard limits that a bundle only discovers at install
+time, when the upload is rejected and the packing work is already done. Those
+limits are therefore enforced **before packing**, not after a failure.
+
+**Mandatory rules — violation blocks shipping:**
+
+| Rule | Detail |
+|------|--------|
+| Description cap | A skill's frontmatter `description` MUST NOT exceed **1000 rendered characters**. The consuming loader's absolute limit is **1024**; 1000 is the deliberate 24-character margin for encoding and trailing-newline edge cases. |
+| Rendered, not raw | "Rendered" means the string the loader sees. A YAML folded scalar (`description: >`) joins its wrapped lines with single spaces and retains a trailing newline, so the raw line lengths are not the measurement. Block (`>` / `\|`) and single-line plain or quoted forms alike are measured after folding. |
+| Machine-enforced | The cap MUST be checked by an automated gate that runs both in the skill repository's CI on every pull request and push to the default branch, and in whatever command produces the distributable bundle. A developer-installed git hook is a convenience, never the gate — hooks are opt-in per clone and cannot be relied on. |
+| Over-limit skills do not ship | A skill whose description exceeds the cap MUST NOT be packed, committed, or published. Trim the description; do not raise the cap. |
+
 ---
 
 ## §6 — Platform & Systems Requirements
@@ -432,6 +448,34 @@ for PQC readiness across the cryptographic surface; commit-signing
 algorithm migration is gated on hosting-platform support for post-quantum
 key formats. When GitHub (or Spacecraft Software's own Gitway) accepts PQC signing
 keys, Spacecraft Software commits migrate accordingly.
+
+### §6.4 — Authorized Contribution Targets (Non-Negotiable)
+
+Spacecraft Software work is published only to namespaces Spacecraft Software
+controls. Two are authorized today:
+[github.com/Spacecraft-Software](https://github.com/Spacecraft-Software) (the
+umbrella organization) and
+[github.com/UnbreakableMJ](https://github.com/UnbreakableMJ) (the maintainer's
+personal namespace). A future Spacecraft Software-controlled host — Gitway, or
+any successor — inherits the same standing. Every other destination is
+**outbound** and gated.
+
+§6.3 says how a commit must be signed on a Spacecraft Software remote; this
+section says which remotes those are, and what it takes to send anything
+anywhere else.
+
+**Mandatory rules — violation blocks shipping:**
+
+| Rule | Detail |
+|------|--------|
+| Default-deny outbound | No `git push`, pull or merge request, patch series, or mailing-list submission to any Git remote outside the authorized namespaces. Silence is a denial, not permission. |
+| Automation never initiates | Bots, CI pipelines, scripted workflows, and assistant-driven sessions MUST NEVER open an outbound contribution. Authorization for one contribution does not carry to the next task, session, or repository. |
+| Maintainer-only exception | Only Mohamed Hammad, acting explicitly and per contribution, may authorize an outbound submission (§5.4 maintainer discretion). The authorization names the destination and the change; it does not generalize. |
+| Registries and trackers included | Publishing to a package registry under a namespace Spacecraft Software does not control (`crates.io`, npm, PyPI, AUR, Nixpkgs, Guix, Flathub, and the like), and filing issues, bug reports, or patches on an external tracker or mailing list, are outbound contributions under this same rule. |
+| Forks are inbound-only | A fork under an authorized namespace may be created and pushed to freely — that is our namespace. Turning a fork branch into an upstream pull request is the gated act, not the fork itself. |
+| Prefer carrying the patch | When an upstream change is needed, carry the patch in-tree (§4.2 preserves upstream copyright, license texts, and notices) rather than upstreaming it, unless the maintainer authorizes upstreaming. |
+| GNU posture does not exempt | An artifact under the free-software/GNU posture (§1) still requires explicit maintainer authorization before anything is sent to GNU, the FSF, or Savannah. That posture yields this standard's identity clauses (§2, §11–§12, §15); it does not yield this one. |
+| Withdraw mistakes promptly | An outbound submission made without authorization MUST be closed or withdrawn as soon as it is discovered, and the incident recorded. |
 
 ---
 
@@ -1352,6 +1396,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§4.3** REUSE-compliant: two-tag SPDX header (`SPDX-FileCopyrightText` + `SPDX-License-Identifier`) on every file (or `.license` sidecar / `REUSE.toml` entry); `LICENSES/` directory present; root `LICENSE` carries the canonical license text and `LICENSES/<SPDX-id>.txt` symlinks to it (never two independent copies); `reuse lint` passes
 - [ ] **§5** Project Posture: README/NOTICE/CONTRIBUTING present; default personal-hobby stance applied; general-use carve-outs declared in project README
 - [ ] **§5.5** Package distribution: `packaging/guix.scm`, `packaging/default.nix`, and `packaging/PKGBUILD` present, buildable, and carrying correct version + SHA-256 checksum (in each package manager's native format) before any release tag is pushed
+- [ ] **§5.6** Skill packaging: every `SKILL.md` `description` measures ≤ 1000 rendered characters (folded scalars counted as the loader sees them, not as raw lines); the cap is enforced by CI *and* by the command that produces the bundle, not only by a local git hook — N/A for projects that ship no skills
 - [ ] **§6.1** POSIX-compliant CLI/system tools
 - [ ] **§7** Shell scripts are POSIX-compatible; Nushell/Ion native variants provided where shell-native idioms are required; no Bashisms in shared scripts
 - [ ] **§8** Texinfo manual present for user-facing programs (`doc/<project>.texi`); builds to `.info`, `.html`, and `.pdf`; `install-info` hook present in all three package manifests (§5.5) — N/A for scripts and internal tooling
@@ -1366,6 +1411,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§17** Development progress tracked and reported continuously with milestone percentages, MVP, total PRD completion, and a Unicode progress bar
 - [ ] **§18** Accessible mode implemented and off by default; §18.1 toggle honored with correct precedence; status never color-only; no animation or decorative art in accessible mode; TUI ships a linear mode and a non-interactive CLI path; GUI publishes accessible names and roles (AccessKit for Rust); verified with a real screen reader; existing projects carry a dated remediation entry in `PROJECTS.md` until they conform — N/A for projects registered as games (§18.5), which are exempt in full
 - [ ] **§6.3** All commits to Spacecraft Software Git remotes cryptographically signed with the `Mohamed.Hammad@SpacecraftSoftware.org` key and showing "Verified" on the hosting platform; rewrites preserve signatures; programmatic and assistant-driven commits signed too
+- [ ] **§6.4** No commit, pull request, patch, issue, or package publication sent to a namespace outside `Spacecraft-Software` / `UnbreakableMJ` without explicit per-contribution maintainer authorization; automation, CI, and assistant-driven work never initiate an outbound contribution
 
 If any item is not applicable to the current artifact type (e.g., color palette
 for a pure Rust library), note it as N/A rather than silently skipping it.
