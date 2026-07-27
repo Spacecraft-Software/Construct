@@ -119,6 +119,84 @@ fn ship_refuses_bundle_drift() {
     assert!(err["error"]["hint"].as_str().unwrap().contains("zip"));
 }
 
+/// A `SKILL.md` whose folded `description` renders to `len` characters.
+///
+/// The folded scalar joins its wrapped lines with single spaces and keeps one
+/// trailing newline, which the loader counts — so the body is `len - 1` filler
+/// characters on a single indented line.
+fn skill_md_with_description(len: usize) -> String {
+    let filler = "d".repeat(len - 1);
+    format!("---\nname: demo\ndescription: >\n  {filler}\n---\nbody\n")
+}
+
+#[test]
+fn ship_refuses_oversized_description() {
+    let repo = fixture(REMOTE);
+    let p = repo.path();
+    write(p, "demo/SKILL.md", &skill_md_with_description(900));
+    write(p, "demo.zip", "z1");
+    write(p, "demo.skill", "s1");
+    run_git(p, &["add", "demo/SKILL.md", "demo.zip", "demo.skill"]);
+    run_git(p, &["commit", "-qm", "init"]);
+    // Push the description past the 1000-char cap; bundles rebuilt, so the only
+    // thing standing between this and a push is the §5.6 gate.
+    write(p, "demo/SKILL.md", &skill_md_with_description(1001));
+    write(p, "demo.zip", "z2");
+    write(p, "demo.skill", "s2");
+
+    let assertion = bin()
+        .args([
+            "skill",
+            "ship",
+            "--repo",
+            p.to_str().unwrap(),
+            "--no-sync",
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .code(5);
+    let err: Value =
+        serde_json::from_slice(&assertion.get_output().stderr).expect("structured error");
+    assert_eq!(err["error"]["code"], "CONFLICT");
+    assert_eq!(err["error"]["oversized_skills"][0]["skill"], "demo");
+    assert_eq!(err["error"]["oversized_skills"][0]["chars"], 1001);
+    assert_eq!(err["error"]["oversized_skills"][0]["over_by"], 1);
+}
+
+#[test]
+fn ship_allows_description_exactly_at_cap() {
+    let repo = fixture(REMOTE);
+    let p = repo.path();
+    write(p, "demo/SKILL.md", "---\nname: demo\n---\nv1\n");
+    write(p, "demo.zip", "z1");
+    write(p, "demo.skill", "s1");
+    run_git(p, &["add", "demo/SKILL.md", "demo.zip", "demo.skill"]);
+    run_git(p, &["commit", "-qm", "init"]);
+    // Exactly 1000 rendered characters is compliant — the cap is inclusive.
+    write(p, "demo/SKILL.md", &skill_md_with_description(1000));
+    write(p, "demo.zip", "z2");
+    write(p, "demo.skill", "s2");
+
+    let out = bin()
+        .args([
+            "skill",
+            "ship",
+            "--repo",
+            p.to_str().unwrap(),
+            "--no-sync",
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let v: Value = serde_json::from_slice(&out).expect("valid JSON");
+    assert_eq!(v["data"]["status"], "planned");
+}
+
 #[test]
 fn ship_rejects_wrong_remote() {
     let repo = fixture("https://example.com/foo/bar.git");

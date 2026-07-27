@@ -14,8 +14,12 @@ rules that bite. (A maintainer-local `CLAUDE.md` overlay adds host-specific note
   MUST NOT exceed 1000 chars. Folded `description: >` blocks render by joining
   lines with spaces (blank lines → newlines, plus a trailing newline); that
   rendered length is what counts, not the raw line count. Re-check after any edit.
-  The `.githooks/pre-commit` hook enforces this on staged skills — activate once
-  per clone with `git config core.hooksPath .githooks`.
+  Normative as Standard §5.6, and gated in CI (`SKILL.md description cap` step,
+  every `SKILL.md` in the tree) and by `construct skill ship`, which refuses to
+  stage or push an over-cap skill (exit 5, `CONFLICT`). The `.githooks/pre-commit`
+  hook is the fast local signal only — it is opt-in per clone
+  (`git config core.hooksPath .githooks`), so trim *before* packing rather than
+  relying on it.
 - **Rebuild BOTH bundles after any skill-dir edit**, in the same commit:
   `<name>.zip` (`zip -qr`, keeps dir entries) and `<name>.skill` (`zip -qrD`,
   drops them). A bundle that lags its `SKILL.md`/`references/` ships broken

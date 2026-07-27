@@ -22,12 +22,25 @@ use crate::commands::sync;
 use crate::context::Context;
 use crate::install::plan::NON_SKILL_DIRS;
 use crate::output::error::{AppError, ErrorCode};
+use crate::sources::skillmd;
 use crate::output::{CommandOutput, HumanRender};
 
 /// Default catalogue clone to ship from.
 const DEFAULT_REPO: &str = "/spacecraft-software/construct";
-/// The remote a ship is allowed to push to (substring check).
+/// The remote a ship is allowed to push to (substring check). Standard §6.4:
+/// publication targets are limited to namespaces Spacecraft Software controls.
 const EXPECTED_REMOTE: &str = "Spacecraft-Software/Construct";
+/// Maximum rendered length of a skill's frontmatter `description` (Standard
+/// §5.6).
+///
+/// The consuming skill loader rejects anything over **1024** characters at
+/// install time — after the bundles are built and pushed — so the cap sits at
+/// 1000 for a 24-character margin covering encoding and trailing-newline edge
+/// cases. Raising it past the loader's limit would ship bundles that cannot be
+/// installed. `.githooks/check-description-length.py` enforces the same number
+/// in CI and in the pre-commit hook; changing one without the other lets a
+/// bundle pass one gate and fail the next.
+const DESCRIPTION_CAP: usize = 1000;
 /// Assistant co-authorship trailer (CONTRIBUTING §4).
 const COAUTHOR: &str = "Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>";
 
@@ -92,6 +105,42 @@ pub(crate) fn run(ctx: &Context, args: &ShipArgs) -> Result<CommandOutput, AppEr
             rebuild_cmd(&repo, first),
         )
         .with_extension("drifted_skills", json!(drifted)));
+    }
+
+    // Enforce the Standard §5.6 description cap before anything is staged: the
+    // loader rejects an over-long description at install time, by which point
+    // the bundles are built, committed, and pushed. Cheaper to refuse here.
+    let oversized: Vec<(String, usize)> = shipped
+        .iter()
+        .filter_map(|skill| {
+            let len = skillmd::description_len(&repo.join(skill).join("SKILL.md"))?;
+            (len > DESCRIPTION_CAP).then(|| (skill.clone(), len))
+        })
+        .collect();
+    if let Some((first, _)) = oversized.first() {
+        let detail = oversized
+            .iter()
+            .map(|(skill, len)| format!("{skill} ({len} chars, {} over)", len - DESCRIPTION_CAP))
+            .collect::<Vec<_>>()
+            .join(", ");
+        return Err(AppError::new(
+            ctx,
+            ErrorCode::Conflict,
+            5,
+            format!("SKILL.md description exceeds the {DESCRIPTION_CAP}-character cap: {detail}"),
+            format!("$EDITOR {first}/SKILL.md  # trim the `description` frontmatter field"),
+        )
+        .with_extension(
+            "oversized_skills",
+            json!(oversized
+                .iter()
+                .map(|(skill, len)| json!({
+                    "skill": skill,
+                    "chars": len,
+                    "over_by": len - DESCRIPTION_CAP,
+                }))
+                .collect::<Vec<_>>()),
+        ));
     }
 
     // Build the explicit stage list: shipped skills' files + their bundles +

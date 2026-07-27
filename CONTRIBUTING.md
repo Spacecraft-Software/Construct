@@ -180,8 +180,16 @@ consolidated zip intentionally differs from any on-disk tree).
   print(len('\n'.join(out))+1)
   PY
   ```
-  The [pre-commit hook](#pre-commit-hook) enforces this automatically on every
-  staged skill — no need to remember the snippet, but do activate the hook.
+  The cap is **normative** (Standard §5.6) and enforced in three places, so the
+  snippet above is only for a quick manual count:
+  - **CI** — the `SKILL.md description cap` step runs the checker over every
+    `SKILL.md` in the tree on each PR and push to `main`. This is the gate.
+  - **`construct skill ship`** — refuses to stage, commit, or push a skill whose
+    description is over the cap, before any bundle is shipped (exit 5,
+    `CONFLICT`, with an `oversized_skills` list naming each offender).
+  - **The [pre-commit hook](#pre-commit-hook)** — the fast local signal. It is
+    opt-in per clone, so it is explicitly *not* the gate; §5.6 requires the two
+    above precisely because a hook can be skipped.
 - **`microsoft-rust-guidelines` is intentionally `user-invocable: false`.** It is
   the mandatory auto-load Rust base — `spacecraft-standard-constitution` mandates loading it
   before any Rust and `spacecraft-rust-guidelines` defers to it as "load first," so
@@ -206,9 +214,11 @@ consolidated zip intentionally differs from any on-disk tree).
 
 ## Pre-commit hook
 
-A tracked hook enforces the description cap so a stale or over-long count can
-never reach a commit. Git does **not** honour tracked hooks automatically, so
-activate it **once per clone**:
+A tracked hook catches an over-long description before it reaches a commit — the
+fastest of the three enforcement points, though not the authoritative one (CI and
+`construct skill ship` are; see the cap rule under [Editing rules](#editing-rules)).
+Git does **not** honour tracked hooks automatically, so activate it **once per
+clone**:
 
 ```sh
 git config core.hooksPath .githooks
@@ -221,10 +231,12 @@ rendered description exceeds **1000** characters. It validates the *staged blob*
 not the working tree, so a fixup you forgot to re-stage is still caught. The
 only dependency is `python3`.
 
-Run the same checker by hand over the whole catalogue any time:
+Run the same checker by hand over the whole catalogue any time — this is the
+command CI runs, so it covers `android-skills/` and any future nesting too:
 
 ```sh
-python3 .githooks/check-description-length.py */SKILL.md grok-skills/*/SKILL.md
+find . -name SKILL.md -not -path './.git/*' -print0 \
+  | xargs -0 python3 .githooks/check-description-length.py
 ```
 
 It exits non-zero and lists each offender (with how many chars over) when any

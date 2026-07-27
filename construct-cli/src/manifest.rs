@@ -223,7 +223,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                 ("3", "NOT_FOUND — repo path does not exist"),
                 (
                     "5",
-                    "CONFLICT — skill source changed without rebuilt .zip/.skill bundles",
+                    "CONFLICT — skill source changed without rebuilt .zip/.skill bundles, or a SKILL.md description exceeds the 1000-character cap (Standard §5.6)",
                 ),
                 ("127", "DEPENDENCY_MISSING — git or nix not on PATH"),
             ]),

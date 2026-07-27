@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   lint:
-    name: REUSE + config validation
+    name: REUSE + config + skill-description validation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,3 +29,13 @@ jobs:
 
       - name: Validate JSON / JSONC / TOML / YAML
         run: python3 .github/validate-configs.py
+
+      # Standard §5.6: the description cap is enforced by CI, not only by the
+      # opt-in .githooks pre-commit hook (which needs `git config
+      # core.hooksPath .githooks` per clone and so cannot be relied on).
+      # `find` rather than a glob list, so grok-skills/, android-skills/, and
+      # any future nesting are covered without a list to maintain.
+      - name: SKILL.md description cap (<= 1000 rendered chars)
+        run: |
+          find . -name SKILL.md -not -path './.git/*' -print0 \
+            | xargs -0 python3 .githooks/check-description-length.py
