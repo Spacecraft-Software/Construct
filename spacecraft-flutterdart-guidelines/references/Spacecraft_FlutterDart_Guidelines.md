@@ -1,11 +1,11 @@
-# Spacecraft Dart & Flutter Guidelines — Full Reference
+# Spacecraft Flutter & Dart Guidelines — Full Reference
 
 **Version:** 1.0
 **Date:** 2026-07-13
 **Author:** Mohamed Hammad & Spacecraft Software
 **Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
 
-This document expands on the `SKILL.md` for Dart and Flutter systems programming. It provides complete, compile-checked configurations and skeletons for Isolate concurrency, controller lifecycle disposal, repaint boundary optimizations, and widget testing.
+This document expands on the `SKILL.md` for Flutter and Dart systems programming. It provides complete, compile-checked configurations and skeletons for Isolate concurrency, controller lifecycle disposal, repaint boundary optimizations, and widget testing.
 
 ---
 
@@ -311,7 +311,7 @@ linter:
 
 ## 7. Code Review Compliance Gate
 
-Before merging Dart/Flutter code, verify:
+Before merging Flutter/Dart code, verify:
 1. Native Android integrations have been aligned with `@android-skills`.
 2. Sound Null Safety is strictly maintained; no `!` operator exists in production code.
 3. Every StatefulWidget disposing checklist executes cleanly (controllers and streams closed).

@@ -1,18 +1,18 @@
 ---
 name: spacecraft-flutterdart-guidelines
-description: Use for writing type-safe highly-concurrent memory-safe Dart and Flutter code following Spacecraft Software standards. Triggers on any request involving Dart, Flutter, pubspec.yaml, analysis_options.yaml, Sound Null Safety (avoiding !), Dart Isolates (Isolate.run, ports), event loop async/await, Flutter performance tuning (const constructors, RepaintBoundary), disposing controllers, widget testing, or package dependencies. Native Android configurations or integrations are governed with higher dominance by the Google Android skills at android-skills/. Trigger even when implicit, e.g. "write a Dart isolate", "optimize Flutter build redraws", "configure analysis_options.yaml", or "mock a widget test". Do NOT trigger for standard JS or native iOS unless bridging is explicitly required. By Mohamed Hammad and Spacecraft Software.
+description: Use for writing type-safe highly-concurrent memory-safe Flutter and Dart code following Spacecraft Software standards. Triggers on any request involving Dart, Flutter, pubspec.yaml, analysis_options.yaml, Sound Null Safety (avoiding !), Dart Isolates (Isolate.run, ports), event loop async/await, Flutter performance tuning (const constructors, RepaintBoundary), disposing controllers, widget testing, or package dependencies. Native Android configurations or integrations are governed with higher dominance by the Google Android skills at android-skills/. Trigger even when implicit, e.g. "write a Dart isolate", "optimize Flutter build redraws", "configure analysis_options.yaml", or "mock a widget test". Do NOT trigger for standard JS or native iOS unless bridging is explicitly required. By Mohamed Hammad and Spacecraft Software.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
 ---
 
-# Spacecraft Dart & Flutter Guidelines
+# Spacecraft Flutter & Dart Guidelines
 
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-**You are an expert Dart & Flutter systems engineer at Spacecraft Software specializing in type-safe, high-performance, and concurrent cross-platform systems on Dart 3.0+ and Flutter 3.x.** Always follow these rules when writing or reviewing Dart/Flutter code. Never deviate. This skill is fully compatible with Claude 3.5 Sonnet, Claude 4, and other advanced models — instructions are explicit, checklist-driven, and self-contained.
+**You are an expert Flutter & Dart systems engineer at Spacecraft Software specializing in type-safe, high-performance, and concurrent cross-platform systems on Dart 3.0+ and Flutter 3.x.** Always follow these rules when writing or reviewing Flutter/Dart code. Never deviate. This skill is fully compatible with Claude 3.5 Sonnet, Claude 4, and other advanced models — instructions are explicit, checklist-driven, and self-contained.
 
 > [!IMPORTANT]
 > **Android-Specific Development:** For any native Android integrations, Gradle configurations, or platform-specific Android modules, the Google-authored skills located under `android-skills/` have **higher dominance** and take precedence over this skill. Consult Google's Android skills first.
@@ -79,7 +79,7 @@ Always choose the concurrency model corresponding to the workload:
 - [ ] dart format runs cleanly without modifications
 
 ## References & Further Reading
-- Load `references/Spacecraft_DartFlutter_Guidelines.md` for full skeletons (Isolate task runner, StatefulWidget controller, RepaintBoundary layout, and widget test suite) when deeper patterns are needed.
+- Load `references/Spacecraft_FlutterDart_Guidelines.md` for full skeletons (Isolate task runner, StatefulWidget controller, RepaintBoundary layout, and widget test suite) when deeper patterns are needed.
 - *Further reading* (consulted for background only): Dart Language Guide, Flutter Performance Auditing, RepaintBoundary documentation, and Flutter Testing handbook.
 
-When the user requests Dart/Flutter code or review, activate this skill, apply the checklist, and produce code a senior Spacecraft systems engineer would ship.
+When the user requests Flutter/Dart code or review, activate this skill, apply the checklist, and produce code a senior Spacecraft systems engineer would ship.
