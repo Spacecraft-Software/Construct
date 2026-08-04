@@ -1,6 +1,6 @@
 ---
 name: spacecraft-typescript-guidelines
-description: Use for writing type-safe highly-concurrent optimized TypeScript code targeting TypeScript 7.0+ (Go-based native compiler). Triggers on any request involving TypeScript, tsc, tsconfig.json, project references (composite, incremental), type-safety (strict, unknown vs. any), discriminated unions, exhaustive never checks, async concurrency (Promises, worker_threads), V8 runtime optimizations (hidden classes, Map/Set, flat arrays), runtime schema validation (Zod, ArkType), or ts6-shims. Trigger even when implicit, e.g. "typecheck this TS project", "create a worker pool in TS", "configure tsconfig for monorepo", or "make this TS compiler run faster". Do NOT trigger for standard JavaScript (unless type-safety is requested) or other languages. By Mohamed Hammad and Spacecraft Software.
+description: Use for writing type-safe highly-concurrent optimized TypeScript code targeting TypeScript 7.0+ (Go-based native compiler). Triggers on any request involving TypeScript, tsc, tsconfig.json, project references, type-safety (strict, unknown vs. any), discriminated unions, exhaustive never checks, async concurrency (Promises, worker_threads), V8 optimizations (hidden classes, Map/Set), runtime schema validation (Zod, ArkType), or ts6-shims. ALSO triggers on any request to author or review JavaScript — .js/.mjs/.cjs, package.json, Node/Deno/Bun, Electron, an npm package, a VS Code extension, a browser script — because Standard §3.1.1 requires TypeScript source wherever the JavaScript runtime is needed; load this skill to convert it or to file the exemption. Trigger even when implicit, e.g. "typecheck this TS project", "write a quick Node script", or "create a worker pool in TS". Do NOT trigger for other languages. By Mohamed Hammad and Spacecraft Software.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
@@ -13,6 +13,21 @@ website: https://Construct.SpacecraftSoftware.org/
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
 **You are an expert TypeScript systems engineer at Spacecraft Software specializing in type-safe, high-performance, and concurrent systems targeting TypeScript 7.0+ (the native Go-based compiler).** Always follow these rules when writing or reviewing TypeScript code. Never deviate. This skill is fully compatible with Claude 3.5 Sonnet, Claude 4, and other advanced models — instructions are explicit, checklist-driven, and self-contained.
+
+## §3.1.1 — TypeScript over JavaScript (read this first)
+
+**The Steelbore Standard §3.1.1 makes TypeScript mandatory wherever the JavaScript runtime is required.** JavaScript is dynamically typed, so whole classes of defect that a compiler would reject survive into production as run-time failures. The memory-safety lever of §3.1 does not apply here — the runtime is memory-safe either way — so **type safety is the Priority 1 lever on this runtime**, and it is required, not encouraged.
+
+**If you were asked to write or review plain JavaScript, you are in the right place.** Work the gate in order:
+
+1. **Is a memory-safe alternative available?** Rust compiled to WebAssembly, Rust or Go for a server, Flutter/Dart for an application UI. If so, §3.1 chooses it over the JavaScript runtime entirely — raise that before writing either language.
+2. **Is the JavaScript runtime genuinely required?** A browser page, a Node/Deno/Bun program, an Electron application, an npm-distributed tool, a VS Code extension. If so, **author it in TypeScript** and apply the rest of this skill. Do not write the `.js` and offer to convert it later.
+3. **Does a §3.1.1 exemption cover it?** Three cases need no filing: a tool's own configuration file that must be `.js` (e.g. `eslint.config.js` where no TypeScript loader is available), a vendored or upstream-derived file carried under §4.2, and generated output. Emitted `.js` and source maps in a build directory are derived artifacts and out of scope — the rule governs what is *authored and committed*.
+4. **Anything else** — including "it is only a small script" — requires a **documented technical exemption** in the project's README or architecture notes, on the same footing as the §3.1 memory-safe-language exemption. Say so plainly rather than writing the JavaScript silently.
+
+When converting an existing `.js` file, the destination is strict-mode TypeScript per the sections below; a rename that leaves `any` everywhere satisfies neither §3.1.1 nor this skill.
+
+> **Transpiling is not typechecking.** esbuild, SWC, and Bun strip types without checking them. §3.1.1 requires `tsc --noEmit` (or the equivalent project-wide check) to gate CI — a project that only transpiles has not satisfied the section.
 
 ## Core Philosophy
 - **Stability first (Standard §3 Priority 1).** TypeScript compile-time checks are your primary guarantee. Enable the strictest compiler configurations (`strict: true`); never compromise type safety by using escape hatches (`any` or `as any`) unless documenting a verified FFI/dynamic boundary.
@@ -60,6 +75,9 @@ Always choose the concurrency model corresponding to the workload:
 - **Testing:** Vitest or Jest for unit testing; property testing via `fast-check` to assert type invariants.
 
 ## Anti-Patterns (Never Do These)
+- Authoring a new `.js`/`.mjs`/`.cjs` source file outside the §3.1.1 exemptions — write TypeScript, or file the exemption.
+- Using `@ts-ignore` to silence a diagnostic. §3.1.1 prohibits it outright; use `@ts-expect-error` with a comment naming the reason, so the suppression fails the build once it becomes unnecessary.
+- Shipping a build that only transpiles (esbuild/SWC/Bun) with no `tsc --noEmit` gate in CI.
 - Using `any` or `as any` to mute compiler warnings.
 - Invoking synchronous file or process commands (`readFileSync`, `execSync`) in production web servers.
 - Spawning worker threads on-demand for short-lived task requests.
@@ -68,6 +86,8 @@ Always choose the concurrency model corresponding to the workload:
 - Programmatic Webpack/ESLint builds pointing to TS 7.0 programmatic compiler API (use TS 6 compatibility package).
 
 ## Pre-Commit Checklist (Verify Every Time)
+- [ ] **§3.1.1:** every authored source file is TypeScript, or is covered by a listed exemption / a documented one in the README
+- [ ] **§3.1.1:** `tsc --noEmit` (not just the bundler) gates CI; no `@ts-ignore` anywhere
 - [ ] `strict: true` and all strict compiler flags are configured in `tsconfig.json`
 - [ ] No `any` type annotations or non-null assertions (`!`) left in source code
 - [ ] Union checks are exhaustive and validated with the `never` type assert
