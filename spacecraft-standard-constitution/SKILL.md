@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.40 (§6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.5 fidelity; §4.3 LICENSE symlink; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §7 Shell Environment) so
+  The Steelbore Standard v1.41 (§3.1.1 TypeScript over JS; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.5 fidelity; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §7 Shell Environment) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.40 | **Date:** 2026-07-27 | **Author:** Mohamed Hammad
+**Version:** 1.41 | **Date:** 2026-08-04 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -148,6 +148,45 @@ not the whole of Priority 1.**
   degrade gracefully under load or dependency loss, and recover rather than crash.
 - **Verified by testing** — stability properties must be backed by tests (unit, integration,
   and fuzz/property where applicable) gating CI, not asserted by inspection alone.
+
+### §3.1.1 — TypeScript over JavaScript
+
+JavaScript is not a preferred language under §3.1: it is dynamically typed, so whole classes
+of defect that a compiler would reject survive into production and surface as run-time
+failures. The memory-safety lever does not apply — the runtime is memory-safe either way —
+so **type safety is the stability lever available here**, and the standard requires it be pulled.
+
+Where a memory-safe alternative exists (Rust compiled to WebAssembly, Rust or Go for a server,
+Flutter/Dart for an application UI), it must be chosen per §3.1. **Where the JavaScript runtime
+is genuinely required** — a browser page, a Node/Deno/Bun program, an Electron application, an
+npm-distributed tool, a VS Code extension — the source language MUST be **TypeScript**. Plain
+JavaScript source is a documented exemption, not a default.
+
+- **Strict mode is mandatory.** `tsconfig.json` sets `"strict": true`, and additionally
+  `noUncheckedIndexedAccess`, `noImplicitOverride`, and `exactOptionalPropertyTypes`.
+  A configuration that relaxes `strict` is a Priority 1 regression.
+- **No silent escape hatches.** `any` and non-null assertions (`!`) are prohibited in
+  production paths; use `unknown` plus narrowing. `@ts-ignore` is prohibited outright —
+  where a suppression is unavoidable, use `@ts-expect-error` with a comment naming the
+  reason, so the suppression fails the build once it becomes unnecessary.
+- **Validate at the boundary.** Data crossing a trust boundary (network responses, files,
+  environment, IPC, user input) is `unknown` until parsed by a run-time validator. A type
+  annotation is a compile-time claim, not a check — asserting a shape that was never verified
+  is exactly the silent-failure mode §3.1 forbids.
+- **Compiled output is not source.** Emitted `.js` (and its source maps) in a build directory
+  is a *derived artifact* and is outside this rule. The rule governs what is authored and committed.
+- **The build must typecheck.** `tsc --noEmit` (or the equivalent project-wide check) gates CI.
+  A project that only transpiles — stripping types without checking them, as esbuild, SWC, and
+  Bun do by default — has not satisfied this section.
+- **Load the guidelines skill** — `spacecraft-typescript-guidelines` — before writing or
+  reviewing any TypeScript.
+
+**Exemptions.** Plain JavaScript remains acceptable, without filing, only where TypeScript
+cannot express the artifact: a tool's own configuration file that must be `.js` (e.g.
+`eslint.config.js` where no TypeScript loader is available), a vendored or upstream-derived
+file carried under §4.2, and generated output. Anything else — including "it is only a small
+script" — requires a documented technical exemption in the project's README or architecture
+notes, in the same manner as the §3.1 memory-safe-language exemption.
 
 ### §3.2 — Priority 2: Performance
 Performance is the foremost priority after stability. Modern hardware universally provides
@@ -1389,6 +1428,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 
 - [ ] **§2** Aerospace/Sci-Fi/AI naming convention applied to all **new** identifiers; legacy (pre-v1.2) names preserved unless explicitly renamed
 - [ ] **§3.1** Stability: memory safety (Rust, or ASLR+CFI documented); robust error handling, fault tolerance, and test-verified
+- [ ] **§3.1.1** Where the JavaScript runtime is required, source is **TypeScript** under `"strict": true` (plus `noUncheckedIndexedAccess`, `noImplicitOverride`, `exactOptionalPropertyTypes`); no `any` / `!` / `@ts-ignore` in production paths; boundary data validated at run time; `tsc --noEmit` gates CI; any plain-JavaScript source outside the listed exemptions is documented — N/A for projects with no JavaScript runtime
 - [ ] **§3.2** Performance: concurrency considered throughout architecture design; adopted where it advances performance, abandoned where it degrades performance or compromises Stability; serial trade-off documented; compiler optimization flags applied/disabled with explicit notation; benchmarking before/after
 - [ ] **§3.3** Hardened security; PQC readiness addressed
 - [ ] **§4.1** License is `GPL-3.0-or-later` or `AGPL-3.0-or-later` (AGPL for network-facing; per §4.1)
@@ -1423,6 +1463,7 @@ for a pure Rust library), note it as N/A rather than silently skipping it.
 | Task                                  | Load this skill                                    |
 |---------------------------------------|----------------------------------------------------|
 | Writing any Rust code                 | `microsoft-rust-guidelines`                        |
+| Writing any TypeScript (§3.1.1)       | `spacecraft-typescript-guidelines`                 |
 | Writing or reviewing shell scripts    | `spacecraft-cli-shell` + `spacecraft-cli-preference` |
 | Generating DOCX / ODT / PDF on demand | `spacecraft-document-format`                       |
 | Authoring or building a Texinfo manual | `spacecraft-texinfo-document`                              |
