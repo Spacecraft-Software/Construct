@@ -39,3 +39,66 @@ jobs:
         run: |
           find . -name SKILL.md -not -path './.git/*' -print0 \
             | xargs -0 python3 .githooks/check-description-length.py
+
+  # construct-cli/ is the one real build surface in this repo — everything else
+  # is markdown. It went ungated until now, which is how a clippy break
+  # (items_after_test_module in src/sources/skillmd.rs) sat unnoticed on main:
+  # the lint job above never invokes cargo.
+  #
+  # Deliberately not path-filtered. A filtered job reports nothing at all when
+  # it is skipped, which makes it unusable as a required status check; the
+  # cache makes a markdown-only PR cheap enough that always running is the
+  # better trade.
+  cargo:
+    name: construct-cli — fmt + clippy + test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: construct-cli
+    steps:
+      - uses: actions/checkout@v4
+
+      # Stable, not the declared MSRV: clippy lints and rustfmt output drift
+      # between versions, so pinning the gate to 1.82 would freeze both. See
+      # the msrv job below for the compatibility check.
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: construct-cli
+
+      - name: Format
+        run: cargo fmt --check
+
+      # -D warnings matches construct-cli/CLAUDE.md; a warning is a failure.
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test
+
+  # Separate from the gate above so an MSRV bump is a visible, deliberate
+  # change rather than something that silently rides along with a dependency
+  # update. Keep the version in step with `rust-version` in Cargo.toml.
+  msrv:
+    name: construct-cli — MSRV (1.82)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: construct-cli
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@1.82.0
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: construct-cli
+          key: msrv
+
+      # `check`, not `test`: dev-dependencies are not bound by the MSRV the
+      # crate advertises to consumers.
+      - name: Check against the declared MSRV
+        run: cargo check --all-features
