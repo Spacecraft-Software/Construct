@@ -16,7 +16,7 @@ rules that bite. (A maintainer-local `CLAUDE.md` overlay adds host-specific note
   rendered length is what counts, not the raw line count. Re-check after any edit.
   Normative as Standard §5.6, and gated in CI (`SKILL.md description cap` step,
   every `SKILL.md` in the tree) and by `construct skill ship`, which refuses to
-  stage or push an over-cap skill (exit 5, `CONFLICT`). The `.githooks/pre-commit`
+  stage or ship an over-cap skill (exit 5, `CONFLICT`). The `.githooks/pre-commit`
   hook is the fast local signal only — it is opt-in per clone
   (`git config core.hooksPath .githooks`), so trim *before* packing rather than
   relying on it.
@@ -35,9 +35,8 @@ rules that bite. (A maintainer-local `CLAUDE.md` overlay adds host-specific note
   assistant-driven changes alike. There is **no auto-push exemption** for
   skill-directory edits. An agent's work ends at opening the PR — **merging is
   the maintainer's call**, and an agent never merges its own PR.
-  **`construct skill ship` predates this rule and hard-codes
-  `git push origin main`** — do not use it to publish until it is reworked; run
-  the workflow in [`CONTRIBUTING.md`](CONTRIBUTING.md) by hand instead.
+  `construct skill ship` implements this end-to-end — branch, signed commit,
+  push, `gh pr create` — and never pushes to the default branch.
 - **Keep the README §2 catalogue row in sync** when adding, removing, or
   re-scoping a skill.
 

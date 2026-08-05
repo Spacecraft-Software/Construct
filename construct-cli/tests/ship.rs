@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 //! Black-box tests for `construct skill ship` against throwaway git fixtures.
-//! All use `--dry-run --no-sync`, so no commit, push, or flake update happens —
-//! they exercise detection, the bundle-drift refusal, and remote validation.
+//! All use `--dry-run`, so nothing is committed, branched, pushed, or opened —
+//! they exercise detection, the bundle-drift refusal, the §5.6 description cap,
+//! remote validation, and the branch/pull-request plan.
 
 use std::fs;
 use std::path::Path;
@@ -70,7 +71,6 @@ fn ship_dry_run_reports_plan_when_bundles_rebuilt() {
             "ship",
             "--repo",
             p.to_str().unwrap(),
-            "--no-sync",
             "--dry-run",
             "--json",
         ])
@@ -87,6 +87,115 @@ fn ship_dry_run_reports_plan_when_bundles_rebuilt() {
     assert!(stage.iter().any(|s| s == "demo.zip"));
     assert!(stage.iter().any(|s| s == "demo.skill"));
     assert!(stage.iter().any(|s| s == "demo/SKILL.md"));
+}
+
+/// The core of the branch+PR rule: shipping from the default branch must plan a
+/// feature branch and a pull request, never a push to the default branch.
+#[test]
+fn ship_from_default_branch_plans_a_feature_branch_and_pr() {
+    let repo = fixture(REMOTE);
+    let p = repo.path();
+    write(p, "demo/SKILL.md", "---\nname: demo\n---\nv1\n");
+    write(p, "demo.zip", "z1");
+    write(p, "demo.skill", "s1");
+    run_git(p, &["add", "demo/SKILL.md", "demo.zip", "demo.skill"]);
+    run_git(p, &["commit", "-qm", "init"]);
+    write(p, "demo/SKILL.md", "---\nname: demo\n---\nv2\n");
+    write(p, "demo.zip", "z2");
+    write(p, "demo.skill", "s2");
+
+    let out = bin()
+        .args([
+            "skill",
+            "ship",
+            "--repo",
+            p.to_str().unwrap(),
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let v: Value = serde_json::from_slice(&out).expect("valid JSON");
+    let branch = v["data"]["branch"].as_str().unwrap();
+    assert_eq!(v["data"]["current_branch"], "main");
+    assert_eq!(v["data"]["default_branch"], "main");
+    assert_ne!(branch, "main", "must never target the default branch");
+    assert!(branch.starts_with("ship/"), "generated branch: {branch}");
+    assert!(branch.contains("demo"));
+    assert_eq!(v["data"]["would_create_branch"], true);
+    assert_eq!(v["data"]["would_open_pull_request"], true);
+}
+
+/// An explicit `--branch` wins over the generated name.
+#[test]
+fn ship_honours_explicit_branch() {
+    let repo = fixture(REMOTE);
+    let p = repo.path();
+    write(p, "demo/SKILL.md", "---\nname: demo\n---\nv1\n");
+    write(p, "demo.zip", "z1");
+    write(p, "demo.skill", "s1");
+    run_git(p, &["add", "demo/SKILL.md", "demo.zip", "demo.skill"]);
+    run_git(p, &["commit", "-qm", "init"]);
+    write(p, "demo/SKILL.md", "---\nname: demo\n---\nv2\n");
+    write(p, "demo.zip", "z2");
+    write(p, "demo.skill", "s2");
+
+    let out = bin()
+        .args([
+            "skill",
+            "ship",
+            "--repo",
+            p.to_str().unwrap(),
+            "--branch",
+            "ship/custom-name",
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let v: Value = serde_json::from_slice(&out).expect("valid JSON");
+    assert_eq!(v["data"]["branch"], "ship/custom-name");
+}
+
+/// Already on a feature branch: reuse it, so a re-run adds to the open PR
+/// rather than fragmenting the work across branches.
+#[test]
+fn ship_reuses_the_current_feature_branch() {
+    let repo = fixture(REMOTE);
+    let p = repo.path();
+    write(p, "demo/SKILL.md", "---\nname: demo\n---\nv1\n");
+    write(p, "demo.zip", "z1");
+    write(p, "demo.skill", "s1");
+    run_git(p, &["add", "demo/SKILL.md", "demo.zip", "demo.skill"]);
+    run_git(p, &["commit", "-qm", "init"]);
+    run_git(p, &["switch", "-q", "-c", "ship/already-here"]);
+    write(p, "demo/SKILL.md", "---\nname: demo\n---\nv2\n");
+    write(p, "demo.zip", "z2");
+    write(p, "demo.skill", "s2");
+
+    let out = bin()
+        .args([
+            "skill",
+            "ship",
+            "--repo",
+            p.to_str().unwrap(),
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let v: Value = serde_json::from_slice(&out).expect("valid JSON");
+    assert_eq!(v["data"]["branch"], "ship/already-here");
+    assert_eq!(v["data"]["would_create_branch"], false);
 }
 
 #[test]
@@ -107,7 +216,6 @@ fn ship_refuses_bundle_drift() {
             "ship",
             "--repo",
             p.to_str().unwrap(),
-            "--no-sync",
             "--dry-run",
             "--json",
         ])
@@ -150,7 +258,6 @@ fn ship_refuses_oversized_description() {
             "ship",
             "--repo",
             p.to_str().unwrap(),
-            "--no-sync",
             "--dry-run",
             "--json",
         ])
@@ -184,7 +291,6 @@ fn ship_allows_description_exactly_at_cap() {
             "ship",
             "--repo",
             p.to_str().unwrap(),
-            "--no-sync",
             "--dry-run",
             "--json",
         ])
@@ -208,7 +314,6 @@ fn ship_rejects_wrong_remote() {
             "ship",
             "--repo",
             p.to_str().unwrap(),
-            "--no-sync",
             "--dry-run",
             "--json",
         ])
@@ -230,7 +335,6 @@ fn ship_nothing_to_ship_on_clean_repo() {
             "ship",
             "--repo",
             p.to_str().unwrap(),
-            "--no-sync",
             "--dry-run",
             "--json",
         ])

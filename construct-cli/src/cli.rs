@@ -212,9 +212,9 @@ pub(crate) enum SkillCommand {
     )]
     Sync(SyncArgs),
 
-    /// Ship local skill edits: commit (signed) + push, then sync.
+    /// Ship local skill edits: branch + commit (signed) + open a pull request.
     #[command(
-        after_help = "Examples:\n  construct skill ship --dry-run\n  construct skill ship --skills spacecraft-rust-guidelines\n  construct skill ship --message \"docs: clarify X\" --json"
+        after_help = "Never pushes to the default branch — every change goes through a\nfeature branch and a pull request, and merging is the maintainer's call.\nRun `construct skill sync` after the PR merges.\n\nExamples:\n  construct skill ship --dry-run\n  construct skill ship --skills spacecraft-rust-guidelines\n  construct skill ship --branch ship/palette-fix --message \"docs: clarify X\" --json"
     )]
     Ship(ShipArgs),
 }
@@ -373,8 +373,15 @@ pub(crate) struct ShipArgs {
     #[arg(short = 'm', long = "message", value_name = "MSG")]
     pub(crate) message: Option<String>,
 
-    /// Commit and push but skip the final `skill sync` step.
-    #[arg(long)]
+    /// Feature branch to commit onto (default: derived from the shipped
+    /// skills, or the current branch when it is not the default branch).
+    #[arg(short = 'b', long = "branch", value_name = "NAME")]
+    pub(crate) branch: Option<String>,
+
+    /// Deprecated no-op. `ship` opens a pull request instead of pushing to the
+    /// default branch, so nothing lands to sync; run `construct skill sync`
+    /// after the PR merges.
+    #[arg(long, hide = true)]
     pub(crate) no_sync: bool,
 }
 

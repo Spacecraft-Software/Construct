@@ -57,6 +57,22 @@ pub(crate) fn body(skill_md: &Path) -> String {
     }
 }
 
+/// Split `---\n<frontmatter>\n---\n<body>` into `(frontmatter, body)`.
+fn split(content: &str) -> Option<(&str, &str)> {
+    let rest = content
+        .strip_prefix("---\n")
+        .or_else(|| content.strip_prefix("---\r\n"))?;
+    let idx = rest.find("\n---")?;
+    // Inclusive of the newline before the closing fence: without it a block
+    // scalar that is the *last* frontmatter key loses its trailing newline, and
+    // `description_len` would under-count by one against the loader.
+    let fm = &rest[..=idx];
+    // Body begins after the closing fence line.
+    let after = &rest[idx + 1..]; // at the closing "---"
+    let body = after.split_once('\n').map_or("", |(_, b)| b);
+    Some((fm, body))
+}
+
 #[cfg(test)]
 mod tests {
     use std::io::Write as _;
@@ -74,7 +90,10 @@ mod tests {
     fn folded_scalar_keeps_its_trailing_newline_as_the_last_key() {
         // The closing `---` fence ends the block. The loader still counts the
         // newline that terminates the folded content, so this is 4 chars.
-        assert_eq!(len_of("---\nname: d\ndescription: >\n  abc\n---\nb\n"), Some(4));
+        assert_eq!(
+            len_of("---\nname: d\ndescription: >\n  abc\n---\nb\n"),
+            Some(4)
+        );
     }
 
     #[test]
@@ -106,20 +125,4 @@ mod tests {
         assert_eq!(len_of("---\nname: d\n---\nb\n"), None);
         assert_eq!(len_of("no frontmatter here\n"), None);
     }
-}
-
-/// Split `---\n<frontmatter>\n---\n<body>` into `(frontmatter, body)`.
-fn split(content: &str) -> Option<(&str, &str)> {
-    let rest = content
-        .strip_prefix("---\n")
-        .or_else(|| content.strip_prefix("---\r\n"))?;
-    let idx = rest.find("\n---")?;
-    // Inclusive of the newline before the closing fence: without it a block
-    // scalar that is the *last* frontmatter key loses its trailing newline, and
-    // `description_len` would under-count by one against the loader.
-    let fm = &rest[..=idx];
-    // Body begins after the closing fence line.
-    let after = &rest[idx + 1..]; // at the closing "---"
-    let body = after.split_once('\n').map_or("", |(_, b)| b);
-    Some((fm, body))
 }
