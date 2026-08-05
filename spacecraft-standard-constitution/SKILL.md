@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.41 (§3.1.1 TypeScript over JS; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.5 fidelity; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design; §7 Shell Environment) so
+  The Steelbore Standard v1.42 (§13 design systems; §3.1.1 TypeScript over JS; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.5 fidelity; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.41 | **Date:** 2026-08-04 | **Author:** Mohamed Hammad
+**Version:** 1.42 | **Date:** 2026-08-05 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -939,8 +939,28 @@ verify they are available on Google Fonts or another FOSS-licensed repository.
 
 ## §13 — UI/UX Design System
 
-- **Material Design** is the required component system for all graphical applications.
-  Theme Material components with the §11 color palette.
+- **Every graphical application declares exactly one component system**, named in its
+  `README.md` beside the §5.2 posture section, and themes it with the §11 palette.
+  Which system is determined by the platform, not by preference:
+
+  | Application class | Required component system |
+  |-------------------|---------------------------|
+  | **Flutter, web, mobile, and cross-platform GUI** | **Material Design** |
+  | **GTK 4 desktop** | **GNOME HIG** via libadwaita → `spacecraft-gtk-guidelines` |
+  | **Qt 6 desktop** | **KDE HIG** via Qt Quick Controls / Fusion → `spacecraft-qt-guidelines` |
+  | **Custom-drawn or immediate-mode UI** | Material Design, unless a platform HIG is declared |
+
+  **Rationale.** Material Design is a coherent, accessible system and remains the default
+  wherever the platform does not supply one. A native desktop toolkit does supply one:
+  GTK ships Adwaita and the GNOME HIG, Qt ships Fusion and the KDE HIG, and both are
+  wired into the platform's window management, settings, and accessibility stack.
+  Imposing Material on top of either produces an application that matches neither its
+  own toolkit nor Material, and that fights the very platform integration §18 depends on.
+  The mandate is therefore that a system is **declared and followed consistently** — not
+  that one particular system is used everywhere.
+- **§11 binding is unconditional.** Whichever system is declared, all palette references
+  go through the named `steelbore` theme (§11.1). A component system chooses the widget
+  vocabulary; it never supplies the colors.
 - **WCAG 2.2 Level AA** contrast is the minimum for all color pairings.
   Any new color additions must be WCAG-verified before adoption, and the
   verification must state *which pairing* was measured (§11).
@@ -1444,7 +1464,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§10** CUA + Vim-like key bindings planned/implemented; bindings user-remappable; assistive-technology modifier chords (NVDA/Orca/VoiceOver) not captured — N/A for projects registered as games (§18.5)
 - [ ] **§11** A registered palette is used — Steelbore Modern by default, or exactly one declared alternate (§11.4), never a mix; that palette's canvas is used unaltered; surface tokens are fills only, never text (§11.0.1); token-on-token pairings outside the palette's verified matrix measured before use; new apps expose colors via a named `Steelbore` theme binding the §11.1 role tokens — no bare hex literals in UI logic — and ship the palette's `-high-contrast` sibling
 - [ ] **§12** FOSS-licensed fonts only (Share Tech Mono / Inconsolata)
-- [ ] **§13** Material Design UI/UX; WCAG 2.2 AA verified, stating which pairing was measured
+- [ ] **§13** Exactly one component system declared in `README.md` and followed — Material Design for Flutter/web/mobile/cross-platform, GNOME HIG for GTK 4, KDE HIG for Qt 6; themed through the `steelbore` theme (§11.1); WCAG 2.2 AA verified, stating which pairing was measured
 - [ ] **§14** ISO 8601 dates; 24h time; UTC Z is the default primary timestamp (companion local time with UTC offset permitted, never a replacement) — unless the project filed the §14.2.1 domain exception for inherently local-time-bound data; ISO 8601 durations; metric units
 - [ ] **§15** Attribution present: maintainer name (`Mohamed Hammad`), contact (`Mohamed.Hammad@SpacecraftSoftware.org`), and project URL in `--version` / README / About
 - [ ] **§15.3** Third-party work credited in `CREDITS.md` at project/skill root when triggers apply; deeper `references/ATTRIBUTION.md` present where reference content is adapted from external sources
@@ -1467,6 +1487,8 @@ for a pure Rust library), note it as N/A rather than silently skipping it.
 | Writing or reviewing shell scripts    | `spacecraft-cli-shell` + `spacecraft-cli-preference` |
 | Generating DOCX / ODT / PDF on demand | `spacecraft-document-format`                       |
 | Authoring or building a Texinfo manual | `spacecraft-texinfo-document`                              |
+| Writing GTK 4 / GNOME desktop code (§13) | `spacecraft-gtk-guidelines`                     |
+| Writing Qt 6 / KDE desktop code (§13) | `spacecraft-qt-guidelines`                         |
 | Creating IDE / terminal themes        | `spacecraft-theme-factory`                         |
 | Implementing or auditing accessibility (§18) | `spacecraft-accessibility-support`          |
 | All other Spacecraft Software work    | `spacecraft-standard-constitution`                 |
