@@ -40,6 +40,14 @@ jobs:
           find . -name SKILL.md -not -path './.git/*' -print0 \
             | xargs -0 python3 .githooks/check-description-length.py
 
+      # The gates above verify each skill in isolation. This one verifies that a
+      # skill still agrees with the catalogue around it: that every skill id it
+      # names resolves to a real directory, and that it does not pin a Standard
+      # *document* version (which rots on any unrelated release — cite the
+      # section, or say when that section last changed).
+      - name: Skill cross-references + version pins
+        run: python3 .github/check-skill-refs.py --catalogue . .
+
   # construct-cli/ is the one real build surface in this repo — everything else
   # is markdown. It went ungated until now, which is how a clippy break
   # (items_after_test_module in src/sources/skillmd.rs) sat unnoticed on main:
