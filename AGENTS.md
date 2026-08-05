@@ -28,9 +28,19 @@ rules that bite. (A maintainer-local `CLAUDE.md` overlay adds host-specific note
   `.skill` files carry unrelated uncommitted changes that must not be swept in.
 - **Commit in UTC, signed** (signing is global, no flag needed); assistant
   commits add a `Co-Authored-By: Claude …` trailer.
+- **Branch + PR — never push to `main`.** Every change, including a one-line
+  version bump, goes through a feature branch → pull request → squash-merge →
+  delete branch. This is a two-repo rule: `/spacecraft-software/standard/`
+  states it for the Standard *and* Construct, and it applies to human and
+  assistant-driven changes alike. There is **no auto-push exemption** for
+  skill-directory edits. An agent's work ends at opening the PR — **merging is
+  the maintainer's call**, and an agent never merges its own PR.
+  **`construct skill ship` predates this rule and hard-codes
+  `git push origin main`** — do not use it to publish until it is reworked; run
+  the workflow in [`CONTRIBUTING.md`](CONTRIBUTING.md) by hand instead.
 - **Keep the README §2 catalogue row in sync** when adding, removing, or
   re-scoping a skill.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the bundling commands, the drift
-sweep, and the push procedure. The maintainer-local `CLAUDE.md` adds the Home
-Manager local fan-out (host-specific).
+sweep, and the branch/PR procedure. The maintainer-local `CLAUDE.md` adds the
+Home Manager local fan-out (host-specific).
