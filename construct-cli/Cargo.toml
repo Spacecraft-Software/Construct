@@ -4,7 +4,11 @@
 name = "construct"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.82"
+# The real floor, measured by CI's `msrv` job rather than asserted. The locked
+# dependency tree pins indexmap 2.14.0, whose manifest requires `edition2024`
+# — a Cargo feature stabilized in 1.85 — so 1.82 could not even parse the
+# tree, let alone build it. Raise this only alongside a green `msrv` run.
+rust-version = "1.85"
 description = "Spacecraft Software Construct skills package manager (CLI + TUI)"
 homepage = "https://Construct.SpacecraftSoftware.org/"
 repository = "https://github.com/Spacecraft-Software/Construct"

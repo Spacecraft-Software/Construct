@@ -83,7 +83,7 @@ jobs:
   # change rather than something that silently rides along with a dependency
   # update. Keep the version in step with `rust-version` in Cargo.toml.
   msrv:
-    name: construct-cli — MSRV (1.82)
+    name: construct-cli — MSRV (1.85)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -91,7 +91,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dtolnay/rust-toolchain@1.82.0
+      - uses: dtolnay/rust-toolchain@1.85.0
 
       - uses: Swatinem/rust-cache@v2
         with:
