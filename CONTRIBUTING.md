@@ -79,10 +79,33 @@ diverge. Verify with `unzip -l <name>.zip` before committing.
    with the signing key registered as a **Signing** key on GitHub — auth-only keys
    do not validate signatures). Assistant-driven commits add a
    `Co-Authored-By: …` trailer; human commits do not.
-5. **Push** to `origin/main`:
+5. **Branch + PR — never push to `main`.** Every change, including a one-line
+   version bump, goes through a feature branch → pull request → squash-merge →
+   delete branch. This is a **two-repo rule**: `/spacecraft-software/standard/`
+   states it for the Standard *and* Construct, and it binds human and
+   assistant-driven changes alike. There is no auto-push exemption for
+   skill-directory edits.
    ```sh
-   git push https://github.com/Spacecraft-Software/Construct.git main
+   git switch -c <short-topic-branch>
+   # …steps 1–4 above…
+   git push -u https://github.com/Spacecraft-Software/Construct.git <branch>
+   gh pr create --repo Spacecraft-Software/Construct --base main --head <branch> \
+     --title "…" --body "…"
    ```
+   HTTPS is preferred over the SSH remote
+   (`git@github.com:Spacecraft-Software/Construct.git`), which is intermittently
+   unreachable on some hosts. The HTTPS push still carries the locally-made
+   signed commit, so GitHub's "Verified" status is preserved.
+
+   Contributing agents stop at opening the PR — **merging is the maintainer's
+   call**, and an agent never merges its own PR.
+
+   > **`construct skill ship` does not yet follow this rule.**
+   > `construct-cli/src/commands/ship.rs` hard-codes `git push origin main`, so
+   > the command publishes straight to the default branch. Until it is reworked
+   > (branch + `gh pr create`, or stop after the signed commit), do not use it
+   > to publish — follow steps 1–5 by hand. `--dry-run --no-sync` still
+   > exercises its §5.6 description-cap gate and bundle-drift check safely.
 
 Never let `git status` show a skill-dir change without its matching bundle change.
 
