@@ -1,7 +1,7 @@
 ---
 name: steelbore-color-palette
 description: >
-  Single source of truth for the Steelbore palette family (Standard §11 v1.39)
+  Single source of truth for the Steelbore palette family (Standard §11, last amended v1.39)
   — nine palettes, their hex tokens, WCAG contrast matrices, the §11.1
   role-token contract, and every §11.1.1 accessibility variant. Modern is the
   default; Classic, Blue, BlackPinkPanther, MatrixGreen, NavyWhite, and Tokyo
@@ -25,9 +25,10 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-> **Authority chain:** The Steelbore Standard §11 (v1.39) is the normative
-> text; this skill is its canonical machine-readable mirror and the **only**
-> place palette hexes should be read from. If this skill and the Standard ever
+> **Authority chain:** The Steelbore Standard §11 — current as of Standard
+> v1.42, last amended in v1.39 — is the normative text; this skill is its
+> canonical machine-readable mirror and the **only** place palette hexes
+> should be read from. If this skill and the Standard ever
 > disagree, the Standard governs — and this skill must be fixed. Consumer
 > skills (`spacecraft-brand-guidelines`, `spacecraft-theme-factory`,
 > `spacecraft-accessibility-support`, `spacecraft-document-format`) define
