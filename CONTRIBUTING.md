@@ -100,12 +100,15 @@ diverge. Verify with `unzip -l <name>.zip` before committing.
    Contributing agents stop at opening the PR — **merging is the maintainer's
    call**, and an agent never merges its own PR.
 
-   > **`construct skill ship` does not yet follow this rule.**
-   > `construct-cli/src/commands/ship.rs` hard-codes `git push origin main`, so
-   > the command publishes straight to the default branch. Until it is reworked
-   > (branch + `gh pr create`, or stop after the signed commit), do not use it
-   > to publish — follow steps 1–5 by hand. `--dry-run --no-sync` still
-   > exercises its §5.6 description-cap gate and bundle-drift check safely.
+   > `construct skill ship` automates steps 1–5: it enforces bundle-drift and
+   > the §5.6 description cap, switches to a feature branch (generated from the
+   > shipped skills, or `--branch`), stages by explicit name, makes the signed
+   > UTC commit, pushes the branch, and opens the PR with `gh`. It never pushes
+   > to the default branch and never merges. `--dry-run` reports the full plan,
+   > branch included, without changing anything.
+   >
+   > Because nothing lands on the default branch, `ship` does not sync — run
+   > `construct skill sync` after the PR merges.
 
 Never let `git status` show a skill-dir change without its matching bundle change.
 
@@ -207,7 +210,7 @@ consolidated zip intentionally differs from any on-disk tree).
   snippet above is only for a quick manual count:
   - **CI** — the `SKILL.md description cap` step runs the checker over every
     `SKILL.md` in the tree on each PR and push to `main`. This is the gate.
-  - **`construct skill ship`** — refuses to stage, commit, or push a skill whose
+  - **`construct skill ship`** — refuses to stage, commit, or open a PR for a skill whose
     description is over the cap, before any bundle is shipped (exit 5,
     `CONFLICT`, with an `oversized_skills` list naming each offender).
   - **The [pre-commit hook](#pre-commit-hook)** — the fast local signal. It is

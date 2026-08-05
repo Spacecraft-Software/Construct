@@ -191,15 +191,17 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             name: "construct skill ship".to_owned(),
             noun: "skill".to_owned(),
             verb: "ship".to_owned(),
-            description: "Commit (signed) + push local skill edits, then sync".to_owned(),
+            description: "Branch + commit (signed) local skill edits, then open a pull request"
+                .to_owned(),
             parameters: json!({
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
                     "repo": { "type": "string", "description": "Construct clone to ship from" },
                     "skills": { "type": "array", "items": { "type": "string" }, "description": "Restrict to these skills (default: all changed)" },
-                    "message": { "type": "string", "description": "Commit message subject" },
-                    "no_sync": { "type": "boolean", "default": false, "description": "Skip the final flake sync" }
+                    "message": { "type": "string", "description": "Commit message subject, also the pull-request title" },
+                    "branch": { "type": "string", "description": "Feature branch to commit onto (default: derived from the shipped skills, or the current branch when it is not the default branch)" },
+                    "no_sync": { "type": "boolean", "default": false, "description": "Deprecated no-op — ship opens a pull request, so nothing lands to sync" }
                 }
             }),
             output_data: json!({
@@ -211,30 +213,31 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                     "committed": { "type": "boolean" },
                     "commit_sha": { "type": "string" },
                     "signed": { "type": "boolean" },
+                    "branch": { "type": "string" },
+                    "base_branch": { "type": "string" },
                     "pushed": { "type": "boolean" },
-                    "flake_updated": { "type": "boolean" },
-                    "synced_at": { "type": ["string", "null"] }
+                    "pull_request_url": { "type": ["string", "null"] }
                 }
             }),
             exit_codes: pairs(&[
-                ("0", "SUCCESS — shipped (or planned under --dry-run)"),
-                ("1", "GENERAL_FAILURE — a git or nix command failed"),
+                ("0", "SUCCESS — pull request opened (or planned under --dry-run)"),
+                ("1", "GENERAL_FAILURE — a git or gh command failed"),
                 ("2", "USAGE_ERROR — repo is not the Construct work tree"),
                 ("3", "NOT_FOUND — repo path does not exist"),
                 (
                     "5",
                     "CONFLICT — skill source changed without rebuilt .zip/.skill bundles, or a SKILL.md description exceeds the 1000-character cap (Standard §5.6)",
                 ),
-                ("127", "DEPENDENCY_MISSING — git or nix not on PATH"),
+                ("127", "DEPENDENCY_MISSING — git or gh not on PATH"),
             ]),
             examples: pairs(&[
                 (
                     "construct skill ship --dry-run",
-                    "Preview what would be committed and pushed",
+                    "Preview the branch, commit, and pull request without changing anything",
                 ),
                 (
                     "construct skill ship --skills spacecraft-rust-guidelines",
-                    "Ship one skill's edits",
+                    "Ship one skill's edits on a generated branch and open its PR",
                 ),
             ]),
             supports_json: true,
