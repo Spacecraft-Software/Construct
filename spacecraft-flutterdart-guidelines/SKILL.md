@@ -1,6 +1,6 @@
 ---
 name: spacecraft-flutterdart-guidelines
-description: Use for writing type-safe highly-concurrent memory-safe Flutter and Dart code following Spacecraft Software standards. Triggers on any request involving Dart, Flutter, pubspec.yaml, analysis_options.yaml, Sound Null Safety (avoiding !), Dart Isolates (Isolate.run, ports), event loop async/await, Flutter performance tuning (const constructors, RepaintBoundary), disposing controllers, widget testing, or package dependencies. Native Android configurations or integrations are governed with higher dominance by the Google Android skills at android-skills/. Trigger even when implicit, e.g. "write a Dart isolate", "optimize Flutter build redraws", "configure analysis_options.yaml", or "mock a widget test". Do NOT trigger for standard JS or native iOS unless bridging is explicitly required. By Mohamed Hammad and Spacecraft Software.
+description: Use for writing type-safe highly-concurrent memory-safe Flutter and Dart code following Spacecraft Software standards. Triggers on any request involving Dart, Flutter, pubspec.yaml, analysis_options.yaml, Sound Null Safety (avoiding !), Dart Isolates (Isolate.run, ports), event loop async/await, Flutter performance tuning (const constructors, RepaintBoundary), disposing controllers, Semantics/SemanticsRole accessibility (Standard §18), widget testing, or package dependencies. Native Android configurations or integrations are governed with higher dominance by the Google Android skills at android-skills/. Trigger even when implicit, e.g. "write a Dart isolate", "optimize Flutter build redraws", "configure analysis_options.yaml", or "mock a widget test". Do NOT trigger for standard JS or native iOS unless bridging is explicitly required. By Mohamed Hammad and Spacecraft Software.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
@@ -22,6 +22,7 @@ website: https://Construct.SpacecraftSoftware.org/
 - **Then Performance (Priority 2).** Flutter renders at 60fps/120fps. Never block the main UI thread with heavy calculations (offload them to auxiliary Isolates). Prevent garbage collection churn by using `const` constructors on widgets and objects.
 - **Isolate Concurrency.** Dart isolates do not share memory heaps. Protect threads from race conditions by design; pass immutable data via messages or clean `Isolate.run` blocks.
 - **Clean Resource Teardown.** Prevent memory leaks by explicitly closing streams and disposing of controller objects when widgets are unmounted.
+- **Accessible by Construction (Standard §18).** Every Spacecraft Software application other than a registered game **must** ship a working accessible mode — this is mandatory for the developer to implement and optional for the user to activate. §18.3 names **`Semantics` / `SemanticsRole`** as Flutter's required bridge; it maps to ARIA on web and to the platform accessibility APIs elsewhere. Accessibility is a build requirement, not a polish pass.
 
 ## Memory Safety & Null Safety
 - **NonNull Safety Checks:** The force-unwrap operator `!` is strictly forbidden on production code. Use optional chaining `?.`, the Elvis operator `??` to supply fallbacks, or smart casting after explicit type checking (`is`).
@@ -46,6 +47,8 @@ Always choose the concurrency model corresponding to the workload:
 - **State management:** Local state updates via local widgets or structured controllers (Riverpod, Bloc, Provider). Avoid calling `setState` at the root of large widget trees.
 - **Widget caching:** Enforce `const` constructors on all stateless widgets and immutable layouts.
 - **Performance boundaries:** Wrap complex, frequently repainting widgets in `RepaintBoundary` objects.
+- **Accessibility bridge:** `Semantics` / `SemanticsRole` on every interactive widget; `ExcludeSemantics` for decoration; a `CustomPainter` surface publishes its own nodes via `semanticsBuilder` (§18.3).
+- **Design system:** Material Design — §13 requires it for Flutter, web, mobile, and cross-platform GUI, themed through the named `steelbore` theme rather than bare hex literals (§11.1).
 
 ## Required Techniques
 1. **Controller Disposal:** Always call `.dispose()` on `TextEditingController`, `AnimationController`, `ScrollController`, and `StreamController` inside `StatefulWidget.dispose()` to prevent memory leaks.
@@ -53,12 +56,16 @@ Always choose the concurrency model corresponding to the workload:
 3. **Isolate parsing:** Wrap JSON decoding of large payloads (size > 50KB) inside `Isolate.run()` to prevent frame drops.
 4. **DevTools Profiling:** Verify repaint boundaries using Flutter DevTools' "Highlight Repaints" before checking in custom painters.
 5. **Warnings-as-Errors:** Configure compiler options in `pubspec.yaml` and `analysis_options.yaml` to fail builds on analysis warnings in CI.
+6. **Semantic name and role on every interactive widget:** an icon-only `IconButton` with no `tooltip` or `Semantics(label:)` announces as "button" and nothing else. Wrap decoration in `ExcludeSemantics` so it is skipped rather than read as noise.
+7. **Announce state changes, do not merely repaint them:** `SemanticsService.announce(…)` when a long operation completes — a spinner that stops communicates nothing to a screen-reader user.
+8. **Honour platform preferences independently of the §18.1 toggle:** read `MediaQuery.disableAnimations` (reduced motion) and `MediaQuery.highContrast` from the platform. The user already expressed those system-wide; do not make them express it twice.
 
 ## Build, Tooling & CI (Non-Negotiable)
 - **Toolchain floor:** Dart ≥ 3.0.0, Flutter ≥ 3.10.
 - **Analysis Option Rules:** Enforce `flutter_lints` with `prefer_const_constructors` and `close_sinks` warnings configured as errors.
 - **Formatter:** Verify layout spacing using `dart format --line-length=100`.
 - **Testing:** Unit, widget, and integration test targets gated on every CI commit.
+- **Accessibility gate:** assert with `meetsGuideline(textContrastGuideline)`, `androidTapTargetGuideline`, `iOSTapTargetGuideline`, and `labeledTapTargetGuideline` in widget tests, and verify the built application with a real screen reader — TalkBack, VoiceOver, or Orca — before release (§18.4).
 
 ## Anti-Patterns (Never Do These)
 - Using the `!` operator to force-unwrap nullable variables.
@@ -67,6 +74,11 @@ Always choose the concurrency model corresponding to the workload:
 - Leaving animation controllers or stream controllers open without calling `.dispose()`.
 - Triggering global `setState` updates for localized changes.
 - Accessing collection subscripts without index range checking.
+- Shipping an icon-only button with no `tooltip` or `Semantics` label — it announces as "button" and nothing else.
+- Painting controls in a `CustomPainter` without a `semanticsBuilder`: a canvas-rendered control is invisible to assistive technology, not merely hard to reach.
+- Wrapping decorative imagery in `Semantics` instead of `ExcludeSemantics`, so a screen reader reads noise.
+- Animating unconditionally without checking `MediaQuery.disableAnimations`.
+- Writing hex color literals into widget code instead of `steelbore` theme tokens (§11.1).
 
 ## Pre-Commit Checklist (Verify Every Time)
 - [ ] Null safety checks pass; no `!` operators left in production code
@@ -77,9 +89,16 @@ Always choose the concurrency model corresponding to the workload:
 - [ ] analysis_options.yaml has lint checks active; no warnings or lints remain
 - [ ] Widget and unit test suites execute successfully
 - [ ] dart format runs cleanly without modifications
+- [ ] Every interactive widget carries a semantic label and role; decoration is wrapped in `ExcludeSemantics`
+- [ ] `CustomPainter` surfaces publish nodes via `semanticsBuilder` (§18.3)
+- [ ] State changes that matter are announced, not merely repainted
+- [ ] Reduced motion and high contrast are read from `MediaQuery`, independently of the §18.1 toggle
+- [ ] Accessibility guideline assertions pass, and the app was exercised with a real screen reader (§18.4)
+- [ ] All colors resolve through `steelbore` theme tokens — no hex literals (§11.1)
 
 ## References & Further Reading
-- Load `references/Spacecraft_FlutterDart_Guidelines.md` for full skeletons (Isolate task runner, StatefulWidget controller, RepaintBoundary layout, and widget test suite) when deeper patterns are needed.
+- Load `references/Spacecraft_FlutterDart_Guidelines.md` for full skeletons (Isolate task runner, StatefulWidget controller, RepaintBoundary layout, `Semantics` accessibility patterns, and widget test suite) when deeper patterns are needed.
+- Cross-reference `spacecraft-accessibility-support` for the §18 contract itself — the activation toggle, the bridge table, and the audit gates. This skill covers the Flutter API surface only and does not restate them.
 - *Further reading* (consulted for background only): Dart Language Guide, Flutter Performance Auditing, RepaintBoundary documentation, and Flutter Testing handbook.
 
 When the user requests Flutter/Dart code or review, activate this skill, apply the checklist, and produce code a senior Spacecraft systems engineer would ship.

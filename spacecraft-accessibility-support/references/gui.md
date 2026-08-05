@@ -120,6 +120,10 @@ platform high-contrast preference independently. Void Navy `#000027` remains
 the background in every variant — see §11.1.1 and the table in
 [`../SKILL.md`](../SKILL.md).
 
-Material Design components (§13) must be themed through the theme tokens, not
-bare hex literals (§11.1) — which is precisely what makes swapping in the
-high-contrast variant a one-line change.
+Whichever component system §13 requires for the platform — Material Design for
+Flutter, web, mobile, and cross-platform GUI; GNOME HIG (libadwaita) for GTK 4;
+KDE HIG (Qt Quick Controls / Fusion) for Qt 6 — its components must be themed
+through the theme tokens, not bare hex literals (§11.1). That indirection is
+precisely what makes swapping in the high-contrast variant a one-line change,
+and it is the reason the variant swap works identically across all three
+systems.
