@@ -1,10 +1,13 @@
 # SPDX-FileCopyrightText: 2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# Steelbore palette family — canonical color contract (Standard §11, v1.35)
-# Six palettes: steelbore (Modern, DEFAULT), steelbore-classic, and four
-# alternates. Every palette binds the same eleven §11.1 role tokens except
-# Classic, which keeps its legacy six-role contract (§11.2).
+# Steelbore palette family — canonical color contract (Standard §11, last
+# amended v1.39). Nine palettes and 17 themes: steelbore (Modern, DEFAULT),
+# steelbore-classic, five alternates (blue, blackpinkpanther, matrixgreen,
+# navywhite, tokyonight), and the two §11.5 fidelity palettes (solarized-dark,
+# solarized-light) which are registered but non-conforming. Every palette binds
+# the same eleven §11.1 role tokens except Classic, which keeps its legacy
+# six-role contract (§11.2).
 # All contrast ratios computed with the WCAG 2.2 relative-luminance formula.
 # Normative targets: WCAG 2.2 Level AA; EN 301 549 V4.1.1 clause 11 (non-web software).
 # A project uses ONE palette (§11.4); tokens are never mixed across palettes.
