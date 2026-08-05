@@ -20,7 +20,7 @@ nix build .#construct && ./result/bin/construct --version
 `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, and
 `cargo test` are gated in CI by the **`cargo`** job in
 `.github/workflows/ci.yml`, and a separate **`msrv`** job runs `cargo check`
-against the `rust-version` declared in `Cargo.toml` (1.85). The gate runs on
+against the `rust-version` declared in `Cargo.toml` (1.88). The gate runs on
 stable, so a clippy or rustfmt change can turn a green PR red — fix the finding
 rather than pinning the toolchain. `cargo audit` is **not** in CI: a new
 advisory would redden `main` for a reason unrelated to the change under review,

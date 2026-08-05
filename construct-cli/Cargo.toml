@@ -4,11 +4,15 @@
 name = "construct"
 version = "0.1.0"
 edition = "2021"
-# The real floor, measured by CI's `msrv` job rather than asserted. The locked
-# dependency tree pins indexmap 2.14.0, whose manifest requires `edition2024`
-# — a Cargo feature stabilized in 1.85 — so 1.82 could not even parse the
-# tree, let alone build it. Raise this only alongside a green `msrv` run.
-rust-version = "1.85"
+# The real floor, measured by CI's `msrv` job rather than asserted. It is set
+# by the locked dependency tree, not by this crate's own source: darling 0.23
+# and instability 0.3.12 (transitive, via ratatui) both require 1.88, and
+# indexmap 2.14 needs the `edition2024` Cargo feature from 1.85. The value that
+# stood here before (1.82) could not even parse the tree.
+#
+# Raise or lower this only alongside a green `msrv` run — cargo's resolver
+# reports the exact offending packages, so re-measure rather than guess.
+rust-version = "1.88"
 description = "Spacecraft Software Construct skills package manager (CLI + TUI)"
 homepage = "https://Construct.SpacecraftSoftware.org/"
 repository = "https://github.com/Spacecraft-Software/Construct"
