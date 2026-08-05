@@ -12,7 +12,9 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-> **Source of truth:** The Steelbore Standard v1.42 (§11 Colour Palettes, §12 Typography)
+> **Source of truth:** The Steelbore Standard — §11 (Colour Palettes) and §12
+> (Typography), tracked as sections rather than pinned to a document version,
+> which would go stale on any unrelated release —
 > and the `spacecraft-brand-guidelines` skill. Themes may not introduce
 > colors, fonts, or naming outside what these sources define. The palette below
 > is the **Steelbore 2** generation; the five v1.33 foreground tokens and the old

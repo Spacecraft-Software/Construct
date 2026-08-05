@@ -5,7 +5,7 @@
 **Author:** Mohamed Hammad & Spacecraft Software
 **Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
 
-This document expands on the `SKILL.md` for Flutter and Dart systems programming. It provides complete, compile-checked configurations and skeletons for Isolate concurrency, controller lifecycle disposal, repaint boundary optimizations, and widget testing.
+This document expands on the `SKILL.md` for Flutter and Dart systems programming. It provides complete, compile-checked configurations and skeletons for Isolate concurrency, controller lifecycle disposal, repaint boundary optimizations, Standard §18 accessibility, and widget testing.
 
 ---
 
@@ -297,7 +297,135 @@ linter:
 
 ---
 
-## 6. Common Pitfalls & Troubleshooting
+## 6. Accessibility: `Semantics`, Announcements & Custom Paint (Standard §18)
+
+§18 makes an accessible mode mandatory for every Spacecraft Software application other than a registered game, and §18.3 names `Semantics` / `SemanticsRole` as Flutter's required bridge. `spacecraft-accessibility-support` owns the §18 contract — the activation toggle, the bridge table, the audit gates; this section covers only the Flutter API surface.
+
+Standard Material widgets carry sensible defaults. Anything icon-only, custom-composed, or custom-painted carries **nothing** until it is declared.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+
+class TelemetryPanel extends StatelessWidget {
+  const TelemetryPanel({super.key, required this.packetCount, required this.busy});
+
+  final int packetCount;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    // Platform preferences are read independently of the §18.1 toggle — the
+    // user already expressed them system-wide; do not ask twice.
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+
+    return Column(
+      children: [
+        // An icon-only button announces as "button" and nothing else without
+        // a label. `tooltip` supplies one for free on Material widgets.
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          tooltip: 'Rebuild telemetry index',
+          onPressed: busy ? null : () => _reload(context),
+        ),
+
+        // Explicit role + label where the widget is composed by hand.
+        Semantics(
+          label: 'Telemetry packets loaded',
+          value: '$packetCount',
+          readOnly: true,
+          child: Text('$packetCount packets'),
+        ),
+
+        // Decoration is excluded so it is skipped rather than read as noise.
+        const ExcludeSemantics(child: Divider(height: 1)),
+
+        // §11.0.2 — colour is never the sole carrier of meaning; the status
+        // carries a text tag as well as a themed colour.
+        Text(
+          busy ? '[INFO] Loading…' : '[OK] Idle',
+          style: TextStyle(
+            color: busy
+                ? Theme.of(context).colorScheme.tertiary
+                : Theme.of(context).colorScheme.primary,
+          ),
+        ),
+
+        if (!reduceMotion) const _PulseIndicator(),
+      ],
+    );
+  }
+
+  void _reload(BuildContext context) {
+    // State changes that matter are ANNOUNCED, not merely repainted. A spinner
+    // that stops communicates nothing to a screen-reader user.
+    SemanticsService.announce('Telemetry index rebuilt', TextDirection.ltr);
+  }
+}
+```
+
+**Custom paint is the failure case.** A control drawn onto a canvas has no node in the semantics tree unless the painter publishes one — it is not "partially accessible", it is invisible. `CustomPainter.semanticsBuilder` is how that gap is closed:
+
+```dart
+class PacketGraphPainter extends CustomPainter {
+  PacketGraphPainter(this.series);
+
+  final List<double> series;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // …painting elided…
+  }
+
+  // Without this, the whole graph is one unlabelled region to a screen reader.
+  @override
+  SemanticsBuilderCallback get semanticsBuilder => (Size size) {
+        final width = size.width / series.length;
+        return [
+          for (var i = 0; i < series.length; i++)
+            CustomPainterSemantics(
+              rect: Rect.fromLTWH(i * width, 0, width, size.height),
+              properties: SemanticsProperties(
+                label: 'Sample ${i + 1}',
+                value: series[i].toStringAsFixed(2),
+                textDirection: TextDirection.ltr,
+              ),
+            ),
+        ];
+      };
+
+  @override
+  bool shouldRepaint(covariant PacketGraphPainter old) => old.series != series;
+
+  @override
+  bool shouldRebuildSemantics(covariant PacketGraphPainter old) => old.series != series;
+}
+```
+
+**Test it.** Flutter ships accessibility guideline matchers, so the gate is a widget test rather than a manual pass — though §18.4 still requires exercising the built application with a real screen reader (TalkBack, VoiceOver, or Orca) before release.
+
+```dart
+testWidgets('telemetry panel meets accessibility guidelines', (tester) async {
+  final handle = tester.ensureSemantics();
+  await tester.pumpWidget(const MaterialApp(
+    home: TelemetryPanel(packetCount: 12, busy: false),
+  ));
+
+  await expectLater(tester, meetsGuideline(textContrastGuideline));
+  await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+  await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+  await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+
+  // The refresh control must be findable BY ITS LABEL, not by icon or position.
+  expect(find.bySemanticsLabel('Rebuild telemetry index'), findsOneWidget);
+
+  handle.dispose();
+});
+```
+
+---
+
+## 7. Common Pitfalls & Troubleshooting
 
 | Pitfall | Symptom | Corrective Action |
 | :--- | :--- | :--- |
@@ -306,10 +434,15 @@ linter:
 | **Heavy computations on UI thread** | Frame drops, stuttering animations | Offload computational logic to `Isolate.run()`. |
 | **Missing `const` keywords** | Frequent rebuilds, sluggish rendering | Configure `prefer_const_constructors` to throw errors in compiler. |
 | **Redrawing complex elements** | Slow layouts on canvas widgets | Wrap canvas painters inside `RepaintBoundary` boxes. |
+| **Icon-only button, no label** | Screen reader announces "button" and nothing else | Give it a `tooltip`, or wrap in `Semantics(label:)`. |
+| **`CustomPainter` without `semanticsBuilder`** | Whole canvas is one unlabelled region; controls are invisible to AT | Publish `CustomPainterSemantics` nodes per control. |
+| **Decoration inside `Semantics`** | Screen reader reads dividers and ornaments as content | Wrap decoration in `ExcludeSemantics`. |
+| **Spinner stops, nothing announced** | Sighted users see completion; AT users get silence | `SemanticsService.announce(…)` on meaningful state change. |
+| **Animating unconditionally** | Motion-sensitive users get animation they disabled system-wide | Gate on `MediaQuery.disableAnimationsOf(context)`. |
 
 ---
 
-## 7. Code Review Compliance Gate
+## 8. Code Review Compliance Gate
 
 Before merging Flutter/Dart code, verify:
 1. Native Android integrations have been aligned with `@android-skills`.
@@ -319,3 +452,9 @@ Before merging Flutter/Dart code, verify:
 5. All constant widgets are flagged with the `const` keyword.
 6. Custom canvas paint subtrees are isolated using `RepaintBoundary`.
 7. `analysis_options.yaml` has strict-casts enabled and compiles without errors.
+8. Every interactive widget carries a semantic label and role; decoration is wrapped in `ExcludeSemantics` (§18.3).
+9. `CustomPainter` surfaces publish `CustomPainterSemantics` nodes via `semanticsBuilder`.
+10. State changes that matter to the user are announced, not merely repainted.
+11. Reduced motion and high contrast are read from `MediaQuery`, independently of the §18.1 toggle.
+12. `meetsGuideline` assertions pass, and the build was exercised with a real screen reader (§18.4).
+13. All colors resolve through the named `steelbore` theme; no hex literal appears in widget code (§11.1).
