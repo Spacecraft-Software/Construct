@@ -88,10 +88,20 @@ Never use proprietary fonts. Outfit, Inter, Roboto, and similar non-OFL fonts ar
    wells. Never invent new color names or shift hex codes.
 5. **Apply the §12 typography** (Share Tech Mono headings, Inconsolata body)
    wherever the platform supports font selection.
-6. **Emit the accessibility variants alongside the default** (Standard §11.1.1)
-   whenever the target platform supports more than one theme: the palette
-   itself, its `<slug>-high-contrast` sibling, and `steelbore-mono` (4-bit
-   ANSI, palette-independent, deferring to the user's terminal palette). For
+6. **Emit the §11.6.1 registered set** whenever the target platform supports
+   more than one theme — not just the declared palette and its variants. The
+   must-emit list is `[meta] registered-set` in `steelbore.toml`: the six
+   conforming palettes, each with its `-high-contrast` sibling, plus
+   `steelbore-mono` (4-bit ANSI, palette-independent, deferring to the user's
+   terminal palette). Thirteen themes; read them in a loop rather than writing
+   them out. Classic is **not** in the set — it binds the legacy six-role
+   contract (§11.2) and carries an `info` token that is not one of §11.1's
+   eleven roles, so emit it only for a platform whose schema fits that
+   contract. Emitting is not defaulting: `steelbore` stays the default, and the
+   platform's theme-selection key must name it. Where the platform can follow
+   the system color scheme, pair the themes per `[resolution.pair]` so a light
+   preference resolves to `steelbore-navywhite` (§11.6.2) — read the pairing,
+   never hardcode it. For
    Modern the lifts are `accent` → `#FF8A3D`, `structure`/`border` →
    `#B3A1FF`, `error` → `#FF7A7A`, `warning` → `#EE7BFF`, with `foreground`
    and `success` verbatim; for every other palette take the lifts from

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Steelbore palette family — canonical color contract (Standard §11, last
-# amended v1.39). Nine palettes and 17 themes: steelbore (Modern, DEFAULT),
+# amended v1.45). Nine palettes and 17 themes: steelbore (Modern, DEFAULT),
 # steelbore-classic, five alternates (blue, blackpinkpanther, matrixgreen,
 # navywhite, tokyonight), and the two §11.5 fidelity palettes (solarized-dark,
 # solarized-light) which are registered but non-conforming. Every palette binds
@@ -10,19 +10,67 @@
 # six-role contract (§11.2).
 # All contrast ratios computed with the WCAG 2.2 relative-luminance formula.
 # Normative targets: WCAG 2.2 Level AA; EN 301 549 V4.1.1 clause 11 (non-web software).
-# A project uses ONE palette (§11.4); tokens are never mixed across palettes.
+# A project AUTHORS against one palette (§11.4) and REGISTERS thirteen (§11.6.1);
+# tokens are never combined across palettes in one interface, but a whole-surface
+# light/dark switch is not combining (§11.6.2).
 
 [meta]
 name = "Steelbore"
 default-theme = "steelbore"
+default-dark-theme = "steelbore"             # §11.6.2 — family dark default
+default-light-theme = "steelbore-navywhite"  # §11.6.2 — family light default
+mono-theme = "steelbore-mono"                # §11.1.1 — palette-independent
 palette-family = ["steelbore", "steelbore-classic", "steelbore-blue", "steelbore-blackpinkpanther", "steelbore-matrixgreen", "steelbore-navywhite", "tokyonight"]
 fidelity-palettes = ["solarized-dark", "solarized-light"]  # §11.5 — registered, non-conforming
-version = "3.1.0"
-date = "2026-07-25T00:00:00Z"
+# §11.6.1 — the thirteen themes every application MUST register. Classic is
+# excluded: it binds the legacy six-role contract (§11.2), defines no surface
+# class, and carries an `info` token that is not one of §11.1's eleven roles.
+registered-set = ["steelbore", "steelbore-high-contrast", "steelbore-blue", "steelbore-blue-high-contrast", "steelbore-blackpinkpanther", "steelbore-blackpinkpanther-high-contrast", "steelbore-matrixgreen", "steelbore-matrixgreen-high-contrast", "steelbore-navywhite", "steelbore-navywhite-high-contrast", "tokyonight", "tokyonight-high-contrast", "steelbore-mono"]
+version = "3.2.0"
+date = "2026-08-06T00:00:00Z"
 maintainer = "Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"
 website = "https://Construct.SpacecraftSoftware.org/"
 license = "GPL-3.0-or-later"
-standard = "The Steelbore Standard §11 (v1.39)"
+standard = "The Steelbore Standard §11 (v1.45)"
+
+# -------------------------------------------------------------------------
+# §11.6 — System theme resolution. Slugs only; this table never carries a
+# color value, because an operating system declares WHICH theme and never
+# supplies the hex (§11.6.4). Polarity is the canvas's light/dark class,
+# derivable from each [themes.<slug>].background via the WCAG
+# relative-luminance formula, so it is mechanically checkable rather than
+# a matter of opinion.
+# -------------------------------------------------------------------------
+[resolution]
+env-var = "SPACECRAFT_THEME"                             # §11.6.3 source 2 — carries a slug
+system-file = "/etc/steelbore/theme.toml"                # §11.6.4 system declaration
+user-file = "$XDG_CONFIG_HOME/steelbore/theme.toml"      # §11.6.4 per-user override
+registry = "/etc/steelbore/themes.json"                  # §11.6.4 — advisory only
+
+[resolution.polarity]
+steelbore = "dark"
+steelbore-classic = "dark"
+steelbore-blue = "dark"
+steelbore-blackpinkpanther = "dark"
+steelbore-matrixgreen = "dark"
+steelbore-navywhite = "light"   # the family's only light canvas (§11.3.4)
+tokyonight = "dark"
+solarized-dark = "dark"         # §11.5 — recorded, not adoptable
+solarized-light = "light"       # §11.5 — recorded, not adoptable
+
+# The counterpart in the other polarity. Every dark member pairs to the
+# family's only light member (§11.3.4) unless a project declares its own pair
+# in its README.md (§11.6.2).
+[resolution.pair]
+steelbore = "steelbore-navywhite"
+steelbore-classic = "steelbore-navywhite"
+steelbore-blue = "steelbore-navywhite"
+steelbore-blackpinkpanther = "steelbore-navywhite"
+steelbore-matrixgreen = "steelbore-navywhite"
+steelbore-navywhite = "steelbore"
+tokyonight = "steelbore-navywhite"
+solarized-dark = "solarized-light"   # §11.5 — never a §11.6.2 target
+solarized-light = "solarized-dark"   # §11.5 — never a §11.6.2 target
 
 # -------------------------------------------------------------------------
 # Steelbore Modern (§11.0) — DEFAULT palette
