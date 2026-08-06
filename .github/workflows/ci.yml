@@ -48,6 +48,15 @@ jobs:
       - name: Skill cross-references + version pins
         run: python3 .github/check-skill-refs.py --catalogue . .
 
+      # steelbore.scm is a GENERATED Guile mirror of steelbore.toml, shipped
+      # because Guix evaluates system configuration in plain Guile and Guile has
+      # no TOML reader — so Standard §11.6.5's obligations on the Guix flavor of
+      # Steelbore OS (Ginx) would otherwise mean retyping values §11.4 says are
+      # read, never retyped. Two files carrying the same values only stay honest
+      # if drift is a build failure, which is what this step is for.
+      - name: steelbore.scm matches steelbore.toml
+        run: python3 .github/generate-steelbore-scm.py --check
+
   # construct-cli/ is the one real build surface in this repo — everything else
   # is markdown. It went ungated until now, which is how a clippy break
   # (items_after_test_module in src/sources/skillmd.rs) sat unnoticed on main:

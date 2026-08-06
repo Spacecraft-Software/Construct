@@ -277,6 +277,7 @@ Colors ship with type: **Share Tech Mono** (headings) and **Inconsolata**
 | File | What it is |
 |------|------------|
 | [`assets/steelbore.toml`](assets/steelbore.toml) | **The canonical contract for the whole family** — `[palettes.*]` for all nine, `[themes.*]` (17 themes: seven conforming palettes with their `-high-contrast` siblings, two §11.5 fidelity palettes, and `steelbore-mono`) with measured per-background contrast tables and per-palette rules, plus `[resolution]` / `[resolution.polarity]` / `[resolution.pair]` for §11.6 and `[typography]`. `[meta] registered-set` is the §11.6.1 must-register list. Copy or parse it; never retype hexes. |
+| [`assets/steelbore.scm`](assets/steelbore.scm) | **Generated** Guile mirror of `steelbore.toml` — module `(steelbore)`, exporting `steelbore-meta`, `steelbore-themes`, `steelbore-resolution`, and the `steelbore-theme-ref` / `steelbore-polarity` / `steelbore-counterpart` accessors (each raising on an unknown slug, per §11.6.5's evaluate-time validation). Exists because Guix evaluates system configuration in plain Guile and Guile has no TOML reader; Nix reads the TOML directly and needs no mirror. **Never edit it** — regenerate with `python3 .github/generate-steelbore-scm.py`; CI fails on drift. |
 | [`assets/spacecraft.css`](assets/spacecraft.css) | The canonical Spacecraft HTML theme for `texi2any --css-include`. The copies in `standard/` and `spacecraft-texinfo-document/assets/` are synced derivatives — edit this one first, keep all three byte-identical. |
 
 ## Where application rules live
