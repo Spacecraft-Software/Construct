@@ -140,6 +140,30 @@ contrast comes from moving the foreground, never from abandoning the canvas.
 | `steelbore-high-contrast` | Accessible mode, or explicit | Every foreground token ≥7:1 (AAA) on Void Navy |
 | `steelbore-mono` | Explicit, or `NO_COLOR` | 4-bit ANSI only — defers to the user's terminal palette |
 
+**How this composes with §11.6 (added in v1.45).** §11.6.3 resolves a theme in
+two stages, and accessible mode lives entirely in the second. Stage 1 picks the
+**base palette**; stage 2 picks a **variant of that palette** — so an
+accessibility signal chooses a *sibling* and can never change which palette is in
+force. Overlay precedence, highest first: a variant slug the user pinned
+explicitly, then `NO_COLOR` ⇒ `steelbore-mono`, then §18.1 accessible mode ⇒
+`<base>-high-contrast`, then the **platform's** high-contrast preference ⇒
+`<base>-high-contrast` (read from the OS independently of the §18.1 toggle, per
+§18.3 — the user already expressed it system-wide).
+
+Three consequences worth stating:
+
+- **`NO_COLOR` outranks accessible mode**, because mono is the only variant that
+  surrenders color outright and a user who asked for no color may not be handed a
+  colored sheet. `NO_COLOR` is a *color* instruction: it selects mono whether or
+  not it also enabled accessible mode as a source-4 hint, and
+  `SPACECRAFT_A11Y=0` does **not** undo it.
+- **A §11.6.4 declaration file's `high-contrast` key is not an accessible-mode
+  switch.** It enters at overlay signal 4 and selects a theme sibling only. §18.1
+  remains the sole switch for §18's behavioral requirements — announcements,
+  linear mode, motion suppression — none of which are a color setting.
+- §18.1's four-source precedence is unchanged by §11.6; §11.6 consumes its
+  resolved boolean and adds no accessibility rule of its own.
+
 High contrast lifts **only the four tokens that need it**:
 
 | Token | Base | Variant | Contrast |

@@ -1,19 +1,20 @@
 ---
 name: steelbore-color-palette
 description: >
-  Single source of truth for the Steelbore palette family (Standard §11, last amended v1.39)
+  Single source of truth for the Steelbore palette family (§11, last amended v1.45)
   — nine palettes, their hex tokens, WCAG contrast matrices, the §11.1
-  role-token contract, and every §11.1.1 accessibility variant. Modern is the
+  role-token contract, every §11.1.1 accessibility variant, and the §11.6
+  system-theme contract. Modern is the
   default; Classic, Blue, BlackPinkPanther, MatrixGreen, NavyWhite, and Tokyo
   Night are opt-in (§11.4); Solarized Dark and Light are §11.5 fidelity
   palettes — verbatim, non-conforming, never adoptable. ALWAYS consult whenever
   a color, hex, palette token, theme, contrast ratio, or brand hue is needed for
   ANY Spacecraft Software or Steelbore OS artifact — UI code, TUI styling,
   editor/terminal themes, documents, diagrams, SVGs, or CSS — even if the user
-  never says "palette". Triggers: "Void Navy", "Plasma Orange", "Orbit Navy",
-  "Solar Lime", "Tokyo Night", "Solarized", "brand colors", "high contrast
-  variant", and any WCAG / EN 301 549 question about Spacecraft colors. Consumer
-  skills defer here for values — never restate hexes from memory.
+  never says "palette". Triggers: "Void Navy", "Plasma Orange", "Tokyo Night",
+  "Solarized", "brand colors", "high contrast", "system theme", "light mode",
+  "SPACECRAFT_THEME", and any WCAG / EN 301 549 question. Consumer skills
+  defer here for values — never restate hexes.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
@@ -25,7 +26,7 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-> **Authority chain:** The Steelbore Standard **§11** — last amended in v1.39 —
+> **Authority chain:** The Steelbore Standard **§11** — last amended in v1.45 —
 > is the normative text; this skill is its canonical machine-readable mirror and
 > the **only** place palette hexes should be read from. The version cited is the
 > one in which §11 last *changed*, not the current document version: a release
@@ -184,6 +185,52 @@ Maps roles to conventional ANSI slots (success→green, error→red,
 warning→yellow, structure→blue, focus→reverse-video), deferring hue entirely
 to the user's terminal palette.
 
+## System theme resolution & declaration (§11.6)
+
+Added in v1.45. §11 says *which colors*; §11.6 says **which member of the family
+renders on this machine, right now**. Binds GUI, TUI and CLI alike — a CLI
+already honors `NO_COLOR`, so it already has a theme.
+
+**Register thirteen, author against one.** `[meta] registered-set` in
+`steelbore.toml` is the authoritative list: the six conforming palettes, each
+with its `-high-contrast` sibling, plus `steelbore-mono`. Classic is **not** in
+it — it binds the legacy six-role contract and carries an `info` token that is
+not one of §11.1's eleven roles. Registering is not defaulting: the default stays
+the project's §11.4 palette.
+
+**Two-stage resolution.** Stage 1 picks a base palette; stage 2 picks a variant
+*of that palette*. An accessibility signal therefore chooses a sibling, never a
+palette, and can never silently change the brand.
+
+| Stage 1 — base palette | Stage 2 — variant overlay |
+|---|---|
+| 1. `--theme=<slug>` / `[theme] name` in config | 1. A pinned `-high-contrast`/`-mono` slug |
+| 2. `SPACECRAFT_THEME=<slug>` (a slug, never a boolean) | 2. `NO_COLOR` ⇒ `steelbore-mono` |
+| 3. the §11.6.4 declaration file's `active` key | 3. §18.1 accessible mode ⇒ `<base>-high-contrast` |
+| 4. platform light/dark preference (GUI only) | 4. platform high contrast ⇒ `<base>-high-contrast` |
+| 5. the project's §11.4 palette — `steelbore` if none | 5. the stage-1 palette itself |
+
+An unusable slug is **skipped, never fatal** — resolution falls one source lower,
+so a typo in `/etc` never leaves a machine without a working interface. Fidelity
+slugs resolve at stage-1 source 1 only. Resolved theme, deciding source and
+overlay are reported under `--verbose`.
+
+**Light and dark.** `steelbore-navywhite` is the family's only light canvas, so a
+light preference is answered by rendering a *different palette*. That is legal
+because §11.4 forbids **combining** tokens, and a switch combines nothing: the
+whole set is replaced at once and the canvas travels with the palette. The switch
+must be **atomic and whole-surface** — an app that cannot do that resolves once
+at startup and holds. Read polarity and counterparts from
+`[resolution.polarity]` / `[resolution.pair]`; never hardcode the mapping.
+
+**The declaration is a file**, so a CLI in a text console can read it —
+`$XDG_CONFIG_HOME/steelbore/theme.toml` over `/etc/steelbore/theme.toml`, keys
+merged from the highest-precedence file that supplies them. It carries **slugs,
+never colors**: the OS declares *which* theme, values come from this skill.
+Absence of both files is *no declaration*; `active = "steelbore"` is a
+declaration *of Modern*. Paths and the variable name are in `[resolution]` —
+`SPACECRAFT_THEME`, never `STEELBORE_THEME` (already a boolean shell flag).
+
 ## Steelbore Classic (§11.2)
 
 The pre-v1.34 six-token palette, **preserved as a named family member** — it
@@ -229,7 +276,7 @@ Colors ship with type: **Share Tech Mono** (headings) and **Inconsolata**
 
 | File | What it is |
 |------|------------|
-| [`assets/steelbore.toml`](assets/steelbore.toml) | **The canonical contract for the whole family** — `[palettes.*]` for all nine, `[themes.*]` (17 themes: seven conforming palettes with their `-high-contrast` siblings, two §11.5 fidelity palettes, and `steelbore-mono`) with measured per-background contrast tables and per-palette rules, plus `[typography]`. Copy or parse it; never retype hexes. |
+| [`assets/steelbore.toml`](assets/steelbore.toml) | **The canonical contract for the whole family** — `[palettes.*]` for all nine, `[themes.*]` (17 themes: seven conforming palettes with their `-high-contrast` siblings, two §11.5 fidelity palettes, and `steelbore-mono`) with measured per-background contrast tables and per-palette rules, plus `[resolution]` / `[resolution.polarity]` / `[resolution.pair]` for §11.6 and `[typography]`. `[meta] registered-set` is the §11.6.1 must-register list. Copy or parse it; never retype hexes. |
 | [`assets/spacecraft.css`](assets/spacecraft.css) | The canonical Spacecraft HTML theme for `texi2any --css-include`. The copies in `standard/` and `spacecraft-texinfo-document/assets/` are synced derivatives — edit this one first, keep all three byte-identical. |
 
 ## Where application rules live
