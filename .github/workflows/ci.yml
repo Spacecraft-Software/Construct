@@ -7,6 +7,23 @@ on:
   push:
     branches: [main]
 
+  # Manual re-run, because the event-driven triggers above are not guaranteed to
+  # fire. Between 2026-08-05T21:03Z and 2026-08-07 this repository created no run
+  # at all — not for a pull request, not for a push to main — while the workflow
+  # reported `state=active`, Actions reported `enabled`, the triggers were these
+  # ones, and the file parsed. Sibling repositories in the same org ran normally
+  # in that window, so it was specific to this repository and invisible from the
+  # API: nothing queued, nothing waiting, no failed run to notice.
+  #
+  # Without this trigger the only way to re-fire CI is a commit whose sole
+  # purpose is to produce an event, and pushing one straight to main is exactly
+  # what the branch-and-PR rule forbids. A missing gate here is the expensive
+  # kind: this job is what enforces the §5.6 description cap and the
+  # steelbore.scm drift check, both of which fail silently when unenforced.
+  #
+  #   gh workflow run ci.yml --ref main
+  workflow_dispatch:
+
 permissions:
   contents: read
 
