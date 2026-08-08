@@ -1,9 +1,10 @@
-# construct — AI Coding-Agent Context
+# AGENTS.md — construct
 
 `construct` is the Spacecraft Software **Construct** skills package manager (Rust
 CLI + TUI) — the first executable in the Construct catalogue repository. It
 conforms to the Spacecraft Software Dual-Mode Self-Documenting CLI Standard
-(v1.0.0). This file and `CLAUDE.md` are peers; keep them identical.
+(v1.0.0). This is the authoritative agent context file (Standard §5.7); `CLAUDE.md`
+imports it and adds only Claude-Code-only notes.
 
 ## Build / test / lint
 
