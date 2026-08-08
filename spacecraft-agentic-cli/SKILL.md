@@ -82,8 +82,8 @@ repository root, on day one, before business logic:
 
 | File | Primary consumer | Contents |
 |------|------------------|----------|
-| `AGENTS.md` | Generic agents (Codex CLI, Cursor, Aider, OpenCode) | Coding conventions, test/build commands, forbidden patterns, repository invariants |
-| `CLAUDE.md` | Claude Code agent | Same as AGENTS.md, plus Claude Code–specific context (skills referenced, MCP servers expected, tool preferences) |
+| `AGENTS.md` | **Every** agent (Codex CLI, Cursor, Aider, OpenCode, and Claude Code via the import) | **Authoritative.** Coding conventions, test/build commands, forbidden patterns, repository invariants |
+| `CLAUDE.md` | Claude Code agent | An `@AGENTS.md` import plus Claude-only context (skills, `.claude/`, slash commands, MCP client) — never a restatement of AGENTS.md |
 | `SKILL.md` | Spacecraft Software Skills + CLI-Anything + `gws` | YAML frontmatter (name, description, license) + capability surface for the CLI itself |
 | `CONTRIBUTING.md` | Human contributors | Onboarding, dev environment setup, PR conventions |
 
@@ -96,6 +96,15 @@ AGENTS.md is for *project-specific* invariants).
 Drop-in templates live in `assets/agents-md.template.md` and
 `assets/claude-md.template.md`. Never copy them blindly — each file must be
 specialized for the project.
+
+**Standard §5.7 is binding here.** `AGENTS.md` is the single source of
+truth and every project must ship one; `CLAUDE.md` is an `@AGENTS.md`
+import plus Claude-only content and must not restate it. Both are tracked
+— a gitignored `AGENTS.md` makes the import dangle on a fresh clone — and
+neither carries credentials, private hostnames, or personal filesystem
+paths. Tooling that renders managed blocks into context files targets
+`AGENTS.md` only. A "keep these two files in sync" instruction is not a
+solution to drift; it is evidence the split is wrong.
 
 **No-clobber: read before you write.** Scaffolding these files is the one
 durable change this skill triggers on the user's own machine, and a repo often

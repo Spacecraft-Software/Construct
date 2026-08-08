@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.45 (§13 design systems; §3.1.1 TypeScript over JS; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.6 system theme; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design) so
+  The Steelbore Standard v1.46 (§13 design systems; §3.1.1 TypeScript; §5.7 AGENTS.md; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.6 system theme; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.45 | **Date:** 2026-08-06 | **Author:** Mohamed Hammad
+**Version:** 1.46 | **Date:** 2026-08-08 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -450,6 +450,61 @@ limits are therefore enforced **before packing**, not after a failure.
 | Rendered, not raw | "Rendered" means the string the loader sees. A YAML folded scalar (`description: >`) joins its wrapped lines with single spaces and retains a trailing newline, so the raw line lengths are not the measurement. Block (`>` / `\|`) and single-line plain or quoted forms alike are measured after folding. |
 | Machine-enforced | The cap MUST be checked by an automated gate that runs both in the skill repository's CI on every pull request and push to the default branch, and in whatever command produces the distributable bundle. A developer-installed git hook is a convenience, never the gate — hooks are opt-in per clone and cannot be relied on. |
 | Over-limit skills do not ship | A skill whose description exceeds the cap MUST NOT be packed, committed, or published. Trim the description; do not raise the cap. |
+
+### §5.7 — Agent Context Files
+
+Coding agents load a project's root context file into their window at the start
+of every session. Different harnesses read different filenames — `AGENTS.md` is
+the cross-vendor convention (Codex CLI, Cursor, Aider, OpenCode, Goose, Gemini
+CLI), while Claude Code reads `CLAUDE.md`. Maintaining both as parallel prose
+guarantees drift: the two copies are edited in different sessions, diverge, and
+the agent that reads the stale one is misinformed. This section fixes a single
+source of truth.
+
+**`AGENTS.md` is the authority.** Every project **must** ship an `AGENTS.md` at
+its root, in addition to the §5.2 posture files. It is harness-neutral: it
+carries the project's build, test, and lint commands, architectural invariants,
+forbidden patterns, repository layout, and any fact an agent cannot infer from
+the code itself.
+
+**`CLAUDE.md` is a thin overlay, and is also required.** Claude Code reads
+`CLAUDE.md` and does *not* read `AGENTS.md`, so a project shipping only an
+`AGENTS.md` gives a Claude session no project context at all. The file **must**
+consist of an `@AGENTS.md` import followed only by content that is meaningless
+to a non-Claude harness — Skill-tool invocations, `.claude/` paths, Claude Code
+slash commands, and Claude-client MCP configuration. It **must not** restate,
+summarize, or mirror `AGENTS.md`. Where there is nothing Claude-only to say, the
+import and its note are the whole file:
+
+```markdown
+# CLAUDE.md
+
+@AGENTS.md
+
+> Record project knowledge in `AGENTS.md`, not here. This file holds
+> only Claude-Code-only context.
+```
+
+**Mandatory rules:**
+
+| Rule | Detail |
+|------|--------|
+| Write to `AGENTS.md` | New project knowledge — a build command, an invariant, a gotcha — MUST be written to `AGENTS.md`. An agent or maintainer adds to `CLAUDE.md` only when the fact is meaningless to a harness that is not Claude Code. "Update the context file" always means `AGENTS.md`. |
+| No duplication | A rule stated in `AGENTS.md` MUST NOT be restated in `CLAUDE.md`. Instructions of the form "keep these two files in sync" are evidence the split is wrong and MUST be removed rather than honored. |
+| Both tracked | Both files are version-controlled artifacts, not agent-local scratch, and both are required. A `.gitignore` entry for either one breaks the `@AGENTS.md` import on a fresh clone and hides project knowledge from every contributor who did not author it. |
+| No secrets | Because they are tracked and published, context files are subject to the same hygiene as any other repository file: no credentials, tokens, keys, private hostnames or network topology, or personal filesystem paths. A context file that was previously ignored MUST be reviewed for sensitive content **before** it is un-ignored. |
+| Generated blocks | Tooling that renders managed regions into context files (rule synchronizers, task systems) MUST target `AGENTS.md` only. Writing the same block into both files reintroduces the duplication the import exists to remove. |
+
+A relative import resolves against the file containing it, never against the
+working directory, so each project's `CLAUDE.md` reaches its own `AGENTS.md`.
+Claude Code walks up the directory tree and concatenates every `CLAUDE.md` it
+finds, so a project nested under another inherits the ancestor's context in
+addition to its own — which is why an ancestor file must not restate what a
+child already says.
+
+Other harness-specific files (`GEMINI.md`, `.cursorrules`, and similar) follow
+the `CLAUDE.md` pattern: import or reference `AGENTS.md`, then add only what is
+specific to that harness.
 
 ---
 
@@ -1653,6 +1708,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§5** Project Posture: README/NOTICE/CONTRIBUTING present; default personal-hobby stance applied; general-use carve-outs declared in project README
 - [ ] **§5.5** Package distribution: `packaging/guix.scm`, `packaging/default.nix`, and `packaging/PKGBUILD` present, buildable, and carrying correct version + SHA-256 checksum (in each package manager's native format) before any release tag is pushed
 - [ ] **§5.6** Skill packaging: every `SKILL.md` `description` measures ≤ 1000 rendered characters (folded scalars counted as the loader sees them, not as raw lines); the cap is enforced by CI *and* by the command that produces the bundle, not only by a local git hook — N/A for projects that ship no skills
+- [ ] **§5.7** Agent context files: `AGENTS.md` and `CLAUDE.md` both present at the repository root and version-controlled; `CLAUDE.md` is an `@AGENTS.md` import plus Claude-only content and restates nothing; neither file is gitignored; no credentials, private hostnames, or personal filesystem paths in either; managed blocks rendered into `AGENTS.md` only
 - [ ] **§6.1** POSIX-compliant CLI/system tools
 - [ ] **§7** Shell scripts are POSIX-compatible; Nushell/Ion native variants provided where shell-native idioms are required; no Bashisms in shared scripts
 - [ ] **§8** Texinfo manual present for user-facing programs (`doc/<project>.texi`); builds to `.info`, `.html`, and `.pdf`; `install-info` hook present in all three package manifests (§5.5) — N/A for scripts and internal tooling
@@ -1689,6 +1745,7 @@ for a pure Rust library), note it as N/A rather than silently skipping it.
 | Creating IDE / terminal themes        | `spacecraft-theme-factory`                         |
 | Resolving or declaring the system theme (§11.6) | `steelbore-color-palette`                |
 | Implementing or auditing accessibility (§18) | `spacecraft-accessibility-support`          |
+| Authoring `AGENTS.md` / `CLAUDE.md` (§5.7) | `spacecraft-agentic-cli`                     |
 | All other Spacecraft Software work    | `spacecraft-standard-constitution`                 |
 
 ---
