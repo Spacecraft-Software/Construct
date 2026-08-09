@@ -145,6 +145,14 @@ including:
 Canonical hint strings for every standard error code live in
 `assets/error-hint-catalog.json` — use them as starting points.
 
+**Hint is a field, never a severity.** The severity ladder is exactly
+`error`/`warn`/`ok`/`info` with the `[ERROR]`/`[WARN]`/`[OK]`/`[INFO]`
+tags (`spacecraft-cli-standard` `references/diagnostics.md`); any
+diagnostic of any severity MAY carry a `hint`, and non-error diagnostics
+(the `diagnostic` envelope) benefit from one exactly the same way —
+e.g. the TUI-fallback warning hints the working non-TUI invocation. The
+message states what happened; only the hint says what to run next.
+
 ---
 
 ## §4 — Agent Environment Detection (Behavioral Cascade)
@@ -156,9 +164,9 @@ simultaneously:
 
 | Variable | Output format | Color | TUI | Interactivity | Verbosity |
 |----------|---------------|-------|-----|---------------|-----------|
-| `AI_AGENT` set | json | off | suppressed | non-interactive (--yes implicit) | minimal — failures only |
-| `AGENT` set | json | off | suppressed | non-interactive | minimal |
-| `CI` truthy | json | off | suppressed | non-interactive | normal |
+| `AI_AGENT` set | json | off | suppressed | non-interactive (--yes implicit) | minimal — severity floor `warn` (failures + degradations; no `ok`/`info` chatter) |
+| `AGENT` set | json | off | suppressed | non-interactive | minimal — floor `warn` |
+| `CI` truthy | json | off | suppressed | non-interactive | normal — floor `ok` |
 | `CLAUDECODE` set | (informational) | (per other rules) | (per other rules) | (per other rules) | (per other rules) |
 | `CURSOR_AGENT` set | (informational) | (per other rules) | (per other rules) | (per other rules) | (per other rules) |
 | `GEMINI_CLI` set | (informational) | (per other rules) | (per other rules) | (per other rules) | (per other rules) |
@@ -184,6 +192,10 @@ without inferring agent intent.
 **Read `references/agent-env-detection.md`** for concrete Rust detection
 code, the canonical priority order, and a Bun-style verbosity adaptation
 (suppress passing test logs under `AI_AGENT`; emit only failure traces).
+The verbosity column is defined precisely as the **severity floor** in
+`spacecraft-cli-standard` `references/diagnostics.md` §4: agent mode
+raises the floor to `warn`, `--quiet` to `error`, `--verbose` lowers it
+to `info`; explicit flags beat environment detection.
 
 ---
 
