@@ -100,13 +100,9 @@ pub(crate) fn flake_update(ctx: &Context, flake_dir: &Path) -> Result<String, Ap
         }
     };
 
-    // nix logs progress to stderr; surface it only when the user asked (-v).
-    if ctx.verbose > 0 {
-        let progress = String::from_utf8_lossy(&output.stderr);
-        if !progress.trim().is_empty() {
-            eprint!("{progress}");
-        }
-    }
+    // nix logs progress to stderr; it is info-level passthrough, visible only
+    // when the severity floor admits it (`--verbose`, diagnostics.md §4).
+    crate::output::diagnostic::emit_passthrough(ctx, &String::from_utf8_lossy(&output.stderr));
 
     if !output.status.success() {
         return Err(AppError::general(

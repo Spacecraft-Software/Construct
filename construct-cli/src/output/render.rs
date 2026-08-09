@@ -160,15 +160,11 @@ fn emit_human(human: &HumanRender, color: bool) {
                     let _ = writeln!(
                         out,
                         "{}  {}",
-                        label.truecolor(
-                            theme::STEEL_BLUE.0,
-                            theme::STEEL_BLUE.1,
-                            theme::STEEL_BLUE.2
-                        ),
+                        label.truecolor(theme::STRUCTURE.0, theme::STRUCTURE.1, theme::STRUCTURE.2),
                         value.truecolor(
-                            theme::LIQUID_COOLANT.0,
-                            theme::LIQUID_COOLANT.1,
-                            theme::LIQUID_COOLANT.2
+                            theme::FOREGROUND.0,
+                            theme::FOREGROUND.1,
+                            theme::FOREGROUND.2
                         )
                     );
                 } else {
@@ -184,9 +180,9 @@ fn emit_human(human: &HumanRender, color: bool) {
                     out,
                     "{}",
                     header_line.truecolor(
-                        theme::MOLTEN_AMBER.0,
-                        theme::MOLTEN_AMBER.1,
-                        theme::MOLTEN_AMBER.2
+                        theme::STRUCTURE.0,
+                        theme::STRUCTURE.1,
+                        theme::STRUCTURE.2
                     )
                 );
             } else {

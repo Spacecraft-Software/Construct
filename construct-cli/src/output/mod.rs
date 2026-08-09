@@ -6,6 +6,7 @@
 //! [`theme`], and the [`render`]er that turns a [`CommandOutput`] into bytes on
 //! stdout. Printing happens **only** in this module (CLI Standard §7).
 
+pub(crate) mod diagnostic;
 pub(crate) mod envelope;
 pub(crate) mod error;
 pub(crate) mod mode;

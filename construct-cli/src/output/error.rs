@@ -169,45 +169,43 @@ impl AppError {
         let _ = stderr.flush();
     }
 
-    /// Render the error for a human terminal. Content matches the structured
-    /// form; color is applied only when enabled.
+    /// Render the error for a human terminal in the unified diagnostic layout
+    /// (diagnostics.md §5): the `[ERROR]` tag first — carried with and without
+    /// color, since color is never the sole carrier of meaning (§18.2.1) —
+    /// then the message in the default foreground, then the indented `hint:`.
+    /// Content matches the structured form.
+    pub(crate) fn render_human(&self, color: bool) -> String {
+        if color {
+            let tag = "[ERROR]"
+                .truecolor(theme::ERROR.0, theme::ERROR.1, theme::ERROR.2)
+                .bold()
+                .to_string();
+            let msg = self.message.truecolor(
+                theme::FOREGROUND.0,
+                theme::FOREGROUND.1,
+                theme::FOREGROUND.2,
+            );
+            let label = "hint:".truecolor(theme::ACCENT.0, theme::ACCENT.1, theme::ACCENT.2);
+            let hint = self
+                .hint
+                .truecolor(theme::ACCENT.0, theme::ACCENT.1, theme::ACCENT.2);
+            format!("{tag} {msg}\n  {label} {hint}\n")
+        } else {
+            format!("[ERROR] {}\n  hint: {}\n", self.message, self.hint)
+        }
+    }
+
+    /// Write the human rendering to stderr.
     fn emit_human(&self, color: bool) {
         let mut stderr = std::io::stderr();
-        if color {
-            let _ = writeln!(
-                stderr,
-                "{}: {}",
-                "error"
-                    .truecolor(theme::RED_OXIDE.0, theme::RED_OXIDE.1, theme::RED_OXIDE.2)
-                    .bold(),
-                self.message
-                    .truecolor(theme::RED_OXIDE.0, theme::RED_OXIDE.1, theme::RED_OXIDE.2)
-            );
-            let _ = writeln!(
-                stderr,
-                "       {}: {}",
-                "hint".truecolor(
-                    theme::MOLTEN_AMBER.0,
-                    theme::MOLTEN_AMBER.1,
-                    theme::MOLTEN_AMBER.2
-                ),
-                self.hint.truecolor(
-                    theme::MOLTEN_AMBER.0,
-                    theme::MOLTEN_AMBER.1,
-                    theme::MOLTEN_AMBER.2
-                )
-            );
-        } else {
-            let _ = writeln!(stderr, "error: {}", self.message);
-            let _ = writeln!(stderr, "       hint: {}", self.hint);
-        }
+        let _ = write!(stderr, "{}", self.render_human(color));
         let _ = stderr.flush();
     }
 }
 
 /// Emit an error in the form appropriate to the output mode and return its exit
 /// code. Machine modes get the structured JSON object; human modes get the
-/// colored rendering.
+/// tagged rendering. Errors never consult the severity floor.
 pub(crate) fn report(err: &AppError, mode: OutputMode) -> i32 {
     if mode.is_machine() {
         err.emit_to_stderr();
@@ -215,4 +213,40 @@ pub(crate) fn report(err: &AppError, mode: OutputMode) -> i32 {
         err.emit_human(mode == OutputMode::HumanWithColor);
     }
     err.exit_code
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample() -> AppError {
+        AppError {
+            code: ErrorCode::NotFound,
+            exit_code: 3,
+            message: "skill `foo` does not exist".to_owned(),
+            hint: "construct skill find --json".to_owned(),
+            timestamp: "2026-08-10T00:00:00Z".to_owned(),
+            command: "construct skill use foo".to_owned(),
+            docs_url: None,
+            extensions: Map::new(),
+        }
+    }
+
+    #[test]
+    fn human_render_carries_error_tag_without_color() {
+        let text = sample().render_human(false);
+        assert!(text.starts_with("[ERROR] "), "tag missing: {text}");
+        assert!(text.contains("\n  hint: construct skill find --json"));
+        assert!(!text.contains('\u{1b}'), "colorless render leaked ANSI");
+    }
+
+    #[test]
+    fn human_render_keeps_tag_with_color() {
+        let text = sample().render_human(true);
+        assert!(
+            text.contains("[ERROR]"),
+            "tag must survive coloring: {text}"
+        );
+        assert!(text.contains('\u{1b}'), "colored render carries ANSI");
+    }
 }

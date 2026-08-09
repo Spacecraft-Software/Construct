@@ -3,7 +3,7 @@
 `construct` is the Spacecraft Software **Construct** skills package manager (Rust
 CLI + TUI) — the first executable in the Construct catalogue repository. It
 conforms to the Spacecraft Software Dual-Mode Self-Documenting CLI Standard
-(v1.0.0). This file and `CLAUDE.md` are peers; keep them identical.
+(v1.1.0). This file and `CLAUDE.md` are peers; keep them identical.
 
 ## Build / test / lint
 
@@ -32,12 +32,19 @@ so run it locally before adding a dependency (Standard §3.3).
 - `cli.rs` — the clap derive tree and the §3 global flags (`global = true`).
 - `context.rs` — per-invocation resolved state (output mode, color, flags).
 - `src/output/` is the **only** place that writes to stdout:
-  - `mode.rs` — the §5 detection cascade + §6 color precedence.
+  - `mode.rs` — the §5 detection cascade + §6 color precedence
+    (FORCE_COLOR overrides NO_COLOR).
   - `envelope.rs` — the `{ metadata, data }` JSON envelope.
-  - `error.rs` — the structured `AppError` (machine: single-line `{"error":…}`).
+  - `error.rs` — the structured `AppError` (machine: single-line `{"error":…}`;
+    human: `[ERROR]`-tagged line + indented `hint:`). Never suppressible.
+  - `diagnostic.rs` — non-error diagnostics (`Severity` ladder `[OK]`/`[WARN]`/
+    `[INFO]`, machine: single-line `{"diagnostic":…}`, human: `[TAG]` line),
+    gated by `Context::severity_floor` (`--quiet` → errors only, agent env →
+    `warn`+, default → `ok`+, `--verbose` → `info`+). See the CLI Standard's
+    `references/diagnostics.md`.
   - `render.rs` — json / jsonl / yaml / csv / human renderers; `--fields`.
-  - `theme.rs` — the Steelbore palette (v1.33 tokens, grandfathered per
-    Standard §11.1 until the next minor release; no inline hex).
+  - `theme.rs` — the `steelbore` theme: the eleven Steelbore 2 role tokens of
+    Standard §11.1 (no inline hex).
 - `src/commands/` — one handler per command.
 - `manifest.rs` — the single source of truth for `schema` and `describe`; the
   `tests::manifest_in_sync_with_cli` test fails if it drifts from the clap tree.
@@ -50,6 +57,9 @@ so run it locally before adding a dependency (Standard §3.3).
 - All timestamps go through `time::now_iso8601()` → ISO 8601 UTC with `Z`. Never
   local time, never `chrono::Local` / `NaiveDateTime`.
 - Errors are `AppError` whose `hint` is a RUNNABLE command, not prose.
+- Every non-error stderr message goes through `output::diagnostic::Diagnostic`
+  (or `emit_passthrough` for raw subprocess output) so the severity floor and
+  `[TAG]` rendering apply — no bare `eprintln!` diagnostics.
 - Exit codes follow the canonical map (0,1,2,3,4,5,127,…).
 - Every `.rs` / `.toml` starts with the two-line SPDX header; license is
   `GPL-3.0-or-later`.

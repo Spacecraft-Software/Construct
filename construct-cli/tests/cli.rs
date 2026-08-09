@@ -171,6 +171,70 @@ fn explore_falls_back_to_json_when_not_a_tty() {
 }
 
 #[test]
+fn explore_fallback_under_agent_env_is_a_diagnostic_envelope() {
+    // Under a real agent env value, the fallback warning must be the
+    // single-line `{"diagnostic":{...}}` envelope (diagnostics.md §3) —
+    // the agent floor is `warn`, so a warn-severity diagnostic still emits.
+    let assertion = bin()
+        .env("AI_AGENT", "claude-code_2-1-218_agent")
+        .args(["--format", "explore"])
+        .assert()
+        .success();
+    let out = assertion.get_output();
+    serde_json::from_slice::<Value>(&out.stdout).expect("JSON fallback on stdout");
+    let stderr = String::from_utf8(out.stderr.clone()).expect("valid UTF-8");
+    let line = stderr.lines().next().expect("one stderr line");
+    let value: Value = serde_json::from_str(line).expect("single-line diagnostic JSON");
+    assert_eq!(value["diagnostic"]["severity"], "warn");
+    assert_eq!(value["diagnostic"]["code"], "TUI_FALLBACK");
+    assert!(
+        value["diagnostic"]["hint"]
+            .as_str()
+            .is_some_and(|h| h.starts_with("construct ")),
+        "hint must be a runnable construct command"
+    );
+    assert!(value["diagnostic"]["reason"].is_string());
+    assert!(!stderr.contains('\u{1b}'), "no ANSI in machine mode");
+}
+
+#[test]
+fn quiet_suppresses_the_tui_fallback_warning() {
+    // `--quiet` raises the severity floor to errors-only: the warn-severity
+    // TUI fallback is not written, and stdout still carries the JSON payload.
+    let assertion = bin()
+        .args(["--format", "explore", "--quiet"])
+        .assert()
+        .success();
+    let out = assertion.get_output();
+    serde_json::from_slice::<Value>(&out.stdout).expect("JSON fallback on stdout");
+    assert!(
+        out.stderr.is_empty(),
+        "quiet must suppress the fallback warning, got: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+}
+
+#[test]
+fn quiet_never_suppresses_errors() {
+    // Errors bypass the severity floor: the structured error object still
+    // lands on stderr under --quiet.
+    let assertion = bin()
+        .args([
+            "skill",
+            "sync",
+            "--flake-dir",
+            "/no/such/construct/dir",
+            "--json",
+            "--quiet",
+        ])
+        .assert()
+        .code(3);
+    let err = assertion.get_output().stderr.clone();
+    let value: Value = serde_json::from_slice(&err).expect("structured error on stderr");
+    assert_eq!(value["error"]["code"], "NOT_FOUND");
+}
+
+#[test]
 fn version_names_maintainer_and_site() {
     let out = bin()
         .arg("--version")
