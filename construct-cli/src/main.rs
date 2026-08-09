@@ -61,6 +61,12 @@ fn real_main() -> i32 {
 
     let ctx = Context::from_cli(&cli);
 
+    // `--format explore` fell back to JSON: surface why as a warn diagnostic,
+    // now that the context can render it per mode and severity floor.
+    if let Some(reason) = ctx.tui_fallback {
+        output::diagnostic::emit_tui_fallback(&ctx, reason);
+    }
+
     let dispatched = std::panic::catch_unwind(AssertUnwindSafe(|| commands::dispatch(&cli, &ctx)));
 
     match dispatched {

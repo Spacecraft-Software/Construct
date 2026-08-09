@@ -194,7 +194,7 @@ pub(crate) fn run(ctx: &Context) -> Result<TuiAction, AppError> {
             ctx,
             ErrorCode::InternalError,
             format!("explore TUI error: {e}"),
-            "construct skill find   # use the non-interactive browser instead",
+            "construct skill find --json",
         )
     })
 }
@@ -294,25 +294,27 @@ fn render_tabs(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
             Block::default()
                 .borders(Borders::ALL)
                 .title(" construct explore ")
-                .border_style(Style::default().fg(rgb(theme::STEEL_BLUE))),
+                .border_style(Style::default().fg(rgb(theme::STRUCTURE))),
         )
         .select(selected)
         .highlight_style(
             Style::default()
-                .fg(rgb(theme::MOLTEN_AMBER))
+                .fg(rgb(theme::ACCENT))
                 .add_modifier(Modifier::BOLD),
         );
     frame.render_widget(tabs, area);
 }
 
 fn render_list(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
+    // Selected/active rows are Acid Lime per tui-explore §3; inverted text on
+    // the fill is the verified 16.75:1 pairing (§11.0.2).
     let highlight = Style::default()
-        .bg(rgb(theme::STEEL_BLUE))
-        .fg(rgb(theme::VOID_NAVY))
+        .bg(rgb(theme::SUCCESS))
+        .fg(rgb(theme::BACKGROUND))
         .add_modifier(Modifier::BOLD);
     let border = Block::default()
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(rgb(theme::STEEL_BLUE)));
+        .border_style(Style::default().fg(rgb(theme::STRUCTURE)));
 
     match app.tab {
         Tab::Skills => {
@@ -327,7 +329,7 @@ fn render_list(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
                         "[ ] "
                     };
                     ListItem::new(Line::from(vec![
-                        Span::styled(mark, Style::default().fg(rgb(theme::RADIUM_GREEN))),
+                        Span::styled(mark, Style::default().fg(rgb(theme::SUCCESS))),
                         Span::raw(s.name.clone()),
                     ]))
                 })
@@ -345,9 +347,9 @@ fn render_list(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
                 .map(|i| {
                     let a = &app.agents[i];
                     let flag = if a.hm_managed {
-                        Span::styled(" hm", Style::default().fg(rgb(theme::MOLTEN_AMBER)))
+                        Span::styled(" hm", Style::default().fg(rgb(theme::ACCENT)))
                     } else if a.installed {
-                        Span::styled(" ✓", Style::default().fg(rgb(theme::RADIUM_GREEN)))
+                        Span::styled(" ✓", Style::default().fg(rgb(theme::SUCCESS)))
                     } else {
                         Span::raw("")
                     };
@@ -367,9 +369,9 @@ fn render_detail(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
     let border = Block::default()
         .borders(Borders::ALL)
         .title(" Detail ")
-        .border_style(Style::default().fg(rgb(theme::STEEL_BLUE)));
-    let value = Style::default().fg(rgb(theme::LIQUID_COOLANT));
-    let label = Style::default().fg(rgb(theme::MOLTEN_AMBER));
+        .border_style(Style::default().fg(rgb(theme::STRUCTURE)));
+    let value = Style::default().fg(rgb(theme::FOREGROUND));
+    let label = Style::default().fg(rgb(theme::STRUCTURE));
 
     let lines: Vec<Line> = match app.tab {
         Tab::Skills => match app.current_skill() {
@@ -441,7 +443,7 @@ fn render_help(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
         )
     };
     frame.render_widget(
-        Paragraph::new(help).style(Style::default().fg(rgb(theme::STEEL_BLUE))),
+        Paragraph::new(help).style(Style::default().fg(rgb(theme::STRUCTURE))),
         area,
     );
 }

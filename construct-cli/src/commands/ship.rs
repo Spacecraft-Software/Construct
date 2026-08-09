@@ -146,7 +146,7 @@ pub(crate) fn run(ctx: &Context, args: &ShipArgs) -> Result<CommandOutput, AppEr
             ErrorCode::Conflict,
             5,
             format!("SKILL.md description exceeds the {DESCRIPTION_CAP}-character cap: {detail}"),
-            format!("$EDITOR {first}/SKILL.md  # trim the `description` frontmatter field"),
+            format!("python3 .githooks/check-description-length.py {first}/SKILL.md"),
         )
         .with_extension(
             "oversized_skills",
