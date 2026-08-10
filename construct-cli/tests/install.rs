@@ -107,6 +107,39 @@ fn add_global_into_hm_managed_is_refused() {
 }
 
 #[test]
+fn add_global_into_store_backed_is_refused() {
+    // `zed`'s global_path IS `.agents/skills`, so comparing the link target
+    // against `~/.agents/skills` compares the path with itself and never
+    // matches. Only resolving the whole chain to the store catches this shape.
+    let src = make_source(&["demo"]);
+    let home = TempDir::new().expect("temp home");
+    let store = TempDir::new().expect("temp store");
+    let tree = store.path().join("abc123-construct-skills");
+    fs::create_dir_all(&tree).expect("mkdir store tree");
+    fs::create_dir_all(home.path().join(".agents")).expect("mkdir .agents");
+    std::os::unix::fs::symlink(&tree, home.path().join(".agents/skills"))
+        .expect("symlink skills tree");
+
+    let assertion = bin()
+        .env("HOME", home.path())
+        .env("NIX_STORE_DIR", store.path())
+        .args([
+            "skill",
+            "add",
+            src.path().to_str().unwrap(),
+            "--agents",
+            "zed",
+            "--global",
+            "--json",
+        ])
+        .assert()
+        .code(5);
+    let err: Value =
+        serde_json::from_slice(&assertion.get_output().stderr).expect("structured error");
+    assert_eq!(err["error"]["code"], "CONFLICT");
+}
+
+#[test]
 fn add_list_remove_roundtrip() {
     let src = make_source(&["alpha", "beta"]);
     let proj = make_project();
