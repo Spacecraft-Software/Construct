@@ -11,6 +11,7 @@
 pub(crate) mod agent;
 pub(crate) mod describe;
 pub(crate) mod explore;
+pub(crate) mod pointer;
 pub(crate) mod schema;
 pub(crate) mod ship;
 pub(crate) mod skill;
@@ -41,6 +42,8 @@ pub(crate) fn dispatch(cli: &Cli, ctx: &Context) -> Result<Option<CommandOutput>
             SkillCommand::Use(args) => skill::use_prompt(ctx, args).map(Some),
             SkillCommand::Init(args) => skill::init(ctx, args).map(Some),
             SkillCommand::Sync(args) => sync::run(ctx, args).map(Some),
+            SkillCommand::Status(args) => pointer::status(ctx, args).map(Some),
+            SkillCommand::Reset(args) => pointer::reset(ctx, args).map(Some),
             SkillCommand::Ship(args) => ship::run(ctx, args).map(Some),
         },
         Some(Command::Agent { verb }) => match verb {

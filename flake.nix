@@ -56,8 +56,7 @@
           cp -r ${source}/${name}/. $out/
         '';
 
-      # Combined derivation — used internally by the HM module, NOT exposed
-      # as a flake `packages` output.
+      # Combined derivation — one skill tree from one source.
       mkCombined = pkgs: source: skillList: outName:
         pkgs.runCommandLocal outName { } (''
           mkdir -p $out
@@ -65,6 +64,37 @@
           mkdir -p $out/${n}
           cp -r ${source}/${n}/. $out/${n}/
         '') skillList);
+
+      # THE skill tree builder. Every consumer goes through this — the
+      # `packages` outputs below and the Home-Manager module alike.
+      #
+      # That shared route is the point, not a tidiness exercise. A consumer
+      # that instantiates nixpkgs differently from this flake (a `follows`, an
+      # overlay, `useGlobalPkgs`) gets a DIFFERENT store path for a
+      # byte-identical tree. So a consumer wanting to compare "what the flake
+      # pins" against "what is installed" must pass one derivation from here to
+      # both sides; comparing `packages.skills` against a separately-built
+      # module tree compares two nixpkgs, and reports drift forever.
+      mkSkills = { pkgs, android ? false, grok ? false }:
+        if grok then
+          mkCombined pkgs (self + "/grok-skills") grokSkills "construct-grok-skills"
+        else if android && androidSkills != [] then
+          # Cross-platform + vendored Android in one tree. Leaf names don't
+          # collide (cross-platform skills are all spacecraft-* / gnu-* /
+          # microsoft-*; Android leaves are distinct), so a flat merge is safe.
+          pkgs.runCommandLocal "construct-skills-with-android" { } (''
+            mkdir -p $out
+          '' + nixpkgs.lib.concatMapStringsSep "\n" (n: ''
+            mkdir -p $out/${n}
+            cp -r ${self}/${n}/. $out/${n}/
+          '') crossPlatformSkills
+            + "\n"
+            + nixpkgs.lib.concatMapStringsSep "\n" (n: ''
+            mkdir -p $out/${n}
+            cp -r ${self + "/android-skills"}/${n}/. $out/${n}/
+          '') androidSkills)
+        else
+          mkCombined pkgs self crossPlatformSkills "construct-skills";
     in {
 
       # ───────────────────────────────────────────────────────────────────
@@ -87,6 +117,23 @@
           name = "android-${n}";
           value = mkSkillPackage pkgs (self + "/android-skills") n;
         }) androidSkills))
+        // {
+          # The whole trees, as buildable outputs. `skills` is what a consumer
+          # points a mutable pointer at (see `mutablePointer` below): building
+          # it is a `cp -r` of a few megabytes, so re-pointing costs seconds
+          # rather than a system generation.
+          skills = mkSkills { inherit pkgs; };
+          skills-with-android = mkSkills {
+            inherit pkgs;
+            android = true;
+          };
+        }
+        // nixpkgs.lib.optionalAttrs (grokSkills != [ ]) {
+          skills-grok = mkSkills {
+            inherit pkgs;
+            grok = true;
+          };
+        }
         // {
           # First executable in the catalogue: the `construct` skills CLI.
           # Its source lives in construct-cli/ (excluded from skill detection
@@ -119,30 +166,12 @@
         let
           cfg = config.spacecraft.construct;
 
-          combinedCrossPlatform =
-            mkCombined pkgs self crossPlatformSkills "construct-skills";
-
-          # Cross-platform skills + vendored Android skills in one tree. Leaf
-          # names don't collide (cross-platform skills are all spacecraft-* /
-          # gnu-* / microsoft-*; Android leaves are distinct), so a flat merge
-          # is safe. Used as the canonical source when enableAndroid is on.
-          combinedWithAndroid =
-            pkgs.runCommandLocal "construct-skills-with-android" { } (''
-              mkdir -p $out
-            '' + nixpkgs.lib.concatMapStringsSep "\n" (n: ''
-              mkdir -p $out/${n}
-              cp -r ${self}/${n}/. $out/${n}/
-            '') crossPlatformSkills
-              + "\n"
-              + nixpkgs.lib.concatMapStringsSep "\n" (n: ''
-              mkdir -p $out/${n}
-              cp -r ${self + "/android-skills"}/${n}/. $out/${n}/
-            '') androidSkills);
-
           combinedGrok =
             if grokSkills == [] then null
-            else mkCombined pkgs (self + "/grok-skills") grokSkills
-                   "construct-grok-skills";
+            else mkSkills { inherit pkgs; grok = true; };
+
+          # Absolute path of the pointer directory, and of the two links in it.
+          stateDir = "$HOME/${cfg.mutablePointer.stateDir}";
 
           # Per-harness paths that should symlink to ~/.agents/skills.
           # Extensible — add more (`.copilot/skills`, `.cursor/skills`, …)
@@ -165,6 +194,62 @@
             enableAndroid = lib.mkEnableOption
               "vendored Google Android skills (merged into ~/.agents/skills/)";
 
+            package = lib.mkOption {
+              type = lib.types.package;
+              default = mkSkills {
+                inherit pkgs;
+                android = cfg.enableAndroid;
+              };
+              defaultText = lib.literalExpression
+                "this flake's own combined skill tree (Android merged in when enableAndroid)";
+              description = ''
+                The skill tree installed as the canonical `~/.agents/skills`.
+
+                Override it to hand in a tree built by `construct.lib.mkSkills`
+                with YOUR nixpkgs, so that the derivation installed here and the
+                one you expose as a flake output are literally the same store
+                path. Without that, the two differ whenever your nixpkgs differs
+                from this flake's — and any pinned-vs-live comparison built on
+                store paths reports drift that is not there.
+
+                Setting this supersedes `enableAndroid` for the installed tree;
+                `enableAndroid` then only selects this option's default.
+              '';
+            };
+
+            mutablePointer = {
+              enable = lib.mkEnableOption ''
+                installing `~/.agents/skills` as a symlink to a mutable pointer
+                rather than straight into the Nix store.
+
+                The tree stays a derivation; only the POINTER becomes mutable
+                state — the same shape `nix profile` and Home Manager themselves
+                use. Home Manager renders the flake-pinned tree at
+                `<stateDir>/pinned` (which is what GC-roots it, via the
+                generation), and `<stateDir>/current` is a `nix build --out-link`
+                that a user-level `construct skill sync --build` can re-point in
+                seconds — with no rebuild and no `sudo`.
+
+                `flake.lock` stays authoritative: every activation re-points
+                `current` at `pinned`, so a rebuild always re-asserts the lock
+                and the pointer only runs ahead BETWEEN rebuilds. Consumers that
+                assert lock-derived byte-identity elsewhere (a vendored copy for
+                a cloud agent, say) should still compare against `pinned`
+              '';
+
+              stateDir = lib.mkOption {
+                type = lib.types.str;
+                default = ".local/state/construct";
+                description = ''
+                  Home-RELATIVE directory holding `pinned` and `current`.
+
+                  Deliberately not under `~/.agents/`: harnesses that read
+                  `~/.agents/` directly would discover a second complete copy of
+                  every skill there and offer each one twice.
+                '';
+              };
+            };
+
             agentPaths = lib.mkOption {
               type = lib.types.listOf lib.types.str;
               default = defaultAgentPaths;
@@ -177,22 +262,83 @@
           };
 
           config = lib.mkMerge [
-            (lib.mkIf cfg.enable {
-              # Canonical install — agents resolve all paths through here. When
-              # enableAndroid is on (and any Android skills exist), the tree also
-              # contains the vendored Android skills; otherwise cross-platform only.
-              home.file.".agents/skills".source =
-                if cfg.enableAndroid && androidSkills != [] then
-                  combinedWithAndroid
-                else
-                  combinedCrossPlatform;
+            # Store-link install (the default). Home Manager owns
+            # ~/.agents/skills outright and every change needs a rebuild.
+            (lib.mkIf (cfg.enable && !cfg.mutablePointer.enable) {
+              home.file.".agents/skills".source = cfg.package;
+            })
 
+            # Pointer install. HM owns <stateDir>/pinned — which is what keeps
+            # the tree GC-rooted through the generation — and the activation
+            # below owns ~/.agents/skills, pointing it at <stateDir>/current.
+            (lib.mkIf (cfg.enable && cfg.mutablePointer.enable) {
+              home.file."${cfg.mutablePointer.stateDir}/pinned".source = cfg.package;
+
+              # entryAfter [ "linkGeneration" ] is load-bearing: this seeds
+              # `current` from `pinned`, and `linkGeneration` is what creates
+              # `pinned`. A bare writeBoundary constraint leaves the two
+              # unordered and hm.dag settles such ties by NAME, which is not a
+              # guarantee — it is a coincidence that happens to hold today.
+              home.activation."spacecraft-construct-skill-pointer" =
+                lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+                  $DRY_RUN_CMD mkdir -p "${stateDir}"
+
+                  # A REAL directory here predates the pointer (or Construct
+                  # itself). `ln -sfn` will not replace one, it fails and takes
+                  # activation down with it — so move it aside rather than
+                  # letting a fossil break every rebuild.
+                  if [ -d "$HOME/.agents/skills" ] && [ ! -L "$HOME/.agents/skills" ]; then
+                    $DRY_RUN_CMD mv "$HOME/.agents/skills" \
+                      "$HOME/.agents/skills.pre-pointer.$(date -u +%Y%m%dT%H%M%SZ)"
+                  fi
+
+                  # Point at `pinned` — NEVER at pinned's store target. Via
+                  # `pinned` the tree is rooted by this generation for free, and
+                  # "am I tracking the flake?" stays a pointer comparison rather
+                  # than a hash comparison.
+                  #
+                  # Done UNCONDITIONALLY, on every activation. Seeding only when
+                  # absent looks kinder — it would preserve a pointer moved by
+                  # `skill sync --build` — but it is a trap: a later rebuild
+                  # bumps `pinned` to a newer tree while `current` stays on the
+                  # old one, so a rebuild would leave the machine running STALE
+                  # skills with nothing to indicate it. Resetting here makes the
+                  # rule simple and the lock authoritative: `sync --build` moves
+                  # the pointer forward between rebuilds, and a rebuild
+                  # re-asserts whatever flake.lock pins. Nothing is lost, since
+                  # `sync --build` moves the lock in the same breath.
+                  if [ -d "${stateDir}/current" ] && [ ! -L "${stateDir}/current" ]; then
+                    $DRY_RUN_CMD rm -rf "${stateDir}/current"
+                  fi
+                  $DRY_RUN_CMD ln -sfn "${stateDir}/pinned" "${stateDir}/current"
+
+                  $DRY_RUN_CMD ln -sfn "${stateDir}/current" "$HOME/.agents/skills"
+                '';
+            })
+
+            (lib.mkIf cfg.enable {
               # Per-harness directory symlinks. Done via activation so the
               # symlink can point at the home-relative ~/.agents/skills
               # rather than a Nix-store path (which would require rebuild
               # on every commit for the symlink target alone).
+              #
+              # entryAfter [ "linkGeneration" ], not [ "writeBoundary" ]: this
+              # loop links at ~/.agents/skills, which `linkGeneration` is what
+              # creates. Under a bare writeBoundary constraint the two are
+              # unordered, and hm.dag breaks such ties ALPHABETICALLY — this
+              # entry ran last only because "s" sorts after "l". A sibling
+              # module's writeBoundary entry named below "linkGeneration"
+              # (`engramDataDir`, in the consuming config, is exactly that)
+              # demonstrates the tie going the other way. State the real
+              # dependency rather than relying on the name.
+              #
+              # Under mutablePointer this must additionally follow the pointer
+              # entry, which is what creates ~/.agents/skills at all.
               home.activation."spacecraft-construct-agent-symlinks" =
-                lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                lib.hm.dag.entryAfter
+                  ([ "linkGeneration" ]
+                    ++ lib.optional cfg.mutablePointer.enable
+                      "spacecraft-construct-skill-pointer") ''
                   for p in ${lib.escapeShellArgs cfg.agentPaths}; do
                     target="$HOME/$p"
                     # Remove anything that isn't already the right symlink.
@@ -222,6 +368,12 @@
       # ───────────────────────────────────────────────────────────────────
       lib = {
         inherit crossPlatformSkills grokSkills androidSkills;
+
+        # Build a skill tree with the CALLER's nixpkgs. Pass the result to both
+        # your own flake output and `spacecraft.construct.package` so the two
+        # are one store path — see that option's description for why comparing
+        # separately-built trees does not work.
+        inherit mkSkills;
       };
     };
 }

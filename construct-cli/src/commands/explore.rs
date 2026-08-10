@@ -26,7 +26,18 @@ pub(crate) fn run(ctx: &Context) -> Result<Option<CommandOutput>, AppError> {
     match action {
         TuiAction::Quit => Ok(None),
         TuiAction::Sync => {
-            let output = sync::run(&hctx, &SyncArgs { flake_dir: None })?;
+            // The TUI's sync stays the plain flake update. Moving the pointer
+            // is a deliberate, separately-invoked step — not what a keypress in
+            // a catalogue browser should do.
+            let output = sync::run(
+                &hctx,
+                &SyncArgs {
+                    flake_dir: None,
+                    build: false,
+                    no_update: false,
+                    pointer: None,
+                },
+            )?;
             render::emit(&hctx, &output);
             Ok(None)
         }

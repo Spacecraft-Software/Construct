@@ -143,8 +143,16 @@ fn place_agent(
         return Ok(());
     };
 
-    // Broad-selection global install into an HM-managed dir: skip gracefully.
-    if opts.scope == Scope::Global && detect::classify(&base) == detect::TargetState::HmManaged {
+    // Broad-selection global install into a declaratively-managed dir: skip
+    // gracefully. Both shapes refuse — the agents whose `global_path` is itself
+    // `.agents/skills` present as store-backed rather than HM-managed.
+    let state = detect::classify(&base);
+    if opts.scope == Scope::Global && detect::is_declarative(state) {
+        let detail = if state == detect::TargetState::StoreBacked {
+            "resolves into the read-only Nix store"
+        } else {
+            "symlinked to ~/.agents/skills by Home Manager"
+        };
         for skill in skills {
             items.push(ItemResult {
                 agent: agent.id.clone(),
@@ -152,7 +160,7 @@ fn place_agent(
                 scope,
                 target: base.join(&skill.name).display().to_string(),
                 action: "refused_hm_managed",
-                detail: Some("symlinked to ~/.agents/skills by Home Manager".to_owned()),
+                detail: Some(detail.to_owned()),
             });
         }
         return Ok(());
@@ -306,9 +314,8 @@ pub(crate) fn remove(ctx: &Context, opts: &RemoveOptions) -> Result<InstallRepor
         if !base.is_dir() {
             continue;
         }
-        // Never delete from a directory Home Manager owns.
-        if opts.scope == Scope::Global && detect::classify(&base) == detect::TargetState::HmManaged
-        {
+        // Never delete from a directory a declarative layer owns.
+        if opts.scope == Scope::Global && detect::is_declarative(detect::classify(&base)) {
             continue;
         }
         let targets = if opts.skills.is_empty() {
