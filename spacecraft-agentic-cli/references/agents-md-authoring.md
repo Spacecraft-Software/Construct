@@ -129,7 +129,7 @@ AGENTS.md. Copying or symlinking AGENTS.md into it is non-compliant: the
 two copies are edited in different sessions, drift, and the agent reading
 the stale one is never told it is stale.
 
-> **This rule was inverted at Standard v1.46.** Earlier revisions of this
+> **This rule was inverted when §5.7 was added.** Earlier revisions of this
 > reference told authors to make CLAUDE.md a strict superset by symlinking
 > or copying. That produced duplication by construction. If you find a
 > project still arranged that way, or a file carrying a "keep these two in
