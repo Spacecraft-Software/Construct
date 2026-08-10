@@ -143,6 +143,19 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                         "type": "string",
                         "format": "uri-reference",
                         "description": "Directory of the consuming flake (default: /spacecraft-software/bravais)"
+                    },
+                    "build": {
+                        "type": "boolean",
+                        "description": "Build the flake's `skills` output and move the pointer to it — applies the new skills with no rebuild and no sudo"
+                    },
+                    "no_update": {
+                        "type": "boolean",
+                        "description": "Skip the flake update and rebuild the pointer from the lock as it stands (requires --build)"
+                    },
+                    "pointer": {
+                        "type": "string",
+                        "format": "uri-reference",
+                        "description": "Pointer to move (default: ~/.local/state/construct/current; requires --build)"
                     }
                 }
             }),
@@ -153,7 +166,17 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                     "input": { "type": "string" },
                     "updated": { "type": "boolean" },
                     "executed": { "type": "boolean" },
-                    "synced_at": { "type": "string", "format": "date-time" }
+                    "build": { "type": "boolean" },
+                    "synced_at": { "type": "string", "format": "date-time" },
+                    "pointer": {
+                        "type": "object",
+                        "properties": {
+                            "pointer": { "type": "string" },
+                            "store_before": { "type": ["string", "null"] },
+                            "store_after": { "type": ["string", "null"] },
+                            "changed": { "type": "boolean" }
+                        }
+                    }
                 }
             }),
             exit_codes: pairs(&[
@@ -178,9 +201,102 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                     "Same, with machine-readable output",
                 ),
                 (
+                    "construct skill sync --build",
+                    "Update, then move the pointer so the new skills are live immediately",
+                ),
+                (
                     "construct skill sync --flake-dir /etc/nixos --dry-run",
                     "Show what would change for /etc/nixos without doing it",
                 ),
+            ]),
+            supports_json: true,
+            supports_dry_run: true,
+            idempotent: true,
+            destructive: false,
+        },
+        CommandSpec {
+            name: "construct skill status".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "status".to_owned(),
+            description: "Show whether the live skill tree tracks the flake-pinned one".to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {
+                    "pointer": {
+                        "type": "string",
+                        "format": "uri-reference",
+                        "description": "Pointer to inspect (default: ~/.local/state/construct/current)"
+                    }
+                }
+            }),
+            output_data: json!({
+                "type": "object",
+                "properties": {
+                    "pointer": { "type": "string" },
+                    "pinned_link": { "type": "string" },
+                    "pinned_store": { "type": ["string", "null"] },
+                    "current_store": { "type": ["string", "null"] },
+                    "tracking_flake": { "type": "boolean" },
+                    "dangling": { "type": "boolean" }
+                }
+            }),
+            exit_codes: pairs(&[
+                ("0", "SUCCESS — pointer state reported"),
+                (
+                    "3",
+                    "NOT_FOUND — no pointer here; the host is not running the mutablePointer layout",
+                ),
+            ]),
+            examples: pairs(&[
+                ("construct skill status", "Report the live vs pinned tree"),
+                (
+                    "construct skill status --json",
+                    "Same, for a drift probe in a script",
+                ),
+            ]),
+            supports_json: true,
+            supports_dry_run: false,
+            idempotent: true,
+            destructive: false,
+        },
+        CommandSpec {
+            name: "construct skill reset".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "reset".to_owned(),
+            description: "Point the live skill tree back at what flake.lock pins".to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {
+                    "pointer": {
+                        "type": "string",
+                        "format": "uri-reference",
+                        "description": "Pointer to reset (default: ~/.local/state/construct/current)"
+                    }
+                }
+            }),
+            output_data: json!({
+                "type": "object",
+                "properties": {
+                    "pointer": { "type": "string" },
+                    "executed": { "type": "boolean" },
+                    "store_before": { "type": ["string", "null"] },
+                    "store_after": { "type": ["string", "null"] },
+                    "changed": { "type": "boolean" },
+                    "reset_at": { "type": "string", "format": "date-time" }
+                }
+            }),
+            exit_codes: pairs(&[
+                ("0", "SUCCESS — pointer now tracks the flake"),
+                ("1", "GENERAL_FAILURE — the pointer could not be rewritten"),
+                ("3", "NOT_FOUND — no pointer, or no pinned tree to reset to"),
+            ]),
+            examples: pairs(&[
+                ("construct skill reset", "Discard a moved pointer"),
+                ("construct skill reset --dry-run", "Show what it would do"),
             ]),
             supports_json: true,
             supports_dry_run: true,

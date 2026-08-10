@@ -14,6 +14,7 @@ use std::process::Command as Proc;
 use serde_json::json;
 
 use crate::cli::SyncArgs;
+use crate::commands::pointer;
 use crate::context::Context;
 use crate::output::error::{AppError, ErrorCode};
 use crate::output::{CommandOutput, HumanRender};
@@ -35,30 +36,79 @@ pub(crate) fn run(ctx: &Context, args: &SyncArgs) -> Result<CommandOutput, AppEr
         if !flake_dir.is_dir() {
             return Err(missing_dir(ctx, &flake_dir));
         }
+        let mut action = format!("nix flake update {INPUT_NAME}");
+        if args.build {
+            action.push_str(", then nix build .#skills --out-link <pointer>");
+        }
         let data = json!({
             "flake_dir": flake_dir_str,
             "input": INPUT_NAME,
             "updated": false,
             "executed": false,
-            "action": format!("nix flake update {INPUT_NAME}"),
+            "build": args.build,
+            "action": action,
         });
         let human = HumanRender::Message(format!(
-            "[dry-run] would run: nix flake update {INPUT_NAME}  (in {flake_dir_str})"
+            "[dry-run] would run: {action}  (in {flake_dir_str})"
         ));
         return Ok(CommandOutput::new(data, human));
     }
 
-    let synced_at = flake_update(ctx, &flake_dir)?;
+    // `--no-update` only reaches here alongside `--build` (clap `requires`), so
+    // skipping the update always still leaves something to do.
+    let synced_at = if args.no_update {
+        if !flake_dir.is_dir() {
+            return Err(missing_dir(ctx, &flake_dir));
+        }
+        None
+    } else {
+        Some(flake_update(ctx, &flake_dir)?)
+    };
+
+    if !args.build {
+        let stamp = synced_at.clone().unwrap_or_else(crate::time::now_iso8601);
+        let data = json!({
+            "flake_dir": flake_dir_str,
+            "input": INPUT_NAME,
+            "updated": true,
+            "executed": true,
+            "build": false,
+            "synced_at": stamp,
+        });
+        let human = HumanRender::Message(format!(
+            "{stamp}  construct flake input updated in {flake_dir_str} — rebuild to apply"
+        ));
+        return Ok(CommandOutput::new(data, human));
+    }
+
+    let pointer = pointer::pointer_for_sync(ctx, args)?;
+    let moved = pointer::build_and_point(ctx, &flake_dir, &pointer)?;
+    let stamp = synced_at.unwrap_or_else(crate::time::now_iso8601);
+    let changed = moved
+        .get("changed")
+        .and_then(serde_json::Value::as_bool)
+        .unwrap_or(false);
+
     let data = json!({
         "flake_dir": flake_dir_str,
         "input": INPUT_NAME,
-        "updated": true,
+        "updated": !args.no_update,
         "executed": true,
-        "synced_at": synced_at,
+        "build": true,
+        "synced_at": stamp,
+        "pointer": moved,
     });
-    let human = HumanRender::Message(format!(
-        "{synced_at}  construct flake input updated in {flake_dir_str} — rebuild to apply"
-    ));
+    let human = HumanRender::Message(if changed {
+        format!(
+            "{stamp}  skills live at {} — no rebuild needed",
+            moved
+                .get("store_after")
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or("<unknown>")
+        )
+    } else {
+        format!("{stamp}  skills already up to date — pointer unchanged")
+    });
     Ok(CommandOutput::new(data, human))
 }
 

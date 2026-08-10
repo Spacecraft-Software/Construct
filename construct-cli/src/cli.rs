@@ -208,9 +208,19 @@ pub(crate) enum SkillCommand {
 
     /// Update the Construct flake input in a consuming flake (no rebuild).
     #[command(
-        after_help = "Examples:\n  construct skill sync\n  construct skill sync --json\n  construct skill sync --flake-dir /etc/nixos --dry-run"
+        after_help = "With --build, also builds the flake's `skills` output and moves the\nmutable pointer to it, so the new skills are live immediately — no\nrebuild, no sudo. Requires the Home-Manager module's mutablePointer\nmode; without it there is no pointer to move.\n\nExamples:\n  construct skill sync\n  construct skill sync --build\n  construct skill sync --build --no-update   # re-point from the current lock\n  construct skill sync --flake-dir /etc/nixos --dry-run"
     )]
     Sync(SyncArgs),
+
+    /// Show whether the live skill tree tracks the flake-pinned one.
+    #[command(after_help = "Examples:\n  construct skill status\n  construct skill status --json")]
+    Status(PointerArgs),
+
+    /// Point the live skill tree back at what flake.lock pins.
+    #[command(
+        after_help = "Examples:\n  construct skill reset\n  construct skill reset --dry-run"
+    )]
+    Reset(PointerArgs),
 
     /// Ship local skill edits: branch + commit (signed) + open a pull request.
     #[command(
@@ -313,6 +323,27 @@ pub(crate) struct SyncArgs {
     /// Directory of the consuming flake whose `construct` input is updated.
     #[arg(long, value_name = "DIR")]
     pub(crate) flake_dir: Option<PathBuf>,
+
+    /// After updating, build the flake's `skills` output and move the pointer
+    /// to it — applies the new skills with no rebuild and no sudo.
+    #[arg(long)]
+    pub(crate) build: bool,
+
+    /// Skip the flake update; build the pointer from the lock as it stands.
+    #[arg(long, requires = "build")]
+    pub(crate) no_update: bool,
+
+    /// Pointer to move (default: ~/.local/state/construct/current).
+    #[arg(long, value_name = "PATH", requires = "build")]
+    pub(crate) pointer: Option<PathBuf>,
+}
+
+/// Arguments for the pointer verbs (`skill status`, `skill reset`).
+#[derive(Debug, Args)]
+pub(crate) struct PointerArgs {
+    /// Pointer to inspect or reset (default: ~/.local/state/construct/current).
+    #[arg(long, value_name = "PATH")]
+    pub(crate) pointer: Option<PathBuf>,
 }
 
 /// Arguments for `construct skill find`.
