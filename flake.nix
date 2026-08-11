@@ -224,11 +224,18 @@
 
                 The tree stays a derivation; only the POINTER becomes mutable
                 state — the same shape `nix profile` and Home Manager themselves
-                use. Home Manager renders the flake-pinned tree at
-                `<stateDir>/pinned` (which is what GC-roots it, via the
-                generation), and `<stateDir>/current` is a `nix build --out-link`
-                that a user-level `construct skill sync --build` can re-point in
-                seconds — with no rebuild and no `sudo`.
+                use. `<stateDir>/current` is the pointer, and it aims at one of
+                two links beside it: `pinned`, which Home Manager renders (and
+                which GC-roots the tree via the generation), or `built`, which a
+                user-level `construct skill sync --build` produces with `nix
+                build --out-link` (GC-rooted by its own indirect root). Moving
+                between them takes seconds — no rebuild and no `sudo`.
+
+                `built` exists because `nix build --out-link` REFUSES to replace
+                a link whose current target is outside the store, and `current`
+                points at `pinned` after every rebuild. Building onto its own
+                link sidesteps that, and lets `current` be swapped by an atomic
+                rename so it is never momentarily absent.
 
                 `flake.lock` stays authoritative: every activation re-points
                 `current` at `pinned`, so a rebuild always re-asserts the lock
@@ -241,7 +248,7 @@
                 type = lib.types.str;
                 default = ".local/state/construct";
                 description = ''
-                  Home-RELATIVE directory holding `pinned` and `current`.
+                  Home-RELATIVE directory holding `pinned`, `built` and `current`.
 
                   Deliberately not under `~/.agents/`: harnesses that read
                   `~/.agents/` directly would discover a second complete copy of
