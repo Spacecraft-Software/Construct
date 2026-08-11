@@ -5,25 +5,34 @@
 //! and the build half of `skill sync --build`.
 //!
 //! Under the Home-Manager module's `mutablePointer` mode, `~/.agents/skills`
-//! is a symlink to `<stateDir>/current`, and `current` is either:
+//! is a symlink to `<stateDir>/current`, and `current` points at one of exactly
+//! two links beside it:
 //!
-//! * a symlink to `<stateDir>/pinned` — "tracking the flake"; `pinned` is a
-//!   Home-Manager-owned link, so the tree is GC-rooted through the generation,
-//!   or
-//! * a `nix build --out-link` result pointing straight into the store — "moved
-//!   ahead", GC-rooted by the indirect root `--out-link` registers under
+//! * `<stateDir>/pinned` — "tracking the flake". Home-Manager-owned, so the
+//!   tree is GC-rooted through the generation.
+//! * `<stateDir>/built` — "moved ahead". A `nix build --out-link` result, so the
+//!   tree is GC-rooted by the indirect root `--out-link` registers under
 //!   `/nix/var/nix/gcroots/auto/`.
+//!
+//! Both targets are rooted, which is the entire safety argument. The invariant:
+//! **`current` only ever points at `pinned` or at `built`.** Never at a bare
+//! store path by hand — that shape has no root, and the next
+//! `nix-collect-garbage` deletes the tree out from under every agent.
+//!
+//! The `built` indirection is not decoration. `nix build --out-link P` REFUSES
+//! to replace a `P` whose current target is outside the store — `addPermRoot`
+//! checks `isInStore(readLink(P))` — so building straight onto `current` fails
+//! with "cannot create symlink; already exists" the moment `current` tracks
+//! `pinned`, which is its state after every rebuild. Pointing `--out-link` at
+//! its own dedicated link sidesteps that, and as a bonus `current` is never
+//! momentarily absent: it is swapped by an atomic rename, not unlinked first.
 //!
 //! "Moved ahead" only lasts until the next rebuild: activation re-points
 //! `current` at `pinned` every time, so `flake.lock` stays authoritative and a
 //! rebuild can never leave the machine on a stale tree. `skill reset` is the
-//! same snap-back without waiting for one.
-//!
-//! Both shapes are rooted, which is the entire safety argument. The invariant
-//! that keeps it true: **`current` is only ever written by `nix build
-//! --out-link`, or pointed at `pinned`.** Never at a bare store path by hand —
-//! that shape has no root and the next `nix-collect-garbage` deletes the tree
-//! out from under every agent on the machine.
+//! same snap-back without waiting for one. (`built` keeps its own tree alive
+//! until the next `sync --build` overwrites it — one spare skill tree, a few
+//! megabytes, in exchange for never having an unrooted window.)
 
 use std::path::{Path, PathBuf};
 use std::process::Command as Proc;
@@ -62,6 +71,11 @@ fn resolve_pointer(ctx: &Context, args: &PointerArgs) -> Result<PathBuf, AppErro
 /// `pinned` sits beside `current` in the same state directory.
 fn pinned_beside(pointer: &Path) -> PathBuf {
     pointer.with_file_name("pinned")
+}
+
+/// `built` — the `--out-link` target, likewise beside `current`.
+fn built_beside(pointer: &Path) -> PathBuf {
+    pointer.with_file_name("built")
 }
 
 /// Where a symlink points, or `None` if it is absent or not a symlink.
@@ -253,6 +267,10 @@ pub(crate) fn build_and_point(
 
     let before = resolved(pointer);
     let target = format!("{}#{SKILLS_OUTPUT}", flake_dir.display());
+    // Build onto `built`, never onto `current` — see the module docs: nix
+    // refuses an --out-link whose existing target is outside the store, which
+    // `current -> pinned` always is.
+    let built = built_beside(pointer);
 
     let result = Proc::new("nix")
         .args([
@@ -261,7 +279,7 @@ pub(crate) fn build_and_point(
             "build",
             &target,
             "--out-link",
-            &pointer.display().to_string(),
+            &built.display().to_string(),
         ])
         .current_dir(flake_dir)
         .output();
@@ -280,7 +298,7 @@ pub(crate) fn build_and_point(
                 ctx,
                 ErrorCode::InternalError,
                 format!("failed to launch nix: {e}"),
-                format!("nix build {target} --out-link {}", pointer.display()),
+                format!("nix build {target} --out-link {}", built.display()),
             ));
         }
     };
@@ -294,15 +312,21 @@ pub(crate) fn build_and_point(
             format!("nix build {target} failed"),
             format!(
                 "nix build {target} --out-link {}   # the consuming flake must expose a `skills` output",
-                pointer.display()
+                built.display()
             ),
         )
         .with_extension("nix_exit_code", json!(output.status.code())));
     }
 
+    // Swap only after a successful build, and by atomic rename, so `current` is
+    // never absent — an agent resolving ~/.agents/skills concurrently sees the
+    // old tree or the new one, never a dangling link.
+    replace_symlink(ctx, &built, pointer)?;
+
     let after = resolved(pointer);
     Ok(json!({
         "pointer": pointer.display().to_string(),
+        "built_link": built.display().to_string(),
         "store_before": before.as_ref().map(|p| p.display().to_string()),
         "store_after": after.as_ref().map(|p| p.display().to_string()),
         "changed": before != after,
