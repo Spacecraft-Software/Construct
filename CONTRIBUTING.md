@@ -217,7 +217,7 @@ consolidated zip intentionally differs from any on-disk tree).
     opt-in per clone, so it is explicitly *not* the gate; §5.6 requires the two
     above precisely because a hook can be skipped.
 - **`microsoft-rust-guidelines` is intentionally `user-invocable: false`.** It is
-  the mandatory auto-load Rust base — `spacecraft-standard-constitution` mandates loading it
+  the mandatory auto-load Rust base — `spacecraft-steelbore-standard` mandates loading it
   before any Rust and `spacecraft-rust-guidelines` defers to it as "load first," so
   it fires automatically and is hidden from the `/` menu on purpose. Do **not**
   remove the field to "fix" a perceived load failure — that is by design.

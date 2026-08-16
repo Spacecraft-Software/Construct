@@ -287,6 +287,6 @@ Colors ship with type: **Share Tech Mono** (headings) and **Inconsolata**
 | Documents (DOCX/ODT/PDF heading map, page setup) | `spacecraft-document-format` + `spacecraft-brand-guidelines` |
 | IDE / terminal / editor themes | `spacecraft-theme-factory` |
 | Accessible mode, toggles, screen readers | `spacecraft-accessibility-support` |
-| Full Standard compliance audit | `spacecraft-standard-constitution` |
+| Full Standard compliance audit | `spacecraft-steelbore-standard` |
 
 *— Built by Spacecraft Software —*

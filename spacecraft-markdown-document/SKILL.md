@@ -423,7 +423,7 @@ sibling spoke `spacecraft-texinfo-document`.
 | Format choice / ODF / MS Office + GFM pair | `spacecraft-document-format`  |
 | Canonical prose (manuals, guides) in Texinfo | `spacecraft-texinfo-document`        |
 | Brand colours, typography, palette tokens | `spacecraft-brand-guidelines`  |
-| Full Spacecraft Software compliance       | `spacecraft-standard-constitution`          |
+| Full Spacecraft Software compliance       | `spacecraft-steelbore-standard`          |
 | CLI output in Markdown or plain text      | `spacecraft-cli-standard`      |
 
 ---
