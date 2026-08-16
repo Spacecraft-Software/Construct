@@ -198,13 +198,13 @@ M0:   [████████████████████] 100%
 M1:   [████████████████████] 100%
 M2:   [██████████████░░░░░░]  70%
 M3:   [░░░░░░░░░░░░░░░░░░░░]   0%
-MVP: [ ▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▱▱ ] 90%
+MVP:  [██████████████████░░]  90%
 PRD:  [██████████████░░░░░░]  70%
 ```
 
 One row per track, each with its own 20-cell bar: milestone rows first,
 then `MVP`, then whichever of `TODO`/`PLAN`/`PRD` the audit is driven by.
 Emit only the rows that apply — never pad the block with 0% rows for
-tracks that do not exist. `MVP` uses `▰`/`▱` with a space inside each
-bracket; every other row uses `█`/`░` with tight brackets, and the
-padding is what keeps the columns aligned.
+tracks that do not exist. Every row uses `█`/`░` with tight brackets:
+label in a six-character field, bar in columns 8–27, percentage
+right-aligned in a five-character field after the closing bracket.
