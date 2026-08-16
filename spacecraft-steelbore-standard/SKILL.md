@@ -1,5 +1,5 @@
 ---
-name: spacecraft-standard-constitution
+name: spacecraft-steelbore-standard
 description: >
   The authoritative compliance reference for ALL work on Spacecraft Software-umbrella projects and
   subprojects (Zamak, Bravais, Ferrocast, Craton, Ironway, Caliper, Mawaqit, and any future
@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.48 (§13 design systems; §3.1.1 TypeScript; §5.7 AGENTS.md; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.6 system theme; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design) so
+  The Steelbore Standard v1.49 (§13 design systems; §3.1.1 TypeScript; §5.7 AGENTS.md; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.6 system theme; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.48 | **Date:** 2026-08-16 | **Author:** Mohamed Hammad
+**Version:** 1.49 | **Date:** 2026-08-16 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -116,7 +116,7 @@ this table and §15.1's subdomain table in the same commit.
 ### §2.2 — Skill IDs are functional, not codenamed
 
 Skill directory names and SKILL.md `name` fields are **functional identifiers**
-(e.g., `spacecraft-standard-constitution`, `spacecraft-document-format`) and are not subject to
+(e.g., `spacecraft-steelbore-standard`, `spacecraft-document-format`) and are not subject to
 the §2 codename convention. §2 reserves codenames for projects/modules/utilities/releases,
 not for skill identifiers.
 
@@ -275,7 +275,7 @@ The GPL/AGPL choice above governs **software**. License by artifact class:
 
 Skills are **software-class** → `GPL-3.0-or-later` (no skill is network-facing → no AGPL).
 Deliberate split for the Standard: the **published Standard document** is `CC-BY-SA-4.0`,
-while this `spacecraft-standard-constitution` **skill** encoding is `GPL-3.0-or-later`.
+while this `spacecraft-steelbore-standard` **skill** encoding is `GPL-3.0-or-later`.
 
 ### §4.2 — Upstream License Compliance (preserve what you build on)
 
@@ -1766,7 +1766,7 @@ for a pure Rust library), note it as N/A rather than silently skipping it.
 | Resolving or declaring the system theme (§11.6) | `steelbore-color-palette`                |
 | Implementing or auditing accessibility (§18) | `spacecraft-accessibility-support`          |
 | Authoring `AGENTS.md` / `CLAUDE.md` (§5.7) | `spacecraft-agentic-cli`                     |
-| All other Spacecraft Software work    | `spacecraft-standard-constitution`                 |
+| All other Spacecraft Software work    | `spacecraft-steelbore-standard`                 |
 
 ---
 
