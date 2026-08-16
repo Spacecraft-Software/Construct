@@ -180,7 +180,7 @@ preference).
 - `spacecraft-document-format` — the format hierarchy that declares Texinfo
   canonical for prose; load it when the deliverable also needs ODF/MS-Office
   renderings or a generated Markdown companion.
-- `spacecraft-standard-constitution` — The Steelbore Standard: §4 licensing/REUSE, §11 palette,
+- `spacecraft-steelbore-standard` — The Steelbore Standard: §4 licensing/REUSE, §11 palette,
   §12 typography, §14 dates/UTC, §15 attribution. The Standard always wins on
   conflict.
 - `gnu-coding-standards` — when the manual targets an actual GNU package; that

@@ -77,7 +77,7 @@ NON_SKILL_NAMES = {"spacecraft-software"}
 
 # Paths whose document-version pin is legitimate: the skill that encodes the
 # Standard carries its version by design, and changelogs are history.
-VERSION_EXEMPT_PARTS = ("spacecraft-standard-constitution",)
+VERSION_EXEMPT_PARTS = ("spacecraft-steelbore-standard",)
 VERSION_EXEMPT_NAMES = ("CHANGELOG.md",)
 
 # Changelogs also name things that have since been renamed or removed — that is

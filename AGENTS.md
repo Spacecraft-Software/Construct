@@ -22,10 +22,10 @@ gnu-* microsoft-*` or check the README table if this drifts) span three
 groups: infra/tooling (`spacecraft-agentic-cli`, `spacecraft-brand-guidelines`,
 `spacecraft-cli-preference`, `spacecraft-cli-shell`, `spacecraft-cli-standard`,
 `spacecraft-document-format`, `spacecraft-markdown-document`,
-`spacecraft-missing-pkg`, `spacecraft-standard-constitution`,
+`spacecraft-missing-pkg`, `spacecraft-steelbore-standard`,
 `spacecraft-texinfo-document`, `spacecraft-theme-factory`, `gnu-coding-standards`,
 `gnu-free-software`), the governing Standard skill
-(`spacecraft-standard-constitution`), and one `spacecraft-<language>-guidelines`
+(`spacecraft-steelbore-standard`), and one `spacecraft-<language>-guidelines`
 skill per supported language (currently: ada, carbon, chez, clang, clojure,
 commonlisp, cpp, dartflutter, elixir, erlang, gleam, golang, guile, java,
 kotlin, lua, nickel, nim, nix, nu, ocamel, python, rust, swift, typescript,
@@ -45,7 +45,7 @@ presence — adding a new skill directory is enough; no flake edit needed.
 (see `excludedDirs` in `flake.nix`).
 
 The authoritative governance document for everything produced in this repo is
-[`spacecraft-standard-constitution/SKILL.md`](spacecraft-standard-constitution/SKILL.md), which encodes
+[`spacecraft-steelbore-standard/SKILL.md`](spacecraft-steelbore-standard/SKILL.md), which encodes
 The Steelbore Standard — it carries the current version in its own masthead, so
 none is repeated here to go stale. Load it before any non-trivial edit — its §14 checklist is the
 audit gate. The skill is the upstream of the published `standard/` document;
@@ -111,7 +111,7 @@ is mechanical — apply it after **any** edit inside a `<skill-name>/` directory
    ```
    Add `<name>/assets` to both lines if the skill has an `assets/` dir
    (today only `spacecraft-agentic-cli` does). Omit any argument the skill
-   doesn't have — `spacecraft-standard-constitution` is SKILL.md-only; many skills omit
+   doesn't have — `spacecraft-steelbore-standard` is SKILL.md-only; many skills omit
    the in-directory LICENSE entirely; `CREDITS.md` exists only where §15.3
    applies (`microsoft-rust-guidelines`, `gnu-coding-standards`,
    `spacecraft-cli-preference`, `spacecraft-rust-guidelines`,
@@ -169,7 +169,7 @@ matching bundle change.
 **Detecting already-committed drift.** A clean working tree does *not* prove the
 bundles are current: a past commit can bump `SKILL.md` while forgetting the
 bundle, leaving a committed `.zip`/`.skill` that silently lags its source (this
-has happened — `spacecraft-standard-constitution` shipped v1.12 against a v1.18 `SKILL.md`).
+has happened — `spacecraft-steelbore-standard` shipped v1.12 against a v1.18 `SKILL.md`).
 `git status` can't see it. Before trusting the install surface, sweep:
 
 ```sh
@@ -194,7 +194,7 @@ Any `DRIFT:` line means rebuild that skill's bundles and commit. The sweep now
 walks the **whole** bundle: `(a)` content-diffs every file the `.zip` contains
 (`SKILL.md`, `references/**`, `LICENSE`, `CREDITS.md`, `assets/**`) against the
 working tree, and `(b)` flags any shippable file on disk that the bundle is
-missing — so adding a `references/` file (e.g. `spacecraft-standard-constitution`'s
+missing — so adding a `references/` file (e.g. `spacecraft-steelbore-standard`'s
 `CHANGELOG.md`) without rebuilding is caught too. It checks `.zip` as the
 canonical surface; `.skill` is built in lockstep from the same args in the same
 commit, so a drifted `.zip` implies a drifted `.skill`.
@@ -336,8 +336,8 @@ does **not** invoke it.
 Verify after rebuild:
 
 ```sh
-readlink -f ~/.claude/skills/spacecraft-standard-constitution
-# → /spacecraft-software/construct/spacecraft-standard-constitution
+readlink -f ~/.claude/skills/spacecraft-steelbore-standard
+# → /spacecraft-software/construct/spacecraft-steelbore-standard
 ```
 
 If the symlink still resolves into a stale `/nix/store/<old-hash>-hm_*` path
@@ -396,7 +396,7 @@ The assistant performs no `rsync`, no symlink setup, and no
     | xargs -0 python3 .githooks/check-description-length.py
   ```
 - **`microsoft-rust-guidelines` is intentionally `user-invocable: false`.** It is
-  the mandatory auto-load Rust base — `spacecraft-standard-constitution` mandates loading it
+  the mandatory auto-load Rust base — `spacecraft-steelbore-standard` mandates loading it
   before any Rust, `spacecraft-rust-guidelines` defers to it as "load first," and
   `gnu-coding-standards` / `spacecraft-cli-standard` / `spacecraft-agentic-cli`
   chain to it. It fires automatically from its own description and those chains,

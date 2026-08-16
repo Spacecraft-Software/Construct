@@ -268,7 +268,7 @@ enforceable since 2025-06-28, and EN 301 549 V4.1.1 folds in WCAG 2.2.
 |------|-------|
 | CLI structure, `--json`, `NO_COLOR` precedence, TTY detection | `spacecraft-cli-standard` |
 | Emitting theme files for editors/terminals | `spacecraft-theme-factory` |
-| Full Standard compliance | `spacecraft-standard-constitution` |
+| Full Standard compliance | `spacecraft-steelbore-standard` |
 | Documenting the accessible path in a manual | `spacecraft-texinfo-document` |
 
 *— Built by Spacecraft Software —*
