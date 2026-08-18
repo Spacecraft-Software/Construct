@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v1.49 (§13 design systems; §3.1.1 TypeScript; §5.7 AGENTS.md; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.6 system theme; §18 accessibility; §17 progress reporting; §3.2 compiler flags; concurrency; §3.3 security-by-design) so
+  The Steelbore Standard v1.50 (§13 design systems; §3.1.1 TypeScript; §5.7 AGENTS.md; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.6 system theme; §18 accessibility; §17 progress reporting; §15.4 model attribution; concurrency; §3.3 security-by-design) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 1.49 | **Date:** 2026-08-16 | **Author:** Mohamed Hammad
+**Version:** 1.50 | **Date:** 2026-08-18 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -1478,6 +1478,99 @@ SPDX headers (§4) cover license compliance mechanically; `CREDITS.md` is
 the human-readable narrative — who, what, and how the upstream work
 shaped the Spacecraft Software artifact.
 
+### §15.4 — Authoring Model Attribution
+
+§15.2 records who maintains a Spacecraft Software artifact and §15.3 records whose
+work it stands on. Neither records *what produced it*. When a language model drafts
+a requirements document, an implementation plan, or a task list — or codes a project
+outright — that fact stays legible for about as long as the session lasts. A year
+later the question that matters — which model, at what reasoning level, served by
+which provider, driven by which harness — has no answer anywhere in the repository.
+
+Commit trailers do not answer it. A `Co-Authored-By` line marks every individual
+edit, which is activity rather than provenance; it is lost to squash-merges and to
+the history rewrites §6.3 permits; and it names a product without naming the
+reasoning level, the inference provider, or the harness. This section requires the
+opposite shape — **one signature per artifact, written once**.
+
+**Triggers** (any one obligates a signature):
+
+- A Product Requirements Document (PRD).
+- An implementation plan.
+- A TODO or task list that drives implementation.
+- A project whose initial implementation was substantially produced by a model.
+
+**Not triggered by:**
+
+- Individual commits, single-file edits, bug fixes, refactors, or reviews. These
+  are per-edit events, and §6.3 already governs them.
+- Chat answers, scratch output, and anything that is not committed.
+- A model that only reviewed, critiqued, or reformatted an artifact it did not author.
+
+**Required content per authoring model:**
+
+| Field    | Required   | Example                                 |
+|----------|------------|-----------------------------------------|
+| Model    | Yes        | `glm-5.3-high`                          |
+| Provider | Yes        | `zAI`                                   |
+| Harness  | When known | `OpenCode`                              |
+| Date     | Yes        | `2026-08-18` (ISO 8601, §14)            |
+| Scope    | Yes        | `PRD, plan, and initial implementation` |
+
+**Where the signature goes.** A **document artifact** — a PRD, an implementation
+plan, a task list — carries the block as its final section, headed `Authoring
+Model`: an `@unnumbered Authoring Model` node before `@bye` in a Texinfo source, a
+closing `## Authoring Model` heading in a GFM document. A **project** carries it in
+an `AUTHORS.md` at its root, alongside the §5.2 posture files.
+
+`AUTHORS.md` is the provenance counterpart to §15.3's `CREDITS.md`: `CREDITS.md`
+records whose work the project stands on, `AUTHORS.md` records what produced the
+project's own text. Like `CREDITS.md` it is required only when a trigger above
+fires — a hand-written project ships no `AUTHORS.md`.
+
+**Canonical block:**
+
+```
+## Authoring Model
+
+| Model           | Provider  | Harness     | Date       | Scope                      |
+|-----------------|-----------|-------------|------------|----------------------------|
+| `glm-5.3-high`  | zAI       | OpenCode    | 2026-08-18 | PRD, plan, initial impl.   |
+| `claude-opus-5` | Anthropic | Claude Code | 2026-09-02 | Handoff; §4 rewrite onward |
+```
+
+**Written once.** One signature per artifact, not one per change. An agent that
+re-signs on every edit has misread this section: the record is of authorship, not
+of activity, and a table that grows a row per commit is the commit log with extra
+steps.
+
+**The reasoning level belongs in the Model cell**, written the way the vendor
+writes it — `glm-5.3-high`, `claude-opus-5 (effort: high)`,
+`gpt-5.2-codex (reasoning: xhigh)`. Where a model exposes a thinking or effort
+setting, the bare identifier is incomplete: the same weights at a different level
+produce materially different work. Where a model exposes no such setting, the bare
+identifier is the whole cell.
+
+**Provider and harness are independent, and both are recorded.** The **provider**
+is the service that served the inference — `Anthropic`, `zAI`, `Ollama Cloud`,
+`OpenRouter`, `OpenCode Zen`, or a local `Ollama`. The **harness** is the agent
+client that drove it — `Claude Code`, `OpenCode`, `Codex`, `Orca`, `OpenClaude`,
+`ZCode`, `Antigravity IDE`, `Antigravity CLI`. The same model reaches a repository
+through many combinations of the two, and it is the combination, not the model
+alone, that makes a result reproducible.
+
+**Handoff appends, never replaces.** When a project or document moves from one
+model to another, a row is added below the existing rows and the earlier rows are
+left untouched. The table is a chronological record, and overwriting it destroys
+the one fact it exists to preserve. Each row's `Scope` cell says what that model
+was responsible for.
+
+**A signature is not an authorship claim.** The copyright holder and maintainer
+remain as §15.2 states, and the artifact's license is unchanged. §15.4 records a
+production fact, not legal authorship: it MUST NOT appear in an
+`SPDX-FileCopyrightText` tag, in a `# Maintainer:` line, or in `--version` output,
+and it never displaces the §15.2 attribution block.
+
 ---
 
 ## §17 — Development Progress Tracking & Reporting
@@ -1741,6 +1834,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§14** ISO 8601 dates; 24h time; UTC Z is the default primary timestamp (companion local time with UTC offset permitted, never a replacement) — unless the project filed the §14.2.1 domain exception for inherently local-time-bound data; ISO 8601 durations; metric units
 - [ ] **§15** Attribution present: maintainer name (`Mohamed Hammad`), contact (`Mohamed.Hammad@SpacecraftSoftware.org`), and project URL in `--version` / README / About
 - [ ] **§15.3** Third-party work credited in `CREDITS.md` at project/skill root when triggers apply; deeper `references/ATTRIBUTION.md` present where reference content is adapted from external sources
+- [ ] **§15.4** Where a model drafted a PRD, an implementation plan, or a task list, or substantially produced a project's initial implementation, one `Authoring Model` block is present — as the artifact's final section for a document, in `AUTHORS.md` at the root for a project — naming model (with reasoning level), provider, harness where known, date, and scope; a handoff appends a row rather than replacing one; the block never appears in an `SPDX-FileCopyrightText` tag, a `# Maintainer:` line, or `--version` output — N/A for hand-written artifacts
 - [ ] **§17** Development progress tracked and reported continuously as the §17.1 labelled-row block — one 20-cell bar per track, milestone rows then MVP then TODO/PLAN/PRD, only the rows that apply; every row set in `█`/`░` with tight brackets, columns aligned, no ASCII bars
 - [ ] **§18** Accessible mode implemented and off by default; §18.1 toggle honored with correct precedence; status never color-only; no animation or decorative art in accessible mode; TUI ships a linear mode and a non-interactive CLI path; GUI publishes accessible names and roles (AccessKit for Rust); verified with a real screen reader; existing projects carry a dated remediation entry in `PROJECTS.md` until they conform — N/A for projects registered as games (§18.5), which are exempt in full
 - [ ] **§6.3** All commits to Spacecraft Software Git remotes cryptographically signed with the `Mohamed.Hammad@SpacecraftSoftware.org` key and showing "Verified" on the hosting platform; rewrites preserve signatures; programmatic and assistant-driven commits signed too
