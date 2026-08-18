@@ -14,7 +14,7 @@
       # A "cross-platform" skill is any top-level directory that contains a
       # SKILL.md and is not in the excluded list. A "Grok" skill is any
       # subdirectory of grok-skills/ that contains a SKILL.md.
-      excludedDirs = [ "grok-skills" "android-skills" "perplexity-skills" "Excluded" ".claude" ".git" "construct-cli" ];
+      excludedDirs = [ "grok-skills" "android-skills" "orca-skills" "perplexity-skills" "Excluded" ".claude" ".git" "construct-cli" ];
 
       hasSkillMd = parent: name:
         builtins.pathExists (parent + "/${name}/SKILL.md");
@@ -41,6 +41,15 @@
           skillNamesIn (self + "/android-skills")
         else
           [];
+      # Vendored Orca skills — same open-standard SKILL.md format, merged into
+      # the canonical tree unconditionally (unlike the opt-in Android set): the
+      # `orca` CLI looks its skills up by exact leaf name, so they have to be
+      # present wherever an agent reads skills from, not behind a toggle.
+      orcaSkills =
+        if builtins.pathExists (self + "/orca-skills") then
+          skillNamesIn (self + "/orca-skills")
+        else
+          [];
 
       # ───────────────────────────────────────────────────────────────────
       # System support
@@ -56,14 +65,35 @@
           cp -r ${source}/${name}/. $out/
         '';
 
-      # Combined derivation — one skill tree from one source.
-      mkCombined = pkgs: source: skillList: outName:
+      # Combined derivation — one flat skill tree from any number of sources.
+      # Each source is { source; names; }; leaves are copied in list order, so
+      # a name appearing twice would be silently overwritten rather than
+      # merged. Every caller below therefore relies on leaf names being
+      # disjoint across sources (see mkSkills).
+      mkMerged = pkgs: outName: sources:
         pkgs.runCommandLocal outName { } (''
           mkdir -p $out
-        '' + nixpkgs.lib.concatMapStringsSep "\n" (n: ''
-          mkdir -p $out/${n}
-          cp -r ${source}/${n}/. $out/${n}/
-        '') skillList);
+        '' + nixpkgs.lib.concatMapStringsSep "\n" ({ source, names }:
+          nixpkgs.lib.concatMapStringsSep "\n" (n: ''
+            mkdir -p $out/${n}
+            cp -r ${source}/${n}/. $out/${n}/
+          '') names) sources);
+
+      # Combined derivation — one skill tree from one source.
+      mkCombined = pkgs: source: skillList: outName:
+        mkMerged pkgs outName [ { inherit source; names = skillList; } ];
+
+      # The base tree every non-Grok consumer starts from: the cross-platform
+      # skills plus the vendored Orca ones. Leaf names don't collide —
+      # cross-platform skills are all spacecraft-* / gnu-* / microsoft-* /
+      # steelbore-*, and the three Orca leaves are distinct from those — so a
+      # flat merge is safe. `orca-skills/CREDITS.md` records that the generic
+      # Orca leaf names (`computer-use`, `orchestration`) are reserved and must
+      # not be claimed by a future Spacecraft skill.
+      baseSources = [
+        { source = self; names = crossPlatformSkills; }
+      ] ++ nixpkgs.lib.optional (orcaSkills != [])
+        { source = self + "/orca-skills"; names = orcaSkills; };
 
       # THE skill tree builder. Every consumer goes through this — the
       # `packages` outputs below and the Home-Manager module alike.
@@ -79,22 +109,12 @@
         if grok then
           mkCombined pkgs (self + "/grok-skills") grokSkills "construct-grok-skills"
         else if android && androidSkills != [] then
-          # Cross-platform + vendored Android in one tree. Leaf names don't
-          # collide (cross-platform skills are all spacecraft-* / gnu-* /
-          # microsoft-*; Android leaves are distinct), so a flat merge is safe.
-          pkgs.runCommandLocal "construct-skills-with-android" { } (''
-            mkdir -p $out
-          '' + nixpkgs.lib.concatMapStringsSep "\n" (n: ''
-            mkdir -p $out/${n}
-            cp -r ${self}/${n}/. $out/${n}/
-          '') crossPlatformSkills
-            + "\n"
-            + nixpkgs.lib.concatMapStringsSep "\n" (n: ''
-            mkdir -p $out/${n}
-            cp -r ${self + "/android-skills"}/${n}/. $out/${n}/
-          '') androidSkills)
+          mkMerged pkgs "construct-skills-with-android"
+            (baseSources ++ [
+              { source = self + "/android-skills"; names = androidSkills; }
+            ])
         else
-          mkCombined pkgs self crossPlatformSkills "construct-skills";
+          mkMerged pkgs "construct-skills" baseSources;
     in {
 
       # ───────────────────────────────────────────────────────────────────
@@ -117,6 +137,11 @@
           name = "android-${n}";
           value = mkSkillPackage pkgs (self + "/android-skills") n;
         }) androidSkills))
+        //
+        (builtins.listToAttrs (map (n: {
+          name = "orca-${n}";
+          value = mkSkillPackage pkgs (self + "/orca-skills") n;
+        }) orcaSkills))
         // {
           # The whole trees, as buildable outputs. `skills` is what a consumer
           # points a mutable pointer at (see `mutablePointer` below): building
@@ -374,7 +399,7 @@
       # Convenience: list of detected skill names (useful for `nix eval`).
       # ───────────────────────────────────────────────────────────────────
       lib = {
-        inherit crossPlatformSkills grokSkills androidSkills;
+        inherit crossPlatformSkills grokSkills androidSkills orcaSkills;
 
         # Build a skill tree with the CALLER's nixpkgs. Pass the result to both
         # your own flake output and `spacecraft.construct.package` so the two
