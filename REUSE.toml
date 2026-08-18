@@ -57,6 +57,17 @@ precedence = "override"
 SPDX-FileCopyrightText = ["Vercel, Inc.", "2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"]
 SPDX-License-Identifier = "GPL-3.0-or-later OR MIT"
 
+# Third-party-vendored, unmodified: Orca's skills (github:stablyai/orca, MIT,
+# © Lovecast Inc.). Vendored verbatim under orca-skills/ — NOT adapted, so the
+# upstream license is preserved as-is with no Spacecraft relicensing/dual-licensing
+# (§4.2), same posture as the android-skills entry below. Single copyright holder,
+# single license. See orca-skills/CREDITS.md for provenance.
+[[annotations]]
+path = "orca-skills/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Lovecast Inc."
+SPDX-License-Identifier = "MIT"
+
 # Third-party-vendored, unmodified: Google's Android skills (github:android/skills,
 # Apache-2.0, © Google LLC). Vendored verbatim under android-skills/ — NOT adapted, so
 # the upstream license is preserved as-is with no Spacecraft relicensing/dual-licensing
