@@ -82,7 +82,9 @@ Standard; the full rationale and copy-paste templates are in
   manuals that must align with an upstream GNU package — swap the SPDX tag and the
   `@copying` permission paragraph together (both templates in `house-style.md`).
   Software-class artifacts shipped *alongside* a manual (a `Makefile`, `build.sh`)
-  stay `GPL-3.0-or-later`.
+  stay `GPL-3.0-or-later`. This skill's own license is independent of the license of
+  the manuals it helps produce: the skill is software-class `GPL-3.0-or-later`, the
+  manuals you author with it are document-class.
 
 - **Encoding & language.** Always declare `@documentencoding UTF-8` and
   `@documentlanguage en` (or the project's locale) in the header. UTF-8 is the

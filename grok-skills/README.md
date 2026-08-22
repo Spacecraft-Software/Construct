@@ -56,8 +56,8 @@ root:
 ```sh
 cd grok-skills/<name>
 rm -f ../<name>.zip ../<name>.skill
-zip -qr  ../<name>.zip   SKILL.md [assets] [references]
-zip -qrD ../<name>.skill SKILL.md [assets] [references]
+zip -qr  ../<name>.zip   SKILL.md LICENSE [assets] [references]
+zip -qrD ../<name>.skill SKILL.md LICENSE [assets] [references]
 ```
 
 Omit any argument the skill does not have. Verify with `unzip -l` — `SKILL.md`

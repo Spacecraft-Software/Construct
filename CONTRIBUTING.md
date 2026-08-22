@@ -28,8 +28,9 @@ commit** as the source change.
 ```
 <skill-name>/
 ├── SKILL.md              # frontmatter (name, description, …) + body
-├── LICENSE | LICENSE.md  # optional in-dir copy; ~half the skills omit it and
-│                         #   fall back on the repo-root LICENSE
+├── LICENSE               # REQUIRED (§5.6): verbatim text, byte-identical to the
+│                         #   matching LICENSES/ file, regular file, no extension
+│                         #   (§4.3). Multi-licensed skills carry LICENSE.<TAG>.
 ├── CREDITS.md            # required when the skill builds on third-party work
 │                         #   (Standard §15.3)
 ├── references/           # optional; loaded on demand by the agent
@@ -41,7 +42,7 @@ not codenames (Standard §2.2 reserves codenames for projects, not skill IDs).
 
 ## Bundling (`.zip` and `.skill`)
 
-Bundles contain only `SKILL.md`, `LICENSE`, `CREDITS.md`, and `references/` (plus
+Bundles contain only `SKILL.md`, the license file(s), `CREDITS.md`, and `references/` (plus
 `assets/` where present) — never tooling, generator scripts, or raw upstream
 sources (those live in `Excluded/`, which is gitignored).
 
@@ -51,8 +52,10 @@ zip -qr  <name>.zip   <name>/SKILL.md <name>/LICENSE <name>/CREDITS.md <name>/re
 zip -qrD <name>.skill <name>/SKILL.md <name>/LICENSE <name>/CREDITS.md <name>/references
 ```
 
-Include each argument only when that file/dir exists in the skill — run
-`ls <name>/` first when unsure. Add `<name>/assets` to both lines if the skill has
+`SKILL.md` and the license file are always present (§5.6);
+`microsoft-rust-guidelines` passes `<name>/LICENSE.GPL <name>/LICENSE.MIT`
+instead of `<name>/LICENSE`. Include each other argument only when it exists —
+run `ls <name>/` first when unsure. Add `<name>/assets` to both lines if the skill has
 one. The `.skill` bundle uses `-D` to drop directory entries; the `.zip` keeps
 them. The two are built from the **same args in the same commit**, so they never
 diverge. Verify with `unzip -l <name>.zip` before committing.

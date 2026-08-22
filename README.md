@@ -80,7 +80,11 @@ Every skill follows the same shape:
 ```
 <skill-name>/
 ├── SKILL.md           # Frontmatter + the agent-facing instructions
-├── LICENSE.md         # Skill license (Standard §4.1.1: skills are GPL-3.0-or-later; third-party-derived skills keep their upstream license)
+├── LICENSE            # Skill license, verbatim and byte-identical to the matching `LICENSES/` text
+│                     #   (Standard §4.3 naming, §5.6 carriage; no extension). Multi-licensed skills
+│                     #   carry `LICENSE.<TAG>` instead — `microsoft-rust-guidelines` ships
+│                     #   `LICENSE.GPL` + `LICENSE.MIT`. Third-party-derived skills keep their
+│                     #   upstream license text (`gnu-coding-standards` is GFDL-1.3-or-later).
 ├── CREDITS.md         # Required when the skill builds on third-party work (Standard §15.3)
 └── references/        # Optional; consulted only when depth is needed
     ├── <topic>.md

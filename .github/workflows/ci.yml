@@ -57,6 +57,16 @@ jobs:
           find . -name SKILL.md -not -path './.git/*' -print0 \
             | xargs -0 python3 .githooks/check-description-length.py
 
+      # Standard §5.6 license carriage: a bundle is a distribution in its own
+      # right, so the repo-root LICENSE never reaches a consumer who installs
+      # the .zip/.skill. Every skill therefore carries its own license text,
+      # byte-identical to LICENSES/ (§4.3 forbids two independently maintained
+      # copies; enforced equality is what keeps these one text), named per §4.3,
+      # a regular file, and actually present inside both bundles. Which license
+      # applies is read from REUSE.toml, so there is no second source of truth.
+      - name: License files (§4.3 naming, §5.6 carriage)
+        run: python3 .github/check-license-files.py .
+
       # The gates above verify each skill in isolation. This one verifies that a
       # skill still agrees with the catalogue around it: that every skill id it
       # names resolves to a real directory, and that it does not pin a Standard
