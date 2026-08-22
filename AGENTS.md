@@ -56,7 +56,7 @@ changes flow skill → published standard, so this `SKILL.md` may lead it.
 ```
 <skill-name>/
 ├── SKILL.md           # frontmatter (name, description, license, maintainer, website) + body
-├── LICENSE | LICENSE.md  # optional in-dir copy; GPL-3.0-or-later (microsoft-rust-guidelines is dual `GPL-3.0-or-later OR MIT`, shipping a LICENSE-GPL + LICENSE-MIT pair — Microsoft upstream is MIT). About half the skills omit it and fall back on the repo-root LICENSE.
+├── LICENSE            # REQUIRED (Standard §5.6 license carriage). Verbatim license text, byte-identical to the matching `LICENSES/` file, a regular file, no extension (§4.3). Almost always GPL-3.0-or-later; `gnu-coding-standards` carries the GFDL-1.3-or-later text instead. Multi-licensed skills carry `LICENSE.<TAG>` in its place — `microsoft-rust-guidelines` ships `LICENSE.GPL` + `LICENSE.MIT`.
 ├── CREDITS.md         # required when the skill builds on third-party work (Standard §15.3); currently microsoft-rust-guidelines, gnu-coding-standards, spacecraft-cli-preference, spacecraft-rust-guidelines, spacecraft-ada-guidelines
 ├── references/        # optional; loaded on demand by the agent
 └── assets/            # optional; only spacecraft-agentic-cli has one today
@@ -70,8 +70,8 @@ must stay in sync.
 ## Bundling (.zip and .skill)
 
 Each skill ships as two bundles at the repo root: `<name>.zip` and
-`<name>.skill`. They contain only `SKILL.md`, `LICENSE`, `CREDITS.md`, and
-`references/` (plus `assets/` where present) — never tooling, generator
+`<name>.skill`. They contain only `SKILL.md`, the license file(s), `CREDITS.md`,
+and `references/` (plus `assets/` where present) — never tooling, generator
 scripts, or raw upstream sources. Auxiliary inputs that don't belong in the
 shipped skill live in `Excluded/` (e.g., `Rust-Guidelines.{md,txt}`,
 `skill.ps1`).
@@ -84,10 +84,12 @@ zip -qr  <name>.zip   <name>/SKILL.md <name>/LICENSE <name>/CREDITS.md <name>/re
 zip -qrD <name>.skill <name>/SKILL.md <name>/LICENSE <name>/CREDITS.md <name>/references
 ```
 
-Include each argument only when that file/dir exists in the skill. LICENSE may
-be entirely absent from the directory (about half are — repo-root `LICENSE`
-covers them); when present, the filename varies (`LICENSE` vs `LICENSE.md`).
-`CREDITS.md` appears only where §15.3 triggers fire (currently
+**`LICENSE` is never optional** — Standard §5.6 makes the bundle the unit of
+distribution, so every bundle ships the license text. The only variation is the
+name: `microsoft-rust-guidelines` is dual-licensed and passes
+`microsoft-rust-guidelines/LICENSE.GPL microsoft-rust-guidelines/LICENSE.MIT`
+in place of a single `LICENSE`. Include the other arguments only when they
+exist. `CREDITS.md` appears only where §15.3 triggers fire (currently
 `microsoft-rust-guidelines`, `gnu-coding-standards`, `spacecraft-cli-preference`,
 `spacecraft-rust-guidelines`, `spacecraft-ada-guidelines`). `references/` and `assets/` are optional.
 Run `ls <name>/` first whenever you're unsure.
@@ -110,12 +112,13 @@ is mechanical — apply it after **any** edit inside a `<skill-name>/` directory
    zip -qrD <name>.skill <name>/SKILL.md <name>/LICENSE <name>/CREDITS.md <name>/references
    ```
    Add `<name>/assets` to both lines if the skill has an `assets/` dir
-   (today only `spacecraft-agentic-cli` does). Omit any argument the skill
-   doesn't have — `spacecraft-steelbore-standard` is SKILL.md-only; many skills omit
-   the in-directory LICENSE entirely; `CREDITS.md` exists only where §15.3
-   applies (`microsoft-rust-guidelines`, `gnu-coding-standards`,
-   `spacecraft-cli-preference`, `spacecraft-rust-guidelines`,
-   `spacecraft-ada-guidelines`). Run `ls <name>/`
+   (today only `spacecraft-agentic-cli` does). `SKILL.md` and the license file
+   are always present; omit any other argument the skill doesn't have.
+   `microsoft-rust-guidelines` is dual-licensed and passes
+   `<name>/LICENSE.GPL <name>/LICENSE.MIT` instead of `<name>/LICENSE`.
+   `CREDITS.md` exists only where §15.3 applies (`microsoft-rust-guidelines`,
+   `gnu-coding-standards`, `spacecraft-cli-preference`,
+   `spacecraft-rust-guidelines`, `spacecraft-ada-guidelines`). Run `ls <name>/`
    first when in doubt.
 2. **Stage** the skill directory **and** both bundles in the same commit —
    never separately. Always stage by explicit name:
@@ -298,9 +301,13 @@ subdirectory listing.
 
 Frontmatter is also minimal for Grok — just `name` and `description`. No
 `license`, `maintainer`, `website` fields (Grok's loader does not consume
-them). License compliance still tracks the repo-root `LICENSE` per
-Standard §4 — the canonical GPL-3.0-or-later text as a regular file, with
-`LICENSES/GPL-3.0-or-later.txt` a symlink back to it (§4.3, v1.38 direction).
+them). A Grok skill still carries its own `LICENSE`, because Standard §5.6
+license carriage is about the *bundle*, not the frontmatter — and because the
+flat layout puts it at the zip root rather than under `<name>/`, the recipe
+above passes a bare `LICENSE`. The repo-root `LICENSE` remains the canonical
+GPL-3.0-or-later text as a regular file, with `LICENSES/GPL-3.0-or-later.txt`
+a symlink back to it (§4.3, v1.38 direction), and every skill copy is
+byte-identical to it.
 
 ## Local agent fan-out (Home Manager hosts)
 
@@ -403,6 +410,16 @@ The assistant performs no `rsync`, no symlink setup, and no
   so it's hidden from the `/` menu on purpose (Claude Code docs: "background
   knowledge users shouldn't invoke directly"). Do **not** remove the field to
   "fix" a perceived load failure — its absence from the menu is by design.
+- **License files are named `LICENSE`, with no extension** (Standard §4.3).
+  `LICENSE.md` and `LICENSE.txt` are non-compliant, and a skill offered under
+  more than one license carries `LICENSE.<TAG>` per license — never a dash
+  (`LICENSE-MIT`) and never a combined file. Every skill has one, it is a
+  regular file, and it is byte-identical to the matching text in `LICENSES/`
+  (§5.6). `.github/check-license-files.py` is the gate and reads which license
+  applies from `REUSE.toml`, so there is no second list to maintain; run
+  `python3 .github/check-license-files.py .` before pushing. Third-party
+  vendored trees (`android-skills/`, `orca-skills/`) are exempt — §4.2 keeps
+  upstream's own layout and filenames verbatim.
 - **Rebuild BOTH bundles after any skill-dir edit**, in the same commit:
   `<name>.zip` (`zip -qr`, keeps dir entries) and `<name>.skill` (`zip -qrD`,
   drops them). A bundle that lags its `SKILL.md`/`references/` ships broken

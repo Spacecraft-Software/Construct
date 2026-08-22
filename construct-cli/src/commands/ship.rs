@@ -751,10 +751,20 @@ fn gh_launch_error(ctx: &Context, err: &std::io::Error) -> AppError {
     }
 }
 
+/// Non-`references/` files a bundle carries, in the order they are passed to `zip`.
+///
+/// `LICENSE` is the Standard §4.3 canonical name; `LICENSE.<TAG>` is its
+/// multi-license form, used where one artifact is offered under more than one
+/// license (`microsoft-rust-guidelines` is `GPL-3.0-or-later OR MIT`). §5.6
+/// requires every bundle to ship its license text, so a name missing from this
+/// list produces a rebuild hint that silently drops the license. `LICENSE.md`
+/// is deliberately absent — §4.3 makes it non-compliant.
+const BUNDLE_FILES: &[&str] = &["LICENSE", "LICENSE.GPL", "LICENSE.MIT", "CREDITS.md"];
+
 /// The exact bundle-rebuild command for a drifted skill (a runnable hint).
 fn rebuild_cmd(repo: &Path, skill: &str) -> String {
     let mut parts = vec![format!("{skill}/SKILL.md")];
-    for candidate in ["LICENSE", "LICENSE.md", "CREDITS.md"] {
+    for candidate in BUNDLE_FILES {
         if repo.join(skill).join(candidate).exists() {
             parts.push(format!("{skill}/{candidate}"));
         }
