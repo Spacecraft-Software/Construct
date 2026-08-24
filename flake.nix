@@ -384,7 +384,7 @@
               # unordered and hm.dag settles such ties by NAME, which is not a
               # guarantee — it is a coincidence that happens to hold today.
               home.activation."spacecraft-construct-skill-pointer" =
-                lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+                lib.hm.dag.entryAfter [ "linkGeneration" ] (''
                   $DRY_RUN_CMD mkdir -p "${stateDir}"
 
                   # A REAL directory here predates the pointer (or Construct
@@ -422,7 +422,7 @@
                 + lib.optionalString (!cfg.perSkillLinks.enable) ''
 
                   $DRY_RUN_CMD ln -sfn "${stateDir}/current" "$HOME/.agents/skills"
-                '';
+                '');
             })
 
             # Per-skill links. ~/.agents/skills becomes a real directory whose
