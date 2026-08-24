@@ -255,6 +255,45 @@ to match how Construct's loader and flake discover skills, and its own
 `README.md`/`CREDITS.md` track provenance and the flattening rule. It is
 excluded from the root flake's `excludedDirs` and packaged separately.
 
+## Vendored Orca skills (`orca-skills/`)
+
+`orca-skills/` vendors three skills from [Orca](https://github.com/stablyai/orca)
+— `computer-use`, `orca-cli`, `orchestration` — **verbatim and unmodified**
+(MIT, third-party — Standard §4.2). Never hand-edit them; a new revision comes
+in by re-copying upstream's `SKILL.md` and updating `CREDITS.md`. The generic
+leaf names `computer-use` and `orchestration` are reserved: Orca's own CLI looks
+its skills up by exact leaf name, so a future Spacecraft skill must not claim
+either.
+
+**They are OPT-IN in the flake (`spacecraft.construct.enableOrca`, default off),
+and must stay off on any host that runs the Orca app.** Orca installs and
+updates its own copies; a copy served from the Nix store makes its updater fail
+in a way no amount of re-vendoring fixes:
+
+- Orca's scanner (`observeSkillPackage`, in the app's `app.asar`) throws
+  `skill-package-link` on any file with `nlink != 1`. Store optimisation
+  hardlinks identical files, so every store-served `SKILL.md` eventually has
+  nlink > 1 — ours sat at 5–7. The throw is caught and reported as status
+  `unrecognized`: the "The copy here doesn't match the official version" row in
+  Settings → Update skills.
+- Even past that check, store files are mode 444 and
+  `classifyHomeSkillTopology` marks an unwritable path `read-only`, which the
+  updater also skips.
+- **Byte-identity does not help.** `computer-use` and `orchestration` were
+  byte-for-byte the official revisions and were flagged just the same. Any note
+  claiming a revision pin clears the warning is wrong.
+
+On an Orca host the arrangement is: `enableOrca = false`, plus
+`spacecraft.construct.perSkillLinks.enable = true` so `~/.agents/skills` is a
+real directory with room for `orca skills install` (`npx skills add`) to own
+`computer-use/`, `orca-cli/`, `orchestration/` as real, writable directories.
+The module never clobbers a real directory it did not create, and prunes only
+symlinks pointing into its own tree.
+
+Turn `enableOrca` on only where nothing else provides these skills — no Orca
+app, an air-gapped host, a container image. `packages.skills-with-orca` builds
+that merged tree.
+
 ## Grok skills (`grok-skills/`)
 
 Grok uses a **flat** bundle format — `SKILL.md` and any `assets/` / `references/`
@@ -311,16 +350,21 @@ byte-identical to it.
 
 ## Local agent fan-out (Home Manager hosts)
 
-Local fan-out is managed by **Home Manager**, not by the assistant. Each
-per-harness skill path is a real directory provisioned by Home Manager with
-per-skill symlinks that chain through the Nix store to this repo:
+Local fan-out is managed by **Home Manager**, not by the assistant. Every
+per-harness path is a symlink to the canonical `~/.agents/skills`, which under
+`mutablePointer` chains through a mutable pointer into the store:
 
 ```
-~/.claude/skills/<skill>
-  → /nix/store/<hash>-home-manager-files/.claude/skills/<skill>
-  → /nix/store/<hash>-hm_<skill>
-  → /spacecraft-software/construct/<skill>
+~/.claude/skills            → ~/.agents/skills
+~/.agents/skills            → ~/.local/state/construct/current
+~/.local/state/construct/current → …/pinned → /nix/store/<hash>-construct-skills
 ```
+
+With `perSkillLinks.enable = true` the middle step changes shape: `~/.agents/skills`
+is a **real directory** whose entries are per-skill symlinks into
+`…/construct/current/<skill>`. Same content, but names the module does not carry
+stay free for another installer to own — which is what an Orca host needs (see
+*Vendored Orca skills* above).
 
 Paths populated by Home Manager: `~/.claude/skills/`, `~/.codex/skills/`,
 `~/.ai/skills/`, `~/.agent/skills/`. Gemini CLI's scan path is Home Manager's
@@ -331,9 +375,9 @@ unified path layout for new consumers: install once to `~/.agents/skills/` and
 symlink every per-harness path (`~/.claude/skills`, `~/.gemini/skills`,
 `~/.codex/skills`, `~/.ai/skills`, `~/.agent/skills`) to that canonical
 location. Grok skills install separately to `~/.grok/skills/` because of
-their different bundle layout. The hand-written per-skill HM config currently
-in use on this host predates the flake and should be migrated to
-`spacecraft.construct.enable = true` at the maintainer's convenience.
+their different bundle layout. This host is already on the module
+(`spacecraft.construct` in `bravais/users/mj/home.nix`, with `mutablePointer`
+and a longer `agentPaths` list).
 
 **After a PR merges, Home Manager must be rebuilt** before per-harness paths
 resolve to the new content. The maintainer runs the rebuild manually
@@ -344,13 +388,17 @@ Verify after rebuild:
 
 ```sh
 readlink -f ~/.claude/skills/spacecraft-steelbore-standard
-# → /spacecraft-software/construct/spacecraft-steelbore-standard
+# → /nix/store/<hash>-construct-skills/spacecraft-steelbore-standard
+sha256sum ~/.claude/skills/spacecraft-steelbore-standard/SKILL.md \
+          /spacecraft-software/construct/spacecraft-steelbore-standard/SKILL.md
 ```
 
-If the symlink still resolves into a stale `/nix/store/<old-hash>-hm_*` path
-(for example after a repo rename), the Home Manager config has not yet been
-rebuilt against the new repo path. Until it is, agents read the previous
-generation's content even though `origin/main` is current.
+The tree is a store copy, not a link back into the checkout, so the check is
+byte-equality against the working tree rather than the resolved path. If the
+two hashes differ (or the path still resolves into a stale
+`/nix/store/<old-hash>-hm_*` from an earlier layout), Home Manager has not been
+rebuilt against the current commit — agents read the previous generation's
+content even though `origin/main` is ahead.
 
 The assistant performs no `rsync`, no symlink setup, and no
 `home-manager switch`. Its responsibility ends at opening the PR.

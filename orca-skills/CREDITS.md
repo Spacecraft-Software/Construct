@@ -45,22 +45,20 @@ later is a matter of copying its directory and extending the table above.
 
 ## Which revision to vendor
 
-**Track the installed Orca app, not this repository's HEAD.** The two are not
-the same thing, and following HEAD is what breaks Orca's own skill check.
+**Track the installed Orca app, not this repository's HEAD.** A skill taken
+from HEAD can describe a command the installed binary does not have.
 
 Orca ships a manifest inside its AppImage at
 `resources/skills/current-manifest.json`, listing every bundled skill with a
-`releaseRevision` and a per-file `exactSha256`. Orca compares what is installed
-on disk against *that* manifest. A copy taken from the repository's HEAD can be
-newer than the app, and Orca reports it as `Skipped — the copy here doesn't
-match the official version`, which reads like corruption but only means the
-tree is ahead of the binary.
+`releaseRevision` and a per-file `exactSha256`, plus every historical revision
+in `snapshot-registry.json`. That manifest is what tells you which revision the
+installed app expects.
 
-That is exactly what happened on 2026-08-19: `orca-cli` at HEAD (3944 bytes)
+The app lagging HEAD is what bit on 2026-08-19: `orca-cli` at HEAD (3944 bytes)
 advertised `share skills` and `skill sharing`, while the installed Orca's
 `orca skills` subcommand offered only `list`, `get`, `install` and `update`. The
 skill described a command the binary did not have. Pinning to revision 36 (3913
-bytes) fixed both the warning and the inaccuracy.
+bytes) fixed the inaccuracy.
 
 The pin is a **hold, not a destination** — it is released the moment the app
 catches up. On 2026-08-24 the installed Orca had been rebuilt (AppImage dated
@@ -70,6 +68,22 @@ revision 37 adds — `skill sharing` and `share skills` in the description — a
 now accurate against the binary, so the tree returned to 37. Both halves of the
 2026-08-19 reasoning had reversed: the warning and the inaccuracy would come
 from *staying* at 36.
+
+**A revision pin does not clear Orca's `Skipped — the copy here doesn't match
+the official version` warning, and never did.** That claim stood here until
+2026-08-25 and is wrong. Orca reads the installed directory with
+`observeSkillPackage` and throws `skill-package-link` on any file whose
+`nlink != 1`; the throw is caught and reported as status `unrecognized`, which
+is exactly that row. Nix-store files are hardlinked by store optimisation
+(these three sat at nlink 5–7) and are mode 444 besides, so
+`classifyHomeSkillTopology` marks the path `read-only` for the updater too.
+`computer-use` and `orchestration` were byte-for-byte the official revisions on
+2026-08-25 and were flagged all the same.
+
+So on a host running Orca this tree is not the install surface: Orca installs
+and updates its own copies, and `spacecraft.construct.enableOrca` stays off.
+Verifying against the manifest remains how the vendored bytes are kept honest
+for hosts that do install from here.
 
 To re-vendor after updating the Orca app, read the manifest for the revision it
 now expects and verify each file against its `exactSha256`:
@@ -86,24 +100,20 @@ exact revision the copy holds, which separates "one release behind" from "someon
 edited it" — a distinction the Orca dialog does not draw.
 
 A mismatch here is the signal to re-vendor. **A match is not a promise of
-silence**, and the 2026-08-24 update proved it: `computer-use` and
+silence** — see the mechanism above: on 2026-08-24 `computer-use` and
 `orchestration` were byte-identical to the app's own manifest and Orca still
 listed all three as `Skipped — the copy here doesn't match the official
-version`. That wording is generic, and for those two it was simply untrue.
+version`. For those two the wording was simply untrue; the scanner never got as
+far as comparing bytes.
 
-The reason is the install location, not the bytes. `orca skills installed`
-attributes all three to **Codex home** — `~/.agents/skills`, a symlink into
-`/nix/store`, which is a read-only filesystem Orca never wrote to and cannot
-write to. Orca skips what it does not own, and reports that with the only
-message it has. The dialog's advice — "Remove it if you want Orca to update this
-skill" — is not actionable here and must not be followed: nothing can be removed
-from a store path, and a Home-Manager switch would restore it regardless.
-
-So this tree will report `Skipped` **on every Orca update, permanently, by
-design**. That is the accepted cost of vendoring (see the `flake.nix` rationale:
-Orca resolves skills by exact leaf name, so they must sit wherever agents read
-skills from). Treat the dialog as a prompt to run the hash check above, not as
-evidence of damage.
+The dialog's advice — "Remove it if you want Orca to update this skill" — is not
+actionable against a store path: nothing can be removed from `/nix/store`, and a
+Home-Manager switch would restore it regardless. The fix is upstream of the
+dialog: leave `spacecraft.construct.enableOrca` off so these leaves are not
+installed at all, and let `orca skills install` own real, writable copies
+(`spacecraft.construct.perSkillLinks.enable = true` gives it the room). Where
+the vendored copies ARE the install surface — no Orca app on the host — nothing
+scans them and there is no dialog to satisfy.
 
 ## Leaf-name note
 
