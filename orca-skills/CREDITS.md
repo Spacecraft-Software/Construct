@@ -17,10 +17,13 @@ machine-readable `MIT` metadata declared for `orca-skills/**` in the repo-root
 | Source URL | <https://github.com/stablyai/orca> |
 | Scope      | The three skills below, vendored verbatim — each `SKILL.md` byte-for-byte identical to upstream, including Orca's own frontmatter. No content was edited, relicensed, or adapted. |
 
-**Upstream provenance:** `computer-use` and `orchestration` from commit
-`fe95698b95e7687857d2421549366b8771c71e36` (2026-08-18); `orca-cli` pinned one
-revision behind that (see "Which revision to vendor" below). Vendored
-2026-08-18, `orca-cli` re-pinned 2026-08-19.
+**Upstream provenance:** `computer-use` (release revision 8) and
+`orchestration` (revision 28) from commit
+`fe95698b95e7687857d2421549366b8771c71e36` (2026-08-18); `orca-cli` at revision
+37. Vendored 2026-08-18; `orca-cli` pinned back to revision 36 on 2026-08-19
+and returned to revision 37 on 2026-08-24, when the installed Orca caught up
+(see "Which revision to vendor" below). All three now match the installed
+app's manifest exactly.
 
 ## Vendored skills (3)
 
@@ -59,6 +62,15 @@ advertised `share skills` and `skill sharing`, while the installed Orca's
 skill described a command the binary did not have. Pinning to revision 36 (3913
 bytes) fixed both the warning and the inaccuracy.
 
+The pin is a **hold, not a destination** — it is released the moment the app
+catches up. On 2026-08-24 the installed Orca had been rebuilt (AppImage dated
+2026-08-22), its manifest listed `orca-cli` at revision 37, and `orca skills`
+had grown the `share` subcommand the skill describes. The two lines that
+revision 37 adds — `skill sharing` and `share skills` in the description — are
+now accurate against the binary, so the tree returned to 37. Both halves of the
+2026-08-19 reasoning had reversed: the warning and the inaccuracy would come
+from *staying* at 36.
+
 To re-vendor after updating the Orca app, read the manifest for the revision it
 now expects and verify each file against its `exactSha256`:
 
@@ -68,8 +80,30 @@ jq '.skills[] | select(.name=="orca-cli") | {releaseRevision, files}' "$D/curren
 sha256sum orca-skills/orca-cli/SKILL.md
 ```
 
-A mismatch here is the signal to re-vendor; a match means Orca will leave the
-tree alone.
+`snapshot-registry.json`, beside that manifest, lists every historical revision
+with the same per-file hashes. Hashing a vendored file against it identifies the
+exact revision the copy holds, which separates "one release behind" from "someone
+edited it" — a distinction the Orca dialog does not draw.
+
+A mismatch here is the signal to re-vendor. **A match is not a promise of
+silence**, and the 2026-08-24 update proved it: `computer-use` and
+`orchestration` were byte-identical to the app's own manifest and Orca still
+listed all three as `Skipped — the copy here doesn't match the official
+version`. That wording is generic, and for those two it was simply untrue.
+
+The reason is the install location, not the bytes. `orca skills installed`
+attributes all three to **Codex home** — `~/.agents/skills`, a symlink into
+`/nix/store`, which is a read-only filesystem Orca never wrote to and cannot
+write to. Orca skips what it does not own, and reports that with the only
+message it has. The dialog's advice — "Remove it if you want Orca to update this
+skill" — is not actionable here and must not be followed: nothing can be removed
+from a store path, and a Home-Manager switch would restore it regardless.
+
+So this tree will report `Skipped` **on every Orca update, permanently, by
+design**. That is the accepted cost of vendoring (see the `flake.nix` rationale:
+Orca resolves skills by exact leaf name, so they must sit wherever agents read
+skills from). Treat the dialog as a prompt to run the hash check above, not as
+evidence of damage.
 
 ## Leaf-name note
 
