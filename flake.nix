@@ -41,10 +41,26 @@
           skillNamesIn (self + "/android-skills")
         else
           [];
-      # Vendored Orca skills — same open-standard SKILL.md format, merged into
-      # the canonical tree unconditionally (unlike the opt-in Android set): the
-      # `orca` CLI looks its skills up by exact leaf name, so they have to be
-      # present wherever an agent reads skills from, not behind a toggle.
+      # Vendored Orca skills — same open-standard SKILL.md format, but OPT-IN
+      # (`enableOrca`), not merged by default.
+      #
+      # They were unconditional until it turned out that installing them from
+      # the Nix store is what BREAKS Orca's own updater. Orca scans the agent
+      # skill directories and, in `observeSkillPackage`, throws
+      # `skill-package-link` on any file with `nlink !== 1`; the catch turns
+      # that into status `unrecognized`, which is the "The copy here doesn't
+      # match the official version" row in Settings → Update skills. Store
+      # files are hardlinked by store optimisation (ours sat at nlink 5–7), and
+      # they are mode 444 besides, so `classifyHomeSkillTopology` would mark
+      # them `read-only` even if the byte check passed. No pin of the vendored
+      # revision can clear it — the copies were byte-identical to the official
+      # rev and still flagged.
+      #
+      # So the default is now: Orca ships these skills, Orca installs them
+      # (`orca skills install`, which is `npx skills add` underneath) into a
+      # real writable directory, and Orca updates them. Turn `enableOrca` on
+      # for a host with no Orca app, where the vendored copies are the only
+      # ones. See `orca-skills/CREDITS.md` for the provenance procedure.
       orcaSkills =
         if builtins.pathExists (self + "/orca-skills") then
           skillNamesIn (self + "/orca-skills")
@@ -84,15 +100,16 @@
         mkMerged pkgs outName [ { inherit source; names = skillList; } ];
 
       # The base tree every non-Grok consumer starts from: the cross-platform
-      # skills plus the vendored Orca ones. Leaf names don't collide —
-      # cross-platform skills are all spacecraft-* / gnu-* / microsoft-* /
-      # steelbore-*, and the three Orca leaves are distinct from those — so a
-      # flat merge is safe. `orca-skills/CREDITS.md` records that the generic
-      # Orca leaf names (`computer-use`, `orchestration`) are reserved and must
-      # not be claimed by a future Spacecraft skill.
-      baseSources = [
+      # skills, plus the vendored Orca ones when the caller asks for them. Leaf
+      # names don't collide — cross-platform skills are all spacecraft-* /
+      # gnu-* / microsoft-* / steelbore-*, and the three Orca leaves are
+      # distinct from those — so a flat merge is safe. `orca-skills/CREDITS.md`
+      # records that the generic Orca leaf names (`computer-use`,
+      # `orchestration`) are reserved and must not be claimed by a future
+      # Spacecraft skill, whether or not this tree carries them.
+      baseSources = orca: [
         { source = self; names = crossPlatformSkills; }
-      ] ++ nixpkgs.lib.optional (orcaSkills != [])
+      ] ++ nixpkgs.lib.optional (orca && orcaSkills != [])
         { source = self + "/orca-skills"; names = orcaSkills; };
 
       # THE skill tree builder. Every consumer goes through this — the
@@ -105,16 +122,16 @@
       # pins" against "what is installed" must pass one derivation from here to
       # both sides; comparing `packages.skills` against a separately-built
       # module tree compares two nixpkgs, and reports drift forever.
-      mkSkills = { pkgs, android ? false, grok ? false }:
+      mkSkills = { pkgs, android ? false, grok ? false, orca ? false }:
         if grok then
           mkCombined pkgs (self + "/grok-skills") grokSkills "construct-grok-skills"
         else if android && androidSkills != [] then
           mkMerged pkgs "construct-skills-with-android"
-            (baseSources ++ [
+            (baseSources orca ++ [
               { source = self + "/android-skills"; names = androidSkills; }
             ])
         else
-          mkMerged pkgs "construct-skills" baseSources;
+          mkMerged pkgs "construct-skills" (baseSources orca);
     in {
 
       # ───────────────────────────────────────────────────────────────────
@@ -151,6 +168,15 @@
           skills-with-android = mkSkills {
             inherit pkgs;
             android = true;
+          };
+        }
+        // nixpkgs.lib.optionalAttrs (orcaSkills != [ ]) {
+          # The vendored Orca leaves merged in, for a host with no Orca app to
+          # install and update them itself. See `orcaSkills` above for why that
+          # is the exception rather than the default.
+          skills-with-orca = mkSkills {
+            inherit pkgs;
+            orca = true;
           };
         }
         // nixpkgs.lib.optionalAttrs (grokSkills != [ ]) {
@@ -219,11 +245,30 @@
             enableAndroid = lib.mkEnableOption
               "vendored Google Android skills (merged into ~/.agents/skills/)";
 
+            enableOrca = lib.mkEnableOption ''
+              the vendored Orca skills (`computer-use`, `orca-cli`,
+              `orchestration`) in the canonical tree.
+
+              Leave this OFF on any host that runs the Orca app. Orca installs
+              and updates its own copies, and it refuses to touch a copy it
+              cannot verify: its scanner throws `skill-package-link` on a file
+              with `nlink != 1`, which every Nix-store file eventually is once
+              store optimisation hardlinks it, and reports the skill as
+              `Unrecognized` in Settings → Update skills. Matching the vendored
+              bytes to the official revision does not help — a byte-identical
+              copy is flagged just the same, and the store's 444 modes make the
+              path `read-only` for the updater regardless.
+
+              Turn it on where nothing else provides these skills (no Orca app
+              installed, an air-gapped host, a container image)
+            '';
+
             package = lib.mkOption {
               type = lib.types.package;
               default = mkSkills {
                 inherit pkgs;
                 android = cfg.enableAndroid;
+                orca = cfg.enableOrca;
               };
               defaultText = lib.literalExpression
                 "this flake's own combined skill tree (Android merged in when enableAndroid)";
@@ -237,8 +282,9 @@
                 from this flake's — and any pinned-vs-live comparison built on
                 store paths reports drift that is not there.
 
-                Setting this supersedes `enableAndroid` for the installed tree;
-                `enableAndroid` then only selects this option's default.
+                Setting this supersedes `enableAndroid` and `enableOrca` for
+                the installed tree; those flags then only select this option's
+                default.
               '';
             };
 
@@ -282,6 +328,28 @@
               };
             };
 
+            perSkillLinks.enable = lib.mkEnableOption ''
+              rendering `~/.agents/skills` as a REAL directory holding one
+              symlink per skill, instead of a single directory symlink into the
+              store (or into the mutable pointer).
+
+              The skills themselves are unchanged — each entry still resolves
+              into the same tree. What changes is that the directory has room
+              for entries this module does not own, which is the whole point:
+              an installer that manages its own skills (Orca's `orca skills
+              install`, i.e. `npx skills add`) needs somewhere writable to put
+              them, and a directory symlink into the store gives it nowhere.
+
+              A real directory already sitting on a skill's name is left alone
+              and reported, never replaced. Pruning is limited to symlinks that
+              point INTO the tree, so a foreign skill survives every rebuild.
+
+              Caveat under `mutablePointer`: the links point through
+              `<stateDir>/current`, so swapping the pointer between rebuilds
+              still changes what every existing link resolves to, but a skill
+              the swapped-in tree ADDS is not linked until the next activation
+            '';
+
             agentPaths = lib.mkOption {
               type = lib.types.listOf lib.types.str;
               default = defaultAgentPaths;
@@ -296,7 +364,11 @@
           config = lib.mkMerge [
             # Store-link install (the default). Home Manager owns
             # ~/.agents/skills outright and every change needs a rebuild.
-            (lib.mkIf (cfg.enable && !cfg.mutablePointer.enable) {
+            # Skipped under perSkillLinks, where the activation below renders
+            # the directory instead — the two cannot both own that path.
+            (lib.mkIf (cfg.enable
+              && !cfg.mutablePointer.enable
+              && !cfg.perSkillLinks.enable) {
               home.file.".agents/skills".source = cfg.package;
             })
 
@@ -343,8 +415,66 @@
                     $DRY_RUN_CMD rm -rf "${stateDir}/current"
                   fi
                   $DRY_RUN_CMD ln -sfn "${stateDir}/pinned" "${stateDir}/current"
+                ''
+                # Under perSkillLinks the entry below renders ~/.agents/skills
+                # as a real directory, so the pointer stops at <stateDir> and
+                # this link is not made.
+                + lib.optionalString (!cfg.perSkillLinks.enable) ''
 
                   $DRY_RUN_CMD ln -sfn "${stateDir}/current" "$HOME/.agents/skills"
+                '';
+            })
+
+            # Per-skill links. ~/.agents/skills becomes a real directory whose
+            # entries point into the tree one skill at a time, leaving the
+            # names this module does not carry free for another installer to
+            # own — which is what Orca's updater needs, since it refuses any
+            # copy it cannot verify and a store copy is hardlinked (nlink != 1)
+            # and read-only (444). See `enableOrca` for the full mechanism.
+            (lib.mkIf (cfg.enable && cfg.perSkillLinks.enable) {
+              home.activation."spacecraft-construct-per-skill-links" =
+                lib.hm.dag.entryAfter
+                  ([ "linkGeneration" ]
+                    ++ lib.optional cfg.mutablePointer.enable
+                      "spacecraft-construct-skill-pointer") ''
+                  src="${if cfg.mutablePointer.enable
+                         then "${stateDir}/current"
+                         else cfg.package}"
+                  canonical="$HOME/.agents/skills"
+
+                  # A directory symlink from a generation before this option
+                  # was on has to go before the directory can be made.
+                  if [ -L "$canonical" ]; then
+                    $DRY_RUN_CMD rm -f "$canonical"
+                  fi
+                  $DRY_RUN_CMD mkdir -p "$canonical"
+
+                  for d in "$src"/*/; do
+                    [ -d "$d" ] || continue
+                    n="$(basename "$d")"
+                    t="$canonical/$n"
+                    # A REAL directory on that name belongs to whoever put it
+                    # there. Report it and move on — clobbering another
+                    # installer's skill is how this module would become the
+                    # thing that breaks Orca's updater from the other side.
+                    if [ -e "$t" ] && [ ! -L "$t" ]; then
+                      echo "construct: $t is a real directory owned by another installer — left as is" >&2
+                      continue
+                    fi
+                    $DRY_RUN_CMD ln -sfn "$src/$n" "$t"
+                  done
+
+                  # Prune only what this module made: a link INTO the tree
+                  # whose skill the tree no longer carries. A link pointing
+                  # anywhere else is someone else's and is left alone.
+                  for l in "$canonical"/*; do
+                    [ -L "$l" ] || continue
+                    case "$(readlink "$l")" in
+                      "$src"/*)
+                        [ -d "$src/$(basename "$l")" ] || $DRY_RUN_CMD rm -f "$l"
+                        ;;
+                    esac
+                  done
                 '';
             })
 

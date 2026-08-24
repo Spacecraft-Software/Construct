@@ -179,6 +179,24 @@ the §2 catalogue above and ship no `.zip`/`.skill` bundles (Google's `android`
 CLI installs them from upstream). See the section's README for provenance and
 the upstream→vendored path mapping.
 
+### Orca skills
+
+Three skills from **[Orca](https://github.com/stablyai/orca)** — `computer-use`,
+`orca-cli`, `orchestration` — are vendored verbatim (MIT, © Lovecast Inc.) under
+[`orca-skills/`](orca-skills/). They are third-party, so they stay out of the §2
+catalogue above.
+
+They are **opt-in** (`spacecraft.construct.enableOrca = true`) and should stay
+off wherever the Orca app is installed: Orca installs and updates its own
+copies, and its updater rejects a copy served from the Nix store — store files
+are hardlinked (`nlink != 1`) and read-only, both of which it refuses to
+verify, so it reports every such skill as `Unrecognized` no matter how exactly
+the bytes match. Pair `enableOrca = false` with
+`spacecraft.construct.perSkillLinks.enable = true`, which renders
+`~/.agents/skills` as a real directory so Orca has somewhere writable to own
+them. Turn `enableOrca` on where nothing else provides these skills;
+`packages.skills-with-orca` builds that tree.
+
 ### Perplexity skills
 
 Perplexity caps an uploaded skill zip at **100 files**, which the
