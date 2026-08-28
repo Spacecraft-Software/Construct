@@ -72,6 +72,50 @@ fn main() {
 cargo audit
 ```
 
+### 2.1 Qt Discovery on Nix — `qmake` Is a Query, Not a Build System
+
+`cxx-qt-build` locates Qt by **querying `qmake`**, and it assumes what a vendor SDK
+provides: QtBase and QtDeclarative under one prefix. Nix does not package Qt that way —
+each module is its own immutable output — so the assumption fails and the build stops on a
+missing `Qt6Qml.prl`. Combining the outputs then exposes a second split: `libGLX` and
+`libOpenGL` come from `libglvnd`, not from any Qt output.
+
+Both are packaging mismatches, not Qt API breakage. Qt 6.11 with CXX-Qt 0.9.1 builds,
+links, and passes the sanitizer and package gates once the environment is assembled.
+
+**The pattern that works** — one combined environment, used by the devShell and the
+package alike, with `qmake` exported for discovery only:
+
+```nix
+qtEnvironment = qt6.env "${packageName}-qt" [ qt6.qtdeclarative ];
+
+buildInputs = [ libglvnd qt6.qtbase qtEnvironment ];
+
+preBuild = ''
+  export QMAKE="${qtEnvironment}/bin/qmake"
+  export QT_VERSION_MAJOR=6
+  export RUSTFLAGS="''${RUSTFLAGS-} -C link-arg=-fuse-ld=mold"
+'';
+```
+
+Three things carry the rule:
+
+- **`qt6.env` is what merges the split outputs.** Listing `qt6.qtbase` and
+  `qt6.qtdeclarative` as separate `buildInputs` does not give `qmake` one prefix to report.
+- **`libglvnd` is not optional** on a Quick/OpenGL build, and its absence surfaces only at
+  link time, after the `.prl` problem is already solved.
+- **`-fuse-ld=mold`** is the §3.2.1 linker requirement, not a Qt detail; it belongs in the
+  same block.
+
+`QMAKE` here is a **discovery oracle**. The build system remains `cxx-qt-build` driven by
+Cargo: no `.pro` file, no `qmake -o Makefile`, no qmake-generated build graph. That
+distinction is the whole of the rule — "never qmake" as an absolute forbids a working
+build for no safety gain.
+
+Reference implementation: `majestic-codex/c1/packaging/default.nix` (derivation) and
+`majestic-codex/c1/flake.nix` (devShell). Read those rather than re-deriving the
+environment.
+
 ---
 
 ## 3. The Bridge: Properties, Signals, Invokables
@@ -305,6 +349,7 @@ CI gates:
 | **Model `Vec` mutated without row signals** | View shows stale rows, then reads out of range and crashes | Wrap mutations in `begin_insert_rows` / `end_insert_rows`. |
 | **Reaching for a Widgets feature** | CXX-Qt has no binding for it | Check the coverage boundary in §1 — that layer is C++. |
 | **Qt version mismatch** | Link errors in `cxx-qt-build` | Pin the Qt found by CMake to the 6.8 LTS floor; keep `cxx-qt-lib` features aligned. |
+| **Split Qt outputs (Nix)** | `Qt6Qml.prl` not found; once past it, missing `libGLX`/`libOpenGL` | One combined `qt6.env` plus `libglvnd`; export `QMAKE` for query-only discovery (§2.1). |
 | **Blocking in a `#[qinvokable]`** | UI freezes while the invokable runs | Invokables run on the GUI thread — spawn and queue back. |
 
 ---

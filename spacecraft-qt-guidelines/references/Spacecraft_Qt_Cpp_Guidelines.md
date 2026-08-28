@@ -278,7 +278,7 @@ endif()
 target_link_libraries(telemetry-dashboard PRIVATE Qt6::Widgets Qt6::Quick)
 ```
 
-Never hand-invoke `moc`, `uic`, or `rcc` — `qt_standard_project_setup()` wires them. Never introduce `qmake` into a new project.
+Never hand-invoke `moc`, `uic`, or `rcc` — `qt_standard_project_setup()` wires them. Never make `qmake` the build system of a new project: CMake owns the build graph, and a `.pro` file beside `CMakeLists.txt` is two sources of truth. **Querying** `qmake` is a different act and is not a violation — it is how CXX-Qt and parts of Qt's own tooling locate an installation, and on a distribution with split Qt outputs it is the only discovery path that works (see *Qt discovery on Nix* in `Spacecraft_Qt_Rust_Guidelines.md`).
 
 ---
 
@@ -422,6 +422,7 @@ finish-args:
 | **Custom-painted widget** | Screen reader reports one empty region | Subclass `QAccessibleInterface` and publish children. |
 | **Hex literals in QSS** | §11.1 violation; theme cannot be swapped | Generate `steelbore.qss` from tokens. |
 | **LTO on NixOS** | Link failure: LTO plugin not found | §3.2.1 — pair with `-fuse-ld=mold`, or document it disabled. |
+| **Split Qt outputs (Nix)** | Qt found, but a module's `.prl` is missing; then `libGLX`/`libOpenGL` fail to link | One combined `qt6.env` plus `libglvnd`; `qmake` queried for discovery only, never as the build system. |
 
 ---
 

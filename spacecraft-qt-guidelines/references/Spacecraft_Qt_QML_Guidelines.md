@@ -177,6 +177,13 @@ Connections {
 
 Custom-drawn `Canvas` items must expose their contents as accessible children or a textual summary — a painted chart with no `Accessible` declaration is invisible to a screen reader, exactly as a `GtkDrawingArea` or a custom-painted `QWidget` would be (§18.3). Honour system reduced-motion independently of the §18.1 toggle before enabling any `Animation`.
 
+**Known Qt 6.11 diagnostic — not your bug.** Rebuilding dynamic scene nodes (a `Repeater`
+or a model-driven `ListView` whose delegates are recreated) makes Qt 6.11 emit repeated
+stale-accessible-path warnings. The tree itself stays correct: Orca exposes and operates it
+normally. Do not chase the log, and do not paper over it by pinning `Accessible` properties
+onto recycled delegates — that trades a harmless warning for a genuinely wrong tree. The
+§18.4 gate is an Orca run against the built application, never a clean console.
+
 ---
 
 ## 5. Theming with `steelbore` Tokens
@@ -284,6 +291,7 @@ TestCase {
 | **Deep delegates without `reuseItems`** | Scrolling stutters on long lists | `reuseItems: true`; flatten the delegate. |
 | **Icon-only `Button`** | Screen reader announces "button" | Set `Accessible.role` and `Accessible.name`. |
 | **Custom `Canvas` control** | Invisible to assistive technology | Declare accessible children or a textual summary (§18.3). |
+| **Stale-accessible-path warnings (Qt 6.11)** | Repeated diagnostics while delegates are rebuilt | Known Qt behaviour with dynamic scene nodes; verify the tree with Orca (§18.4) rather than silencing the log. |
 | **Hex literals in QML** | §11.1 violation; theme cannot be swapped | Reference the generated `Theme` singleton. |
 | **`qmllint` warnings ignored** | Type errors surface at run time, in front of a user | Make `all_qmllint` a failing CI gate. |
 
