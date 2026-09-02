@@ -224,6 +224,50 @@
           # Absolute path of the pointer directory, and of the two links in it.
           stateDir = "$HOME/${cfg.mutablePointer.stateDir}";
 
+          # THE per-skill link renderer, shared by every tree this module
+          # materialises. One implementation on purpose: the ~/.agents and
+          # ~/.grok trees differ only in their source and destination, and two
+          # copies of a loop that decides what to clobber and what to prune is
+          # how one of them quietly grows a different answer.
+          perSkillLinkScript = { src, canonical }: ''
+            src="${src}"
+            canonical="${canonical}"
+
+            # A directory symlink from a generation before this option was on
+            # has to go before the directory can be made.
+            if [ -L "$canonical" ]; then
+              $DRY_RUN_CMD rm -f "$canonical"
+            fi
+            $DRY_RUN_CMD mkdir -p "$canonical"
+
+            for d in "$src"/*/; do
+              [ -d "$d" ] || continue
+              n="$(basename "$d")"
+              t="$canonical/$n"
+              # A REAL directory on that name belongs to whoever put it there.
+              # Report it and move on — clobbering another installer's skill is
+              # how this module would become the thing that breaks an updater
+              # from the other side.
+              if [ -e "$t" ] && [ ! -L "$t" ]; then
+                echo "construct: $t is a real directory owned by another installer — left as is" >&2
+                continue
+              fi
+              $DRY_RUN_CMD ln -sfn "$src/$n" "$t"
+            done
+
+            # Prune only what this module made: a link INTO the tree whose
+            # skill the tree no longer carries. A link pointing anywhere else
+            # is someone else's and is left alone.
+            for l in "$canonical"/*; do
+              [ -L "$l" ] || continue
+              case "$(readlink "$l")" in
+                "$src"/*)
+                  [ -d "$src/$(basename "$l")" ] || $DRY_RUN_CMD rm -f "$l"
+                  ;;
+              esac
+            done
+          '';
+
           # Per-harness paths that should symlink to ~/.agents/skills.
           # Extensible — add more (`.copilot/skills`, `.cursor/skills`, …)
           # by passing them in `agentPaths`.
@@ -329,9 +373,10 @@
             };
 
             perSkillLinks.enable = lib.mkEnableOption ''
-              rendering `~/.agents/skills` as a REAL directory holding one
-              symlink per skill, instead of a single directory symlink into the
-              store (or into the mutable pointer).
+              rendering `~/.agents/skills` — and `~/.grok/skills` when
+              `enableGrok` is on — as REAL directories holding one symlink per
+              skill, instead of a single directory symlink into the store (or
+              into the mutable pointer).
 
               The skills themselves are unchanged — each entry still resolves
               into the same tree. What changes is that the directory has room
@@ -343,6 +388,13 @@
               A real directory already sitting on a skill's name is left alone
               and reported, never replaced. Pruning is limited to symlinks that
               point INTO the tree, so a foreign skill survives every rebuild.
+
+              The Grok tree needs this for the same reason and gets the same
+              renderer: while `~/.grok/skills` is a whole-directory store link,
+              `npx skills add` cannot create a leaf under it at all, and fails
+              with EROFS — or ENOENT if it runs in the window during a rebuild
+              where the old generation has been collected and the new link is
+              not yet in place.
 
               Caveat under `mutablePointer`: the links point through
               `<stateDir>/current`, so swapping the pointer between rebuilds
@@ -436,46 +488,32 @@
                 lib.hm.dag.entryAfter
                   ([ "linkGeneration" ]
                     ++ lib.optional cfg.mutablePointer.enable
-                      "spacecraft-construct-skill-pointer") ''
-                  src="${if cfg.mutablePointer.enable
-                         then "${stateDir}/current"
-                         else cfg.package}"
-                  canonical="$HOME/.agents/skills"
+                      "spacecraft-construct-skill-pointer")
+                  (perSkillLinkScript {
+                    src = if cfg.mutablePointer.enable
+                          then "${stateDir}/current"
+                          else "${cfg.package}";
+                    canonical = "$HOME/.agents/skills";
+                  });
+            })
 
-                  # A directory symlink from a generation before this option
-                  # was on has to go before the directory can be made.
-                  if [ -L "$canonical" ]; then
-                    $DRY_RUN_CMD rm -f "$canonical"
-                  fi
-                  $DRY_RUN_CMD mkdir -p "$canonical"
-
-                  for d in "$src"/*/; do
-                    [ -d "$d" ] || continue
-                    n="$(basename "$d")"
-                    t="$canonical/$n"
-                    # A REAL directory on that name belongs to whoever put it
-                    # there. Report it and move on — clobbering another
-                    # installer's skill is how this module would become the
-                    # thing that breaks Orca's updater from the other side.
-                    if [ -e "$t" ] && [ ! -L "$t" ]; then
-                      echo "construct: $t is a real directory owned by another installer — left as is" >&2
-                      continue
-                    fi
-                    $DRY_RUN_CMD ln -sfn "$src/$n" "$t"
-                  done
-
-                  # Prune only what this module made: a link INTO the tree
-                  # whose skill the tree no longer carries. A link pointing
-                  # anywhere else is someone else's and is left alone.
-                  for l in "$canonical"/*; do
-                    [ -L "$l" ] || continue
-                    case "$(readlink "$l")" in
-                      "$src"/*)
-                        [ -d "$src/$(basename "$l")" ] || $DRY_RUN_CMD rm -f "$l"
-                        ;;
-                    esac
-                  done
-                '';
+            # The same treatment for the Grok tree. It needs it for the same
+            # reason and had never had it: ~/.grok/skills was a whole-directory
+            # store link, so `npx skills add` could not create a leaf there at
+            # all. The install fails with EROFS (the store is mounted read-only)
+            # — or ENOENT if it lands in the window during a rebuild where the
+            # old generation has been collected and the new link is not yet in
+            # place, which reads like a missing directory and is not one.
+            #
+            # No pointer here: the Grok tree has no `mutablePointer` equivalent,
+            # so the links go straight at the store path.
+            (lib.mkIf (cfg.enableGrok && combinedGrok != null && cfg.perSkillLinks.enable) {
+              home.activation."spacecraft-construct-per-skill-links-grok" =
+                lib.hm.dag.entryAfter [ "linkGeneration" ]
+                  (perSkillLinkScript {
+                    src = "${combinedGrok}";
+                    canonical = "$HOME/.grok/skills";
+                  });
             })
 
             (lib.mkIf cfg.enable {
@@ -517,9 +555,12 @@
                 '';
             })
 
-            (lib.mkIf (cfg.enableGrok && combinedGrok != null) {
+            (lib.mkIf (cfg.enableGrok && combinedGrok != null
+                       && !cfg.perSkillLinks.enable) {
               # Grok exception — its bundle format is flat, so it gets its
               # own install path and is NOT symlinked from ~/.agents/skills.
+              # Skipped under perSkillLinks, where the activation above renders
+              # the directory instead — the two cannot both own that path.
               home.file.".grok/skills".source = combinedGrok;
             })
           ];
