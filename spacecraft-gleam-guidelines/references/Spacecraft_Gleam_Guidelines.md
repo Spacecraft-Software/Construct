@@ -3,7 +3,7 @@
 **Version:** 1.1
 **Date:** 2026-07-12
 **Author:** Mohamed Hammad & Spacecraft Software
-**Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
+**Compatibility:** Model-agnostic — the current Claude 5 family (Opus, Fable, Sonnet), Grok, and any comparably capable reasoning model
 
 This document expands on the SKILL.md for cases requiring deeper OTP patterns,
 supervision design, or testing detail. Load it when the user asks for "complete
