@@ -338,6 +338,18 @@ bundles in the same commit, never use `git add -A`. The
 `grok-skills/README.md` catalogue table must stay in sync with the
 subdirectory listing.
 
+**Installing a third-party Grok skill on a Home-Manager host.** `~/.grok/skills`
+is module-managed. While it is a whole-directory store link, `npx skills add`
+cannot write a leaf into it: the store is mounted read-only, so the install
+fails with `EROFS` — or with `ENOENT`, which looks like a missing directory and
+is not, when it runs in the window during a rebuild where the old generation has
+been garbage-collected and the new link is not yet in place. Set
+`spacecraft.construct.perSkillLinks.enable = true` and the directory becomes
+real, leaving every name this module does not carry free for an imperative
+install to own. The alternative is to vendor the skill into `grok-skills/` and
+let the flake ship it, which is the right answer when the skill should be
+declarative on every host rather than installed on one.
+
 Frontmatter is also minimal for Grok — just `name` and `description`. No
 `license`, `maintainer`, `website` fields (Grok's loader does not consume
 them). A Grok skill still carries its own `LICENSE`, because Standard §5.6
@@ -365,6 +377,11 @@ is a **real directory** whose entries are per-skill symlinks into
 `…/construct/current/<skill>`. Same content, but names the module does not carry
 stay free for another installer to own — which is what an Orca host needs (see
 *Vendored Orca skills* above).
+
+The same option renders `~/.grok/skills` the same way (links straight into the
+store — the Grok tree has no mutable pointer). Both trees go through one shared
+renderer in `flake.nix`, so what gets clobbered and what gets pruned cannot
+diverge between them.
 
 Paths populated by Home Manager: `~/.claude/skills/`, `~/.codex/skills/`,
 `~/.ai/skills/`, `~/.agent/skills/`. Gemini CLI's scan path is Home Manager's
