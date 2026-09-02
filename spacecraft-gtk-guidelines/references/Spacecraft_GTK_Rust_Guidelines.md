@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Date:** 2026-08-05
 **Author:** Mohamed Hammad & Spacecraft Software
-**Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
+**Compatibility:** Model-agnostic — the current Claude 5 family (Opus, Fable, Sonnet), Grok, and any comparably capable reasoning model
 
 This document expands on the `SKILL.md` for the **default** GTK 4 implementation path: Rust with the `gtk-rs` bindings. It provides complete skeletons for project setup, GObject subclassing, weak-capture memory management, main-loop threading, accessibility, theming, packaging, and CI gates. For the C fallback path see `Spacecraft_GTK_C_Guidelines.md`.
 

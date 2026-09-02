@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Author:** Mohamed Hammad & Spacecraft Software  
-**Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
+**Compatibility:** Model-agnostic — the current Claude 5 family (Opus, Fable, Sonnet), Grok, and any comparably capable reasoning model
 
 This document expands on the SKILL.md for cases requiring deeper patterns, advanced tooling, or NUMA/multi-socket optimizations. Load this file when the user asks for "complete guidelines", "advanced concurrency", "custom scheduler", or when reviewing large-scale systems.
 
