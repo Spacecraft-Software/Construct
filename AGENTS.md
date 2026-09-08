@@ -91,7 +91,8 @@ name: `microsoft-rust-guidelines` is dual-licensed and passes
 in place of a single `LICENSE`. Include the other arguments only when they
 exist. `CREDITS.md` appears only where §15.3 triggers fire (currently
 `microsoft-rust-guidelines`, `gnu-coding-standards`, `spacecraft-cli-preference`,
-`spacecraft-rust-guidelines`, `spacecraft-ada-guidelines`). `references/` and `assets/` are optional.
+`spacecraft-rust-guidelines`, `spacecraft-ada-guidelines`,
+`spacecraft-steelbore-standard`). `references/` and `assets/` are optional.
 Run `ls <name>/` first whenever you're unsure.
 
 The `.skill` bundle uses `-D` to drop directory entries; the `.zip` keeps them.
