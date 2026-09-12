@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v2.01 (§19-§26 assurance + requirements + V&V; §13 design systems; §3.1.1 TypeScript; §5.7 AGENTS.md; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.6 system theme; §18 accessibility; §17 progress reporting; §3.3 security-by-design) so
+  The Steelbore Standard v2.02 (§19-§26 assurance + requirements + V&V; §13 design systems; §3.1.1 TypeScript; §5.7 AGENTS.md; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.6 system theme; §18 accessibility; §17 progress reporting; §3.3 security-by-design) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 2.01 | **Date:** 2026-09-12 | **Author:** Mohamed Hammad
+**Version:** 2.02 | **Date:** 2026-09-12 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -626,7 +626,7 @@ written in.
 | UTF-8, no BOM | Text files are encoded UTF-8. A byte-order mark is prohibited: it breaks shebang lines, `#`-comment parsing, and every config reader that expects the first byte of the file to be content. |
 | `.gitattributes` required | Every repository MUST ship `.gitattributes` at its root containing `* text=auto eol=lf`. This is the only mechanism that holds regardless of a contributor's `core.autocrlf` setting — which defaults to `true` on Windows and rewrites the working tree on checkout. Relying on per-clone Git configuration is not compliance. |
 | `.editorconfig` required | Every repository MUST ship `.editorconfig` at its root with `root = true` and, under `[*]`, at minimum `charset = utf-8`, `end_of_line = lf`, and `insert_final_newline = true`. It carries the rule to editors that never consult Git. |
-| CI gate | CI MUST fail when a tracked text file contains a CR byte. Both config files are advisory to the tools that read them; the gate is what makes the rule binding. `git grep -Il` needs no exclusion list — it skips binaries and honors `.gitattributes`, so a pinned exception is invisible to it. |
+| CI gate | CI MUST fail when a tracked text file is **stored** with CRLF. Both config files are advisory to the tools that read them; the gate is what makes the rule binding. The gate reads the index, not the working tree — `git ls-files --eol` reports the stored line ending as `i/lf`, `i/crlf` or `i/mixed`, and any `i/crlf` or `i/mixed` is a violation (`i/-text` is binary, not a text file). Grepping the working tree for a CR byte is **not** a correct implementation: a file pinned `eol=crlf` is stored LF and checked out CRLF by design, so a working-tree grep fails the very exception this section grants. |
 | Exceptions | Vendored upstream files keep their upstream line endings (§4.2 — preserve what you build on). Windows-native scripts invoked by `cmd.exe` (`.bat`, `.cmd`) MAY use CRLF where the interpreter requires it. A format whose specification mandates CRLF keeps it. Every such exception is pinned explicitly in `.gitattributes` (`*.bat text eol=crlf`) rather than left to chance. Binary files are unaffected — `text=auto` never touches them. |
 
 **Scope note.** This section governs *files on disk*, not *bytes on a socket*.
