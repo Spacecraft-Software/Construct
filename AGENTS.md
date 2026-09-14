@@ -47,7 +47,7 @@ presence — adding a new skill directory is enough; no flake edit needed.
 The authoritative governance document for everything produced in this repo is
 [`spacecraft-steelbore-standard/SKILL.md`](spacecraft-steelbore-standard/SKILL.md), which encodes
 The Steelbore Standard — it carries the current version in its own masthead, so
-none is repeated here to go stale. Load it before any non-trivial edit — its §14 checklist is the
+none is repeated here to go stale. Load it before any non-trivial edit — its §16 checklist is the
 audit gate. The skill is the upstream of the published `standard/` document;
 changes flow skill → published standard, so this `SKILL.md` may lead it.
 
