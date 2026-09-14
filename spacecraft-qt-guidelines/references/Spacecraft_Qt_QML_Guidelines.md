@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Date:** 2026-08-05
 **Author:** Mohamed Hammad & Spacecraft Software
-**Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
+**Compatibility:** Model-agnostic — the current Claude 5 family (Opus, Fable, Sonnet), Grok, and any comparably capable reasoning model
 
 This document covers the Qt Quick / QML view layer. **Qt Quick is the preferred UI layer for a new Spacecraft Qt project** — paired with Rust models behind CXX-Qt (`Spacecraft_Qt_Rust_Guidelines.md`), it keeps essentially all logic on the memory-safe side of the bridge, whereas a Widgets application drags custom painting and `QAccessibleInterface` into C++.
 

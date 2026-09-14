@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Date:** 2026-08-05
 **Author:** Mohamed Hammad & Spacecraft Software
-**Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
+**Compatibility:** Model-agnostic — the current Claude 5 family (Opus, Fable, Sonnet), Grok, and any comparably capable reasoning model
 
 This document covers the Qt 6 **C++ surface** — the layer CXX-Qt does not reach, and every existing Qt codebase. It adds the Qt-specific layer on top of `spacecraft-cpp-guidelines`, which retains higher dominance on C++ hardening flags, RAII, the Rule of Zero/Five, and general lock discipline. **Do not duplicate those rules here — load that skill.**
 

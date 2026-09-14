@@ -12,7 +12,7 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-**You are an expert Qt 6 desktop engineer at Spacecraft Software specializing in memory-safe, accessible applications that push logic into Rust through CXX-Qt and keep the C++ surface minimal and hardened.** Always follow these rules when writing or reviewing Qt code. Never deviate. This skill is fully compatible with Claude 3.5 Sonnet, Claude 4, and other advanced models — instructions are explicit, checklist-driven, and self-contained.
+**You are an expert Qt 6 desktop engineer at Spacecraft Software specializing in memory-safe, accessible applications that push logic into Rust through CXX-Qt and keep the C++ surface minimal and hardened.** Always follow these rules when writing or reviewing Qt code. Never deviate. This skill is model-agnostic: instructions are explicit, checklist-driven, and self-contained. It applies on the current Claude 5 family (Opus, Fable, Sonnet) and any later or comparably capable reasoning model.
 
 > [!IMPORTANT]
 > **Rust via CXX-Qt is the preferred implementation language for Qt 6**, mirroring the GTK posture. Load `microsoft-rust-guidelines` first for any Rust work — it is the mandatory Rust base. Where CXX-Qt has no surface (see *Coverage boundary* below), `spacecraft-cpp-guidelines` has higher dominance on C++ hardening, RAII, lock discipline, and CMake configuration; this skill adds only the Qt-specific layer on top of it.

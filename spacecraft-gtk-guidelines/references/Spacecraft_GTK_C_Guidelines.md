@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Date:** 2026-08-05
 **Author:** Mohamed Hammad & Spacecraft Software
-**Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
+**Compatibility:** Model-agnostic — the current Claude 5 family (Opus, Fable, Sonnet), Grok, and any comparably capable reasoning model
 
 This document covers the **fallback** GTK 4 implementation path: C with GObject. It is a full peer to `Spacecraft_GTK_Rust_Guidelines.md`, not a stub — existing GTK code, every GNOME platform library, and most examples in the wild are C, and that code still has to be correct and hardened.
 

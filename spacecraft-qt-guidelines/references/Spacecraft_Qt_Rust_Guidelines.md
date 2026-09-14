@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Date:** 2026-08-05
 **Author:** Mohamed Hammad & Spacecraft Software
-**Compatibility:** Claude 3.5+, Claude 4, Grok, and all advanced reasoning models
+**Compatibility:** Model-agnostic — the current Claude 5 family (Opus, Fable, Sonnet), Grok, and any comparably capable reasoning model
 
 This document covers the **preferred** Qt 6 implementation path: application logic in Rust, exposed to Qt and QML through CXX-Qt. It mirrors the GTK skill's Rust-first posture. For the C++ surface that CXX-Qt does not cover, see `Spacecraft_Qt_Cpp_Guidelines.md`; for Qt Quick specifics see `Spacecraft_Qt_QML_Guidelines.md`.
 
