@@ -1,6 +1,6 @@
 ---
 name: spacecraft-nix-guidelines
-description: Expert guidelines for writing high-performance, clean, reproducible, and type-safe Nix language expressions. Triggers on any request involving Nix files (*.nix), Nixpkgs, NixOS modules, home-manager modules, flakes (flake.nix, flake.lock), derivations (stdenv.mkDerivation, finalAttrs, passthru.tests), overlays, standard formatters (nixfmt-rfc-style, RFC 166), or pinning Nix inputs. By Mohamed Hammad and Spacecraft Software.
+description: Expert guidelines for writing high-performance, clean, reproducible, type-safe Nix expressions. Triggers on any request involving Nix files (`*.nix`), Nixpkgs, NixOS modules, home-manager modules, flakes (flake.nix, flake.lock), derivations (stdenv.mkDerivation, finalAttrs, passthru.tests), overlays and overrides, `nixfmt-rfc-style` (RFC 166), or pinning and updating Nix inputs. Trigger even when implicit, e.g. "package this with Nix", "write a home-manager module", or "why is this derivation rebuilding". Do NOT trigger for Nickel (use `spacecraft-nickel-guidelines`) or Guix, nor for general Linux administration that merely happens to run on NixOS. By Mohamed Hammad and Spacecraft Software.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/

@@ -1,6 +1,6 @@
 ---
 name: spacecraft-elixir-guidelines
-description: Use for writing fault-tolerant very high-quality highly-concurrent Elixir/OTP code following Spacecraft Software standards. Triggers on any request involving Elixir, OTP, GenServer, Supervisor, Task, processes, message passing, "let it crash" resilience, ExUnit testing, or BEAM concurrency. By Mohamed Hammad and Spacecraft Software.
+description: Use for writing fault-tolerant highly-concurrent Elixir/OTP code following Spacecraft Software standards. Triggers on any request involving Elixir, `.ex`/`.exs` files, mix projects, GenServer, Supervisor and supervision trees (max_restarts/max_seconds), Task, Task.async_stream/3, Task.Supervisor.start_child/2, `with` expressions, String.to_existing_atom/1, message passing, ExUnit testing, "let it crash" resilience, or BEAM concurrency. Trigger even when implicit, e.g. "supervise this worker", "parallelise this pipeline in Elixir", or "make this GenServer crash-safe". Do NOT trigger for Erlang (use `spacecraft-erlang-guidelines` — gen_server and gen_statem are different APIs) or Gleam (use `spacecraft-gleam-guidelines` — its typed OTP actors and supervisors differ sharply); generic BEAM advice gets all three wrong. By Mohamed Hammad and Spacecraft Software.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/

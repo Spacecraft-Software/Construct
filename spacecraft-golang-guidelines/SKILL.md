@@ -1,6 +1,6 @@
 ---
 name: spacecraft-golang-guidelines
-description: Use for writing memory-safe very high-quality high-speed high-performance multi-core multi-thread concurrent Golang code following Spacecraft Software standards. Triggers on any request involving Go concurrency, goroutines, channels, parallelism, sync primitives, worker pools, or CPU-bound performance systems. By Mohamed Hammad and Spacecraft Software.
+description: Use for writing memory-safe high-performance concurrent Go code following Spacecraft Software standards. Triggers on any request involving Go, `.go` files, go.mod, goroutines, channels, select, sync.WaitGroup, sync.Pool, sync/atomic, errgroup, context cancellation, worker pools, time.Ticker, pprof and execution traces, testing.B benchmarks, staticcheck, or golangci-lint. Trigger even when implicit, e.g. "fan out this work in Go", "fix this data race", or "profile this hot loop". Do NOT trigger for Zig (use `spacecraft-zig-guidelines`) or Rust (use `spacecraft-rust-guidelines`), nor for unqualified "high-performance concurrent code" requests that name no language — the goroutine and channel model does not transfer. By Mohamed Hammad and Spacecraft Software.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/

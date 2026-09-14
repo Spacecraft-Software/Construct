@@ -1,6 +1,6 @@
 ---
 name: spacecraft-nickel-guidelines
-description: Expert guidelines for writing high-quality, correct, maintainable, and type-safe Nickel configuration code. Triggers on any request involving Nickel syntax, contracts, record merging, schema design, and imports. By Mohamed Hammad and Spacecraft Software.
+description: Expert guidelines for writing correct, maintainable, type-safe Nickel configuration code. Triggers on any request involving Nickel, `.ncl` files, contracts and contract annotations, record merging, the `default`/`doc`/`not_exported` metadata, schema design, recursive `rec` records and let bindings, field inclusion and its infinite-recursion pitfall, enum tags and variants, string interpolation and multiline strings, the `std` library, or imports. Trigger even when implicit, e.g. "add a contract to this field", "merge these config records", or "why does this record recurse forever". Do NOT trigger for Nix (use `spacecraft-nix-guidelines`) — Nickel is a separate configuration language with its own contract and merge semantics. By Mohamed Hammad and Spacecraft Software.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
