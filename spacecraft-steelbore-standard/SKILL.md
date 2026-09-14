@@ -1940,7 +1940,7 @@ A project claims conformance in `README.md`, in one line, naming the standard
 version, the category, and whether the claim is full or tailored:
 
 ```
-Conforms to The Steelbore Standard v2.00 — Category B, tailored
+Conforms to The Steelbore Standard v2.02 — Category B, tailored
 (§22, §23; see COMPLIANCE.md).
 ```
 
