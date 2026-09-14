@@ -67,6 +67,22 @@ jobs:
       - name: License files (§4.3 naming, §5.6 carriage)
         run: python3 .github/check-license-files.py .
 
+      # The step above proves the license *text* ships inside the bundle; this
+      # one proves the skill also *states* which license it is under, and who
+      # maintains it. A consumer who installs the .zip sees the frontmatter and
+      # nothing else of this repo, so §5.6 makes those fields part of the
+      # distribution rather than repo bookkeeping.
+      #
+      # Unchecked until 2026-09-14, by which point the fleet held three
+      # encodings of the same facts: 33 skills with top-level maintainer /
+      # website, 4 with the same data nested under `metadata:` (invisible to
+      # anything reading top-level keys), and 7 with neither and no `license`.
+      # Grok skills are scoped to name + description — their loader does not
+      # consume the rest and AGENTS.md documents that minimum as deliberate —
+      # and vendored third-party trees are exempt entirely under §4.2.
+      - name: SKILL.md frontmatter (§5.6 distribution metadata)
+        run: python3 .github/check-skill-frontmatter.py .
+
       # The gates above verify each skill in isolation. This one verifies that a
       # skill still agrees with the catalogue around it: that every skill id it
       # names resolves to a real directory, and that it does not pin a Standard

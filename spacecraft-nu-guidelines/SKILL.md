@@ -1,6 +1,9 @@
 ---
 name: spacecraft-nu-guidelines
 description: Expert guidelines for writing high-performance, clean, and type-safe Nushell (Nu) script code. Triggers on any request involving Nushell scripts, command definitions, custom pipelines, closures, modules, environment variables, or config.nu configurations. By Spacecraft Software.
+license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Nushell Guidelines

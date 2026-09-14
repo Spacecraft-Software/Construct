@@ -12,11 +12,11 @@ description: >
   compliance, a companion, or an audit is the explicit goal, or when the
   document-format router hands off here.
 license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://Construct.SpacecraftSoftware.org/
 metadata:
   spdx: "SPDX-License-Identifier: GPL-3.0-or-later"
   author: "Mohamed Hammad & Spacecraft Software"
-  maintainer: "Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"
-  website: "https://Construct.SpacecraftSoftware.org/"
 ---
 
 <!--

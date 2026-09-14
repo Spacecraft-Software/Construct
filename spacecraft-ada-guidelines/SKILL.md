@@ -1,6 +1,9 @@
 ---
 name: spacecraft-ada-guidelines
 description: Use for writing provably-correct safety-critical Ada and SPARK code following Spacecraft Software standards. Triggers on any request involving Ada, SPARK, gnatprove, formal verification, design-by-contract (Pre/Post/Contract_Cases), proof of absence of run-time errors, SPARK_Mode, strong typing with constrained subtypes, ownership/access types, ghost code, loop invariants, or Ravenscar/Jorvik real-time tasking. Also triggers on .ads/.adb/.gpr files, Alire/alr, GNAT, or any high-assurance component (bootloader, kernel path, crypto primitive, control loop) that needs machine-checked correctness beyond what Rust guarantees. By Mohamed Hammad and Spacecraft Software.
+license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Ada / SPARK Guidelines

@@ -2,9 +2,8 @@
 name: spacecraft-chez-guidelines
 description: Write idiomatic, functional, safe, concurrent Chez Scheme following Spacecraft Software standards. Use whenever writing, reviewing, or debugging Chez Scheme — any mention of Chez, Petite Chez, R6RS libraries, `define-record-type`, `syntax-case`/`syntax-rules`, the `foreign-procedure`/`load-shared-object`/`define-ftype` FFI, `fork-thread`/`make-mutex`/`make-condition` concurrency, `optimize-level`, `compile-program`/whole-program optimization, boot files, the nanopass framework, or Akku. Trigger even when implicit, e.g. "build a worker pool in Chez", "bind this C library from Chez", "make this Chez program faster", or "is optimize-level 3 safe?". Do NOT trigger for GNU Guile (use `spacecraft-guile-guidelines` — its modules, Fibers, and FFI differ), nor Racket, Clojure, Common Lisp, or other Schemes/Lisps; Chez is R6RS-rooted with its own threads, FFI, and AOT compiler, so generic Scheme or Guile advice gets it wrong. Prefer this over generic Scheme advice for any Chez work.
 license: GPL-3.0-or-later
-metadata:
-  maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
-  website: https://Construct.SpacecraftSoftware.org/
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Chez Scheme: Functional, Safe & Concurrent Programming

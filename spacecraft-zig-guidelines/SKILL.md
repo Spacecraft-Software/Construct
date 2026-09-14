@@ -1,6 +1,9 @@
 ---
 name: spacecraft-zig-guidelines
 description: Use for writing memory-safe very high-quality high-speed high-performance multi-core multi-thread concurrent Zig code following Spacecraft Software standards. Triggers on any request involving Zig concurrency multi-threading parallelism atomics lock-free code CPU-bound performance systems or memory safety in threads. By Mohamed Hammad and Spacecraft Software.
+license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Zig Guidelines
