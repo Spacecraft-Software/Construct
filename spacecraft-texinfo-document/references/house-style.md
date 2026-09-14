@@ -131,16 +131,16 @@ Texinfo source is format-agnostic; the brand is applied when rendering.
 |--------|-------------------|
 | **Info** | Inherently plain text — no theming. This is correct; do not fight it. |
 | **plain text** (`--plaintext`) | Plain — no theming. |
-| **HTML** | Full theme via `assets/spacecraft.css` (`--css-include`). Void Navy `#000027` background, Share Tech Mono headings, Inconsolata body, palette links/code. |
+| **HTML** | Full theme via `assets/spacecraft.css` (`--css-include`). Void Navy background, Share Tech Mono headings, Inconsolata body, palette links/code. |
 | **PDF** (TeX) | A4 via `@afourpaper`; font/colour theming is limited in `texinfo.tex` — see `building.md` §PDF for the supported subset (paper size + body font note). Do not promise full palette parity in PDF. |
 | **DocBook / EPUB** | Structural; downstream tools apply their own styling. |
 
-Palette tokens (Standard §11, Steelbore 2, cached): Void Navy `#000027`
-(background), Platinum Mist `#D9DEE5` (body), Plasma Orange `#FF5E00`
-(H1/accent/visited link), Acid Lime `#B4FF00` (H2/success), Pulse Violet
-`#8A6CFF` (H3/structure/link), Mars Red `#FF3B3B` (error), Plasma Magenta
-`#E445FF` (warning), Deep Matrix `#0B1A12` (code-block fill), Quantum Blue
-`#0E2A47` (panel fill — surfaces are never text colours). Fonts (Standard
+Palette tokens (Standard §11, Steelbore 2, cached): Void Navy
+(background), Platinum Mist (body), Plasma Orange
+(H1/accent/visited link), Acid Lime (H2/success), Pulse Violet
+ (H3/structure/link), Mars Red (error), Plasma Magenta
+ (warning), Deep Matrix (code-block fill), Quantum Blue
+ (panel fill — surfaces are never text colours). Fonts (Standard
 §12): Share Tech Mono (headings), Inconsolata (body/code) — both OFL.
 
 ## 7. File naming
