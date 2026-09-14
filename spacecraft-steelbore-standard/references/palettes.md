@@ -26,13 +26,13 @@ uses Modern unless its project explicitly declares an alternate under §11.4.
 
 | Theme slug | Palette | Canvas | Polarity | Status |
 |---|---|---|---|---|
-| `steelbore` | Steelbore Modern | `#000027` | Dark | **Default** — all artifacts unless declared |
-| `steelbore-classic` | Steelbore Classic | `#000027` | Dark | Legacy contract (§11.2) |
-| `steelbore-blue` | Steelbore Blue | `#0A1024` | Dark | Alternate (§11.3) |
-| `steelbore-blackpinkpanther` | Steelbore BlackPinkPanther | `#141418` | Dark | Alternate (§11.3) |
-| `steelbore-matrixgreen` | Steelbore MatrixGreen | `#0C1A2B` | Dark | Alternate (§11.3) |
-| `steelbore-navywhite` | Steelbore NavyWhite | `#E7E5E0` | **Light** | Alternate (§11.3) — the family's only light canvas |
-| `tokyonight` | Tokyo Night | `#1A1B26` | Dark | Alternate (§11.3) |
+| `steelbore` | Steelbore Modern | Void Navy | Dark | **Default** — all artifacts unless declared |
+| `steelbore-classic` | Steelbore Classic | Void Navy | Dark | Legacy contract (§11.2) |
+| `steelbore-blue` | Steelbore Blue | Orbit Navy | Dark | Alternate (§11.3) |
+| `steelbore-blackpinkpanther` | Steelbore BlackPinkPanther | Core Black | Dark | Alternate (§11.3) |
+| `steelbore-matrixgreen` | Steelbore MatrixGreen | Circuit Navy | Dark | Alternate (§11.3) |
+| `steelbore-navywhite` | Steelbore NavyWhite | Pearl Silver | **Light** | Alternate (§11.3) — the family's only light canvas |
+| `tokyonight` | Tokyo Night | Night | Dark | Alternate (§11.3) |
 
 **Polarity** is normative content: §11.6.2 pairs a dark palette with a light one
 so an application can follow the platform's color-scheme preference.
@@ -41,19 +41,19 @@ so an application can follow the platform's color-scheme preference.
 
 The permitted colors for Steelbore Modern (the **Steelbore 2** generation):
 
-| Token          | Hex       | RGB                | Class      | Role                            |
-|----------------|-----------|--------------------|------------|---------------------------------|
-| Void Navy      | `#000027` | RGB(0, 0, 39)      | Canvas     | **Background — all surfaces**   |
-| Quantum Blue   | `#0E2A47` | RGB(14, 42, 71)    | Surface    | Elevated panels / cards         |
-| Deep Matrix    | `#0B1A12` | RGB(11, 26, 18)    | Surface    | Code blocks / terminal wells    |
-| Platinum Mist  | `#D9DEE5` | RGB(217, 222, 229) | Foreground | Body text / default readout     |
-| Plasma Orange  | `#FF5E00` | RGB(255, 94, 0)    | Foreground | Primary accent / active readout |
-| Pulse Violet   | `#8A6CFF` | RGB(138, 108, 255) | Foreground | Structure / links / borders     |
-| Acid Lime      | `#B4FF00` | RGB(180, 255, 0)   | Foreground | Success / safe status / focus   |
-| Mars Red       | `#FF3B3B` | RGB(255, 59, 59)   | Foreground | Error status                    |
-| Plasma Magenta | `#E445FF` | RGB(228, 69, 255)  | Foreground | Warning / attention             |
+| Token          | Class      | Role                            |
+|----------------|------------|---------------------------------|
+| Void Navy      | Canvas     | **Background — all surfaces**   |
+| Quantum Blue   | Surface    | Elevated panels / cards         |
+| Deep Matrix    | Surface    | Code blocks / terminal wells    |
+| Platinum Mist  | Foreground | Body text / default readout     |
+| Plasma Orange  | Foreground | Primary accent / active readout |
+| Pulse Violet   | Foreground | Structure / links / borders     |
+| Acid Lime      | Foreground | Success / safe status / focus   |
+| Mars Red       | Foreground | Error status                    |
+| Plasma Magenta | Foreground | Warning / attention             |
 
-**`#000027` (Void Navy) is the mandatory canvas for every surface under
+**Void Navy is the mandatory canvas for every surface under
 Steelbore Modern**, and Modern is the default, so Void Navy is the background
 of every artifact that has not declared an alternate under §11.4. Within a
 palette the canvas is non-negotiable: surface-class tokens are *fills placed
@@ -118,19 +118,19 @@ When building a new Spacecraft Software application (GUI, TUI, or web), all pale
 references **must** be accessed through a named theme called **`Steelbore`** rather than
 referenced as bare hex literals. The `Steelbore` theme is the canonical color contract:
 
-| Theme token   | Maps to palette token | Hex       |
-|---------------|-----------------------|-----------|
-| `background`  | Void Navy             | `#000027` |
-| `surface`     | Quantum Blue          | `#0E2A47` |
-| `surface-alt` | Deep Matrix           | `#0B1A12` |
-| `foreground`  | Platinum Mist         | `#D9DEE5` |
-| `accent`      | Plasma Orange         | `#FF5E00` |
-| `structure`   | Pulse Violet          | `#8A6CFF` |
-| `success`     | Acid Lime             | `#B4FF00` |
-| `error`       | Mars Red              | `#FF3B3B` |
-| `warning`     | Plasma Magenta        | `#E445FF` |
-| `focus`       | Acid Lime             | `#B4FF00` |
-| `border`      | Pulse Violet          | `#8A6CFF` |
+| Theme token   | Maps to palette token |
+|---------------|-----------------------|
+| `background`  | Void Navy             |
+| `surface`     | Quantum Blue          |
+| `surface-alt` | Deep Matrix           |
+| `foreground`  | Platinum Mist         |
+| `accent`      | Plasma Orange         |
+| `structure`   | Pulse Violet          |
+| `success`     | Acid Lime             |
+| `error`       | Mars Red              |
+| `warning`     | Plasma Magenta        |
+| `focus`       | Acid Lime             |
+| `border`      | Pulse Violet          |
 
 **Rationale:** isolating palette references behind the `Steelbore` theme name makes it
 trivial for end users to substitute a custom theme without touching application logic —
@@ -161,21 +161,21 @@ precedence over `steelbore`, and the §11 canonical palette is unchanged.
 `steelbore-high-contrast` lifts **only the four tokens that need it**; tokens
 already ≥7:1 carry over untouched:
 
-| Theme token  | Base token     | Variant hex | Contrast vs Void Navy |
-|--------------|----------------|-------------|-----------------------|
-| `background` | Void Navy      | `#000027`   | (canvas)              |
-| `foreground` | Platinum Mist  | `#D9DEE5`   | 15.09:1               |
-| `accent`     | Plasma Orange  | **`#FF8A3D`** | 8.70:1              |
-| `structure`  | Pulse Violet   | **`#B3A1FF`** | 9.19:1              |
-| `success`    | Acid Lime      | `#B4FF00`   | 16.75:1               |
-| `error`      | Mars Red       | **`#FF7A7A`** | 8.08:1              |
-| `warning`    | Plasma Magenta | **`#EE7BFF`** | 8.66:1              |
+| Theme token  | Base token     | Variant token           | Contrast vs Void Navy |
+|--------------|----------------|-------------------------|-----------------------|
+| `background` | Void Navy      | (unchanged)             | (canvas)              |
+| `foreground` | Platinum Mist  | (unchanged)             | 15.09:1               |
+| `accent`     | Plasma Orange  | **Plasma Orange Lift**  | 8.70:1                |
+| `structure`  | Pulse Violet   | **Pulse Violet Lift**   | 9.19:1                |
+| `success`    | Acid Lime      | (unchanged)             | 16.75:1               |
+| `error`      | Mars Red       | **Mars Red Lift**       | 8.08:1                |
+| `warning`    | Plasma Magenta | **Plasma Magenta Lift** | 8.66:1                |
 
 Only `accent`, `structure`, `error`, and `warning` shift; the other tokens are
 §11 values verbatim, with alias tokens following their bases (`focus` stays
-Acid Lime `#B4FF00`; `border` follows `structure` to `#B3A1FF`, keeping every
+Acid Lime; `border` follows `structure` to Pulse Violet Lift, keeping every
 foreground-class role token ≥7:1). In the variant, all four lifted tokens also clear 4.5:1
-on both surfaces (weakest pairing: `error` `#FF7A7A` on Quantum Blue, 5.77:1),
+on both surfaces (weakest pairing: `error` Mars Red Lift on Quantum Blue, 5.77:1),
 so the §11.0.2 † restrictions do not apply under high contrast. **Void Navy
 remains the background in every variant** — high contrast comes from lifting
 foregrounds, never from abandoning the canvas. The lifted hexes are
@@ -190,17 +190,17 @@ Navy with Modern, keeps its **legacy six-role contract**, and defines **no
 surface class**, so §11.0.1 does not apply and every foreground is measured
 against Void Navy alone.
 
-| Role | Token | Hex | vs Void Navy |
-|------|-------|-----|--------------|
-| `background` | Void Navy | `#000027` | (canvas) |
-| `foreground` | Molten Amber | `#D98E32` | 7.64:1 |
-| `accent` | Steel Blue | `#4B7EB0` | 4.77:1 |
-| `success` | Radium Green | `#50FA7B` | 14.87:1 |
-| `error` | Red Oxide | `#FF5C5C` | 6.74:1 |
-| `info` | Liquid Coolant | `#8BE9FD` | 14.74:1 |
+| Role         | Token          | vs Void Navy |
+|--------------|----------------|--------------|
+| `background` | Void Navy      | (canvas)     |
+| `foreground` | Molten Amber   | 7.64:1       |
+| `accent`     | Steel Blue     | 4.77:1       |
+| `success`    | Radium Green   | 14.87:1      |
+| `error`      | Red Oxide      | 6.74:1       |
+| `info`       | Liquid Coolant | 14.74:1      |
 
-`steelbore-classic-high-contrast` lifts `accent` → `#7FAEDC` (8.73:1) and
-`error` → `#FF8080` (8.41:1); the other four are already ≥7:1. Classic's
+`steelbore-classic-high-contrast` lifts `accent` → Steel Blue Lift (8.73:1) and
+`error` → Red Oxide Lift (8.41:1); the other four are already ≥7:1. Classic's
 token-on-token failures are severe — Molten Amber on Red Oxide 1.13:1,
 Radium Green on Liquid Coolant 1.01:1.
 
@@ -214,24 +214,24 @@ backgrounds unless marked †.
 
 | Palette | Slug | Canvas | Accent anchor | Note |
 |---------|------|--------|---------------|------|
-| Steelbore Blue | `steelbore-blue` | Orbit Navy `#0A1024` | Electric Blue `#0066FF` | Electric Blue is **†restricted** (3.91:1) — large text, icons, non-text UI only |
-| Steelbore BlackPinkPanther | `steelbore-blackpinkpanther` | Core Black `#141418` | Plasma Magenta `#E445FF` | No restricted pairings |
-| Steelbore MatrixGreen | `steelbore-matrixgreen` | Circuit Navy `#0C1A2B` | Solar Lime `#B6FF3B` | `surface-alt` (Ambient Black `#05070A`) is darker than the canvas — permitted |
-| Steelbore NavyWhite | `steelbore-navywhite` | Pearl Silver `#E7E5E0` | Lunar Navy `#111827` (foreground) | **Light canvas**; high contrast *darkens*. Lighter source tints are non-text fills only |
-| Tokyo Night | `tokyonight` | Night `#1A1B26` | Tokyo Blue `#7AA2F7` | Verbatim from the upstream editor theme; no restricted pairings. `surface` is the Storm background `#24283B`, `surface-alt` the Night `bg_dark` `#16161E` (darker than the canvas — permitted) |
+| Steelbore Blue | `steelbore-blue` | Orbit Navy | Electric Blue | Electric Blue is **†restricted** (3.91:1) — large text, icons, non-text UI only |
+| Steelbore BlackPinkPanther | `steelbore-blackpinkpanther` | Core Black | Plasma Magenta | No restricted pairings |
+| Steelbore MatrixGreen | `steelbore-matrixgreen` | Circuit Navy | Solar Lime | `surface-alt` (Ambient Black) is darker than the canvas — permitted |
+| Steelbore NavyWhite | `steelbore-navywhite` | Pearl Silver | Lunar Navy (foreground) | **Light canvas**; high contrast *darkens*. Lighter source tints are non-text fills only |
+| Tokyo Night | `tokyonight` | Night | Tokyo Blue | Verbatim from the upstream editor theme; no restricted pairings. `surface` is the Storm background Storm, `surface-alt` the Night `bg_dark` Night Deep (darker than the canvas — permitted) |
 
 #### §11.3.5 — Tokyo Night
 
 Registered verbatim from [enkia/tokyo-night-vscode-theme](https://github.com/enkia/tokyo-night-vscode-theme).
 It needed **no Spacecraft-derived substitutes** — every role token clears 4.5:1
 on all three backgrounds — so it is a conforming alternate, not a §11.5 fidelity
-palette: `foreground` `#C0CAF5` 10.59:1, `accent` `#7AA2F7` 6.79:1, `structure`
-`#BB9AF7` 7.39:1, `success` `#9ECE6A` 9.35:1, `error` `#F7768E` 6.46:1,
-`warning` `#E0AF68` 8.55:1, `focus` `#7DCFFF` 9.96:1 (vs canvas).
+palette: `foreground` Starlight 10.59:1, `accent` Tokyo Blue 6.79:1, `structure`
+Neon Purple 7.39:1, `success` Signal Green 9.35:1, `error` Sakura Red 6.46:1,
+`warning` Lantern Yellow 8.55:1, `focus` Ice Cyan 9.96:1 (vs canvas).
 
 `tokyonight-high-contrast` lifts the two tokens below 7:1 on the canvas —
-`accent` → `#97B6F9` (8.44:1) and `error` → `#F998AA` (8.22:1); the other six
-carry over verbatim. The upstream comment tone `#565F89` (2.76:1) clears neither
+`accent` → Tokyo Blue Lift (8.44:1) and `error` → Sakura Lift (8.22:1); the other six
+carry over verbatim. The upstream comment tone Comment Slate (upstream) (2.76:1) clears neither
 the 4.5:1 text floor nor the 3:1 non-text floor and is **not bindable to a role
 token**; boundaries are drawn in `structure` per §11.0.1.
 
@@ -291,8 +291,8 @@ below are *the measurement, not a target*.
 
 | Palette | Slug | Canvas | Body text | Worst pairings |
 |---------|------|--------|-----------|----------------|
-| Solarized Dark | `solarized-dark` | `base03` `#002B36` | `base0` 4.75:1 | 12 below 4.5:1; `structure`/`border` 2.97:1 and `error` 2.81:1 below 3:1 on `base02` |
-| Solarized Light | `solarized-light` | `base3` `#FDF6E3` | `base00` **4.13:1 — under the AA floor** | `success` 2.97:1, `warning` 2.98:1, `focus` 2.93:1 below 3:1 — status cannot be signalled by color at all |
+| Solarized Dark | `solarized-dark` | `base03` base03 | `base0` 4.75:1 | 12 below 4.5:1; `structure`/`border` 2.97:1 and `error` 2.81:1 below 3:1 on `base02` |
+| Solarized Light | `solarized-light` | `base3` base3 | `base00` **4.13:1 — under the AA floor** | `success` 2.97:1, `warning` 2.98:1, `focus` 2.93:1 below 3:1 — status cannot be signalled by color at all |
 
 Rules:
 

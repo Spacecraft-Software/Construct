@@ -58,11 +58,12 @@ ALLOWED to carry values:
   * steelbore-color-palette/assets/**  — the canonical TOML and its generated
     mirrors (steelbore.scm is drift-gated by generate-steelbore-scm.py; the CSS
     is a rendering of the same data)
-  * spacecraft-steelbore-standard/**   — TEMPORARY. §11 of the Standard is the
-    normative palette specification and mirrors the published .texi, so values
-    cannot be removed from it inside this repository alone: that is a normative
-    change requiring the two-repo, two-PR flow at a matching version and date.
-    Remove this exemption when that pair lands.
+
+The Standard skill was exempt until v2.03. §11 was the normative palette
+specification and carried the values itself, so they could not be removed here
+alone — that took a two-repo change at a matching version. v2.03 inverted §11.4:
+the TOML now governs every value and §11 governs the contract around it, so the
+exemption is gone and the skill is checked like everything else.
 
 Usage:
     check-palette-single-source.py [ROOT]
@@ -73,9 +74,16 @@ import sys
 
 ALLOWED_PREFIXES = (
     os.path.join("steelbore-color-palette", "assets"),
-    # See the module docstring: normative spec, removable only via a Standard change.
-    "spacecraft-steelbore-standard",
 )
+
+# CHANGELOG.md anywhere is exempt, and this one is not a convenience either. A
+# changelog is a historical record: the v1.45 entry describing Tokyo Night's
+# arrival quotes the canvas that version introduced, and that quotation is a
+# statement about what was true then. Editing it to name a token instead would
+# falsify the record — the entry would claim a wording the release never had.
+# Those values are also inert: nothing reads a changelog to resolve a colour, so
+# a stale one misleads no implementation. Live prose is what this gate is for.
+EXEMPT_BASENAMES = {"CHANGELOG.md"}
 
 # Third-party trees keep upstream's content verbatim under Standard §4.2, and
 # construct-cli is code with its own fixtures rather than palette prose.
@@ -103,7 +111,7 @@ def main(argv):
                 continue
             full = os.path.join(dirpath, fn)
             rel = os.path.relpath(full, root)
-            if allowed(rel):
+            if allowed(rel) or fn in EXEMPT_BASENAMES:
                 continue
             try:
                 text = open(full, encoding="utf-8").read()
