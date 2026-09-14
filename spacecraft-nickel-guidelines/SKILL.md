@@ -1,6 +1,9 @@
 ---
 name: spacecraft-nickel-guidelines
 description: Expert guidelines for writing high-quality, correct, maintainable, and type-safe Nickel configuration code. Triggers on any request involving Nickel syntax, contracts, record merging, schema design, and imports. By Mohamed Hammad and Spacecraft Software.
+license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Nickel Guidelines

@@ -14,9 +14,8 @@ description: >
   office/Markdown are downstream. Do NOT use it for chat answers,
   code comments, or GFM companions (that is spacecraft-markdown-document).
 license: GPL-3.0-or-later
-metadata:
-  maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
-  website: https://Construct.SpacecraftSoftware.org/
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Software Texinfo — Single-Source Documentation

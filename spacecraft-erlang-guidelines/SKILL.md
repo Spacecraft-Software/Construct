@@ -1,6 +1,9 @@
 ---
 name: spacecraft-erlang-guidelines
 description: Use for writing fault-tolerant very high-quality highly-concurrent Erlang/OTP code following Spacecraft Software standards. Triggers on any request involving Erlang, OTP, gen_server, gen_statem, supervisor, processes, message passing, "let it crash" resilience, Common Test/EUnit, or BEAM concurrency. By Mohamed Hammad and Spacecraft Software.
+license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Erlang Guidelines

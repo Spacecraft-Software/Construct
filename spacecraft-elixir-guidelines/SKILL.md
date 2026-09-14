@@ -1,6 +1,9 @@
 ---
 name: spacecraft-elixir-guidelines
 description: Use for writing fault-tolerant very high-quality highly-concurrent Elixir/OTP code following Spacecraft Software standards. Triggers on any request involving Elixir, OTP, GenServer, Supervisor, Task, processes, message passing, "let it crash" resilience, ExUnit testing, or BEAM concurrency. By Mohamed Hammad and Spacecraft Software.
+license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Elixir Guidelines
