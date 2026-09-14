@@ -284,7 +284,7 @@ these integration rules apply:
   No inline HTML colour spans, no CSS blocks. The visual layer belongs entirely
   in the paired ODF/MS Office file (see `spacecraft-document-format` skill).
 - **Reference the palette by token name in prose** when describing UI elements
-  (e.g., "the background uses Void Navy (`#000027`)").
+  (e.g., "the background uses Void Navy").
 - **Companion documents** (paired with a tier-1 office file) must open with the
   **canonical companion metadata comment** defined by
   [`spacecraft-document-format`](../spacecraft-document-format/SKILL.md)

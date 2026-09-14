@@ -102,7 +102,7 @@ Standard; the full rationale and copy-paste templates are in
 
 - **Palette & typography apply to OUTPUT, not source (Standard §11/§12).** Info
   and plain text are inherently unstyled — that is fine. **HTML** gets the full
-  Spacecraft theme via `assets/spacecraft.css` (Void Navy `#000027` background,
+  Spacecraft theme via `assets/spacecraft.css` (Void Navy background,
   Share Tech Mono headings, Inconsolata body, palette links/code). **PDF** is
   produced through TeX; apply A4 (`@afourpaper`, per house ISO-A4 geometry) and
   the documented font/colour caveats in `references/building.md`.

@@ -45,15 +45,15 @@ guarantee is computed per-palette.
 
 | Theme slug | Palette | Canvas | Status |
 |---|---|---|---|
-| `steelbore` | Steelbore Modern | Void Navy Void Navy | **Default** |
-| `steelbore-classic` | Steelbore Classic | Void Navy Void Navy | Legacy six-role contract (§11.2) |
-| `steelbore-blue` | Steelbore Blue | Orbit Navy Orbit Navy | Alternate (§11.3.1) |
-| `steelbore-blackpinkpanther` | Steelbore BlackPinkPanther | Core Black Core Black | Alternate (§11.3.2) |
-| `steelbore-matrixgreen` | Steelbore MatrixGreen | Circuit Navy Circuit Navy | Alternate (§11.3.3) |
-| `steelbore-navywhite` | Steelbore NavyWhite | Pearl Silver Pearl Silver | Alternate (§11.3.4) — **light canvas** |
-| `tokyonight` | Tokyo Night | Night Night | Alternate (§11.3.5) — upstream theme, verbatim, no restricted pairings |
-| `solarized-dark` | Solarized Dark | base03 base03 | **Fidelity (§11.5) — non-conforming**, not adoptable |
-| `solarized-light` | Solarized Light | base3 base3 | **Fidelity (§11.5) — non-conforming**, not adoptable; body text 4.13:1 |
+| `steelbore` | Steelbore Modern | Void Navy | **Default** |
+| `steelbore-classic` | Steelbore Classic | Void Navy | Legacy six-role contract (§11.2) |
+| `steelbore-blue` | Steelbore Blue | Orbit Navy | Alternate (§11.3.1) |
+| `steelbore-blackpinkpanther` | Steelbore BlackPinkPanther | Core Black | Alternate (§11.3.2) |
+| `steelbore-matrixgreen` | Steelbore MatrixGreen | Circuit Navy | Alternate (§11.3.3) |
+| `steelbore-navywhite` | Steelbore NavyWhite | Pearl Silver | Alternate (§11.3.4) — **light canvas** |
+| `tokyonight` | Tokyo Night | Night | Alternate (§11.3.5) — upstream theme, verbatim, no restricted pairings |
+| `solarized-dark` | Solarized Dark | base03 | **Fidelity (§11.5) — non-conforming**, not adoptable |
+| `solarized-light` | Solarized Light | base3 | **Fidelity (§11.5) — non-conforming**, not adoptable; body text 4.13:1 |
 
 Each conforming palette has a `<slug>-high-contrast` sibling for §18.1
 accessible mode. The §11.5 fidelity palettes have **none** — lifting their

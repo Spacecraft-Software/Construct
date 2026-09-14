@@ -108,6 +108,22 @@ jobs:
       - name: AGENTS.md inventories + §-references
         run: python3 .github/check-agents-inventories.py .
 
+      # Standard §11.4 already says values are read, never retyped, and names
+      # steelbore-color-palette/assets/steelbore.toml as canonical. Nothing
+      # enforced it, and 177 colour values had been restated across fourteen
+      # files — every one a copy of a value the TOML already owned. Skills now
+      # name the token ("Void Navy") and the role it plays; the value is read
+      # from the TOML at authoring time.
+      #
+      # Two deliberate carve-outs, both documented at length in the checker:
+      # fenced code blocks keep their literals, because
+      # fo:background-color="Void Navy" is not valid ODF and a stripped snippet
+      # is a broken one; and contrast ratios are not checked at all, because a
+      # measured ratio and a WCAG threshold are textually identical and gating
+      # them would delete the thresholds an accessibility skill exists to state.
+      - name: Palette single source (§11.4)
+        run: python3 .github/check-palette-single-source.py .
+
       # steelbore.scm is a GENERATED Guile mirror of steelbore.toml, shipped
       # because Guix evaluates system configuration in plain Guile and Guile has
       # no TOML reader — so Standard §11.6.5's obligations on the Guix flavor of

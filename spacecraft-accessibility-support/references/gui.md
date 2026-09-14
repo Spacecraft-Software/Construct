@@ -116,7 +116,7 @@ on a `QWidget` that paints its own children does not describe those children.
 ## Theming
 
 Apply `steelbore-high-contrast` when accessible mode is on, and honor the
-platform high-contrast preference independently. Void Navy `#000027` remains
+platform high-contrast preference independently. Void Navy remains
 the background in every variant — see §11.1.1 and the table in
 [`../SKILL.md`](../SKILL.md).
 

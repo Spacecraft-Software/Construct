@@ -52,7 +52,7 @@ HTML is the format that carries the full Spacecraft theme. Two ways to attach
   output where pages share one stylesheet (e.g. host `spacecraft.css` beside the
   HTML and pass `--css-ref=spacecraft.css`).
 
-The theme paints Void Navy `#000027` background, Share Tech Mono headings,
+The theme paints Void Navy background, Share Tech Mono headings,
 Inconsolata body, and palette colours for links, code blocks, tables, and
 definition headers (Standard §11/§12). Fonts load from Google Fonts with a
 system-monospace fallback for offline viewing.
