@@ -1,6 +1,6 @@
 ---
 name: spacecraft-zig-guidelines
-description: Use for writing memory-safe very high-quality high-speed high-performance multi-core multi-thread concurrent Zig code following Spacecraft Software standards. Triggers on any request involving Zig concurrency multi-threading parallelism atomics lock-free code CPU-bound performance systems or memory safety in threads. By Mohamed Hammad and Spacecraft Software.
+description: Use for writing memory-safe high-performance concurrent Zig code following Spacecraft Software standards. Triggers on any request involving Zig, `.zig` files, build.zig, comptime, explicit allocators, std.testing.allocator and leak detection, errdefer, std.Thread.spawn, std.Thread.Pool, std.Thread.Mutex, std.Io.Threaded, std.time.Timer, atomics, or lock-free code. Trigger even when implicit, e.g. "spawn a thread pool in Zig", "audit this allocator usage", or "move this to comptime". Do NOT trigger for Go (use `spacecraft-golang-guidelines`), Rust (use `spacecraft-rust-guidelines`), or C (use `spacecraft-clang-guidelines`), nor for unqualified "high-performance concurrent code" requests that name no language. By Mohamed Hammad and Spacecraft Software.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
