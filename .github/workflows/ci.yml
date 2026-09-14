@@ -124,6 +124,24 @@ jobs:
       - name: Palette single source (§11.4)
         run: python3 .github/check-palette-single-source.py .
 
+      # The step above covers markdown. spacecraft.css is the palette's third
+      # mirror — after steelbore.scm and the prose — and was the only one with
+      # no gate, in either repository that carries it. It is not inert: the
+      # Standard embeds it verbatim via `texi2any --css-include`, so a drifted
+      # hex is a wrong colour in the published HTML with the build still green.
+      #
+      # This checks rather than generates, unlike generate-steelbore-scm.py. The
+      # .scm file is wholly derived; spacecraft.css is nine custom properties on
+      # top of ~75 hand-authored layout lines that reference them through
+      # var(--token), and regenerating it would throw that layout away.
+      #
+      # Three copies exist and are byte-identical by design (palette skill,
+      # texinfo skill, Standard repo); the checker compares them to each other
+      # as well as to the TOML. The Standard's CI runs this same file out of its
+      # .construct checkout against its own copy.
+      - name: spacecraft.css matches steelbore.toml
+        run: python3 .github/check-palette-css.py
+
       # steelbore.scm is a GENERATED Guile mirror of steelbore.toml, shipped
       # because Guix evaluates system configuration in plain Guile and Guile has
       # no TOML reader — so Standard §11.6.5's obligations on the Guix flavor of
