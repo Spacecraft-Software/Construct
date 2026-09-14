@@ -91,6 +91,23 @@ jobs:
       - name: Skill cross-references + version pins
         run: python3 .github/check-skill-refs.py --catalogue . .
 
+      # The step above proves every skill id *named* in prose resolves to a real
+      # directory. It cannot see a list whose entries all resolve but whose
+      # *set* is wrong — "CREDITS.md: currently A, B, C" says nothing about D,
+      # which also carries the file and is missing from the list. That is the
+      # failure this step exists for, and it is not hypothetical: the rebuild
+      # procedure's own CREDITS list omitted spacecraft-steelbore-standard, and
+      # its bundles shipped without CREDITS.md for exactly that reason. The
+      # assets/ list named one skill when three had the directory.
+      #
+      # Also checks §-references into the Standard skill. Existence alone is
+      # weak — AGENTS.md pointed at "§14 checklist is the audit gate" for months
+      # after v2.00 renumbered it to §16, and §14 still existed as Date, Time &
+      # Units — so claims about what a section *is* are matched against the
+      # heading text.
+      - name: AGENTS.md inventories + §-references
+        run: python3 .github/check-agents-inventories.py .
+
       # steelbore.scm is a GENERATED Guile mirror of steelbore.toml, shipped
       # because Guix evaluates system configuration in plain Guile and Guile has
       # no TOML reader — so Standard §11.6.5's obligations on the Guix flavor of
