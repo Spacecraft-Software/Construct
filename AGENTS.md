@@ -47,7 +47,7 @@ presence — adding a new skill directory is enough; no flake edit needed.
 The authoritative governance document for everything produced in this repo is
 [`spacecraft-steelbore-standard/SKILL.md`](spacecraft-steelbore-standard/SKILL.md), which encodes
 The Steelbore Standard — it carries the current version in its own masthead, so
-none is repeated here to go stale. Load it before any non-trivial edit — its §14 checklist is the
+none is repeated here to go stale. Load it before any non-trivial edit — its §16 checklist is the
 audit gate. The skill is the upstream of the published `standard/` document;
 changes flow skill → published standard, so this `SKILL.md` may lead it.
 
@@ -57,9 +57,9 @@ changes flow skill → published standard, so this `SKILL.md` may lead it.
 <skill-name>/
 ├── SKILL.md           # frontmatter (name, description, license, maintainer, website) + body
 ├── LICENSE            # REQUIRED (Standard §5.6 license carriage). Verbatim license text, byte-identical to the matching `LICENSES/` file, a regular file, no extension (§4.3). Almost always GPL-3.0-or-later; `gnu-coding-standards` carries the GFDL-1.3-or-later text instead. Multi-licensed skills carry `LICENSE.<TAG>` in its place — `microsoft-rust-guidelines` ships `LICENSE.GPL` + `LICENSE.MIT`.
-├── CREDITS.md         # required when the skill builds on third-party work (Standard §15.3); currently microsoft-rust-guidelines, gnu-coding-standards, spacecraft-cli-preference, spacecraft-rust-guidelines, spacecraft-ada-guidelines
+├── CREDITS.md         # required when the skill builds on third-party work (Standard §15.3); currently microsoft-rust-guidelines, gnu-coding-standards, gnu-free-software, spacecraft-cli-preference, spacecraft-rust-guidelines, spacecraft-ada-guidelines, spacecraft-steelbore-standard
 ├── references/        # optional; loaded on demand by the agent
-└── assets/            # optional; only spacecraft-agentic-cli has one today
+└── assets/            # optional; currently spacecraft-agentic-cli, spacecraft-texinfo-document, steelbore-color-palette
 ```
 
 Skill IDs (directory and frontmatter `name`) are **functional identifiers**,
@@ -90,9 +90,10 @@ name: `microsoft-rust-guidelines` is dual-licensed and passes
 `microsoft-rust-guidelines/LICENSE.GPL microsoft-rust-guidelines/LICENSE.MIT`
 in place of a single `LICENSE`. Include the other arguments only when they
 exist. `CREDITS.md` appears only where §15.3 triggers fire (currently
-`microsoft-rust-guidelines`, `gnu-coding-standards`, `spacecraft-cli-preference`,
-`spacecraft-rust-guidelines`, `spacecraft-ada-guidelines`). `references/` and `assets/` are optional.
-Run `ls <name>/` first whenever you're unsure.
+`microsoft-rust-guidelines`, `gnu-coding-standards`, `gnu-free-software`,
+`spacecraft-cli-preference`, `spacecraft-rust-guidelines`,
+`spacecraft-ada-guidelines`, `spacecraft-steelbore-standard`). `references/`
+and `assets/` are optional. Run `ls <name>/` first whenever you're unsure.
 
 The `.skill` bundle uses `-D` to drop directory entries; the `.zip` keeps them.
 Verify with `unzip -l <name>.zip` before committing. After editing any file
@@ -112,14 +113,24 @@ is mechanical — apply it after **any** edit inside a `<skill-name>/` directory
    zip -qrD <name>.skill <name>/SKILL.md <name>/LICENSE <name>/CREDITS.md <name>/references
    ```
    Add `<name>/assets` to both lines if the skill has an `assets/` dir
-   (today only `spacecraft-agentic-cli` does). `SKILL.md` and the license file
-   are always present; omit any other argument the skill doesn't have.
+   (currently `spacecraft-agentic-cli`, `spacecraft-texinfo-document`, and
+   `steelbore-color-palette`). Prefer `ls <name>/` over this list — omitting
+   an `assets/` dir that exists is silent: the rebuild succeeds and the
+   bundle simply ships without it. `SKILL.md` and the license file are always
+   present; omit any other argument the skill doesn't have.
    `microsoft-rust-guidelines` is dual-licensed and passes
    `<name>/LICENSE.GPL <name>/LICENSE.MIT` instead of `<name>/LICENSE`.
    `CREDITS.md` exists only where §15.3 applies (`microsoft-rust-guidelines`,
-   `gnu-coding-standards`, `spacecraft-cli-preference`,
-   `spacecraft-rust-guidelines`, `spacecraft-ada-guidelines`). Run `ls <name>/`
-   first when in doubt.
+   `gnu-coding-standards`, `gnu-free-software`, `spacecraft-cli-preference`,
+   `spacecraft-rust-guidelines`, `spacecraft-ada-guidelines`,
+   `spacecraft-steelbore-standard`).
+
+   **Run `ls <name>/` and pass every file you see — do not rebuild from the
+   lists above.** They are a map, not ground truth, and an omission here is
+   silent in the worst way: the `zip` succeeds, the working tree still looks
+   correct, and only the shipped bundle is missing a file. This list omitted
+   `spacecraft-steelbore-standard` until 2026-09-14, and its bundles shipped
+   without `CREDITS.md` for exactly that reason.
 2. **Stage** the skill directory **and** both bundles in the same commit —
    never separately. Always stage by explicit name:
    ```sh
@@ -338,6 +349,18 @@ bundles in the same commit, never use `git add -A`. The
 `grok-skills/README.md` catalogue table must stay in sync with the
 subdirectory listing.
 
+**Installing a third-party Grok skill on a Home-Manager host.** `~/.grok/skills`
+is module-managed. While it is a whole-directory store link, `npx skills add`
+cannot write a leaf into it: the store is mounted read-only, so the install
+fails with `EROFS` — or with `ENOENT`, which looks like a missing directory and
+is not, when it runs in the window during a rebuild where the old generation has
+been garbage-collected and the new link is not yet in place. Set
+`spacecraft.construct.perSkillLinks.enable = true` and the directory becomes
+real, leaving every name this module does not carry free for an imperative
+install to own. The alternative is to vendor the skill into `grok-skills/` and
+let the flake ship it, which is the right answer when the skill should be
+declarative on every host rather than installed on one.
+
 Frontmatter is also minimal for Grok — just `name` and `description`. No
 `license`, `maintainer`, `website` fields (Grok's loader does not consume
 them). A Grok skill still carries its own `LICENSE`, because Standard §5.6
@@ -347,6 +370,43 @@ above passes a bare `LICENSE`. The repo-root `LICENSE` remains the canonical
 GPL-3.0-or-later text as a regular file, with `LICENSES/GPL-3.0-or-later.txt`
 a symlink back to it (§4.3, v1.38 direction), and every skill copy is
 byte-identical to it.
+
+## Perplexity bundle (`perplexity-skills/`)
+
+Perplexity rejects an uploaded skill zip containing **more than 100 files**.
+Every skill here is comfortably under that except `spacecraft-cli-preference`,
+which ships 110 per-tool `references/` files so an agent can lazy-load exactly
+the one tool it is about to run. Perplexity accepts the *layout*; it fails only
+on the count.
+
+`perplexity-skills/` therefore holds a **generated**, consolidated bundle for
+that one skill — `build.py` merges the 110 per-tool files into 14 category
+files and rewrites `SKILL.md`'s links to `references/<category>.md#<tool>`.
+It is excluded from the flake's skill auto-detection (`excludedDirs`) and is
+not a skill directory: there is no `SKILL.md` at its top level.
+
+**The contract that matters when editing:**
+
+- **Never hand-edit** the category files or the zipped `SKILL.md`. They are
+  build output. Edit the canonical `spacecraft-cli-preference/`.
+- **Regenerate and commit `perplexity-skills/spacecraft-cli-preference.zip` in
+  the same commit** as any change to `spacecraft-cli-preference/SKILL.md` or
+  its `references/` — the same install-surface rule that governs the root
+  bundles. This is easy to miss precisely because the file lives in a
+  different directory from the skill that determines its contents:
+
+  ```sh
+  python3 perplexity-skills/build.py
+  ```
+
+  The generator self-checks that every rewritten `#anchor` resolves to a real
+  `## <tool>` heading, and asserts `CATEGORY_MAP` covers exactly the canonical
+  tool set — so adding or removing a tool fails the build until the map is
+  updated.
+
+Full rationale, the category table, and the regeneration rules live in
+[`perplexity-skills/README.md`](perplexity-skills/README.md) and the
+"Perplexity bundle" section of [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Local agent fan-out (Home Manager hosts)
 
@@ -365,6 +425,11 @@ is a **real directory** whose entries are per-skill symlinks into
 `…/construct/current/<skill>`. Same content, but names the module does not carry
 stay free for another installer to own — which is what an Orca host needs (see
 *Vendored Orca skills* above).
+
+The same option renders `~/.grok/skills` the same way (links straight into the
+store — the Grok tree has no mutable pointer). Both trees go through one shared
+renderer in `flake.nix`, so what gets clobbered and what gets pruned cannot
+diverge between them.
 
 Paths populated by Home Manager: `~/.claude/skills/`, `~/.codex/skills/`,
 `~/.ai/skills/`, `~/.agent/skills/`. Gemini CLI's scan path is Home Manager's

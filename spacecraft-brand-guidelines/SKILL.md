@@ -27,6 +27,16 @@ website: https://Construct.SpacecraftSoftware.org/
 > (§11.5) and may not be adopted as a project palette. All values live in the
 > `steelbore-color-palette` skill's `assets/steelbore.toml`. A project uses one
 > palette; never mix.
+>
+> **Accessible mode swaps a sibling, never the brand.** Every conforming palette
+> ships a `<slug>-high-contrast` variant (§11.1.1) that lifts only the tokens
+> below 7:1 on the canvas, plus the palette-independent `steelbore-mono` for
+> 4-bit ANSI and `NO_COLOR`. Under §18.1 the variant is what renders — the
+> canvas and the unlifted tokens carry over verbatim, so brand identity is
+> unchanged. Selection is not this skill's call: `spacecraft-accessibility-support`
+> owns the activation contract, and the lifted values live in
+> `steelbore-color-palette`. Never lift a token by eye, and never use a variant
+> hex outside its variant.
 > All values here are canonical **Steelbore 2** generation tokens. Do not use any other
 > color or font values for Spacecraft Software artifacts. The five v1.33 foreground
 > tokens (Molten Amber, Steel Blue, Radium Green, Red Oxide, Liquid Coolant) and the

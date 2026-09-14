@@ -81,7 +81,7 @@ If both an ODF and an MS Office version of the same content are produced (rare),
 
 These bind every format you produce. Violations are blockers, not preferences.
 
-- **Page/slide/HTML background: Void Navy `#000027`** — Standard §11 mandate. Non-negotiable. The per-format recipes (the `spacecraft-texinfo-document` skill for HTML/PDF, `odf-authoring.md` §C, `ms-office-authoring.md` §B) are not optional shortcuts; the colour silently drops in major readers if the layers aren't all applied.
+- **Page/slide/HTML background: the palette's canvas — Void Navy `#000027` under Steelbore Modern, the default.** Standard §11 mandate, and non-negotiable *within a palette*: the canvas travels with the palette and is never substituted or tinted. It is Void Navy unless the project declared an alternate in its `README.md` (§11.4) — most alternates are also dark, but `steelbore-navywhite` is a **light** canvas (Pearl Silver `#E7E5E0`), which inverts every foreground in §4 below. Read the declared palette before setting a page colour; read its values from `steelbore-color-palette`. The per-format recipes (the `spacecraft-texinfo-document` skill for HTML/PDF, `odf-authoring.md` §C, `ms-office-authoring.md` §B) are not optional shortcuts; the colour silently drops in major readers if the layers aren't all applied.
 - **Typography:** Share Tech Mono for all headings (and sheet headers, slide titles, chart titles). Inconsolata for body, cell content, code, slide bullets, captions. Standard §12.
 - **Texinfo brand output.** Carry the palette and typography into Texinfo **HTML** via a bundled CSS (`makeinfo --css-include`); apply Void Navy as the **PDF** page colour where the TeX toolchain allows; `.info`/plain-text output inherits the reader/terminal theme (which already follows the palette on Steelbore OS). Details in the `spacecraft-texinfo-document` skill (`references/building.md`).
 - **Page geometry:**
@@ -97,6 +97,9 @@ These bind every format you produce. Violations are blockers, not preferences.
 ## §4 — Palette cheatsheet (cited from Standard §11)
 
 This is a local cache for fast lookup. **The canonical definition is The Steelbore Standard §11.** If the two ever disagree, the Standard wins.
+
+**These nine tokens are Steelbore Modern**, the default palette — correct for any project that has not declared otherwise. §11 is a **family**: `steelbore-classic`, `steelbore-blue`, `steelbore-blackpinkpanther`, `steelbore-matrixgreen`, `steelbore-navywhite` (light canvas) and `tokyonight` are conforming alternates, with `solarized-dark`/`solarized-light` registered as §11.5 fidelity palettes that may never be adopted. A project uses **exactly one**, declared in its `README.md` (§11.4), and tokens are never mixed across palettes. When a document is produced for a project on an alternate, take that palette's eleven role tokens from
+[`steelbore-color-palette`](../steelbore-color-palette/) — every palette binds the same roles, so the heading/body/status mapping below carries over unchanged; only the values differ. A document rendered in §18.1 accessible mode uses the `-high-contrast` sibling of whichever palette applies; `spacecraft-accessibility-support` owns that selection.
 
 | Token          | Hex       | Role                           |
 |----------------|-----------|--------------------------------|

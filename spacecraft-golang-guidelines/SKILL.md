@@ -1,6 +1,9 @@
 ---
 name: spacecraft-golang-guidelines
 description: Use for writing memory-safe very high-quality high-speed high-performance multi-core multi-thread concurrent Golang code following Spacecraft Software standards. Triggers on any request involving Go concurrency, goroutines, channels, parallelism, sync primitives, worker pools, or CPU-bound performance systems. By Mohamed Hammad and Spacecraft Software.
+license: GPL-3.0-or-later
+maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+website: https://Construct.SpacecraftSoftware.org/
 ---
 
 # Spacecraft Golang Guidelines

@@ -98,7 +98,11 @@ Never use proprietary fonts. Outfit, Inter, Roboto, and similar non-OFL fonts ar
    contract (§11.2) and carries an `info` token that is not one of §11.1's
    eleven roles, so emit it only for a platform whose schema fits that
    contract. Emitting is not defaulting: `steelbore` stays the default, and the
-   platform's theme-selection key must name it. Where the platform can follow
+   platform's theme-selection key must name it. Where the emitted config or its
+   launcher reads a theme from the environment, the variable is
+   **`SPACECRAFT_THEME`**, carrying a slug — never `STEELBORE_THEME`, which is
+   already a boolean shell flag, so `STEELBORE_THEME=true` would resolve to a
+   nonexistent theme and fall through in silence (§11.6). Where the platform can follow
    the system color scheme, pair the themes per `[resolution.pair]` so a light
    preference resolves to `steelbore-navywhite` (§11.6.2) — read the pairing,
    never hardcode it. For
