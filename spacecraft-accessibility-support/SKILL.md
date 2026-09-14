@@ -166,19 +166,19 @@ Three consequences worth stating:
 
 High contrast lifts **only the four tokens that need it**:
 
-| Token | Base | Variant | Contrast |
-|-------|------|---------|----------|
-| `background` | Void Navy `#000027` | `#000027` | (canvas) |
-| `foreground` | Platinum Mist | `#D9DEE5` | 15.09:1 |
-| `accent` | Plasma Orange | **`#FF8A3D`** | 8.70:1 |
-| `structure` | Pulse Violet | **`#B3A1FF`** | 9.19:1 |
-| `success` | Acid Lime | `#B4FF00` | 16.75:1 |
-| `error` | Mars Red | **`#FF7A7A`** | 8.08:1 |
-| `warning` | Plasma Magenta | **`#EE7BFF`** | 8.66:1 |
+| Token | Base | Variant |
+|-------|------|---------|
+| `background` | Void Navy | (unchanged) |
+| `foreground` | Platinum Mist | (unchanged) |
+| `accent` | Plasma Orange | **Plasma Orange Lift** |
+| `structure` | Pulse Violet | **Pulse Violet Lift** |
+| `success` | Acid Lime | (unchanged) |
+| `error` | Mars Red | **Mars Red Lift** |
+| `warning` | Plasma Magenta | **Plasma Magenta Lift** |
 
-Alias tokens follow their bases: `focus` stays Acid Lime `#B4FF00`; `border`
-follows `structure` to `#B3A1FF`. In the variant, all four lifted tokens also
-clear 4.5:1 on Quantum Blue and Deep Matrix (weakest pairing: `#FF7A7A` on
+Alias tokens follow their bases: `focus` stays Acid Lime; `border`
+follows `structure` to Pulse Violet Lift. In the variant, all four lifted tokens also
+clear 4.5:1 on Quantum Blue and Deep Matrix (weakest pairing: Mars Red Lift on
 Quantum Blue, 5.77:1), so the §11.0.2 large-text restrictions do not apply
 under high contrast — the variant is strictly safer than the default.
 
@@ -206,7 +206,7 @@ mechanism GitHub adopted for `gh a11y`.
 
 - Every pointer-reachable action must be keyboard-reachable; focus order
   linear, focused element visibly indicated. The visible focus indicator is
-  Acid Lime `#B4FF00` (16.75:1 on Void Navy) — WCAG 2.2 §2.4.11 compliant on
+  Acid Lime (16.75:1 on Void Navy) — WCAG 2.2 §2.4.11 compliant on
   every background.
 
 ## Games
