@@ -20,7 +20,7 @@ website: https://Construct.SpacecraftSoftware.org/
 > is the **Steelbore 2** generation; the five v1.33 foreground tokens and the old
 > lifts are Classic's, not Modern's (§11.2) — Void Navy carries forward.
 >
-> **§11 is a palette family (v2.05).** Steelbore Modern is the default and is
+> **§11 is a palette family (v2.06).** Steelbore Modern is the default and is
 > what you emit unless the requester names another. Seven more are registered:
 > `steelbore-classic`, `steelbore-blue`, `steelbore-blackpinkpanther`,
 > `steelbore-matrixgreen`, `steelbore-navywhite`, `tokyonight`, and

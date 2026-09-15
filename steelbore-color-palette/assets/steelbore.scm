@@ -14,7 +14,7 @@
 ; read, never retyped. Editing this file instead of the TOML defeats the
 ; entire point: there would be two sources, and they would drift.
 ;
-; Palette contract version 3.3.0 — The Steelbore Standard §11 (v2.05).
+; Palette contract version 3.4.0 — The Steelbore Standard §11 (v2.06).
 
 (define-module (steelbore)
   #:export (steelbore-meta
@@ -26,9 +26,9 @@
 
 ;;; Metadata (§11 [meta]).
 (define steelbore-meta
-  `((version . "3.3.0")
+  `((version . "3.4.0")
     (date . "2026-09-15T00:00:00Z")
-    (standard . "The Steelbore Standard §11 (v2.05)")
+    (standard . "The Steelbore Standard §11 (v2.06)")
     (default-theme . "steelbore")
     (default-dark-theme . "steelbore")
     (default-light-theme . "steelbore-navywhite")
