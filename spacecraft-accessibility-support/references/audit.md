@@ -111,9 +111,10 @@ record the ratios.
 
 **First establish which palette the project declared** (§11.4). Modern is the
 default; a project may declare `steelbore-classic`, `steelbore-blue`,
-`steelbore-blackpinkpanther`, `steelbore-matrixgreen`, `steelbore-navywhite`,
-`tokyonight`, or `steelbore-hanzosteel` in its `README.md`. **Audit against
-that palette's own canvas and surfaces** — reference values for all eight, plus every
+`steelbore-magnetar`, `steelbore-biolume`, `steelbore-navywhite`,
+`tokyonight`, `steelbore-hanzosteel`, `steelbore-blackpinkpanther`,
+`steelbore-green`, or `steelbore-greenalt` in its `README.md`. **Audit against
+that palette's own canvas and surfaces** — reference values for all eleven, plus every
 `<slug>-high-contrast` sibling, are in `steelbore-color-palette`'s
 `assets/steelbore.toml`. Two things to carry into the audit:
 

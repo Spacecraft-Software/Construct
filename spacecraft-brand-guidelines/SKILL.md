@@ -21,8 +21,9 @@ website: https://Construct.SpacecraftSoftware.org/
 > **§11 is a palette family.** The tables below are **Steelbore Modern**, the
 > default — use it unless the project declares an alternate in its `README.md`
 > (§11.4). Also registered: `steelbore-classic`, `steelbore-blue`,
-> `steelbore-blackpinkpanther`, `steelbore-matrixgreen`, `steelbore-navywhite`
-> (light canvas), `tokyonight`, and `steelbore-hanzosteel`. Two **fidelity
+> `steelbore-magnetar`, `steelbore-biolume`, `steelbore-navywhite`
+> (light canvas), `tokyonight`, `steelbore-hanzosteel`, `steelbore-blackpinkpanther`,
+> `steelbore-green` and `steelbore-greenalt`. Two **fidelity
 > palettes** — `solarized-dark`
 > and `solarized-light` — are registered verbatim but are **non-conforming**
 > (§11.5) and may not be adopted as a project palette. All values live in the

@@ -2,15 +2,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Steelbore palette family — canonical color contract (Standard §11, last
-# amended v2.06). Ten palettes and 19 themes: steelbore (Modern, DEFAULT),
-# steelbore-classic, six alternates (blue, blackpinkpanther, matrixgreen,
-# navywhite, tokyonight, hanzosteel), and the two §11.5 fidelity palettes
-# (solarized-dark, solarized-light) which are registered but non-conforming.
+# amended v2.08). Thirteen palettes and 25 themes: steelbore (Modern, DEFAULT),
+# steelbore-classic, nine alternates (blue, magnetar, biolume, navywhite,
+# tokyonight, hanzosteel, blackpinkpanther, green, greenalt), and the two §11.5
+# fidelity palettes (solarized-dark, solarized-light) which are registered but
+# non-conforming.
+#
+# v2.08 renamed two palettes and REUSED one slug. `steelbore-blackpinkpanther`
+# now names a hot-pink palette; the violet palette it used to name is
+# `steelbore-magnetar`. A consumer pinned to the old slug renders different
+# colours with no error — that is a deliberate, documented break (§11.3.2).
 # Every palette binds the same eleven §11.1 role tokens except Classic, which
 # keeps its legacy six-role contract (§11.2).
 # All contrast ratios computed with the WCAG 2.2 relative-luminance formula.
 # Normative targets: WCAG 2.2 Level AA; EN 301 549 V4.1.1 clause 11 (non-web software).
-# A project AUTHORS against one palette (§11.4) and REGISTERS fifteen (§11.6.1);
+# A project AUTHORS against one palette (§11.4) and REGISTERS twenty-one (§11.6.1);
 # tokens are never combined across palettes in one interface, but a whole-surface
 # light/dark switch is not combining (§11.6.2).
 
@@ -20,18 +26,18 @@ default-theme = "steelbore"
 default-dark-theme = "steelbore"             # §11.6.2 — family dark default
 default-light-theme = "steelbore-navywhite"  # §11.6.2 — family light default
 mono-theme = "steelbore-mono"                # §11.1.1 — palette-independent
-palette-family = ["steelbore", "steelbore-classic", "steelbore-blue", "steelbore-blackpinkpanther", "steelbore-matrixgreen", "steelbore-navywhite", "tokyonight", "steelbore-hanzosteel"]
+palette-family = ["steelbore", "steelbore-classic", "steelbore-blue", "steelbore-magnetar", "steelbore-biolume", "steelbore-navywhite", "tokyonight", "steelbore-hanzosteel", "steelbore-blackpinkpanther", "steelbore-green", "steelbore-greenalt"]
 fidelity-palettes = ["solarized-dark", "solarized-light"]  # §11.5 — registered, non-conforming
-# §11.6.1 — the fifteen themes every application MUST register. Classic is
+# §11.6.1 — the twenty-one themes every application MUST register. Classic is
 # excluded: it binds the legacy six-role contract (§11.2), defines no surface
 # class, and carries an `info` token that is not one of §11.1's eleven roles.
-registered-set = ["steelbore", "steelbore-high-contrast", "steelbore-blue", "steelbore-blue-high-contrast", "steelbore-blackpinkpanther", "steelbore-blackpinkpanther-high-contrast", "steelbore-matrixgreen", "steelbore-matrixgreen-high-contrast", "steelbore-navywhite", "steelbore-navywhite-high-contrast", "tokyonight", "tokyonight-high-contrast", "steelbore-hanzosteel", "steelbore-hanzosteel-high-contrast", "steelbore-mono"]
-version = "3.4.0"
+registered-set = ["steelbore", "steelbore-high-contrast", "steelbore-blue", "steelbore-blue-high-contrast", "steelbore-magnetar", "steelbore-magnetar-high-contrast", "steelbore-biolume", "steelbore-biolume-high-contrast", "steelbore-navywhite", "steelbore-navywhite-high-contrast", "tokyonight", "tokyonight-high-contrast", "steelbore-hanzosteel", "steelbore-hanzosteel-high-contrast", "steelbore-blackpinkpanther", "steelbore-blackpinkpanther-high-contrast", "steelbore-green", "steelbore-green-high-contrast", "steelbore-greenalt", "steelbore-greenalt-high-contrast", "steelbore-mono"]
+version = "3.5.0"
 date = "2026-09-15T00:00:00Z"
 maintainer = "Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"
 website = "https://Construct.SpacecraftSoftware.org/"
 license = "GPL-3.0-or-later"
-standard = "The Steelbore Standard §11 (v2.06)"
+standard = "The Steelbore Standard §11 (v2.08)"
 
 # -------------------------------------------------------------------------
 # §11.6 — System theme resolution. Slugs only; this table never carries a
@@ -51,11 +57,14 @@ registry = "/etc/steelbore/themes.json"                  # §11.6.4 — advisory
 steelbore = "dark"
 steelbore-classic = "dark"
 steelbore-blue = "dark"
-steelbore-blackpinkpanther = "dark"
-steelbore-matrixgreen = "dark"
+steelbore-magnetar = "dark"
+steelbore-biolume = "dark"
 steelbore-navywhite = "light"   # the family's only light canvas (§11.3.4)
 tokyonight = "dark"
 steelbore-hanzosteel = "dark"
+steelbore-blackpinkpanther = "dark"
+steelbore-green = "dark"
+steelbore-greenalt = "dark"
 solarized-dark = "dark"         # §11.5 — recorded, not adoptable
 solarized-light = "light"       # §11.5 — recorded, not adoptable
 
@@ -66,11 +75,14 @@ solarized-light = "light"       # §11.5 — recorded, not adoptable
 steelbore = "steelbore-navywhite"
 steelbore-classic = "steelbore-navywhite"
 steelbore-blue = "steelbore-navywhite"
-steelbore-blackpinkpanther = "steelbore-navywhite"
-steelbore-matrixgreen = "steelbore-navywhite"
+steelbore-magnetar = "steelbore-navywhite"
+steelbore-biolume = "steelbore-navywhite"
 steelbore-navywhite = "steelbore"
 tokyonight = "steelbore-navywhite"
 steelbore-hanzosteel = "steelbore-navywhite"
+steelbore-blackpinkpanther = "steelbore-navywhite"
+steelbore-green = "steelbore-navywhite"
+steelbore-greenalt = "steelbore-navywhite"
 solarized-dark = "solarized-light"   # §11.5 — never a §11.6.2 target
 solarized-light = "solarized-dark"   # §11.5 — never a §11.6.2 target
 
@@ -259,14 +271,15 @@ focus        = "8.08:1"
 border       = "7.41:1"
 
 # -------------------------------------------------------------------------
-# Steelbore BlackPinkPanther (§11.3.2) — anchors: Core Black #141418 / Plasma Magenta #E445FF
+# Steelbore Magnetar (§11.3.2) — anchors: Core Black #141418 / Plasma Magenta #E445FF
+# Renamed from BlackPinkPanther at v2.08: the palette is violet-magenta, not pink.
 # -------------------------------------------------------------------------
-[palettes.steelbore-blackpinkpanther]
-reference = "blackpinkpanther-color-palette"
+[palettes.steelbore-magnetar]
+reference = "magnetar-color-palette"
 "Core Black" = "#141418"
-"Panther Slate" = "#1E1E22"
+"Magnetar Slate" = "#1E1E22"
 "Dark Grey" = "#28282D"
-"Panther White" = "#FFFFFF"
+"Magnetar White" = "#FFFFFF"
 "Plasma Magenta" = "#E445FF"
 "Pink Accent" = "#FC8AFF"
 "Soft Pink" = "#FDBBFF"
@@ -276,7 +289,7 @@ reference = "blackpinkpanther-color-palette"
 "Magenta Lift" = "#F07BFF"  # high-contrast only
 "Ember Lift" = "#FF8F8F"  # high-contrast only
 
-[themes.steelbore-blackpinkpanther]
+[themes.steelbore-magnetar]
 background   = "#141418"
 surface      = "#1E1E22"
 surface-alt  = "#28282D"
@@ -289,7 +302,7 @@ warning      = "#FFC857"
 focus        = "#FDBBFF"
 border       = "#FC8AFF"
 
-[themes.steelbore-blackpinkpanther.contrast.vs-background]  # vs #141418
+[themes.steelbore-magnetar.contrast.vs-background]  # vs #141418
 foreground   = "18.37:1"
 accent       = "5.77:1"
 structure    = "8.94:1"
@@ -299,7 +312,7 @@ warning      = "11.94:1"
 focus        = "12.01:1"
 border       = "8.94:1"
 
-[themes.steelbore-blackpinkpanther.contrast.vs-surface]  # vs #1E1E22
+[themes.steelbore-magnetar.contrast.vs-surface]  # vs #1E1E22
 foreground   = "16.61:1"
 accent       = "5.22:1"
 structure    = "8.08:1"
@@ -309,7 +322,7 @@ warning      = "10.80:1"
 focus        = "10.86:1"
 border       = "8.08:1"
 
-[themes.steelbore-blackpinkpanther.contrast.vs-surface-alt]  # vs #28282D
+[themes.steelbore-magnetar.contrast.vs-surface-alt]  # vs #28282D
 foreground   = "14.67:1"
 accent       = "4.61:1"
 structure    = "7.14:1"
@@ -319,11 +332,11 @@ warning      = "9.54:1"
 focus        = "9.59:1"
 border       = "7.14:1"
 
-[themes.steelbore-blackpinkpanther.rules]
+[themes.steelbore-magnetar.rules]
 surface-tokens-as-text  = "forbidden"
 surface-boundary-border = "structure"
 
-[themes.steelbore-blackpinkpanther-high-contrast]  # §11.1.1 — accessible-mode sibling of steelbore-blackpinkpanther
+[themes.steelbore-magnetar-high-contrast]  # §11.1.1 — accessible-mode sibling of steelbore-magnetar
 background   = "#141418"
 surface      = "#1E1E22"
 surface-alt  = "#28282D"
@@ -336,7 +349,7 @@ warning      = "#FFC857"
 focus        = "#FDBBFF"
 border       = "#FC8AFF"
 
-[themes.steelbore-blackpinkpanther-high-contrast.contrast.vs-background]  # vs #141418
+[themes.steelbore-magnetar-high-contrast.contrast.vs-background]  # vs #141418
 foreground   = "18.37:1"
 accent       = "7.86:1"
 structure    = "8.94:1"
@@ -347,24 +360,25 @@ focus        = "12.01:1"
 border       = "8.94:1"
 
 # -------------------------------------------------------------------------
-# Steelbore MatrixGreen (§11.3.3) — anchors: Circuit Navy #0C1A2B / Solar Lime #B6FF3B
+# Steelbore Biolume (§11.3.3)
+# Renamed from MatrixGreen at v2.08: navy canvas and lime accent, no Matrix link. — anchors: Circuit Navy #0C1A2B / Solar Lime #B6FF3B
 # -------------------------------------------------------------------------
-[palettes.steelbore-matrixgreen]
-reference = "matrixgreen-color-palette"
+[palettes.steelbore-biolume]
+reference = "biolume-color-palette"
 "Circuit Navy" = "#0C1A2B"
 "Slate Charcoal" = "#1B2630"
 "Ambient Black" = "#05070A"
 "Soft Silver" = "#C7D2D9"
 "Solar Lime" = "#B6FF3B"
 "Electric Cyan" = "#00F0FF"
-"Matrix Teal" = "#00B39A"
+"Biolume Teal" = "#00B39A"
 "Lime Shadow" = "#8AC22A"
 "Ember Red" = "#FF6B6B"
 "Solar Amber" = "#FFC857"
 "Teal Lift" = "#2FD3BB"  # high-contrast only
 "Ember Lift" = "#FF8F8F"  # high-contrast only
 
-[themes.steelbore-matrixgreen]
+[themes.steelbore-biolume]
 background   = "#0C1A2B"
 surface      = "#1B2630"
 surface-alt  = "#05070A"
@@ -377,7 +391,7 @@ warning      = "#FFC857"
 focus        = "#B6FF3B"
 border       = "#00F0FF"
 
-[themes.steelbore-matrixgreen.contrast.vs-background]  # vs #0C1A2B
+[themes.steelbore-biolume.contrast.vs-background]  # vs #0C1A2B
 foreground   = "11.39:1"
 accent       = "14.48:1"
 structure    = "12.44:1"
@@ -387,7 +401,7 @@ warning      = "11.39:1"
 focus        = "14.48:1"
 border       = "12.44:1"
 
-[themes.steelbore-matrixgreen.contrast.vs-surface]  # vs #1B2630
+[themes.steelbore-biolume.contrast.vs-surface]  # vs #1B2630
 foreground   = "9.99:1"
 accent       = "12.70:1"
 structure    = "10.91:1"
@@ -397,7 +411,7 @@ warning      = "9.99:1"
 focus        = "12.70:1"
 border       = "10.91:1"
 
-[themes.steelbore-matrixgreen.contrast.vs-surface-alt]  # vs #05070A
+[themes.steelbore-biolume.contrast.vs-surface-alt]  # vs #05070A
 foreground   = "13.11:1"
 accent       = "16.67:1"
 structure    = "14.32:1"
@@ -407,12 +421,12 @@ warning      = "13.11:1"
 focus        = "16.67:1"
 border       = "14.32:1"
 
-[themes.steelbore-matrixgreen.rules]
+[themes.steelbore-biolume.rules]
 surface-tokens-as-text  = "forbidden"
 non-role-colors         = ["#8AC22A"]  # Lime Shadow — pressed/active state for Solar Lime; not bindable to a role token
 surface-boundary-border = "structure"
 
-[themes.steelbore-matrixgreen-high-contrast]  # §11.1.1 — accessible-mode sibling of steelbore-matrixgreen
+[themes.steelbore-biolume-high-contrast]  # §11.1.1 — accessible-mode sibling of steelbore-biolume
 background   = "#0C1A2B"
 surface      = "#1B2630"
 surface-alt  = "#05070A"
@@ -425,7 +439,7 @@ warning      = "#FFC857"
 focus        = "#B6FF3B"
 border       = "#00F0FF"
 
-[themes.steelbore-matrixgreen-high-contrast.contrast.vs-background]  # vs #0C1A2B
+[themes.steelbore-biolume-high-contrast.contrast.vs-background]  # vs #0C1A2B
 foreground   = "11.39:1"
 accent       = "14.48:1"
 structure    = "12.44:1"
@@ -772,6 +786,298 @@ error        = "9.58:1"
 warning      = "14.01:1"
 focus        = "14.77:1"
 border       = "11.79:1"
+
+# -------------------------------------------------------------------------
+# Steelbore BlackPinkPanther (§11.3.7) — anchors: Runway Black #000000 / Hot Pink #F400A1
+# NEW AT v2.08, AND IT REUSES A SLUG. Until v2.07 this slug named the violet
+# palette now called steelbore-magnetar. A consumer pinned to it renders
+# different colours with no error; the break is deliberate and documented.
+# Black / white / hot pink, after the Victoria's Secret main brand — neon and
+# cool rather than the softer sub-brand pink. Glowing Pink is the pressed state.
+# The surfaces are deliberately pink-tinted rather than neutral black: in the
+# storefronts this palette is drawn from, backlit pink is the dominant FIELD and
+# glossy black is the frame around it. Backlit Rose is the boldest surface that
+# still keeps Hot Pink above 4.5:1 on it (4.72:1) — pinker fails the floor.
+# -------------------------------------------------------------------------
+[palettes.steelbore-blackpinkpanther]
+"Runway Black" = "#000000"
+"Backlit Rose" = "#2E0020"
+"Backstage Black" = "#18000E"
+"Runway White" = "#FFFFFF"
+"Hot Pink" = "#F400A1"
+"Flamingo Pink" = "#FF46AA"
+"Mint Signal" = "#5BE49B"
+"Ember Red" = "#FF6B6B"
+"Solar Amber" = "#FFC857"
+"Glowing Pink" = "#F7057A"
+"Hot Pink Lift" = "#FF5FC0"  # high-contrast only
+"Flamingo Lift" = "#FF70BE"  # high-contrast only
+
+[themes.steelbore-blackpinkpanther]
+background   = "#000000"
+surface      = "#2E0020"
+surface-alt  = "#18000E"
+foreground   = "#FFFFFF"
+accent       = "#F400A1"
+structure    = "#FF46AA"
+success      = "#5BE49B"
+error        = "#FF6B6B"
+warning      = "#FFC857"
+focus        = "#F400A1"
+border       = "#FF46AA"
+
+[themes.steelbore-blackpinkpanther.contrast.vs-background]  # vs #000000
+foreground   = "21.00:1"
+accent       = "5.36:1"
+structure    = "6.71:1"
+success      = "13.02:1"
+error        = "7.57:1"
+warning      = "13.65:1"
+focus        = "5.36:1"
+border       = "6.71:1"
+
+[themes.steelbore-blackpinkpanther.contrast.vs-surface]  # vs #2E0020
+foreground   = "18.47:1"
+accent       = "4.72:1"
+structure    = "5.90:1"
+success      = "11.45:1"
+error        = "6.66:1"
+warning      = "12.01:1"
+focus        = "4.72:1"
+border       = "5.90:1"
+
+[themes.steelbore-blackpinkpanther.contrast.vs-surface-alt]  # vs #18000E
+foreground   = "20.09:1"
+accent       = "5.13:1"
+structure    = "6.42:1"
+success      = "12.45:1"
+error        = "7.24:1"
+warning      = "13.06:1"
+focus        = "5.13:1"
+border       = "6.42:1"
+
+[themes.steelbore-blackpinkpanther.rules]
+surface-tokens-as-text  = "forbidden"
+non-role-colors         = ["#F7057A"]
+surface-boundary-border = "structure"
+
+[themes.steelbore-blackpinkpanther-high-contrast]  # §11.1.1 — accessible-mode sibling of steelbore-blackpinkpanther
+background   = "#000000"
+surface      = "#2E0020"
+surface-alt  = "#18000E"
+foreground   = "#FFFFFF"
+accent       = "#FF5FC0"  # lifted
+structure    = "#FF70BE"  # lifted
+success      = "#5BE49B"
+error        = "#FF6B6B"
+warning      = "#FFC857"
+focus        = "#FF5FC0"  # lifted
+border       = "#FF70BE"  # lifted
+
+[themes.steelbore-blackpinkpanther-high-contrast.contrast.vs-background]  # vs #000000
+foreground   = "21.00:1"
+accent       = "7.65:1"
+structure    = "8.31:1"
+success      = "13.02:1"
+error        = "7.57:1"
+warning      = "13.65:1"
+focus        = "7.65:1"
+border       = "8.31:1"
+
+# -------------------------------------------------------------------------
+# Steelbore Green (§11.3.8) — anchors: Vampire Black #0D0208 / Erin #00FF41
+# The Matrix palette. Erin is the FOREGROUND, not the accent: body text is the
+# green, as in the films' terminals. Steelbore Classic sets the precedent for a
+# non-neutral foreground (Molten Amber). Rain Head is the bright leading glyph
+# of the digital rain and carries `accent`/`focus`.
+# Cascade Green is Islam Green #008F11 (4.80:1, too dark for text on a surface)
+# deepened until it clears 4.5:1 on all three backgrounds, as §11.3.4 deepens
+# NavyWhite's status hues. Dark Green (Traditional), Australia Green and Islam
+# Green are carried as non-role fills — none reaches the text floor.
+# For a neutral-text reading of the same colours, see steelbore-greenalt.
+# -------------------------------------------------------------------------
+[palettes.steelbore-green]
+"Vampire Black" = "#0D0208"
+"Rain Shadow" = "#08180C"
+"Royal Black" = "#030303"
+"Erin" = "#00FF41"
+"Rain Head" = "#E8FFF0"
+"Lucky Green" = "#1CA152"
+"Cascade Green" = "#00AD15"
+"Ember Red" = "#FF6B6B"
+"Solar Amber" = "#FFC857"
+"Dark Green (Traditional)" = "#003B00"
+"Australia Green" = "#008529"
+"Islam Green" = "#008F11"
+"Lucky Lift" = "#25B85F"  # high-contrast only
+"Cascade Lift" = "#00B81C"  # high-contrast only
+
+[themes.steelbore-green]
+background   = "#0D0208"
+surface      = "#08180C"
+surface-alt  = "#030303"
+foreground   = "#00FF41"
+accent       = "#E8FFF0"
+structure    = "#1CA152"
+success      = "#00AD15"
+error        = "#FF6B6B"
+warning      = "#FFC857"
+focus        = "#E8FFF0"
+border       = "#1CA152"
+
+[themes.steelbore-green.contrast.vs-background]  # vs #0D0208
+foreground   = "14.94:1"
+accent       = "19.42:1"
+structure    = "6.09:1"
+success      = "6.79:1"
+error        = "7.35:1"
+warning      = "13.26:1"
+focus        = "19.42:1"
+border       = "6.09:1"
+
+[themes.steelbore-green.contrast.vs-surface]  # vs #08180C
+foreground   = "13.42:1"
+accent       = "17.44:1"
+structure    = "5.47:1"
+success      = "6.10:1"
+error        = "6.60:1"
+warning      = "11.91:1"
+focus        = "17.44:1"
+border       = "5.47:1"
+
+[themes.steelbore-green.contrast.vs-surface-alt]  # vs #030303
+foreground   = "15.11:1"
+accent       = "19.64:1"
+structure    = "6.16:1"
+success      = "6.86:1"
+error        = "7.43:1"
+warning      = "13.41:1"
+focus        = "19.64:1"
+border       = "6.16:1"
+
+[themes.steelbore-green.rules]
+surface-tokens-as-text  = "forbidden"
+non-role-colors         = ["#003B00", "#008529", "#008F11"]
+surface-boundary-border = "structure"
+
+[themes.steelbore-green-high-contrast]  # §11.1.1 — accessible-mode sibling of steelbore-green
+background   = "#0D0208"
+surface      = "#08180C"
+surface-alt  = "#030303"
+foreground   = "#00FF41"
+accent       = "#E8FFF0"
+structure    = "#25B85F"  # lifted
+success      = "#00B81C"  # lifted
+error        = "#FF6B6B"
+warning      = "#FFC857"
+focus        = "#E8FFF0"
+border       = "#25B85F"  # lifted
+
+[themes.steelbore-green-high-contrast.contrast.vs-background]  # vs #0D0208
+foreground   = "14.94:1"
+accent       = "19.42:1"
+structure    = "7.87:1"
+success      = "7.65:1"
+error        = "7.35:1"
+warning      = "13.26:1"
+focus        = "19.42:1"
+border       = "7.87:1"
+
+# -------------------------------------------------------------------------
+# Steelbore Green Alt (§11.3.9) — anchors: Vampire Black #0D0208 / Erin #00FF41
+# The same colours as steelbore-green with the two brightest roles swapped:
+# foreground is Rain Wash, a near-white with a green cast, and Erin becomes the
+# accent. Long prose reads in a neutral rather than in saturated green, so the
+# Matrix green draws the eye instead of carrying every paragraph. Identical
+# canvas, surfaces and status tones; a project picks one, never both (§11.4).
+# -------------------------------------------------------------------------
+[palettes.steelbore-greenalt]
+"Vampire Black" = "#0D0208"
+"Rain Shadow" = "#08180C"
+"Royal Black" = "#030303"
+"Erin" = "#00FF41"
+"Rain Head" = "#E8FFF0"
+"Lucky Green" = "#1CA152"
+"Cascade Green" = "#00AD15"
+"Ember Red" = "#FF6B6B"
+"Solar Amber" = "#FFC857"
+"Dark Green (Traditional)" = "#003B00"
+"Australia Green" = "#008529"
+"Islam Green" = "#008F11"
+"Lucky Lift" = "#25B85F"  # high-contrast only
+"Cascade Lift" = "#00B81C"  # high-contrast only
+"Rain Wash" = "#D7F5E0"
+
+[themes.steelbore-greenalt]
+background   = "#0D0208"
+surface      = "#08180C"
+surface-alt  = "#030303"
+foreground   = "#D7F5E0"
+accent       = "#00FF41"
+structure    = "#1CA152"
+success      = "#00AD15"
+error        = "#FF6B6B"
+warning      = "#FFC857"
+focus        = "#00FF41"
+border       = "#1CA152"
+
+[themes.steelbore-greenalt.contrast.vs-background]  # vs #0D0208
+foreground   = "17.51:1"
+accent       = "14.94:1"
+structure    = "6.09:1"
+success      = "6.79:1"
+error        = "7.35:1"
+warning      = "13.26:1"
+focus        = "14.94:1"
+border       = "6.09:1"
+
+[themes.steelbore-greenalt.contrast.vs-surface]  # vs #08180C
+foreground   = "15.73:1"
+accent       = "13.42:1"
+structure    = "5.47:1"
+success      = "6.10:1"
+error        = "6.60:1"
+warning      = "11.91:1"
+focus        = "13.42:1"
+border       = "5.47:1"
+
+[themes.steelbore-greenalt.contrast.vs-surface-alt]  # vs #030303
+foreground   = "17.70:1"
+accent       = "15.11:1"
+structure    = "6.16:1"
+success      = "6.86:1"
+error        = "7.43:1"
+warning      = "13.41:1"
+focus        = "15.11:1"
+border       = "6.16:1"
+
+[themes.steelbore-greenalt.rules]
+surface-tokens-as-text  = "forbidden"
+non-role-colors         = ["#003B00", "#008529", "#008F11"]
+surface-boundary-border = "structure"
+
+[themes.steelbore-greenalt-high-contrast]  # §11.1.1 — accessible-mode sibling of steelbore-greenalt
+background   = "#0D0208"
+surface      = "#08180C"
+surface-alt  = "#030303"
+foreground   = "#D7F5E0"
+accent       = "#00FF41"
+structure    = "#25B85F"  # lifted
+success      = "#00B81C"  # lifted
+error        = "#FF6B6B"
+warning      = "#FFC857"
+focus        = "#00FF41"
+border       = "#25B85F"  # lifted
+
+[themes.steelbore-greenalt-high-contrast.contrast.vs-background]  # vs #0D0208
+foreground   = "17.51:1"
+accent       = "14.94:1"
+structure    = "7.87:1"
+success      = "7.65:1"
+error        = "7.35:1"
+warning      = "13.26:1"
+focus        = "14.94:1"
+border       = "7.87:1"
 
 # -------------------------------------------------------------------------
 # Solarized Dark / Light (§11.5) — FIDELITY PALETTES, registered verbatim from

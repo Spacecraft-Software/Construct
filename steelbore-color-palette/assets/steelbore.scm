@@ -14,7 +14,7 @@
 ; read, never retyped. Editing this file instead of the TOML defeats the
 ; entire point: there would be two sources, and they would drift.
 ;
-; Palette contract version 3.4.0 — The Steelbore Standard §11 (v2.06).
+; Palette contract version 3.5.0 — The Steelbore Standard §11 (v2.08).
 
 (define-module (steelbore)
   #:export (steelbore-meta
@@ -26,17 +26,17 @@
 
 ;;; Metadata (§11 [meta]).
 (define steelbore-meta
-  `((version . "3.4.0")
+  `((version . "3.5.0")
     (date . "2026-09-15T00:00:00Z")
-    (standard . "The Steelbore Standard §11 (v2.06)")
+    (standard . "The Steelbore Standard §11 (v2.08)")
     (default-theme . "steelbore")
     (default-dark-theme . "steelbore")
     (default-light-theme . "steelbore-navywhite")
     (mono-theme . "steelbore-mono")
-    (palette-family . ("steelbore" "steelbore-classic" "steelbore-blue" "steelbore-blackpinkpanther" "steelbore-matrixgreen" "steelbore-navywhite" "tokyonight" "steelbore-hanzosteel"))
+    (palette-family . ("steelbore" "steelbore-classic" "steelbore-blue" "steelbore-magnetar" "steelbore-biolume" "steelbore-navywhite" "tokyonight" "steelbore-hanzosteel" "steelbore-blackpinkpanther" "steelbore-green" "steelbore-greenalt"))
     (fidelity-palettes . ("solarized-dark" "solarized-light"))
     ;; §11.6.1 — the themes every application MUST register.
-    (registered-set . ("steelbore" "steelbore-high-contrast" "steelbore-blue" "steelbore-blue-high-contrast" "steelbore-blackpinkpanther" "steelbore-blackpinkpanther-high-contrast" "steelbore-matrixgreen" "steelbore-matrixgreen-high-contrast" "steelbore-navywhite" "steelbore-navywhite-high-contrast" "tokyonight" "tokyonight-high-contrast" "steelbore-hanzosteel" "steelbore-hanzosteel-high-contrast" "steelbore-mono"))))
+    (registered-set . ("steelbore" "steelbore-high-contrast" "steelbore-blue" "steelbore-blue-high-contrast" "steelbore-magnetar" "steelbore-magnetar-high-contrast" "steelbore-biolume" "steelbore-biolume-high-contrast" "steelbore-navywhite" "steelbore-navywhite-high-contrast" "tokyonight" "tokyonight-high-contrast" "steelbore-hanzosteel" "steelbore-hanzosteel-high-contrast" "steelbore-blackpinkpanther" "steelbore-blackpinkpanther-high-contrast" "steelbore-green" "steelbore-green-high-contrast" "steelbore-greenalt" "steelbore-greenalt-high-contrast" "steelbore-mono"))))
 
 ;;; Every theme, as slug -> role alist. Role names are the §11.1 tokens
 ;;; verbatim; steelbore-mono binds 4-bit ANSI names rather than hex, and
@@ -88,35 +88,65 @@
       ("focus" . "#B4FF00")
       ("border" . "#8A6CFF")
       ))
+    ("steelbore-biolume"
+     .
+     (
+      ("background" . "#0C1A2B")
+      ("surface" . "#1B2630")
+      ("surface-alt" . "#05070A")
+      ("foreground" . "#C7D2D9")
+      ("accent" . "#B6FF3B")
+      ("structure" . "#00F0FF")
+      ("success" . "#00B39A")
+      ("error" . "#FF6B6B")
+      ("warning" . "#FFC857")
+      ("focus" . "#B6FF3B")
+      ("border" . "#00F0FF")
+      ))
+    ("steelbore-biolume-high-contrast"
+     .
+     (
+      ("background" . "#0C1A2B")
+      ("surface" . "#1B2630")
+      ("surface-alt" . "#05070A")
+      ("foreground" . "#C7D2D9")
+      ("accent" . "#B6FF3B")
+      ("structure" . "#00F0FF")
+      ("success" . "#2FD3BB")
+      ("error" . "#FF8F8F")
+      ("warning" . "#FFC857")
+      ("focus" . "#B6FF3B")
+      ("border" . "#00F0FF")
+      ))
     ("steelbore-blackpinkpanther"
      .
      (
-      ("background" . "#141418")
-      ("surface" . "#1E1E22")
-      ("surface-alt" . "#28282D")
+      ("background" . "#000000")
+      ("surface" . "#2E0020")
+      ("surface-alt" . "#18000E")
       ("foreground" . "#FFFFFF")
-      ("accent" . "#E445FF")
-      ("structure" . "#FC8AFF")
+      ("accent" . "#F400A1")
+      ("structure" . "#FF46AA")
       ("success" . "#5BE49B")
       ("error" . "#FF6B6B")
       ("warning" . "#FFC857")
-      ("focus" . "#FDBBFF")
-      ("border" . "#FC8AFF")
+      ("focus" . "#F400A1")
+      ("border" . "#FF46AA")
       ))
     ("steelbore-blackpinkpanther-high-contrast"
      .
      (
-      ("background" . "#141418")
-      ("surface" . "#1E1E22")
-      ("surface-alt" . "#28282D")
+      ("background" . "#000000")
+      ("surface" . "#2E0020")
+      ("surface-alt" . "#18000E")
       ("foreground" . "#FFFFFF")
-      ("accent" . "#F07BFF")
-      ("structure" . "#FC8AFF")
+      ("accent" . "#FF5FC0")
+      ("structure" . "#FF70BE")
       ("success" . "#5BE49B")
-      ("error" . "#FF8F8F")
+      ("error" . "#FF6B6B")
       ("warning" . "#FFC857")
-      ("focus" . "#FDBBFF")
-      ("border" . "#FC8AFF")
+      ("focus" . "#FF5FC0")
+      ("border" . "#FF70BE")
       ))
     ("steelbore-blue"
      .
@@ -168,6 +198,66 @@
       ("error" . "#FF8080")
       ("info" . "#8BE9FD")
       ))
+    ("steelbore-green"
+     .
+     (
+      ("background" . "#0D0208")
+      ("surface" . "#08180C")
+      ("surface-alt" . "#030303")
+      ("foreground" . "#00FF41")
+      ("accent" . "#E8FFF0")
+      ("structure" . "#1CA152")
+      ("success" . "#00AD15")
+      ("error" . "#FF6B6B")
+      ("warning" . "#FFC857")
+      ("focus" . "#E8FFF0")
+      ("border" . "#1CA152")
+      ))
+    ("steelbore-green-high-contrast"
+     .
+     (
+      ("background" . "#0D0208")
+      ("surface" . "#08180C")
+      ("surface-alt" . "#030303")
+      ("foreground" . "#00FF41")
+      ("accent" . "#E8FFF0")
+      ("structure" . "#25B85F")
+      ("success" . "#00B81C")
+      ("error" . "#FF6B6B")
+      ("warning" . "#FFC857")
+      ("focus" . "#E8FFF0")
+      ("border" . "#25B85F")
+      ))
+    ("steelbore-greenalt"
+     .
+     (
+      ("background" . "#0D0208")
+      ("surface" . "#08180C")
+      ("surface-alt" . "#030303")
+      ("foreground" . "#D7F5E0")
+      ("accent" . "#00FF41")
+      ("structure" . "#1CA152")
+      ("success" . "#00AD15")
+      ("error" . "#FF6B6B")
+      ("warning" . "#FFC857")
+      ("focus" . "#00FF41")
+      ("border" . "#1CA152")
+      ))
+    ("steelbore-greenalt-high-contrast"
+     .
+     (
+      ("background" . "#0D0208")
+      ("surface" . "#08180C")
+      ("surface-alt" . "#030303")
+      ("foreground" . "#D7F5E0")
+      ("accent" . "#00FF41")
+      ("structure" . "#25B85F")
+      ("success" . "#00B81C")
+      ("error" . "#FF6B6B")
+      ("warning" . "#FFC857")
+      ("focus" . "#00FF41")
+      ("border" . "#25B85F")
+      ))
     ("steelbore-hanzosteel"
      .
      (
@@ -213,35 +303,35 @@
       ("focus" . "#B4FF00")
       ("border" . "#B3A1FF")
       ))
-    ("steelbore-matrixgreen"
+    ("steelbore-magnetar"
      .
      (
-      ("background" . "#0C1A2B")
-      ("surface" . "#1B2630")
-      ("surface-alt" . "#05070A")
-      ("foreground" . "#C7D2D9")
-      ("accent" . "#B6FF3B")
-      ("structure" . "#00F0FF")
-      ("success" . "#00B39A")
+      ("background" . "#141418")
+      ("surface" . "#1E1E22")
+      ("surface-alt" . "#28282D")
+      ("foreground" . "#FFFFFF")
+      ("accent" . "#E445FF")
+      ("structure" . "#FC8AFF")
+      ("success" . "#5BE49B")
       ("error" . "#FF6B6B")
       ("warning" . "#FFC857")
-      ("focus" . "#B6FF3B")
-      ("border" . "#00F0FF")
+      ("focus" . "#FDBBFF")
+      ("border" . "#FC8AFF")
       ))
-    ("steelbore-matrixgreen-high-contrast"
+    ("steelbore-magnetar-high-contrast"
      .
      (
-      ("background" . "#0C1A2B")
-      ("surface" . "#1B2630")
-      ("surface-alt" . "#05070A")
-      ("foreground" . "#C7D2D9")
-      ("accent" . "#B6FF3B")
-      ("structure" . "#00F0FF")
-      ("success" . "#2FD3BB")
+      ("background" . "#141418")
+      ("surface" . "#1E1E22")
+      ("surface-alt" . "#28282D")
+      ("foreground" . "#FFFFFF")
+      ("accent" . "#F07BFF")
+      ("structure" . "#FC8AFF")
+      ("success" . "#5BE49B")
       ("error" . "#FF8F8F")
       ("warning" . "#FFC857")
-      ("focus" . "#B6FF3B")
-      ("border" . "#00F0FF")
+      ("focus" . "#FDBBFF")
+      ("border" . "#FC8AFF")
       ))
     ("steelbore-mono"
      .
@@ -330,11 +420,14 @@
       ("solarized-dark" . "dark")
       ("solarized-light" . "light")
       ("steelbore" . "dark")
+      ("steelbore-biolume" . "dark")
       ("steelbore-blackpinkpanther" . "dark")
       ("steelbore-blue" . "dark")
       ("steelbore-classic" . "dark")
+      ("steelbore-green" . "dark")
+      ("steelbore-greenalt" . "dark")
       ("steelbore-hanzosteel" . "dark")
-      ("steelbore-matrixgreen" . "dark")
+      ("steelbore-magnetar" . "dark")
       ("steelbore-navywhite" . "light")
       ("tokyonight" . "dark")
       ))
@@ -344,11 +437,14 @@
       ("solarized-dark" . "solarized-light")
       ("solarized-light" . "solarized-dark")
       ("steelbore" . "steelbore-navywhite")
+      ("steelbore-biolume" . "steelbore-navywhite")
       ("steelbore-blackpinkpanther" . "steelbore-navywhite")
       ("steelbore-blue" . "steelbore-navywhite")
       ("steelbore-classic" . "steelbore-navywhite")
+      ("steelbore-green" . "steelbore-navywhite")
+      ("steelbore-greenalt" . "steelbore-navywhite")
       ("steelbore-hanzosteel" . "steelbore-navywhite")
-      ("steelbore-matrixgreen" . "steelbore-navywhite")
+      ("steelbore-magnetar" . "steelbore-navywhite")
       ("steelbore-navywhite" . "steelbore")
       ("tokyonight" . "steelbore-navywhite")
       ))))
