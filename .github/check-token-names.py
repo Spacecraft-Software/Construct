@@ -56,9 +56,26 @@ def main() -> int:
                 value.upper(), []
             ).append(slug)
 
+    # §11.4.1 — every palette carries a reference name, and the TOML is where it
+    # lives. The Standard and the skills both print these names in prose, so a
+    # palette without one looks complete everywhere a reader looks and is empty
+    # in the only place a program reads. Three palettes shipped that way at
+    # v2.08 and nine gates let it through, because every other check asks about
+    # values and this is the one required key that is not a colour.
+    missing = sorted(s for s, p in palettes.items() if not p.get("reference"))
+    if missing:
+        for slug in missing:
+            print(f"`[palettes.{slug}]` has no `reference` key (§11.4.1).", file=sys.stderr)
+        print(
+            "  Every palette carries a reference name for prose; the slug stays the\n"
+            "  machine identifier. Add `reference = \"<name>-color-palette\"`.",
+            file=sys.stderr,
+        )
+        return 1
+
     collisions = {name: v for name, v in seen.items() if len(v) > 1}
     if not collisions:
-        print(f"token names OK ({len(seen)} distinct names across {len(palettes)} palettes)")
+        print(f"token names OK ({len(seen)} distinct names across {len(palettes)} palettes; all carry a reference)")
         return 0
 
     for name, by_hex in sorted(collisions.items()):
