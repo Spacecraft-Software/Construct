@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 2.07 | **Date:** 2026-09-15 | **Author:** Mohamed Hammad
+**Version:** 2.08 | **Date:** 2026-09-15 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -791,10 +791,10 @@ must be linear and the focused element visibly indicated. See §18.
 **Full text: [`references/palettes.md`](references/palettes.md).** Load it
 before any color, theme, contrast, or palette-token decision.
 
-Spacecraft Software ships a **palette family** — ten palettes, each declaring
+Spacecraft Software ships a **palette family** — thirteen palettes, each declaring
 one canvas, a full set of §11.1 role tokens, and a verified contrast guarantee.
 `references/palettes.md` carries §11.0 through §11.6 in full: Modern and
-Classic, the six alternates, the two Solarized fidelity palettes, the
+Classic, the nine alternates, the two Solarized fidelity palettes, the
 accessibility variants, and the system-theme contract.
 
 The rules that gate everyday work, and hold without loading the reference:
@@ -807,8 +807,10 @@ The rules that gate everyday work, and hold without loading the reference:
   `steelbore-color-palette` skill's `assets/steelbore.toml`. That file is the
   machine-readable form; an OS-supplied theme registry (§11.6.4) is advisory,
   never authoritative.
-- **`steelbore` (Modern) is the default.** Classic, Blue, BlackPinkPanther,
-  MatrixGreen, NavyWhite, Tokyo Night, and Hanzo Steel are opt-in (§11.4).
+- **`steelbore` (Modern) is the default.** Classic, Blue, Magnetar, Biolume,
+  NavyWhite, Tokyo Night, Hanzo Steel, BlackPinkPanther, Green and Green Alt
+  are opt-in (§11.4). **`steelbore-blackpinkpanther` changed meaning at v2.08** —
+  it named the violet palette now called Magnetar.
 - **Fidelity palettes are not adoptable.** The §11.5 Solarized pair is
   registered for interoperability only and ships no high-contrast sibling.
 
@@ -1667,7 +1669,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§9** PFA: no tracking, minimal permissions, local storage default; **§9.1** no third-party subresources — fonts declared `local()`-first and bundled only if fidelity requires it, other assets shipped beside the artifact, nothing fetched from a host the project does not control, with any unavoidable exception declared in `README.md`
 - [ ] **§10** CUA + Vim-like key bindings planned/implemented; bindings user-remappable; assistive-technology modifier chords (NVDA/Orca/VoiceOver) not captured — N/A for projects registered as games (§18.5)
 - [ ] **§11** A registered palette is used — Steelbore Modern by default, or exactly one declared alternate (§11.4), never a mix; that palette's canvas is used unaltered; surface tokens are fills only, never text (§11.0.1); token-on-token pairings outside the palette's verified matrix measured before use; new apps expose colors via a named `Steelbore` theme binding the §11.1 role tokens — no bare hex literals in UI logic — and ship the palette's `-high-contrast` sibling
-- [ ] **§11.6** Theme resolution implemented in two stages — base palette (in-app selection, then `SPACECRAFT_THEME`, then the §11.6.4 system declaration, then the platform color scheme, then the project's §11.4 default), then variant overlay (a pinned variant, then `NO_COLOR` ⇒ `steelbore-mono`, then §18.1 accessible mode, then platform high contrast); the registered set covers §11.6.1's fifteen eleven-role themes; an unknown or unregistered slug falls through rather than failing; palette switches are atomic and whole-surface and carry the new canvas; resolved theme and deciding source reported under `--verbose`; no dependence on per-role environment variables — Steelbore OS additionally renders `/etc/steelbore/theme.toml`, exports `SPACECRAFT_THEME`, and keeps the platform color-scheme preference in agreement with the declared polarity (§11.6.5) — N/A for artifacts with no user-facing output
+- [ ] **§11.6** Theme resolution implemented in two stages — base palette (in-app selection, then `SPACECRAFT_THEME`, then the §11.6.4 system declaration, then the platform color scheme, then the project's §11.4 default), then variant overlay (a pinned variant, then `NO_COLOR` ⇒ `steelbore-mono`, then §18.1 accessible mode, then platform high contrast); the registered set covers §11.6.1's twenty-one eleven-role themes; an unknown or unregistered slug falls through rather than failing; palette switches are atomic and whole-surface and carry the new canvas; resolved theme and deciding source reported under `--verbose`; no dependence on per-role environment variables — Steelbore OS additionally renders `/etc/steelbore/theme.toml`, exports `SPACECRAFT_THEME`, and keeps the platform color-scheme preference in agreement with the declared polarity (§11.6.5) — N/A for artifacts with no user-facing output
 - [ ] **§12** FOSS-licensed fonts only (Share Tech Mono / Inconsolata)
 - [ ] **§13** Exactly one component system declared in `README.md` and followed — Material Design for Flutter/web/mobile/cross-platform, GNOME HIG for GTK 4, KDE HIG for Qt 6; themed through the `steelbore` theme (§11.1); WCAG 2.2 AA verified, stating which pairing was measured
 - [ ] **§14** ISO 8601 dates; 24h time; UTC Z is the default primary timestamp (companion local time with UTC offset permitted, never a replacement) — unless the project filed the §14.2.1 domain exception for inherently local-time-bound data; ISO 8601 durations; metric units
