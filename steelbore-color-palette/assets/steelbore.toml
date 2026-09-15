@@ -794,11 +794,15 @@ border       = "11.79:1"
 # different colours with no error; the break is deliberate and documented.
 # Black / white / hot pink, after the Victoria's Secret main brand — neon and
 # cool rather than the softer sub-brand pink. Glowing Pink is the pressed state.
+# The surfaces are deliberately pink-tinted rather than neutral black: in the
+# storefronts this palette is drawn from, backlit pink is the dominant FIELD and
+# glossy black is the frame around it. Backlit Rose is the boldest surface that
+# still keeps Hot Pink above 4.5:1 on it (4.72:1) — pinker fails the floor.
 # -------------------------------------------------------------------------
 [palettes.steelbore-blackpinkpanther]
 "Runway Black" = "#000000"
-"Velvet Rose" = "#1A0011"
-"Backstage Black" = "#0B0007"
+"Backlit Rose" = "#2E0020"
+"Backstage Black" = "#18000E"
 "Runway White" = "#FFFFFF"
 "Hot Pink" = "#F400A1"
 "Flamingo Pink" = "#FF46AA"
@@ -811,8 +815,8 @@ border       = "11.79:1"
 
 [themes.steelbore-blackpinkpanther]
 background   = "#000000"
-surface      = "#1A0011"
-surface-alt  = "#0B0007"
+surface      = "#2E0020"
+surface-alt  = "#18000E"
 foreground   = "#FFFFFF"
 accent       = "#F400A1"
 structure    = "#FF46AA"
@@ -832,25 +836,25 @@ warning      = "13.65:1"
 focus        = "5.36:1"
 border       = "6.71:1"
 
-[themes.steelbore-blackpinkpanther.contrast.vs-surface]  # vs #1A0011
-foreground   = "19.96:1"
-accent       = "5.10:1"
-structure    = "6.38:1"
-success      = "12.37:1"
-error        = "7.19:1"
-warning      = "12.98:1"
-focus        = "5.10:1"
-border       = "6.38:1"
+[themes.steelbore-blackpinkpanther.contrast.vs-surface]  # vs #2E0020
+foreground   = "18.47:1"
+accent       = "4.72:1"
+structure    = "5.90:1"
+success      = "11.45:1"
+error        = "6.66:1"
+warning      = "12.01:1"
+focus        = "4.72:1"
+border       = "5.90:1"
 
-[themes.steelbore-blackpinkpanther.contrast.vs-surface-alt]  # vs #0B0007
-foreground   = "20.64:1"
-accent       = "5.27:1"
-structure    = "6.59:1"
-success      = "12.79:1"
-error        = "7.44:1"
-warning      = "13.42:1"
-focus        = "5.27:1"
-border       = "6.59:1"
+[themes.steelbore-blackpinkpanther.contrast.vs-surface-alt]  # vs #18000E
+foreground   = "20.09:1"
+accent       = "5.13:1"
+structure    = "6.42:1"
+success      = "12.45:1"
+error        = "7.24:1"
+warning      = "13.06:1"
+focus        = "5.13:1"
+border       = "6.42:1"
 
 [themes.steelbore-blackpinkpanther.rules]
 surface-tokens-as-text  = "forbidden"
@@ -859,8 +863,8 @@ surface-boundary-border = "structure"
 
 [themes.steelbore-blackpinkpanther-high-contrast]  # §11.1.1 — accessible-mode sibling of steelbore-blackpinkpanther
 background   = "#000000"
-surface      = "#1A0011"
-surface-alt  = "#0B0007"
+surface      = "#2E0020"
+surface-alt  = "#18000E"
 foreground   = "#FFFFFF"
 accent       = "#FF5FC0"  # lifted
 structure    = "#FF70BE"  # lifted

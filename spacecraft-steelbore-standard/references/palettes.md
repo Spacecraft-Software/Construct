@@ -285,7 +285,15 @@ the softer sub-brand pink. Role tokens vs canvas: `foreground` Runway White
 21.00:1, `accent` Hot Pink 5.36:1, `structure`/`border` Flamingo Pink 6.71:1,
 `success` Mint Signal 13.02:1, `error` Ember Red 7.57:1, `warning` Solar Amber
 13.65:1. **No restricted pairings** — weakest is `accent` on `surface` at
-5.10:1. Glowing Pink `#F7057A` is the pressed state, not a role token.
+4.72:1. Glowing Pink `#F7057A` is the pressed state, not a role token.
+
+**The surfaces are pink-tinted rather than neutral black, deliberately.** In the
+storefronts this palette is drawn from, backlit pink is the dominant *field* and
+glossy black is the frame around it — so a near-black panel would invert the
+relationship the palette exists to capture. Backlit Rose `#2E0020` is the
+boldest surface that still keeps Hot Pink above the text floor on it; one step
+pinker and `accent` falls to 4.47:1 and the palette acquires its first
+restricted pairing.
 
 `steelbore-blackpinkpanther-high-contrast` lifts `accent` to Hot Pink Lift
 (7.65:1) and `structure`/`border` to Flamingo Lift (8.31:1).

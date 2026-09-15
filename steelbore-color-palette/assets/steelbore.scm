@@ -122,8 +122,8 @@
      .
      (
       ("background" . "#000000")
-      ("surface" . "#1A0011")
-      ("surface-alt" . "#0B0007")
+      ("surface" . "#2E0020")
+      ("surface-alt" . "#18000E")
       ("foreground" . "#FFFFFF")
       ("accent" . "#F400A1")
       ("structure" . "#FF46AA")
@@ -137,8 +137,8 @@
      .
      (
       ("background" . "#000000")
-      ("surface" . "#1A0011")
-      ("surface-alt" . "#0B0007")
+      ("surface" . "#2E0020")
+      ("surface-alt" . "#18000E")
       ("foreground" . "#FFFFFF")
       ("accent" . "#FF5FC0")
       ("structure" . "#FF70BE")

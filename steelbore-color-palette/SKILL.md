@@ -274,7 +274,7 @@ characteristics:
 | NavyWhite | Pearl Silver | Lunar Navy | **Light canvas.** Accent/status hues are deepened for AA; high contrast *darkens*. Source tints (Cerulean Edge (tint), Success Green (tint), Crimson Pulse (tint), Amber Signal (tint)) are non-text fills only |
 | Tokyo Night | Night | Tokyo Blue | Upstream theme registered verbatim; no restricted pairings. Comment Slate (upstream) is 2.76:1 and not bindable to a role token |
 | Hanzo Steel | Sumi Black | Hanzo Gold | **Pure-black canvas** — the family's only one. No restricted pairings; high contrast lifts `error` alone. Crimson Edge is the source red deepened for AA |
-| BlackPinkPanther | Runway Black | Hot Pink | **Slug reused at v2.08** — it named the violet palette now called Magnetar. Black/white/hot pink after the Victoria's Secret main brand; Glowing Pink is the pressed state |
+| BlackPinkPanther | Runway Black | Hot Pink | **Slug reused at v2.08** — it named the violet palette now called Magnetar. Black/white/hot pink after the Victoria's Secret main brand. Surfaces are pink-tinted (Backlit Rose), not neutral black: backlit pink is the dominant field and glossy black the frame. Glowing Pink is the pressed state |
 | Green | Vampire Black | Erin | **Erin is the `foreground`**, not the accent — body text is the green, as in the films' terminals (Classic sets the precedent). Rain Head carries `accent`/`focus`. Three source greens are non-role fills; none reaches the text floor |
 | Green Alt | Vampire Black | Erin | Same colours as Green with the two brightest roles swapped: neutral Rain Wash foreground, Erin as accent. A project picks one, never both |
 
