@@ -33,6 +33,7 @@ uses Modern unless its project explicitly declares an alternate under §11.4.
 | `steelbore-matrixgreen` | Steelbore MatrixGreen | Circuit Navy | Dark | Alternate (§11.3) |
 | `steelbore-navywhite` | Steelbore NavyWhite | Pearl Silver | **Light** | Alternate (§11.3) — the family's only light canvas |
 | `tokyonight` | Tokyo Night | Night | Dark | Alternate (§11.3) |
+| `steelbore-hanzosteel` | Steelbore Hanzo Steel | Sumi Black | Dark | Alternate (§11.3) |
 
 **Polarity** is normative content: §11.6.2 pairs a dark palette with a light one
 so an application can follow the platform's color-scheme preference.
@@ -206,7 +207,7 @@ Radium Green on Liquid Coolant 1.01:1.
 
 ### §11.3 — Alternate Palettes
 
-Five alternates, each anchored on two colors that never change, each verified
+Six alternates, each anchored on two colors that never change, each verified
 against its own canvas and surfaces. Full role tables and three-background
 matrices live in the `steelbore-color-palette` skill's
 `assets/steelbore.toml`; every token clears 4.5:1 on all three of its
@@ -234,6 +235,39 @@ Neon Purple 7.39:1, `success` Signal Green 9.35:1, `error` Sakura Red 6.46:1,
 carry over verbatim. The upstream comment tone Comment Slate (upstream) (2.76:1) clears neither
 the 4.5:1 text floor nor the 3:1 non-text floor and is **not bindable to a role
 token**; boundaries are drawn in `structure` per §11.0.1.
+
+#### §11.3.6 — Steelbore Hanzo Steel
+
+Anchored on **Sumi Black** and **Hanzo Gold**, with colors drawn from the poster
+art for *Kill Bill Vol. 1*. The name is the standard's own — a palette name is
+published prose, and a film title is a trademark this project has no licence to
+use as a label. Sumi Black is the family's **only pure-black canvas**; every
+other member, light or dark, tints its ground.
+
+Role tokens vs canvas: `foreground` Bone White 18.49:1, `accent` Hanzo Gold
+14.77:1, `structure` Tempered Gold 11.79:1, `success` Mint Signal 13.02:1,
+`error` Crimson Edge 5.77:1, `warning` Gold Leaf 14.01:1, `focus` Hanzo Gold
+14.77:1, `border` Tempered Gold 11.79:1. Surfaces are Scabbard Slate (1.19:1)
+and Ink Well (1.06:1). **No restricted pairings** — every foreground clears
+4.5:1 on all three backgrounds, weakest `error` on `surface` at 4.85:1.
+
+**Crimson Edge is a deepened hue, and the section says so.** The poster's red
+measures 4.03:1 on Sumi Black and 3.39:1 on Scabbard Slate — under the 4.5:1
+text floor on the canvas, and under it on the surface by enough that error prose
+would have been unreadable at normal size. It is deepened for the same reason
+§11.3.4 deepens NavyWhite's status hues: a conforming alternate is not a §11.5
+fidelity palette, so nothing obliges it to reproduce a source value that misses
+the floor. Shipping the verbatim red would have bought fidelity to a poster with
+an `error` token no application could set in body text.
+
+Three golds carry three distinct roles — `accent`, `warning`, `structure` —
+separated by luminance rather than hue. That is legible but not sufficient
+alone, which is precisely what §18.2.1 exists for: every colored status in this
+palette carries its `[WARN]` or `[ERROR]` tag.
+
+`steelbore-hanzosteel-high-contrast` lifts `error` alone, to Ember Lift
+(9.58:1); every other token already clears 7:1 on the canvas and carries over
+verbatim.
 
 ### §11.4 — Palette Selection
 
@@ -277,6 +311,7 @@ ship in the canonical file, the reference name as each palette's `reference` key
 | `steelbore-matrixgreen` | `matrixgreen-color-palette` |
 | `steelbore-navywhite` | `navywhite-color-palette` |
 | `tokyonight` | `tokyonight-color-palette` |
+| `steelbore-hanzosteel` | `hanzosteel-color-palette` |
 | `solarized-dark` | `solarizeddark-color-palette` |
 | `solarized-light` | `solarizedlight-color-palette` |
 
@@ -331,11 +366,11 @@ one-palette rule governs only the first.
 
 | Obligation | Themes | Why |
 |---|---|---|
-| **MUST register** | The six conforming palettes — `steelbore`, `steelbore-blue`, `steelbore-blackpinkpanther`, `steelbore-matrixgreen`, `steelbore-navywhite`, `tokyonight` — each with its `-high-contrast` sibling, plus `steelbore-mono`. **Thirteen themes** | All bind the same eleven role tokens, so a layer that reads `steelbore.toml` registers them in a loop, and a declaration can always be answered |
+| **MUST register** | The seven conforming palettes — `steelbore`, `steelbore-blue`, `steelbore-blackpinkpanther`, `steelbore-matrixgreen`, `steelbore-navywhite`, `tokyonight`, `steelbore-hanzosteel` — each with its `-high-contrast` sibling, plus `steelbore-mono`. **Fifteen themes** | All bind the same eleven role tokens, so a layer that reads `steelbore.toml` registers them in a loop, and a declaration can always be answered |
 | **MAY register** | `steelbore-classic`, `steelbore-classic-high-contrast` | Classic keeps the legacy six-role contract (§11.2), defines no surface class, and carries an `info` token that is not one of §11.1's eleven roles — registrable only by an app that implements that contract too |
 | **MUST NOT register** | A §11.5 fidelity palette, except as an explicitly user-selectable extra | §11.5 bars adoption; this section is not a route around it |
 
-Three of the thirteen were already required (§11.4, §11.1.1), so this adds ten —
+Three of the fifteen were already required (§11.4, §11.1.1), so this adds twelve —
 all already written out in `steelbore.toml`.
 
 **Registering is not defaulting.** The default stays the project's §11.4 palette

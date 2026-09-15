@@ -22,7 +22,8 @@ website: https://Construct.SpacecraftSoftware.org/
 > default — use it unless the project declares an alternate in its `README.md`
 > (§11.4). Also registered: `steelbore-classic`, `steelbore-blue`,
 > `steelbore-blackpinkpanther`, `steelbore-matrixgreen`, `steelbore-navywhite`
-> (light canvas), and `tokyonight`. Two **fidelity palettes** — `solarized-dark`
+> (light canvas), `tokyonight`, and `steelbore-hanzosteel`. Two **fidelity
+> palettes** — `solarized-dark`
 > and `solarized-light` — are registered verbatim but are **non-conforming**
 > (§11.5) and may not be adopted as a project palette. All values live in the
 > `steelbore-color-palette` skill's `assets/steelbore.toml`. A project uses one
