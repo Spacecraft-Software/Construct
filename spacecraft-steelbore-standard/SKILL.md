@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 2.06 | **Date:** 2026-09-15 | **Author:** Mohamed Hammad
+**Version:** 2.07 | **Date:** 2026-09-15 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -989,9 +989,15 @@ When writing Rust code that handles time:
 
 ### §15.1 — Project Pages
 
-Each Spacecraft Software project has a dedicated subdomain following the pattern
-`https://<ProjectName>.SpacecraftSoftware.org/`. Use the project-specific URL in all
-project-level outputs; use `https://SpacecraftSoftware.org/` only for umbrella references.
+Each **published** Spacecraft Software project has a dedicated subdomain following the
+pattern `https://<ProjectName>.SpacecraftSoftware.org/`. Use the project-specific URL in
+all project-level outputs; use `https://SpacecraftSoftware.org/` only for umbrella references.
+
+**Published** means the project has a repository under a namespace Spacecraft Software
+controls (§6.4). The qualifier does real work: a working directory is not a project.
+Vendored upstream forks carried under §4.2, scratch and experiment directories, symbolic
+links into other trees, and reference copies all appear in `PROJECTS.md` — which tracks
+what is *on disk* — and none is published by us or has anything to serve at a subdomain.
 
 | Project                    | URL                                              |
 |----------------------------|--------------------------------------------------|
@@ -1021,6 +1027,23 @@ project-level outputs; use `https://SpacecraftSoftware.org/` only for umbrella r
 | Vacuum                     | https://Vacuum.SpacecraftSoftware.org/           |
 | Docs                       | https://Docs.SpacecraftSoftware.org/             |
 | Loran Pages                | https://Loran-Pages.SpacecraftSoftware.org/      |
+| Achernar                   | https://Achernar.SpacecraftSoftware.org/ |
+| Adit                       | https://Adit.SpacecraftSoftware.org/ |
+| Antigravity 2              | https://Antigravity2.SpacecraftSoftware.org/ |
+| Babel                      | https://Babel.SpacecraftSoftware.org/ |
+| Conduit                    | https://Conduit.SpacecraftSoftware.org/ |
+| Majestic                   | https://Majestic-PRD.SpacecraftSoftware.org/ |
+| Majestic (Fable/Rust Fable) | https://Majestic.SpacecraftSoftware.org/ |
+| Majestic (Guile Fable)     | https://Majestic-Guile.SpacecraftSoftware.org/ |
+| Majestic (Rust Kimi)       | https://Majestic-Rust-Kimi.SpacecraftSoftware.org/ |
+| Majestic (Rust Opus)       | https://Majestic-Rust-Steel.SpacecraftSoftware.org/ |
+| Majestic 4                 | https://Majestic4.SpacecraftSoftware.org/ |
+| MajesticOS                 | https://MajesticOS.SpacecraftSoftware.org/ |
+| Packages                   | https://Packages.SpacecraftSoftware.org/ |
+| Projects                   | https://Projects.SpacecraftSoftware.org/ |
+| Reel                       | https://Reel.SpacecraftSoftware.org/ |
+| Specs                      | https://Specs.SpacecraftSoftware.org/ |
+| Theme                      | https://Theme.SpacecraftSoftware.org/ |
 
 When a new project is created, add its subdomain to this table immediately.
 
@@ -1516,13 +1539,23 @@ Rust GUI work (§3.1 already makes Rust the preferred language).
   and record the ratios (§11).
 - **Keyboard:** complete every primary task without a pointing device.
 
-**Remediation for existing projects.** §18 applies to every project immediately on
-adoption of v1.33, so projects predating it are non-compliant until retrofitted.
-Until a project conforms it MUST carry a **dated remediation entry** in
-`PROJECTS.md` recording its accessibility state and intended remediation. An absent
-entry is itself a compliance failure — a project may be unfinished, but it may not
-be silently unfinished. **Projects registered as games (§18.5) are excluded** —
-they owe no remediation entry, because they owe no conformance.
+**Remediation for existing projects.** §18 applies to every project, and a project
+that does not yet conform is not thereby excused. What changed at v2.07 is *when* the
+paper trail falls due.
+
+A project MUST carry a **dated remediation entry** in `PROJECTS.md` — recording its
+accessibility state and intended remediation — from the moment it **cuts a release tag
+or declares itself usable by anyone other than the maintainer**, and until it conforms.
+An absent entry at that point is a compliance failure in its own right: a shipped
+project may be unfinished, but it may not be silently unfinished.
+
+**Before that point the entry is optional**, and this is a correction rather than a
+relaxation. From v1.33 the obligation attached on adoption, so every pre-release
+experiment owed a dated assessment for existing at all — and at v2.06 exactly one
+project carried one while roughly fourteen owed one. A rule breached universally
+reports nothing about the projects that breach it and buries the one that did the work.
+**Projects registered as games (§18.5) are excluded** — they owe no remediation entry,
+because they owe no conformance.
 
 ### §18.5 — Games Carve-Out
 
@@ -1642,7 +1675,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§15.3** Third-party work credited in `CREDITS.md` at project/skill root when triggers apply; deeper `references/ATTRIBUTION.md` present where reference content is adapted from external sources
 - [ ] **§17** Development progress tracked and reported continuously as the §17.1 labelled-row block — one 20-cell bar per track, milestone rows then MVP then TODO/PLAN/PRD, only the rows that apply; every row set in `█`/`░` with tight brackets, columns aligned, no ASCII bars
 - [ ] **§17.4** Every turn that hands control back to the user ends with a two-line `TL;DR:` block in simplified English, placed last: a plain statement of completion when the work is finished and verified, or a question mark naming the actual decision when the user's input is required; never substituted for the detail or the §17.1 block
-- [ ] **§18** Accessible mode implemented and off by default; §18.1 toggle honored with correct precedence; status never color-only; no animation or decorative art in accessible mode; TUI ships a linear mode and a non-interactive CLI path; GUI publishes accessible names and roles (AccessKit for Rust); verified with a real screen reader; existing projects carry a dated remediation entry in `PROJECTS.md` until they conform — N/A for projects registered as games (§18.5), which are exempt in full
+- [ ] **§18** Accessible mode implemented and off by default; §18.1 toggle honored with correct precedence; status never color-only; no animation or decorative art in accessible mode; TUI ships a linear mode and a non-interactive CLI path; GUI publishes accessible names and roles (AccessKit for Rust); verified with a real screen reader; a project that has cut a release or declared itself usable carries a dated remediation entry in `PROJECTS.md` until it conforms, and a pre-release project owes none (§18.4) — N/A for projects registered as games (§18.5), which are exempt in full
 - [ ] **§19** Assurance category (A/B/C/D) declared in `README.md`, `AGENTS.md`, and `PROJECTS.md`, with any raised subsystem named; every *Recommended* obligation of §19.3 that is not implemented carries a dated tailoring-register entry (§19.5) in `COMPLIANCE.md` for Category A and B, or in `README.md` for C and D; the three gates of §19.4 passed with their evidence; the §19.6 conformance claim in `README.md` names the standard version, the category, and whether the claim is full or tailored
 - [ ] **§20** Requirements written at the level §19.3 requires (Texinfo `Requirements` node for A and B, `AGENTS.md` list for C); each carries a permanent identifier, rationale, source, priority, verification method, and status; §20.2 verbal forms used, with `shall` carrying obligation; the §20.4 characteristics gate run over each requirement and over the set; no unmeasurable adjective, open-ended clause, or escape hatch in requirement text (§20.5) — N/A for Category D
 - [ ] **§21** Every requirement declares one of the four §21.1 methods; verification evidence meets the §21.2 floor for the category; the traceability matrix is generated by tooling on every CI run, fails on an unverified requirement or an unknown identifier, and ships with the release; independence obtained from a §21.4 mechanism for Category A and B; validation performed at G3 against the needs, on the target platform, from installed packaging, and recorded (§21.5)
