@@ -279,18 +279,18 @@ now called Steelbore Magnetar (§11.3.2). A consumer pinned to it renders
 different colours with no error — the break is deliberate and documented here
 rather than hidden.
 
-Anchored on **Runway Black** `#000000` and **Hot Pink** `#F400A1`: black, white
+Anchored on **Runway Black** and **Hot Pink**: black, white
 and hot pink after the Victoria's Secret *main* brand, neon and cool rather than
 the softer sub-brand pink. Role tokens vs canvas: `foreground` Runway White
 21.00:1, `accent` Hot Pink 5.36:1, `structure`/`border` Flamingo Pink 6.71:1,
 `success` Mint Signal 13.02:1, `error` Ember Red 7.57:1, `warning` Solar Amber
 13.65:1. **No restricted pairings** — weakest is `accent` on `surface` at
-4.72:1. Glowing Pink `#F7057A` is the pressed state, not a role token.
+4.72:1. Glowing Pink is the pressed state, not a role token.
 
 **The surfaces are pink-tinted rather than neutral black, deliberately.** In the
 storefronts this palette is drawn from, backlit pink is the dominant *field* and
 glossy black is the frame around it — so a near-black panel would invert the
-relationship the palette exists to capture. Backlit Rose `#2E0020` is the
+relationship the palette exists to capture. Backlit Rose is the
 boldest surface that still keeps Hot Pink above the text floor on it; one step
 pinker and `accent` falls to 4.47:1 and the palette acquires its first
 restricted pairing.
@@ -300,11 +300,11 @@ restricted pairing.
 
 #### §11.3.8 — Steelbore Green
 
-Anchored on **Vampire Black** `#0D0208` and **Erin** `#00FF41`. The Matrix
+Anchored on **Vampire Black** and **Erin**. The Matrix
 palette, and the one place in the family where the brand hue is the *body text*:
 **Erin carries `foreground`, not `accent`**, because green-on-black terminal
 text is the thing being reproduced. Steelbore Classic sets the precedent for a
-non-neutral foreground (Molten Amber). **Rain Head** `#E8FFF0` — the bright
+non-neutral foreground (Molten Amber). **Rain Head** — the bright
 leading glyph of the digital rain — carries `accent` and `focus`.
 
 Role tokens vs canvas: `foreground` Erin 14.94:1, `accent` Rain Head 19.42:1,
@@ -312,10 +312,10 @@ Role tokens vs canvas: `foreground` Erin 14.94:1, `accent` Rain Head 19.42:1,
 Ember Red 7.35:1, `warning` Solar Amber 13.26:1. No restricted pairings;
 weakest is `structure` on `surface` at 5.47:1.
 
-**Cascade Green is a deepened hue.** Islam Green `#008F11` measures 4.80:1 on
+**Cascade Green is a deepened hue.** Islam Green measures 4.80:1 on
 the canvas and 4.31:1 on the surface — under the text floor where it matters —
 so it ships deepened, for the same reason §11.3.4 deepens NavyWhite's status
-hues. Dark Green (Traditional) `#003B00`, Australia Green `#008529` and Islam
+hues. Dark Green (Traditional), Australia Green and Islam
 Green are carried as **non-role fills**: none reaches the text floor, and the
 section says so rather than letting an implementor discover it.
 
@@ -325,7 +325,7 @@ section says so rather than letting an implementor discover it.
 #### §11.3.9 — Steelbore Green Alt
 
 The same colours as §11.3.8 with the two brightest roles swapped: `foreground`
-is **Rain Wash** `#D7F5E0`, a near-white with a green cast, and **Erin** becomes
+is **Rain Wash**, a near-white with a green cast, and **Erin** becomes
 `accent` and `focus`. Long prose then reads in a neutral rather than in
 saturated green, and the Matrix green draws the eye instead of carrying every
 paragraph.
