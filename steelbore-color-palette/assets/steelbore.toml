@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Steelbore palette family — canonical color contract (Standard §11, last
-# amended v2.05). Ten palettes and 19 themes: steelbore (Modern, DEFAULT),
+# amended v2.06). Ten palettes and 19 themes: steelbore (Modern, DEFAULT),
 # steelbore-classic, six alternates (blue, blackpinkpanther, matrixgreen,
 # navywhite, tokyonight, hanzosteel), and the two §11.5 fidelity palettes
 # (solarized-dark, solarized-light) which are registered but non-conforming.
@@ -26,12 +26,12 @@ fidelity-palettes = ["solarized-dark", "solarized-light"]  # §11.5 — register
 # excluded: it binds the legacy six-role contract (§11.2), defines no surface
 # class, and carries an `info` token that is not one of §11.1's eleven roles.
 registered-set = ["steelbore", "steelbore-high-contrast", "steelbore-blue", "steelbore-blue-high-contrast", "steelbore-blackpinkpanther", "steelbore-blackpinkpanther-high-contrast", "steelbore-matrixgreen", "steelbore-matrixgreen-high-contrast", "steelbore-navywhite", "steelbore-navywhite-high-contrast", "tokyonight", "tokyonight-high-contrast", "steelbore-hanzosteel", "steelbore-hanzosteel-high-contrast", "steelbore-mono"]
-version = "3.3.0"
+version = "3.4.0"
 date = "2026-09-15T00:00:00Z"
 maintainer = "Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"
 website = "https://Construct.SpacecraftSoftware.org/"
 license = "GPL-3.0-or-later"
-standard = "The Steelbore Standard §11 (v2.05)"
+standard = "The Steelbore Standard §11 (v2.06)"
 
 # -------------------------------------------------------------------------
 # §11.6 — System theme resolution. Slugs only; this table never carries a
@@ -179,7 +179,7 @@ reference = "blue-color-palette"
 "Dawn Sky" = "#3390FF"
 "Azure Hue" = "#66A3FF"
 "Azure Bright" = "#79B4FF"
-"Signal Green" = "#28C76F"
+"Aurora Green" = "#28C76F"
 "Ember Red" = "#FF6B6B"
 "Solar Amber" = "#FFC857"
 "Warm Thruster" = "#FF8A4B"

@@ -151,6 +151,25 @@ jobs:
       - name: steelbore.scm matches steelbore.toml
         run: python3 .github/generate-steelbore-scm.py --check
 
+      # Token names look per-palette but are one flat namespace to every
+      # consumer that resolves a name to a value — check-palette-css.py walks
+      # all [palettes.*] first-writer-wins, so a name bound to two hexes checks
+      # a stylesheet against the wrong palette and still reports success.
+      # `Signal Green` was exactly that from v1.39 until the v2.06 rename, and
+      # never misfired only because no stylesheet declared it. Shared tones
+      # (Ember Red, Solar Amber, Mint Signal, Ember Lift) are deliberate and
+      # pass — the gate gets stricter only about one name meaning two colours.
+      - name: Palette token names are unambiguous
+        run: python3 .github/check-token-names.py
+
+      # spacecraft.css's header, @font-face rules and :root block are generated
+      # from steelbore.toml for the same reason steelbore.scm is: they restated
+      # nine hexes and a §11 version pin, and the pin had been wrong since v1.35
+      # because nothing generated it. check-palette-css.py catches a drifted
+      # value; only this catches a drifted version or a reintroduced @import.
+      - name: spacecraft.css matches steelbore.toml
+        run: python3 .github/generate-palette-css.py --check
+
   # construct-cli/ is the one real build surface in this repo — everything else
   # is markdown. It went ungated until now, which is how a clippy break
   # (items_after_test_module in src/sources/skillmd.rs) sat unnoticed on main:

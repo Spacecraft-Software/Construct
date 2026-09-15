@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 2.05 | **Date:** 2026-09-15 | **Author:** Mohamed Hammad
+**Version:** 2.06 | **Date:** 2026-09-15 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -727,6 +727,30 @@ Every Spacecraft Software application must satisfy **all three** PFA requirement
 
 When reviewing or designing any feature that touches data handling, permissions,
 or networking, verify all three PFA requirements are met.
+
+### §9.1 — No Third-Party Subresources
+
+The three rows above are scoped to an **application**, and that left a gap: a
+document is not an application, so nothing in §9 reached the HTML this standard
+publishes — which loaded its §12 fonts from a third-party CDN, disclosing every
+reader's IP, User-Agent and Referer on every page view. No tracker, no analytics
+SDK: the letter of the first row was met while its purpose was not.
+
+**The rule is therefore a property of artifacts, not applications.** No
+Spacecraft Software artifact — application, library, document, stylesheet,
+diagram, slide, or generated page — fetches a subresource from a host the
+project does not control at render time.
+
+| Rule | Detail |
+|------|--------|
+| Fonts resolve locally | Baseline is `@font-face` whose `src` names `local()` only, backed by the generic `monospace` fallback. An artifact needing faithful rendering for every reader MAY also ship the file beside itself, listed after `local()` — §12's licence whitelist exists so it may be redistributed. Bundling is a fidelity choice; the fetch is what is forbidden |
+| All subresource classes | Scripts, stylesheets, images and media follow the same rule. A CDN reference is third-party whatever it carries |
+| Degrading is not complying | A fallback that renders acceptably when the fetch fails does not cure the fetch. The request **is** the disclosure |
+| Hyperlinks are unaffected | A link the reader chooses to follow is not a subresource; this governs what an artifact loads unasked |
+| Exceptions are declared | Where an artifact genuinely cannot function without a third-party fetch, document it in `README.md` naming the host, the data disclosed, and why no bundled alternative exists — the same shape as a §3.1 exemption |
+
+A self-contained artifact is also offline-capable, reproducible, and immune to an
+upstream host disappearing, so this costs little beyond the bytes it bundles.
 
 ---
 
@@ -1607,7 +1631,7 @@ Before finalising **any** Spacecraft Software artifact, mentally verify:
 - [ ] **§6.5** Text files are LF-terminated, UTF-8 without BOM, and end with a newline; `.gitattributes` (`* text=auto eol=lf`) and `.editorconfig` (`charset`, `end_of_line`, `insert_final_newline`) present at the repository root; CI fails on a CR byte in a tracked text file; CRLF exceptions (vendored upstream, `cmd.exe` scripts) pinned explicitly in `.gitattributes`
 - [ ] **§7** Shell scripts are POSIX-compatible; Nushell/Ion native variants provided where shell-native idioms are required; no Bashisms in shared scripts
 - [ ] **§8** Texinfo manual present for user-facing programs (`doc/<project>.texi`); builds to `.info`, `.html`, and `.pdf`; `install-info` hook present in all three package manifests (§5.5) — N/A for scripts and internal tooling
-- [ ] **§9** PFA: no tracking, minimal permissions, local storage default
+- [ ] **§9** PFA: no tracking, minimal permissions, local storage default; **§9.1** no third-party subresources — fonts declared `local()`-first and bundled only if fidelity requires it, other assets shipped beside the artifact, nothing fetched from a host the project does not control, with any unavoidable exception declared in `README.md`
 - [ ] **§10** CUA + Vim-like key bindings planned/implemented; bindings user-remappable; assistive-technology modifier chords (NVDA/Orca/VoiceOver) not captured — N/A for projects registered as games (§18.5)
 - [ ] **§11** A registered palette is used — Steelbore Modern by default, or exactly one declared alternate (§11.4), never a mix; that palette's canvas is used unaltered; surface tokens are fills only, never text (§11.0.1); token-on-token pairings outside the palette's verified matrix measured before use; new apps expose colors via a named `Steelbore` theme binding the §11.1 role tokens — no bare hex literals in UI logic — and ship the palette's `-high-contrast` sibling
 - [ ] **§11.6** Theme resolution implemented in two stages — base palette (in-app selection, then `SPACECRAFT_THEME`, then the §11.6.4 system declaration, then the platform color scheme, then the project's §11.4 default), then variant overlay (a pinned variant, then `NO_COLOR` ⇒ `steelbore-mono`, then §18.1 accessible mode, then platform high contrast); the registered set covers §11.6.1's fifteen eleven-role themes; an unknown or unregistered slug falls through rather than failing; palette switches are atomic and whole-surface and carry the new canvas; resolved theme and deciding source reported under `--verbose`; no dependence on per-role environment variables — Steelbore OS additionally renders `/etc/steelbore/theme.toml`, exports `SPACECRAFT_THEME`, and keeps the platform color-scheme preference in agreement with the declared polarity (§11.6.5) — N/A for artifacts with no user-facing output

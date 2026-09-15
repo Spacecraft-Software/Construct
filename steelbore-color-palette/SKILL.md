@@ -1,7 +1,7 @@
 ---
 name: steelbore-color-palette
 description: >
-  Single source of truth for the Steelbore palette family (§11, last amended v2.05)
+  Single source of truth for the Steelbore palette family (§11, last amended v2.06)
   — ten palettes, their hex tokens, WCAG contrast matrices, the §11.1
   role-token contract, every §11.1.1 accessibility variant, and the §11.6
   system-theme contract. Modern is the default; Classic, Blue, BlackPinkPanther,
@@ -25,7 +25,7 @@ website: https://Construct.SpacecraftSoftware.org/
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
 
-> **Authority chain:** The Steelbore Standard **§11** — last amended in v2.05 —
+> **Authority chain:** The Steelbore Standard **§11** — last amended in v2.06 —
 > is the normative text; this skill is its canonical machine-readable mirror and
 > the **only** place palette hexes should be read from. The version cited is the
 > one in which §11 last *changed*, not the current document version: a release
