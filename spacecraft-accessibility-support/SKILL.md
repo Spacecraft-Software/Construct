@@ -126,7 +126,8 @@ variants are additive siblings, never replacements.
 
 **If the project has declared an alternate palette** under §11.4
 (`steelbore-classic`, `steelbore-blue`, `steelbore-blackpinkpanther`,
-`steelbore-matrixgreen`, `steelbore-navywhite`), accessible mode selects
+`steelbore-matrixgreen`, `steelbore-navywhite`, `tokyonight`,
+`steelbore-hanzosteel`), accessible mode selects
 *that palette's* `<slug>-high-contrast` sibling — take its lifts from
 `steelbore-color-palette`'s `assets/steelbore.toml`, not from the Modern
 table below. `steelbore-mono` is palette-independent and serves all of them.

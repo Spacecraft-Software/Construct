@@ -14,7 +14,7 @@
 ; read, never retyped. Editing this file instead of the TOML defeats the
 ; entire point: there would be two sources, and they would drift.
 ;
-; Palette contract version 3.2.0 — The Steelbore Standard §11 (v1.45).
+; Palette contract version 3.3.0 — The Steelbore Standard §11 (v2.05).
 
 (define-module (steelbore)
   #:export (steelbore-meta
@@ -26,17 +26,17 @@
 
 ;;; Metadata (§11 [meta]).
 (define steelbore-meta
-  `((version . "3.2.0")
-    (date . "2026-08-06T00:00:00Z")
-    (standard . "The Steelbore Standard §11 (v1.45)")
+  `((version . "3.3.0")
+    (date . "2026-09-15T00:00:00Z")
+    (standard . "The Steelbore Standard §11 (v2.05)")
     (default-theme . "steelbore")
     (default-dark-theme . "steelbore")
     (default-light-theme . "steelbore-navywhite")
     (mono-theme . "steelbore-mono")
-    (palette-family . ("steelbore" "steelbore-classic" "steelbore-blue" "steelbore-blackpinkpanther" "steelbore-matrixgreen" "steelbore-navywhite" "tokyonight"))
+    (palette-family . ("steelbore" "steelbore-classic" "steelbore-blue" "steelbore-blackpinkpanther" "steelbore-matrixgreen" "steelbore-navywhite" "tokyonight" "steelbore-hanzosteel"))
     (fidelity-palettes . ("solarized-dark" "solarized-light"))
     ;; §11.6.1 — the themes every application MUST register.
-    (registered-set . ("steelbore" "steelbore-high-contrast" "steelbore-blue" "steelbore-blue-high-contrast" "steelbore-blackpinkpanther" "steelbore-blackpinkpanther-high-contrast" "steelbore-matrixgreen" "steelbore-matrixgreen-high-contrast" "steelbore-navywhite" "steelbore-navywhite-high-contrast" "tokyonight" "tokyonight-high-contrast" "steelbore-mono"))))
+    (registered-set . ("steelbore" "steelbore-high-contrast" "steelbore-blue" "steelbore-blue-high-contrast" "steelbore-blackpinkpanther" "steelbore-blackpinkpanther-high-contrast" "steelbore-matrixgreen" "steelbore-matrixgreen-high-contrast" "steelbore-navywhite" "steelbore-navywhite-high-contrast" "tokyonight" "tokyonight-high-contrast" "steelbore-hanzosteel" "steelbore-hanzosteel-high-contrast" "steelbore-mono"))))
 
 ;;; Every theme, as slug -> role alist. Role names are the §11.1 tokens
 ;;; verbatim; steelbore-mono binds 4-bit ANSI names rather than hex, and
@@ -167,6 +167,36 @@
       ("success" . "#50FA7B")
       ("error" . "#FF8080")
       ("info" . "#8BE9FD")
+      ))
+    ("steelbore-hanzosteel"
+     .
+     (
+      ("background" . "#000000")
+      ("surface" . "#1C1811")
+      ("surface-alt" . "#0C0A06")
+      ("foreground" . "#F5F0E6")
+      ("accent" . "#FCD612")
+      ("structure" . "#F4B900")
+      ("success" . "#5BE49B")
+      ("error" . "#F04A44")
+      ("warning" . "#F7D02A")
+      ("focus" . "#FCD612")
+      ("border" . "#F4B900")
+      ))
+    ("steelbore-hanzosteel-high-contrast"
+     .
+     (
+      ("background" . "#000000")
+      ("surface" . "#1C1811")
+      ("surface-alt" . "#0C0A06")
+      ("foreground" . "#F5F0E6")
+      ("accent" . "#FCD612")
+      ("structure" . "#F4B900")
+      ("success" . "#5BE49B")
+      ("error" . "#FF8F8F")
+      ("warning" . "#F7D02A")
+      ("focus" . "#FCD612")
+      ("border" . "#F4B900")
       ))
     ("steelbore-high-contrast"
      .
@@ -303,6 +333,7 @@
       ("steelbore-blackpinkpanther" . "dark")
       ("steelbore-blue" . "dark")
       ("steelbore-classic" . "dark")
+      ("steelbore-hanzosteel" . "dark")
       ("steelbore-matrixgreen" . "dark")
       ("steelbore-navywhite" . "light")
       ("tokyonight" . "dark")
@@ -316,6 +347,7 @@
       ("steelbore-blackpinkpanther" . "steelbore-navywhite")
       ("steelbore-blue" . "steelbore-navywhite")
       ("steelbore-classic" . "steelbore-navywhite")
+      ("steelbore-hanzosteel" . "steelbore-navywhite")
       ("steelbore-matrixgreen" . "steelbore-navywhite")
       ("steelbore-navywhite" . "steelbore")
       ("tokyonight" . "steelbore-navywhite")

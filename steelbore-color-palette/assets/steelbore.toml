@@ -2,15 +2,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Steelbore palette family — canonical color contract (Standard §11, last
-# amended v1.45). Nine palettes and 17 themes: steelbore (Modern, DEFAULT),
-# steelbore-classic, five alternates (blue, blackpinkpanther, matrixgreen,
-# navywhite, tokyonight), and the two §11.5 fidelity palettes (solarized-dark,
-# solarized-light) which are registered but non-conforming. Every palette binds
-# the same eleven §11.1 role tokens except Classic, which keeps its legacy
-# six-role contract (§11.2).
+# amended v2.05). Ten palettes and 19 themes: steelbore (Modern, DEFAULT),
+# steelbore-classic, six alternates (blue, blackpinkpanther, matrixgreen,
+# navywhite, tokyonight, hanzosteel), and the two §11.5 fidelity palettes
+# (solarized-dark, solarized-light) which are registered but non-conforming.
+# Every palette binds the same eleven §11.1 role tokens except Classic, which
+# keeps its legacy six-role contract (§11.2).
 # All contrast ratios computed with the WCAG 2.2 relative-luminance formula.
 # Normative targets: WCAG 2.2 Level AA; EN 301 549 V4.1.1 clause 11 (non-web software).
-# A project AUTHORS against one palette (§11.4) and REGISTERS thirteen (§11.6.1);
+# A project AUTHORS against one palette (§11.4) and REGISTERS fifteen (§11.6.1);
 # tokens are never combined across palettes in one interface, but a whole-surface
 # light/dark switch is not combining (§11.6.2).
 
@@ -20,18 +20,18 @@ default-theme = "steelbore"
 default-dark-theme = "steelbore"             # §11.6.2 — family dark default
 default-light-theme = "steelbore-navywhite"  # §11.6.2 — family light default
 mono-theme = "steelbore-mono"                # §11.1.1 — palette-independent
-palette-family = ["steelbore", "steelbore-classic", "steelbore-blue", "steelbore-blackpinkpanther", "steelbore-matrixgreen", "steelbore-navywhite", "tokyonight"]
+palette-family = ["steelbore", "steelbore-classic", "steelbore-blue", "steelbore-blackpinkpanther", "steelbore-matrixgreen", "steelbore-navywhite", "tokyonight", "steelbore-hanzosteel"]
 fidelity-palettes = ["solarized-dark", "solarized-light"]  # §11.5 — registered, non-conforming
-# §11.6.1 — the thirteen themes every application MUST register. Classic is
+# §11.6.1 — the fifteen themes every application MUST register. Classic is
 # excluded: it binds the legacy six-role contract (§11.2), defines no surface
 # class, and carries an `info` token that is not one of §11.1's eleven roles.
-registered-set = ["steelbore", "steelbore-high-contrast", "steelbore-blue", "steelbore-blue-high-contrast", "steelbore-blackpinkpanther", "steelbore-blackpinkpanther-high-contrast", "steelbore-matrixgreen", "steelbore-matrixgreen-high-contrast", "steelbore-navywhite", "steelbore-navywhite-high-contrast", "tokyonight", "tokyonight-high-contrast", "steelbore-mono"]
-version = "3.2.0"
-date = "2026-08-06T00:00:00Z"
+registered-set = ["steelbore", "steelbore-high-contrast", "steelbore-blue", "steelbore-blue-high-contrast", "steelbore-blackpinkpanther", "steelbore-blackpinkpanther-high-contrast", "steelbore-matrixgreen", "steelbore-matrixgreen-high-contrast", "steelbore-navywhite", "steelbore-navywhite-high-contrast", "tokyonight", "tokyonight-high-contrast", "steelbore-hanzosteel", "steelbore-hanzosteel-high-contrast", "steelbore-mono"]
+version = "3.3.0"
+date = "2026-09-15T00:00:00Z"
 maintainer = "Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"
 website = "https://Construct.SpacecraftSoftware.org/"
 license = "GPL-3.0-or-later"
-standard = "The Steelbore Standard §11 (v1.45)"
+standard = "The Steelbore Standard §11 (v2.05)"
 
 # -------------------------------------------------------------------------
 # §11.6 — System theme resolution. Slugs only; this table never carries a
@@ -55,6 +55,7 @@ steelbore-blackpinkpanther = "dark"
 steelbore-matrixgreen = "dark"
 steelbore-navywhite = "light"   # the family's only light canvas (§11.3.4)
 tokyonight = "dark"
+steelbore-hanzosteel = "dark"
 solarized-dark = "dark"         # §11.5 — recorded, not adoptable
 solarized-light = "light"       # §11.5 — recorded, not adoptable
 
@@ -69,6 +70,7 @@ steelbore-blackpinkpanther = "steelbore-navywhite"
 steelbore-matrixgreen = "steelbore-navywhite"
 steelbore-navywhite = "steelbore"
 tokyonight = "steelbore-navywhite"
+steelbore-hanzosteel = "steelbore-navywhite"
 solarized-dark = "solarized-light"   # §11.5 — never a §11.6.2 target
 solarized-light = "solarized-dark"   # §11.5 — never a §11.6.2 target
 
@@ -680,6 +682,96 @@ border       = "7.39:1"
 [themes.tokyonight-high-contrast.rules]
 surface-tokens-as-text = "forbidden"
 surface-boundary-border = "structure"
+
+# -------------------------------------------------------------------------
+# Steelbore Hanzo Steel (§11.3.6) — anchors: Sumi Black #000000 / Hanzo Gold #FCD612
+# Inspired by the Kill Bill Vol. 1 poster; the family's only pure-black canvas.
+# Crimson Edge is the source Venetian Red (#D61A1F, 4.03:1) deepened to clear
+# 4.5:1 on all three backgrounds, as §11.3.4 deepens its status hues. Mint Signal
+# and Ember Lift are the family's shared tones, carried at their existing values.
+# -------------------------------------------------------------------------
+[palettes.steelbore-hanzosteel]
+reference = "hanzosteel-color-palette"
+"Sumi Black" = "#000000"
+"Scabbard Slate" = "#1C1811"
+"Ink Well" = "#0C0A06"
+"Bone White" = "#F5F0E6"
+"Hanzo Gold" = "#FCD612"
+"Gold Leaf" = "#F7D02A"
+"Tempered Gold" = "#F4B900"
+"Mint Signal" = "#5BE49B"
+"Crimson Edge" = "#F04A44"
+"Ember Lift" = "#FF8F8F"  # high-contrast only
+
+[themes.steelbore-hanzosteel]
+background   = "#000000"
+surface      = "#1C1811"
+surface-alt  = "#0C0A06"
+foreground   = "#F5F0E6"
+accent       = "#FCD612"
+structure    = "#F4B900"
+success      = "#5BE49B"
+error        = "#F04A44"
+warning      = "#F7D02A"
+focus        = "#FCD612"
+border       = "#F4B900"
+
+[themes.steelbore-hanzosteel.contrast.vs-background]  # vs #000000
+foreground   = "18.49:1"
+accent       = "14.77:1"
+structure    = "11.79:1"
+success      = "13.02:1"
+error        = "5.77:1"
+warning      = "14.01:1"
+focus        = "14.77:1"
+border       = "11.79:1"
+
+[themes.steelbore-hanzosteel.contrast.vs-surface]  # vs #1C1811
+foreground   = "15.56:1"
+accent       = "12.43:1"
+structure    = "9.92:1"
+success      = "10.95:1"
+error        = "4.85:1"
+warning      = "11.79:1"
+focus        = "12.43:1"
+border       = "9.92:1"
+
+[themes.steelbore-hanzosteel.contrast.vs-surface-alt]  # vs #0C0A06
+foreground   = "17.42:1"
+accent       = "13.91:1"
+structure    = "11.10:1"
+success      = "12.26:1"
+error        = "5.43:1"
+warning      = "13.20:1"
+focus        = "13.91:1"
+border       = "11.10:1"
+
+[themes.steelbore-hanzosteel.rules]
+surface-tokens-as-text  = "forbidden"
+surface-boundary-border = "structure"
+
+[themes.steelbore-hanzosteel-high-contrast]  # §11.1.1 — accessible-mode sibling of steelbore-hanzosteel
+background   = "#000000"
+surface      = "#1C1811"
+surface-alt  = "#0C0A06"
+foreground   = "#F5F0E6"
+accent       = "#FCD612"
+structure    = "#F4B900"
+success      = "#5BE49B"
+error        = "#FF8F8F"  # lifted
+warning      = "#F7D02A"
+focus        = "#FCD612"
+border       = "#F4B900"
+
+[themes.steelbore-hanzosteel-high-contrast.contrast.vs-background]  # vs #000000
+foreground   = "18.49:1"
+accent       = "14.77:1"
+structure    = "11.79:1"
+success      = "13.02:1"
+error        = "9.58:1"
+warning      = "14.01:1"
+focus        = "14.77:1"
+border       = "11.79:1"
 
 # -------------------------------------------------------------------------
 # Solarized Dark / Light (§11.5) — FIDELITY PALETTES, registered verbatim from
