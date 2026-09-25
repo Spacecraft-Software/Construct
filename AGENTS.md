@@ -243,10 +243,12 @@ phases add an imperative installer across ~70 agent registries, general git
 sources, and a `--format explore` TUI.
 
 `construct skill ship` implements the branch+PR workflow above end-to-end:
-it enforces bundle-drift and the §5.6 description cap, switches to a feature
-branch (generated from the shipped skills, or `--branch`), stages by explicit
-name, makes the signed UTC commit, pushes the branch, and opens the PR with
-`gh`. It **never** pushes to the default branch, and it never merges — that
+it enforces bundle-drift and the §5.6 description gate (the 1000-character
+cap, and a frontmatter every strict YAML parser accepts — a plain-scalar
+`description:` containing `: ` is a mapping, not a string, and is refused),
+switches to a feature branch (generated from the shipped skills, or
+`--branch`), stages by explicit name, makes the signed UTC commit, pushes the
+branch, and opens the PR with `gh`. It **never** pushes to the default branch, and it never merges — that
 stays the maintainer's call. `--dry-run` reports the whole plan, including the
 branch it would use, without touching anything.
 

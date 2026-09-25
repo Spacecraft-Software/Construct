@@ -104,7 +104,8 @@ diverge. Verify with `unzip -l <name>.zip` before committing.
    call**, and an agent never merges its own PR.
 
    > `construct skill ship` automates steps 1–5: it enforces bundle-drift and
-   > the §5.6 description cap, switches to a feature branch (generated from the
+   > the §5.6 description gate (the cap, and strict-YAML frontmatter — see
+   > *Editing rules*), switches to a feature branch (generated from the
    > shipped skills, or `--branch`), stages by explicit name, makes the signed
    > UTC commit, pushes the branch, and opens the PR with `gh`. It never pushes
    > to the default branch and never merges. `--dry-run` reports the full plan,
@@ -219,6 +220,25 @@ consolidated zip intentionally differs from any on-disk tree).
   - **The [pre-commit hook](#pre-commit-hook)** — the fast local signal. It is
     opt-in per clone, so it is explicitly *not* the gate; §5.6 requires the two
     above precisely because a hook can be skipped.
+- **`SKILL.md` frontmatter must be YAML a strict parser accepts — write the
+  description as a block scalar.** A plain scalar stops being a string the
+  moment it contains `: ` (`… the house look: slide decks …`): to a YAML parser
+  that is the start of a nested mapping, and the whole frontmatter is rejected
+  with "mapping values are not allowed in this context". Lenient readers repair
+  it silently (the skill kept appearing in Claude Code with its description
+  intact), strict ones do not — `construct skill find` listed the skill with
+  no description, and `construct skill ship` exempted it from the cap because
+  an unparseable description was "nothing to measure". The line-based
+  checkers above cannot see it either, by design. `description: >-` (folded,
+  no trailing newline) or `description: >` (one trailing newline, which counts
+  toward the cap) carries any text, `: ` included, wrapped at 78 columns.
+  Enforced in the same two places as the cap:
+  - **CI** — `validate-configs.py` parses the frontmatter of every root and
+    Grok `SKILL.md` with PyYAML (the same walk as `check-skill-frontmatter.py`;
+    vendored trees are §4.2 upstream content and are not gated).
+  - **`construct skill ship`** — refuses a skill whose frontmatter does not
+    parse before anything is staged (exit 5, `CONFLICT`, with an
+    `invalid_frontmatter` list carrying each parser diagnostic).
 - **`microsoft-rust-guidelines` is intentionally `user-invocable: false`.** It is
   the mandatory auto-load Rust base — `spacecraft-steelbore-standard` mandates loading it
   before any Rust and `spacecraft-rust-guidelines` defers to it as "load first," so

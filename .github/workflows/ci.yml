@@ -44,7 +44,11 @@ jobs:
       - name: REUSE lint
         run: reuse lint
 
-      - name: Validate JSON / JSONC / TOML / YAML
+      # Also strict-parses every root and Grok SKILL.md frontmatter: the two
+      # frontmatter checkers below are line-based on purpose, so a plain-scalar
+      # description containing `: ` (a YAML mapping, not a string) passed both
+      # while every strict consumer rejected the whole block.
+      - name: Validate JSON / JSONC / TOML / YAML + SKILL.md frontmatter
         run: python3 .github/validate-configs.py
 
       # Standard §5.6: the description cap is enforced by CI, not only by the

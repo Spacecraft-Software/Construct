@@ -3,8 +3,9 @@
 
 //! Black-box tests for `construct skill ship` against throwaway git fixtures.
 //! All use `--dry-run`, so nothing is committed, branched, pushed, or opened —
-//! they exercise detection, the bundle-drift refusal, the §5.6 description cap,
-//! remote validation, and the branch/pull-request plan.
+//! they exercise detection, the bundle-drift refusal, the §5.6 description gate
+//! (the cap and the strict-YAML frontmatter check), remote validation, and the
+//! branch/pull-request plan.
 
 use std::fs;
 use std::path::Path;
@@ -301,6 +302,133 @@ fn ship_allows_description_exactly_at_cap() {
         .clone();
     let v: Value = serde_json::from_slice(&out).expect("valid JSON");
     assert_eq!(v["data"]["status"], "planned");
+}
+
+/// A `SKILL.md` whose `description` is a plain scalar containing an unquoted
+/// `: ` — to every strict YAML parser that is the start of a nested mapping,
+/// not a string, and the whole frontmatter is rejected.
+const UNPARSEABLE_SKILL_MD: &str =
+    "---\nname: demo\ndescription: carry the house look: slide decks, diagrams\n---\nbody\n";
+
+/// A `SKILL.md` whose `description` is a `>-` folded scalar rendering to exactly
+/// `len` characters and carrying the same unquoted `: ` — the repair for
+/// [`UNPARSEABLE_SKILL_MD`], wrapped at 78 columns like the catalogue's files.
+///
+/// `>-` strips the final newline, so the rendered text is the folded words and
+/// nothing else; the filler is chosen so that they total `len`.
+fn skill_md_with_folded_colon_description(len: usize) -> String {
+    let mut text = String::from("carry the house look:");
+    while text.len() + " slide".len() <= len - 2 {
+        text.push_str(" slide");
+    }
+    text.push(' ');
+    text.push_str(&"d".repeat(len - text.len()));
+    assert_eq!(text.len(), len);
+
+    let mut lines: Vec<String> = Vec::new();
+    for word in text.split(' ') {
+        match lines.last_mut() {
+            Some(line) if line.len() + 1 + word.len() <= 76 => {
+                line.push(' ');
+                line.push_str(word);
+            }
+            _ => lines.push(word.to_owned()),
+        }
+    }
+    let mut block = String::new();
+    for line in &lines {
+        block.push_str("  ");
+        block.push_str(line);
+        block.push('\n');
+    }
+    format!("---\nname: demo\ndescription: >-\n{block}---\nbody\n")
+}
+
+/// The gate's other half: a frontmatter no strict parser can read is a refusal,
+/// not an exemption. Before this, `description_len` folded the parse failure
+/// into "no description" and the skill shipped through the cap unmeasured.
+#[test]
+fn ship_refuses_unparseable_frontmatter() {
+    let repo = fixture(REMOTE);
+    let p = repo.path();
+    write(p, "demo/SKILL.md", "---\nname: demo\n---\nv1\n");
+    write(p, "demo.zip", "z1");
+    write(p, "demo.skill", "s1");
+    run_git(p, &["add", "demo/SKILL.md", "demo.zip", "demo.skill"]);
+    run_git(p, &["commit", "-qm", "init"]);
+    // Bundles rebuilt, so only the §5.6 gate stands between this and a push.
+    write(p, "demo/SKILL.md", UNPARSEABLE_SKILL_MD);
+    write(p, "demo.zip", "z2");
+    write(p, "demo.skill", "s2");
+
+    let assertion = bin()
+        .args([
+            "skill",
+            "ship",
+            "--repo",
+            p.to_str().unwrap(),
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .code(5);
+    let err: Value =
+        serde_json::from_slice(&assertion.get_output().stderr).expect("structured error");
+    assert_eq!(err["error"]["code"], "CONFLICT");
+    assert_eq!(err["error"]["invalid_frontmatter"][0]["skill"], "demo");
+    let reason = err["error"]["invalid_frontmatter"][0]["error"]
+        .as_str()
+        .expect("parser diagnostic");
+    assert!(
+        reason.contains("mapping values are not allowed"),
+        "diagnostic should name the YAML error: {reason}"
+    );
+    assert!(err["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("not valid YAML"));
+}
+
+/// The same `: ` inside a folded block scalar is ordinary text: 870 rendered
+/// characters, under the cap, and the ship is planned.
+#[test]
+fn ship_allows_folded_description_containing_colon_space() {
+    let repo = fixture(REMOTE);
+    let p = repo.path();
+    write(p, "demo/SKILL.md", "---\nname: demo\n---\nv1\n");
+    write(p, "demo.zip", "z1");
+    write(p, "demo.skill", "s1");
+    run_git(p, &["add", "demo/SKILL.md", "demo.zip", "demo.skill"]);
+    run_git(p, &["commit", "-qm", "init"]);
+    write(
+        p,
+        "demo/SKILL.md",
+        &skill_md_with_folded_colon_description(870),
+    );
+    write(p, "demo.zip", "z2");
+    write(p, "demo.skill", "s2");
+
+    let out = bin()
+        .args([
+            "skill",
+            "ship",
+            "--repo",
+            p.to_str().unwrap(),
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let v: Value = serde_json::from_slice(&out).expect("valid JSON");
+    assert_eq!(v["data"]["status"], "planned");
+    assert!(v["data"]["shipped_skills"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|s| s == "demo"));
 }
 
 #[test]
