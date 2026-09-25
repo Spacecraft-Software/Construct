@@ -300,8 +300,8 @@ On an Orca host the arrangement is: `enableOrca = false`, plus
 `spacecraft.construct.perSkillLinks.enable = true` so `~/.agents/skills` is a
 real directory with room for `orca skills install` (`npx skills add`) to own
 `computer-use/`, `orca-cli/`, `orchestration/` as real, writable directories.
-The module never clobbers a real directory it did not create, and prunes only
-symlinks pointing into its own tree.
+The module never replaces a real directory or a symlink it did not make, and
+prunes only symlinks pointing into its own tree.
 
 Turn `enableOrca` on only where nothing else provides these skills — no Orca
 app, an air-gapped host, a container image. `packages.skills-with-orca` builds
@@ -436,12 +436,16 @@ to own — which is what an Orca host needs (see *Vendored Orca skills* above).
 `per-skill` exists because `dir-symlink` leaks: through a directory symlink,
 an agent's private writes (Claude Code's `synced/`, Codex's `.system/`) land
 inside the shared hub, where every other agent sees them. The per-skill
-renderer is the hub's own — it never replaces a real entry and prunes only
-links into its own tree — so the agent's directory keeps whatever else lives
-there. `none` mirrors the Vercel `skills` CLI's "universal" agents: nothing to
-render, and the only write is removing a hub symlink an earlier generation of
-the module left behind. `dir-symlink` stays the default for compatibility and
-never removes a real directory it finds at the path.
+renderer is the hub's own — it never replaces a real entry or a symlink it did
+not make (a Vercel relative link, a user's override), and prunes only links
+into its own tree — so the agent's directory keeps whatever else lives there.
+A regular file or a foreign symlink at the path itself skips that entry with a
+stderr note; the activation carries on. `none` mirrors the Vercel `skills`
+CLI's "universal" agents: nothing to render, and the only write is removing a
+hub symlink an earlier generation of the module left behind. `dir-symlink`
+stays the default for compatibility, never removes a real directory it finds
+at the path, and re-points only a symlink it made itself. A trailing `/` on a
+path is stripped; an absolute, empty or duplicated path fails evaluation.
 
 The same renderer draws `~/.grok/skills` (links straight into the store — the
 Grok tree has no mutable pointer). Every tree goes through that one function in

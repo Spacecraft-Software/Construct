@@ -226,6 +226,23 @@
           # Absolute path of the pointer directory, and of the two links in it.
           stateDir = "$HOME/${cfg.mutablePointer.stateDir}";
 
+          # What "a symlink this module made" means, as `case` patterns over
+          # `readlink` output. Bound once and used by every place that decides
+          # whether a symlink may be replaced, so the answer cannot differ by
+          # mode. Anything that matches neither is someone else's — a Vercel
+          # `skills add` relative link (`../../.agents/skills/<x>`), a user's
+          # override into a checkout — and is reported and left as found.
+          #
+          #   ownDirLink  — a whole-directory link at an agent path: to the hub,
+          #                 or straight into the store (an older home.file
+          #                 install).
+          #   ownLeafLink — a per-skill link on a skill's name: into the store,
+          #                 or through the pointer — how an earlier generation
+          #                 drew it before a tree bump or a pointer toggle. The
+          #                 renderer adds its own current `"$src"/*` in front.
+          ownDirLink = ''"$HOME/.agents/skills" | "${builtins.storeDir}"/*'';
+          ownLeafLink = ''"${builtins.storeDir}"/* | "${stateDir}/current"/*'';
+
           # THE per-skill link renderer, shared by every tree this module
           # materialises. One implementation on purpose: the ~/.agents and
           # ~/.grok trees differ only in their source and destination, and two
@@ -253,6 +270,21 @@
               if [ -e "$t" ] && [ ! -L "$t" ]; then
                 echo "construct: $t is a real directory owned by another installer — left as is" >&2
                 continue
+              fi
+              # A symlink on that name is re-pointed only when this module
+              # made it: into `$src`, or — from an earlier generation — into
+              # the store or through the pointer. Any other link is someone
+              # else's (a Vercel `skills add` relative link, a user's
+              # override); re-pointing it would be the clobbering the docs
+              # promise never happens.
+              if [ -L "$t" ]; then
+                case "$(readlink "$t")" in
+                  "$src"/* | ${ownLeafLink}) ;;
+                  *)
+                    echo "construct: $t is a symlink to $(readlink "$t"), which this module did not make — left as is" >&2
+                    continue
+                    ;;
+                esac
               fi
               $DRY_RUN_CMD ln -sfn "$src/$n" "$t"
             done
@@ -291,6 +323,16 @@
             ".codex/skills"
           ];
 
+          # A home-relative path with any trailing `/` removed. The slash is
+          # not cosmetic: `[ -L "$target/" ]` is FALSE for a symlink (the
+          # trailing slash makes the kernel resolve it first), so an
+          # un-normalised `.kiro/skills/` sitting on a hub link would not be
+          # recognised as a link at all, and per-skill would render THROUGH
+          # it — into the shared hub, the very leak the mode exists to stop.
+          normalisePath = p:
+            let m = builtins.match "(.*[^/])/+" p;
+            in if m == null then p else builtins.head m;
+
           # One `agentPaths` entry. A bare string is the pre-mode spelling and
           # is coerced, so `agentPaths = [ ".claude/skills" ]` keeps meaning
           # exactly what it always did.
@@ -299,9 +341,12 @@
               options = {
                 path = lib.mkOption {
                   type = lib.types.str;
+                  apply = normalisePath;
                   description = ''
                     Home-relative path of the agent's skills directory,
-                    e.g. `.claude/skills`.
+                    e.g. `.claude/skills`. A trailing `/` is stripped; an
+                    absolute path, an empty one, or a path listed twice
+                    fails evaluation.
                   '';
                 };
                 mode = lib.mkOption {
@@ -339,17 +384,26 @@
               # directory of per-skill links. Whatever the agent writes there
               # (Claude Code's `synced/`, Codex's `.system/`) stays private to
               # it and survives every activation, because the renderer never
-              # replaces a real entry and prunes only links into `$src` — a
-              # Vercel-style relative link (`../../.agents/skills/<x>`), a
-              # real directory another installer owns, or the agent's own
-              # dot-directory is untouched.
+              # replaces a real entry or a symlink it did not make, and prunes
+              # only links into `$src` — a Vercel-style relative link
+              # (`../../.agents/skills/<x>`), a real directory another
+              # installer owns, or the agent's own dot-directory is untouched.
               per-skill = ''
                 # ${path}: mode = "per-skill"
                 target=${target}
                 ours=1
-                if [ -L "$target" ]; then
+                if [ -e "$target" ] && [ ! -d "$target" ] && [ ! -L "$target" ]; then
+                  # A regular file (or a fifo, a socket …) on the path. The
+                  # renderer's `mkdir -p` fails on it, and under the
+                  # activation's `set -e` that one failure takes the whole
+                  # script down — every entry after this one is left
+                  # unrendered while `nixos-rebuild` still reports success.
+                  # Say so and skip the entry instead.
+                  echo "construct: $target is not a directory — left as is" >&2
+                  ours=
+                elif [ -L "$target" ]; then
                   case "$(readlink "$target")" in
-                    "$HOME/.agents/skills" | "${builtins.storeDir}"/*)
+                    ${ownDirLink})
                       # A directory symlink this module made in an earlier
                       # generation (to the hub, or straight into the store).
                       # It has to go before a directory can take its place.
@@ -380,7 +434,24 @@
                   # the user — this mode never creates one, and removing it
                   # was this module's one data-loss path.
                   echo "construct: $target is not a symlink — left as is (mode = \"per-skill\" populates a real directory)" >&2
-                elif [ "$(readlink "$target" 2>/dev/null || true)" != "$HOME/.agents/skills" ]; then
+                elif [ -L "$target" ]; then
+                  # The same classification per-skill applies to the path: a
+                  # link this module made (to the hub, or straight into the
+                  # store from an earlier generation) is re-pointed; anyone
+                  # else's is reported and left exactly as found.
+                  case "$(readlink "$target")" in
+                    "$HOME/.agents/skills")
+                      # Already right — no write, so a dry run stays quiet.
+                      ;;
+                    ${ownDirLink})
+                      # Ours, from an earlier generation: re-point it.
+                      $DRY_RUN_CMD ln -sfn "$HOME/.agents/skills" "$target"
+                      ;;
+                    *)
+                      echo "construct: $target is a symlink to $(readlink "$target"), which this module did not make — left as is" >&2
+                      ;;
+                  esac
+                else
                   $DRY_RUN_CMD mkdir -p "$(dirname "$target")"
                   $DRY_RUN_CMD ln -sfn "$HOME/.agents/skills" "$target"
                 fi
@@ -494,8 +565,10 @@
               them, and a directory symlink into the store gives it nowhere.
 
               A real directory already sitting on a skill's name is left alone
-              and reported, never replaced. Pruning is limited to symlinks that
-              point INTO the tree, so a foreign skill survives every rebuild.
+              and reported, never replaced — and so is a symlink that points
+              anywhere but into this module's own tree, the store or the
+              pointer. Pruning is limited to symlinks that point INTO the
+              tree, so a foreign skill survives every rebuild.
 
               The Grok tree needs this for the same reason and gets the same
               renderer: while `~/.grok/skills` is a whole-directory store link,
@@ -544,19 +617,30 @@
                 - `"per-skill"` — for an agent that only reads its own
                   directory. The path becomes a REAL directory holding one
                   symlink per Construct skill, rendered by the same code as
-                  the hub, so an entry the agent or another installer put
-                  there (Claude Code's `synced/`, a Vercel `skills add` leaf)
-                  is never clobbered and only this module's own links are
-                  pruned. A symlink already at the path is replaced only when
-                  it points at the hub or into the Nix store — a link this
-                  module made — and any other symlink is reported and the
-                  entry skipped.
+                  the hub. The renderer makes, re-points and prunes only its
+                  own links — those into its source tree, the Nix store or
+                  the pointer. A real entry on a skill's name (Claude Code's
+                  `synced/`, a directory another installer owns) and a
+                  symlink pointing anywhere else (a Vercel `skills add`
+                  relative link, a user's override) are each reported and
+                  left as found. The path itself gets the same treatment: a
+                  symlink there is replaced only when it points at the hub
+                  or into the Nix store; any other symlink, or a regular
+                  file, is reported and the entry skipped — the activation
+                  carries on with the next entry.
                 - `"dir-symlink"` — the default, kept for compatibility and
                   discouraged: the path becomes one directory symlink to the
                   hub, so anything the agent writes under its own skills
                   directory lands in the shared hub, where every other agent
-                  sees it. A real directory already at the path is reported
-                  and left alone, never removed.
+                  sees it. A real directory or file already at the path is
+                  reported and left alone, never removed, and a symlink is
+                  re-pointed only when this module made it (to the hub or
+                  into the Nix store) — any other symlink is reported and
+                  left as found.
+
+                A trailing `/` on a path is stripped. An absolute path, an
+                empty one, or the same path listed twice fails evaluation
+                with a message naming the entry.
               '';
             };
           };
@@ -680,6 +764,37 @@
             })
 
             (lib.mkIf cfg.enable {
+              # Every path is checked AFTER `normalisePath`, so `.kiro/skills`
+              # and `.kiro/skills/` count as the same entry. An absolute path
+              # would render as `"$HOME"/'/home/…'`; an empty one as `$HOME`
+              # itself — and per-skill would then draw the whole hub into it.
+              assertions =
+                let
+                  paths = map (e: e.path) cfg.agentPaths;
+                  quoted = lib.concatMapStringsSep ", " (p: "\"${p}\"");
+                  notRelative = builtins.filter
+                    (p: p == "" || lib.hasPrefix "/" p) paths;
+                  duplicates = lib.unique
+                    (builtins.filter (p: lib.count (q: q == p) paths > 1) paths);
+                in [
+                  {
+                    assertion = notRelative == [ ];
+                    message = ''
+                      spacecraft.construct.agentPaths: every `path` must be
+                      non-empty and home-relative (`.claude/skills`, not
+                      `/home/you/.claude/skills`); offending: ${quoted notRelative}
+                    '';
+                  }
+                  {
+                    assertion = duplicates == [ ];
+                    message = ''
+                      spacecraft.construct.agentPaths: each `path` may be
+                      listed once (a trailing `/` is stripped before the
+                      comparison); listed more than once: ${quoted duplicates}
+                    '';
+                  }
+                ];
+
               # Each agent's own skills directory, populated per its
               # `agentPaths` mode. Done via activation so a dir-symlink can
               # point at the home-relative ~/.agents/skills rather than a
