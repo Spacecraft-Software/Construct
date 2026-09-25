@@ -438,6 +438,21 @@
               home.activation."spacecraft-construct-skill-pointer" =
                 lib.hm.dag.entryAfter [ "linkGeneration" ] (''
                   $DRY_RUN_CMD mkdir -p "${stateDir}"
+                ''
+                # The move-aside guard belongs to the directory-symlink layout
+                # ONLY. Under perSkillLinks the hub IS a real directory — that
+                # is the option's whole purpose — so the guard's test was true
+                # on every activation and it moved the entire hub aside each
+                # time (one `skills.pre-pointer.<ts>` per rebuild: 42 of them,
+                # 140 MB, on the host where this was diagnosed). The per-skill
+                # entry then recreated the hub holding only this module's
+                # links, so every foreign entry — Orca's three, claude.ai's
+                # `synced/`, Codex's `.system/` — vanished at each rebuild
+                # until its owner reinstalled it. The per-skill renderer
+                # already handles the one case the guard existed for (a
+                # directory symlink left by an earlier generation); a real
+                # directory at the hub is its normal state there, not a fossil.
+                + lib.optionalString (!cfg.perSkillLinks.enable) ''
 
                   # A REAL directory here predates the pointer (or Construct
                   # itself). `ln -sfn` will not replace one, it fails and takes
@@ -447,6 +462,8 @@
                     $DRY_RUN_CMD mv "$HOME/.agents/skills" \
                       "$HOME/.agents/skills.pre-pointer.$(date -u +%Y%m%dT%H%M%SZ)"
                   fi
+                ''
+                + ''
 
                   # Point at `pinned` — NEVER at pinned's store target. Via
                   # `pinned` the tree is rooted by this generation for free, and
