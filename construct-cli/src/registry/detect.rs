@@ -4,8 +4,13 @@
 //! Filesystem detection for the registry: where an agent's skills directory
 //! lives, whether an agent looks installed, and — critically — whether a target
 //! directory is **managed by the Construct Home-Manager module** (a symlink to
-//! `~/.agents/skills`). The HM-managed check is what keeps the imperative
-//! installer from clobbering the declarative install (the coexistence rule).
+//! `~/.agents/skills` — the module's `dir-symlink` mode for `agentPaths`). The
+//! HM-managed check is what keeps the imperative installer from clobbering the
+//! declarative install (the coexistence rule). A directory the module renders
+//! in its `per-skill` mode is a real directory of per-skill links and
+//! classifies as `Occupied`, like any real directory, so the refusal does not
+//! fire for it — an imperative install may add a leaf beside the module's own
+//! links, which is the Vercel-shaped coexistence that mode exists for.
 
 use std::path::{Path, PathBuf};
 

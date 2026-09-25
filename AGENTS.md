@@ -37,7 +37,7 @@ The repo is also a Nix flake (`flake.nix` + `flake.lock`). The flake exposes
 each detected skill as `packages.${system}.${skill-name}` (each Grok skill as
 `packages.${system}.grok-${skill-name}`, each Android skill similarly
 namespaced) and ships `homeManagerModules.default` that wires up the canonical
-`~/.agents/skills/` location plus per-harness symlinks. **`flake.lock` is
+`~/.agents/skills/` location plus per-agent directories. **`flake.lock` is
 tracked and must be committed.** Skill auto-detection is by `SKILL.md`
 presence — adding a new skill directory is enough; no flake edit needed.
 `grok-skills`, `android-skills`, `Excluded`, `.claude`, `.git`, and
@@ -412,39 +412,51 @@ Full rationale, the category table, and the regeneration rules live in
 
 ## Local agent fan-out (Home Manager hosts)
 
-Local fan-out is managed by **Home Manager**, not by the assistant. Every
-per-harness path is a symlink to the canonical `~/.agents/skills`, which under
-`mutablePointer` chains through a mutable pointer into the store:
+Local fan-out is managed by **Home Manager**, not by the assistant. The
+canonical tree is `~/.agents/skills`, which under `mutablePointer` chains
+through a mutable pointer into the store, and which most agents (Codex, Gemini
+CLI, Goose, Kimi, OpenCode, Kilo, Mimo, Cursor, Grok, Copilot, Orca) read
+directly. An agent that only reads its own directory gets it populated per
+`spacecraft.construct.agentPaths`, where each entry carries a `mode`:
 
 ```
-~/.claude/skills            → ~/.agents/skills
-~/.agents/skills            → ~/.local/state/construct/current
+~/.agents/skills                 → ~/.local/state/construct/current            # the hub
 ~/.local/state/construct/current → …/pinned → /nix/store/<hash>-construct-skills
+~/.claude/skills/<skill>         → ~/.local/state/construct/current/<skill>    # mode = "per-skill": a REAL directory, one link per skill
+~/.agent/skills                  → ~/.agents/skills                            # mode = "dir-symlink": the default, what a bare string means
+~/.codex/skills                    (untouched)                                 # mode = "none": the agent reads the hub itself
 ```
 
-With `perSkillLinks.enable = true` the middle step changes shape: `~/.agents/skills`
-is a **real directory** whose entries are per-skill symlinks into
-`…/construct/current/<skill>`. Same content, but names the module does not carry
-stay free for another installer to own — which is what an Orca host needs (see
-*Vendored Orca skills* above).
+With `perSkillLinks.enable = true` the hub takes the same shape as a
+`per-skill` agent directory: `~/.agents/skills` is a **real directory** whose
+entries are per-skill symlinks into `…/construct/current/<skill>`. Same
+content, but names the module does not carry stay free for another installer
+to own — which is what an Orca host needs (see *Vendored Orca skills* above).
 
-The same option renders `~/.grok/skills` the same way (links straight into the
-store — the Grok tree has no mutable pointer). Both trees go through one shared
-renderer in `flake.nix`, so what gets clobbered and what gets pruned cannot
-diverge between them.
+`per-skill` exists because `dir-symlink` leaks: through a directory symlink,
+an agent's private writes (Claude Code's `synced/`, Codex's `.system/`) land
+inside the shared hub, where every other agent sees them. The per-skill
+renderer is the hub's own — it never replaces a real entry and prunes only
+links into its own tree — so the agent's directory keeps whatever else lives
+there. `none` mirrors the Vercel `skills` CLI's "universal" agents: nothing to
+render, and the only write is removing a hub symlink an earlier generation of
+the module left behind. `dir-symlink` stays the default for compatibility and
+never removes a real directory it finds at the path.
 
-Paths populated by Home Manager: `~/.claude/skills/`, `~/.codex/skills/`,
-`~/.ai/skills/`, `~/.agent/skills/`. Gemini CLI's scan path is Home Manager's
-responsibility on this host as well — the assistant does not provision it.
+The same renderer draws `~/.grok/skills` (links straight into the store — the
+Grok tree has no mutable pointer). Every tree goes through that one function in
+`flake.nix`, so what gets clobbered and what gets pruned cannot diverge.
 
-The Nix flake's `homeManagerModules.default` (in `flake.nix`) provides a
-unified path layout for new consumers: install once to `~/.agents/skills/` and
-symlink every per-harness path (`~/.claude/skills`, `~/.gemini/skills`,
-`~/.codex/skills`, `~/.ai/skills`, `~/.agent/skills`) to that canonical
-location. Grok skills install separately to `~/.grok/skills/` because of
-their different bundle layout. This host is already on the module
-(`spacecraft.construct` in `bravais/users/mj/home.nix`, with `mutablePointer`
-and a longer `agentPaths` list).
+Which paths Home Manager populates on this host is stated by `agentPaths` in
+`bravais/users/mj/home.nix` (`spacecraft.construct`, with `mutablePointer`,
+`perSkillLinks` and a mode per agent). Gemini CLI's scan path is Home
+Manager's responsibility on this host as well — the assistant does not
+provision it.
+
+The Nix flake's `homeManagerModules.default` (in `flake.nix`) provides that
+layout for new consumers: install once to `~/.agents/skills/`, then populate
+only the directories of agents that cannot read it. Grok skills install
+separately to `~/.grok/skills/` because of their different bundle layout.
 
 **After a PR merges, Home Manager must be rebuilt** before per-harness paths
 resolve to the new content. The maintainer runs the rebuild manually
