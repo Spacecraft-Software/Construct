@@ -144,10 +144,33 @@ module:
 ```
 
 With `enable`, all cross-platform skills are installed to `~/.agents/skills/`
-and every known agent harness's skill path
-(`~/.claude/skills`, `~/.gemini/skills`, `~/.codex/skills`, `~/.ai/skills`,
-`~/.agent/skills`) becomes a directory symlink to that canonical location.
-Add more paths via `spacecraft.construct.agentPaths`.
+— the canonical hub, which most agents (Codex, Gemini CLI, Goose, Kimi,
+OpenCode, Kilo, Mimo, Cursor, Grok, Copilot, Orca) read directly. Agents that
+only read their own directory are listed in `spacecraft.construct.agentPaths`,
+each entry a home-relative path with a `mode`:
+
+- `"per-skill"` — the directory becomes a real directory holding one symlink
+  per skill, drawn by the hub's own renderer. The renderer makes, re-points
+  and prunes only its own links (those into the hub's source, the Nix store or
+  the pointer); a real entry or a foreign symlink on a skill's name — a Vercel
+  `skills add` link, a user's override — is reported and left as found, so
+  anything the agent writes there stays private to it. A regular file or a
+  foreign symlink at the path itself skips that entry with a note; the
+  activation carries on. This is the mode for Claude Code (`.claude/skills`),
+  Kiro CLI (`.kiro/skills`), Qwen Code (`.qwen/skills`) and Antigravity
+  (`.gemini/config/skills`).
+- `"none"` — for an agent that reads the hub itself; the module only removes a
+  hub symlink it left there in an earlier generation.
+- `"dir-symlink"` — the default, and what a bare string means, kept for
+  compatibility: one directory symlink to the hub. Discouraged, because
+  whatever the agent writes under its own skills directory then lands in the
+  shared hub. A real directory, a file, or a symlink the module did not make
+  at the path is reported and left alone. The module's default list
+  (`.agent/skills`, `.claude/skills`, `.ai/skills`, `.gemini/skills`,
+  `.codex/skills`) still uses it, so an existing configuration is unchanged.
+
+A trailing `/` on a path is stripped; an absolute path, an empty one, or a
+path listed twice fails evaluation with a message naming the entry.
 
 With `enableGrok`, Grok-specific skills (from [`grok-skills/`](grok-skills/))
 install to `~/.grok/skills/` — kept separate because Grok's bundle format is

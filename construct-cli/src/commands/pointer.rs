@@ -5,8 +5,9 @@
 //! and the build half of `skill sync --build`.
 //!
 //! Under the Home-Manager module's `mutablePointer` mode, `~/.agents/skills`
-//! is a symlink to `<stateDir>/current`, and `current` points at one of exactly
-//! two links beside it:
+//! resolves through `<stateDir>/current` — as one directory symlink to it, or,
+//! under `perSkillLinks`, as a real directory holding one symlink per skill
+//! into it — and `current` points at one of exactly two links beside it:
 //!
 //! * `<stateDir>/pinned` — "tracking the flake". Home-Manager-owned, so the
 //!   tree is GC-rooted through the generation.
