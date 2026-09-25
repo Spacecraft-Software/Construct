@@ -6,10 +6,12 @@
 //!
 //! It detects local skill edits in the construct clone, **enforces** the
 //! `.zip`/`.skill` bundling discipline (refusing to commit a skill-dir change
-//! whose bundles weren't rebuilt — it does not rebuild them itself), stages the
-//! shipped paths **explicitly by name** (never `git add -A`), creates a signed
-//! UTC commit (via the repo's gitway signing config), pushes a **feature
-//! branch**, and opens a **pull request**.
+//! whose bundles weren't rebuilt — it does not rebuild them itself) and the
+//! Standard §5.6 description gate (refusing a description over the cap, or a
+//! frontmatter no strict YAML parser can read), stages the shipped paths
+//! **explicitly by name** (never `git add -A`), creates a signed UTC commit
+//! (via the repo's gitway signing config), pushes a **feature branch**, and
+//! opens a **pull request**.
 //!
 //! It never pushes to the default branch. `CONTRIBUTING.md` requires every
 //! change — including a one-line version bump — to go through a feature branch
@@ -125,41 +127,10 @@ pub(crate) fn run(ctx: &Context, args: &ShipArgs) -> Result<CommandOutput, AppEr
         .with_extension("drifted_skills", json!(drifted)));
     }
 
-    // Enforce the Standard §5.6 description cap before anything is staged: the
+    // Enforce the Standard §5.6 description gate before anything is staged: the
     // loader rejects an over-long description at install time, by which point
     // the bundles are built, committed, and pushed. Cheaper to refuse here.
-    let oversized: Vec<(String, usize)> = shipped
-        .iter()
-        .filter_map(|skill| {
-            let len = skillmd::description_len(&repo.join(skill).join("SKILL.md"))?;
-            (len > DESCRIPTION_CAP).then(|| (skill.clone(), len))
-        })
-        .collect();
-    if let Some((first, _)) = oversized.first() {
-        let detail = oversized
-            .iter()
-            .map(|(skill, len)| format!("{skill} ({len} chars, {} over)", len - DESCRIPTION_CAP))
-            .collect::<Vec<_>>()
-            .join(", ");
-        return Err(AppError::new(
-            ctx,
-            ErrorCode::Conflict,
-            5,
-            format!("SKILL.md description exceeds the {DESCRIPTION_CAP}-character cap: {detail}"),
-            format!("python3 .githooks/check-description-length.py {first}/SKILL.md"),
-        )
-        .with_extension(
-            "oversized_skills",
-            json!(oversized
-                .iter()
-                .map(|(skill, len)| json!({
-                    "skill": skill,
-                    "chars": len,
-                    "over_by": len - DESCRIPTION_CAP,
-                }))
-                .collect::<Vec<_>>()),
-        ));
-    }
+    check_descriptions(ctx, &repo, &shipped)?;
 
     // Build the explicit stage list: shipped skills' files + their bundles +
     // catalogue-level root files (README.md, flake.lock). Never `git add -A`.
@@ -303,6 +274,79 @@ pub(crate) fn run(ctx: &Context, args: &ShipArgs) -> Result<CommandOutput, AppEr
         pr_url,
     ));
     Ok(CommandOutput::new(data, human))
+}
+
+/// Enforce the Standard §5.6 description gate on every shipped skill.
+///
+/// Two refusals, both `CONFLICT` / exit 5. A frontmatter that does not parse is
+/// reported first, because nothing else about the skill can be measured until
+/// it does. It is a failure of this gate rather than an exemption from it: a
+/// strict loader sees no `description` at all for such a skill, and treating
+/// "unmeasurable" as "nothing to measure" is how a plain-scalar description
+/// containing `: ` (a YAML mapping, not a string) shipped past this command
+/// while `construct skill find` listed the skill with no description.
+fn check_descriptions(ctx: &Context, repo: &Path, shipped: &[String]) -> Result<(), AppError> {
+    let mut invalid: Vec<(String, String)> = Vec::new();
+    let mut oversized: Vec<(String, usize)> = Vec::new();
+    for skill in shipped {
+        match skillmd::description_len(&repo.join(skill).join("SKILL.md")) {
+            Err(err) => invalid.push((skill.clone(), err.reason().to_owned())),
+            Ok(Some(len)) if len > DESCRIPTION_CAP => oversized.push((skill.clone(), len)),
+            Ok(_) => {}
+        }
+    }
+
+    if !invalid.is_empty() {
+        let detail = invalid
+            .iter()
+            .map(|(skill, reason)| format!("{skill} ({reason})"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        return Err(AppError::new(
+            ctx,
+            ErrorCode::Conflict,
+            5,
+            format!("SKILL.md frontmatter is not valid YAML: {detail}"),
+            format!(
+                "cd {} && python3 .github/validate-configs.py",
+                repo.display()
+            ),
+        )
+        .with_extension(
+            "invalid_frontmatter",
+            json!(invalid
+                .iter()
+                .map(|(skill, reason)| json!({ "skill": skill, "error": reason }))
+                .collect::<Vec<_>>()),
+        ));
+    }
+
+    if let Some((first, _)) = oversized.first() {
+        let detail = oversized
+            .iter()
+            .map(|(skill, len)| format!("{skill} ({len} chars, {} over)", len - DESCRIPTION_CAP))
+            .collect::<Vec<_>>()
+            .join(", ");
+        return Err(AppError::new(
+            ctx,
+            ErrorCode::Conflict,
+            5,
+            format!("SKILL.md description exceeds the {DESCRIPTION_CAP}-character cap: {detail}"),
+            format!("python3 .githooks/check-description-length.py {first}/SKILL.md"),
+        )
+        .with_extension(
+            "oversized_skills",
+            json!(oversized
+                .iter()
+                .map(|(skill, len)| json!({
+                    "skill": skill,
+                    "chars": len,
+                    "over_by": len - DESCRIPTION_CAP,
+                }))
+                .collect::<Vec<_>>()),
+        ));
+    }
+    Ok(())
 }
 
 // ── git helpers ───────────────────────────────────────────────────────────-
@@ -723,7 +767,7 @@ fn pr_body(shipped: &[String]) -> String {
     }
     lines.push(String::new());
     lines.push(
-        "Bundle-drift and the Standard §5.6 description cap were enforced before staging."
+        "Bundle-drift, frontmatter validity and the Standard §5.6 description cap were enforced before staging."
             .to_owned(),
     );
     lines.push(String::new());
