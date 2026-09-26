@@ -132,6 +132,13 @@ variants are additive siblings, never replacements.
 *that palette's* `<slug>-high-contrast` sibling — take its lifts from
 `steelbore-color-palette`'s `assets/steelbore.toml`, not from the Modern
 table below. `steelbore-mono` is palette-independent and serves all of them.
+Resolve that file from the sibling skill
+(`../steelbore-color-palette/assets/steelbore.toml`) first. If this skill
+ships its own `assets/steelbore.toml` (a vendored copy some distributions
+include), read it only when the sibling `steelbore-color-palette` skill is
+absent. If neither is
+reachable, say so and ask the user for the `steelbore-color-palette` skill —
+never recall, approximate, or invent a hex value.
 Note `steelbore-navywhite` has a **light canvas**, so its high-contrast
 variant darkens foregrounds instead of lightening them; the principle holds —
 contrast comes from moving the foreground, never from abandoning the canvas.

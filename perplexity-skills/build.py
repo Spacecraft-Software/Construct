@@ -33,7 +33,7 @@ REFS = SRC / "references"
 OUT_ZIP = HERE / "spacecraft-cli-preference.zip"
 
 # Non-tool reference files: copied through verbatim, never consolidated.
-PASSTHROUGH_REFS = ("ATTRIBUTION.md", "local-execution.md")
+PASSTHROUGH_REFS = ("ATTRIBUTION.md", "execution-context.md", "local-execution.md")
 
 # category slug -> human title for the category file's top H1.
 CATEGORY_TITLES = {
@@ -148,7 +148,7 @@ def rewrite_skill(text: str, inv: dict[str, str]) -> str:
         token = m.group(1)
         cat = inv.get(token)
         if cat is None:
-            return m.group(0)  # local-execution, ATTRIBUTION, <tool> placeholder
+            return m.group(0)  # passthrough refs, <tool> placeholder
         return f"references/{cat}.md#{token}"
     return _LINK.sub(repl, text)
 
