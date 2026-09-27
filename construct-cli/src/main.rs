@@ -70,6 +70,25 @@ fn real_main() -> i32 {
         output::diagnostic::emit_tui_fallback(&ctx, reason);
     }
 
+    // Standard §18.1: report the resolved accessible mode and what decided
+    // it. `info` severity, so only `--verbose` shows it.
+    output::diagnostic::Diagnostic::new(
+        &ctx,
+        output::diagnostic::Severity::Info,
+        "ACCESSIBLE_MODE",
+        format!(
+            "accessible mode {} (source: {})",
+            if ctx.accessible { "on" } else { "off" },
+            ctx.accessible_source.label()
+        ),
+    )
+    .with_extension("accessible", serde_json::Value::Bool(ctx.accessible))
+    .with_extension(
+        "source",
+        serde_json::Value::String(ctx.accessible_source.label().to_owned()),
+    )
+    .emit(&ctx);
+
     let dispatched = std::panic::catch_unwind(AssertUnwindSafe(|| commands::dispatch(&cli, &ctx)));
 
     match dispatched {

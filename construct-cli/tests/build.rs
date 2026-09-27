@@ -1289,3 +1289,85 @@ fn real_catalogue_gemini_bundles_upload_clean() {
         cli.len()
     );
 }
+
+/// Stderr lines as JSON with the per-run fields (`timestamp`, `command`)
+/// removed, so two runs that differ only in flags compare equal.
+fn stable_stderr(assert: &assert_cmd::assert::Assert) -> Vec<Value> {
+    let stderr = String::from_utf8_lossy(&assert.get_output().stderr).into_owned();
+    stderr
+        .lines()
+        .map(|l| {
+            let mut v: Value = serde_json::from_str(l).expect("single-line JSON on stderr");
+            for key in ["diagnostic", "error"] {
+                if let Some(obj) = v.get_mut(key).and_then(Value::as_object_mut) {
+                    obj.remove("timestamp");
+                    obj.remove("command");
+                }
+            }
+            v
+        })
+        .collect()
+}
+
+/// Assert no progress artifact (carriage return, ANSI escape, spinner glyph,
+/// accessible `Working:` line) leaked onto either stream.
+fn assert_no_progress(assert: &assert_cmd::assert::Assert) {
+    let out = assert.get_output();
+    for (name, bytes) in [("stdout", &out.stdout), ("stderr", &out.stderr)] {
+        let text = String::from_utf8_lossy(bytes);
+        assert!(!text.contains('\r'), "{name} carries a carriage return");
+        assert!(!text.contains('\u{1b}'), "{name} carries an ANSI escape");
+        assert!(!text.contains("Working:"), "{name} carries an a11y line");
+        assert!(!text.contains('⠋'), "{name} carries a spinner frame");
+    }
+}
+
+/// Progress is stderr-only and human-TTY-only: `--json`, and a piped run
+/// with no format flag (which the cascade resolves to JSON), are unchanged
+/// by `--accessible` / `SPACECRAFT_A11Y` and carry no progress bytes, even
+/// with a capable `TERM` and no agent env.
+#[test]
+fn progress_never_reaches_json_or_piped_output() {
+    let cat = catalogue();
+    let p = cat.path();
+    let repo = p.to_str().unwrap();
+    let run = |extra: &[&str], a11y: Option<&str>| {
+        let mut cmd = bin();
+        cmd.args(["skill", "build", "--repo", repo, "--dry-run"])
+            .args(extra)
+            .env("TERM", "xterm-256color")
+            .env_remove("AI_AGENT")
+            .env_remove("AGENT")
+            .env_remove("CI")
+            .env_remove("NO_COLOR")
+            .env_remove("SPACECRAFT_A11Y");
+        if let Some(v) = a11y {
+            cmd.env("SPACECRAFT_A11Y", v);
+        }
+        let assert = cmd.assert().success();
+        assert_no_progress(&assert);
+        assert
+    };
+
+    for base in [&["--json"][..], &[][..]] {
+        let plain = run(base, None);
+        let flagged = run(&[base, &["--accessible"]].concat(), None);
+        let env = run(base, Some("1"));
+        // `built_at` is the run's clock, the only field that legitimately moves.
+        let stable = |a: &assert_cmd::assert::Assert| {
+            let mut d = data(a);
+            if let Some(obj) = d.as_object_mut() {
+                obj.remove("built_at");
+            }
+            d
+        };
+        for other in [&flagged, &env] {
+            assert_eq!(stable(&plain), stable(other), "data changed for {base:?}");
+            assert_eq!(
+                stable_stderr(&plain),
+                stable_stderr(other),
+                "stderr changed for {base:?}"
+            );
+        }
+    }
+}

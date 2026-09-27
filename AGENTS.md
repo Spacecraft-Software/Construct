@@ -281,6 +281,12 @@ load skills from. It never runs git in that repository (only a read-only
 `.construct-vendor.toml` marker (no timestamp, no source path), refuses
 anything else unless `--force`, and never writes through a symlinked
 `.claude/`, `.claude/skills/`, or skill directory, even with `--force`.
+Long operations (`skill build`, clone/fetch in `skill add` / `skill update`,
+`skill sync`, `skill ship`) draw progress on stderr in human TTY mode only —
+never under `--json`, a pipe, an agent/CI env, `--quiet`, or `TERM=dumb`.
+`--accessible` / `SPACECRAFT_A11Y=1` (flag wins) switches it to static,
+append-only `Working: …` lines at most once per second (Standard §18).
+
 Read `construct-cli/AGENTS.md` before working inside
 this subdirectory — it governs that subtree, not this file.
 

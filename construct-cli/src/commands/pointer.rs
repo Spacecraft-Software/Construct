@@ -43,6 +43,7 @@ use serde_json::json;
 use crate::cli::{PointerArgs, SyncArgs};
 use crate::context::Context;
 use crate::output::error::{AppError, ErrorCode};
+use crate::output::progress;
 use crate::output::{CommandOutput, HumanRender};
 use crate::registry::detect::home_dir;
 
@@ -273,17 +274,20 @@ pub(crate) fn build_and_point(
     // `current -> pinned` always is.
     let built = built_beside(pointer);
 
-    let result = Proc::new("nix")
-        .args([
-            "--extra-experimental-features",
-            "nix-command flakes",
-            "build",
-            &target,
-            "--out-link",
-            &built.display().to_string(),
-        ])
-        .current_dir(flake_dir)
-        .output();
+    let result = progress::step_command(
+        ctx,
+        "building the skills tree (nix build)",
+        Proc::new("nix")
+            .args([
+                "--extra-experimental-features",
+                "nix-command flakes",
+                "build",
+                &target,
+                "--out-link",
+                &built.display().to_string(),
+            ])
+            .current_dir(flake_dir),
+    );
 
     let output = match result {
         Ok(output) => output,

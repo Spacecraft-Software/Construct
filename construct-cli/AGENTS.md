@@ -44,6 +44,15 @@ so run it locally before adding a dependency (Standard §3.3).
     `warn`+, default → `ok`+, `--verbose` → `info`+). See the CLI Standard's
     `references/diagnostics.md`.
   - `render.rs` — json / jsonl / yaml / csv / human renderers; `--fields`.
+  - `progress.rs` — progress bars and static step lines for long operations, **stderr
+    only**, enabled only in human mode with a TTY stderr, no `--quiet`, and
+    `TERM` ≠ `dumb` (resolved once into `Context::progress`); otherwise every
+    handle is a no-op and not a byte changes. `--accessible` /
+    `SPACECRAFT_A11Y` (flag wins; `Context::accessible`) swaps the animation
+    for append-only `Working: <label>… 40%` lines, ≤ 1 per second, then
+    `… done`. Every stderr writer (`Diagnostic::emit`, `emit_passthrough`,
+    `AppError`) goes through `progress::write_stderr`, which erases a live line
+    first — never write stderr around it.
   - `theme.rs` — the `steelbore` theme: the eleven Steelbore 2 role tokens of
     Standard §11.1 (no inline hex).
 - `src/commands/` — one handler per command.
@@ -84,6 +93,13 @@ so run it locally before adding a dependency (Standard §3.3).
 - All timestamps go through `time::now_iso8601()` → ISO 8601 UTC with `Z`. Never
   local time, never `chrono::Local` / `NaiveDateTime`.
 - Errors are `AppError` whose `hint` is a RUNNABLE command, not prose.
+- Progress never reaches stdout and is silent off a human TTY. A countable
+  in-process loop uses the animated `output::progress::Progress::bar`, never a
+  bare write. Every subprocess wait uses `progress::{step, step_command}`:
+  one static line before and a `done`/`failed` line after, no animation —
+  git, `gh`, and nix can all prompt on the terminal (credentials,
+  `accept-flake-config`), and a redraw would bury the prompt. `bundle::plan` reports its `(skill, target)` steps through a
+  callback, so the pipeline stays free of `Context` and output.
 - Every non-error stderr message goes through `output::diagnostic::Diagnostic`
   (or `emit_passthrough` for raw subprocess output) so the severity floor and
   `[TAG]` rendering apply — no bare `eprintln!` diagnostics.

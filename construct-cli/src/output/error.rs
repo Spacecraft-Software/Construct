@@ -8,8 +8,6 @@
 //! docs_url}` shape. The `hint` is always a runnable command, never prose, so an
 //! agent can self-correct ("tips thinking").
 
-use std::io::Write as _;
-
 use owo_colors::OwoColorize as _;
 use serde::Serialize;
 use serde_json::{Map, Value};
@@ -164,9 +162,9 @@ impl AppError {
         }
         let line = serde_json::to_string(&Wrapper { error: self })
             .unwrap_or_else(|_| String::from("{\"error\":{\"code\":\"INTERNAL_ERROR\"}}"));
-        let mut stderr = std::io::stderr();
-        let _ = writeln!(stderr, "{line}");
-        let _ = stderr.flush();
+        crate::output::progress::write_stderr(|stderr| {
+            let _ = writeln!(stderr, "{line}");
+        });
     }
 
     /// Render the error for a human terminal in the unified diagnostic layout
@@ -197,9 +195,10 @@ impl AppError {
 
     /// Write the human rendering to stderr.
     fn emit_human(&self, color: bool) {
-        let mut stderr = std::io::stderr();
-        let _ = write!(stderr, "{}", self.render_human(color));
-        let _ = stderr.flush();
+        let text = self.render_human(color);
+        crate::output::progress::write_stderr(|stderr| {
+            let _ = stderr.write_all(text.as_bytes());
+        });
     }
 }
 

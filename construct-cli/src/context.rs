@@ -6,9 +6,12 @@
 //! from the parsed [`Cli`] and passed by reference to each handler so behavior
 //! stays consistent across the whole surface.
 
+use std::io::IsTerminal as _;
+
 use crate::cli::Cli;
 use crate::output::diagnostic::Severity;
 use crate::output::mode::{self, OutputMode};
+use crate::output::progress;
 
 /// Resolved runtime settings for a single invocation.
 #[allow(
@@ -44,6 +47,34 @@ pub(crate) struct Context {
     /// Why `--format explore` fell back to JSON, when it did. Emitted as a
     /// `TUI_FALLBACK` warn diagnostic by `main` once the context exists.
     pub(crate) tui_fallback: Option<&'static str>,
+    /// Standard §18.1 accessible mode, resolved once (flag > env > off).
+    pub(crate) accessible: bool,
+    /// Which source decided [`Self::accessible`]; reported under `--verbose`.
+    pub(crate) accessible_source: A11ySource,
+    /// How long-operation progress is drawn on stderr (never on stdout).
+    pub(crate) progress: progress::Style,
+}
+
+/// Where the accessible-mode decision came from (Standard §18.1).
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub(crate) enum A11ySource {
+    /// `--accessible` / `--no-accessible`.
+    Flag,
+    /// `SPACECRAFT_A11Y`.
+    Env,
+    /// Nothing set: standard rendering, unchanged.
+    Default,
+}
+
+impl A11ySource {
+    /// Lowercase label for diagnostics.
+    pub(crate) fn label(self) -> &'static str {
+        match self {
+            Self::Flag => "flag",
+            Self::Env => "env",
+            Self::Default => "default",
+        }
+    }
 }
 
 impl Context {
@@ -52,6 +83,21 @@ impl Context {
     pub(crate) fn from_cli(cli: &Cli) -> Self {
         let g = &cli.global;
         let (mode, tui_fallback) = mode::resolve(g);
+        let flag = if g.accessible {
+            Some(true)
+        } else if g.no_accessible {
+            Some(false)
+        } else {
+            None
+        };
+        let (accessible, accessible_source) =
+            resolve_accessible(flag, std::env::var("SPACECRAFT_A11Y").ok().as_deref());
+        let gate = progress::enabled(
+            matches!(mode, OutputMode::HumanWithColor | OutputMode::HumanNoColor),
+            std::io::stderr().is_terminal(),
+            g.quiet,
+            std::env::var("TERM").as_deref() == Ok("dumb"),
+        );
         Self {
             command: invocation_string(),
             mode,
@@ -65,6 +111,9 @@ impl Context {
             absolute_time: g.absolute_time,
             severity_floor: resolve_floor(g.quiet, g.verbose, mode::is_agent_env()),
             tui_fallback,
+            accessible,
+            accessible_source,
+            progress: progress::style(gate, accessible, mode == OutputMode::HumanWithColor),
         }
     }
 
@@ -87,6 +136,27 @@ fn resolve_floor(quiet: bool, verbose: u8, agent_env: bool) -> Severity {
         Severity::Warn
     } else {
         Severity::Ok
+    }
+}
+
+/// Resolve Standard §18.1 accessible mode. Precedence, first match wins:
+/// `--accessible` / `--no-accessible` → `SPACECRAFT_A11Y` (`1`/`true`/`yes`/`on`
+/// enable; `0`/`false`/`no`/`off`/empty disable; anything else is ignored) →
+/// off. An explicit off at a higher level always wins. There is no config
+/// layer and no auto-detect hint yet: unset everywhere means the default
+/// presentation, unchanged.
+fn resolve_accessible(flag: Option<bool>, env: Option<&str>) -> (bool, A11ySource) {
+    if let Some(on) = flag {
+        return (on, A11ySource::Flag);
+    }
+    let parsed = env.and_then(|v| match v.trim().to_ascii_lowercase().as_str() {
+        "1" | "true" | "yes" | "on" => Some(true),
+        "" | "0" | "false" | "no" | "off" => Some(false),
+        _ => None,
+    });
+    match parsed {
+        Some(on) => (on, A11ySource::Env),
+        None => (false, A11ySource::Default),
     }
 }
 
@@ -114,6 +184,41 @@ mod tests {
         assert_eq!(resolve_floor(false, 0, true), Severity::Warn);
         // default → ok and up.
         assert_eq!(resolve_floor(false, 0, false), Severity::Ok);
+    }
+
+    #[test]
+    fn accessible_flag_beats_env() {
+        assert_eq!(
+            resolve_accessible(Some(false), Some("1")),
+            (false, A11ySource::Flag)
+        );
+        assert_eq!(
+            resolve_accessible(Some(true), Some("0")),
+            (true, A11ySource::Flag)
+        );
+    }
+
+    #[test]
+    fn accessible_env_values() {
+        assert_eq!(resolve_accessible(None, Some("1")), (true, A11ySource::Env));
+        assert_eq!(
+            resolve_accessible(None, Some("TRUE")),
+            (true, A11ySource::Env)
+        );
+        assert_eq!(
+            resolve_accessible(None, Some("0")),
+            (false, A11ySource::Env)
+        );
+        assert_eq!(resolve_accessible(None, Some("")), (false, A11ySource::Env));
+        assert_eq!(
+            resolve_accessible(None, Some("maybe")),
+            (false, A11ySource::Default)
+        );
+    }
+
+    #[test]
+    fn accessible_defaults_off() {
+        assert_eq!(resolve_accessible(None, None), (false, A11ySource::Default));
     }
 
     #[test]

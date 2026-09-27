@@ -302,3 +302,50 @@ fn help_for_nested_command_succeeds() {
     // `construct help skill sync` resolves the nested path and exits 0.
     bin().args(["help", "skill", "sync"]).assert().success();
 }
+
+#[test]
+fn describe_lists_the_accessible_global_flags() {
+    let out = bin()
+        .arg("describe")
+        .arg("--json")
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let value: Value = serde_json::from_slice(&out).expect("describe emits valid JSON");
+    let text = value.to_string();
+    assert!(
+        text.contains("\"--accessible\""),
+        "describe omits --accessible"
+    );
+    assert!(
+        text.contains("\"--no-accessible\""),
+        "describe omits --no-accessible"
+    );
+}
+
+#[test]
+fn accessible_and_no_accessible_conflict() {
+    bin()
+        .args(["describe", "--accessible", "--no-accessible"])
+        .assert()
+        .code(2);
+}
+
+#[test]
+fn verbose_reports_the_accessible_mode_source() {
+    let assert = bin()
+        .args(["describe", "--json", "--verbose", "--accessible"])
+        .assert()
+        .success();
+    let stderr = String::from_utf8_lossy(&assert.get_output().stderr).into_owned();
+    let line = stderr
+        .lines()
+        .find(|l| l.contains("ACCESSIBLE_MODE"))
+        .unwrap_or_else(|| panic!("no ACCESSIBLE_MODE diagnostic in: {stderr}"));
+    let v: Value = serde_json::from_str(line).expect("single-line diagnostic");
+    assert_eq!(v["diagnostic"]["severity"], "info");
+    assert_eq!(v["diagnostic"]["accessible"], true);
+    assert_eq!(v["diagnostic"]["source"], "flag");
+}

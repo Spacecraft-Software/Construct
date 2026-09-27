@@ -90,6 +90,15 @@ pub(crate) struct GlobalArgs {
     #[arg(long, short = '0', global = true)]
     pub(crate) print0: bool,
 
+    /// Accessible mode (Standard §18): no animation; progress as static,
+    /// append-only lines at most once per second. Beats `SPACECRAFT_A11Y`.
+    #[arg(long, global = true, conflicts_with = "no_accessible")]
+    pub(crate) accessible: bool,
+
+    /// Force accessible mode off, overriding `SPACECRAFT_A11Y=1`.
+    #[arg(long, global = true)]
+    pub(crate) no_accessible: bool,
+
     /// Assume "yes" for confirmations in non-interactive contexts.
     #[arg(long, short = 'y', visible_alias = "force", global = true)]
     pub(crate) yes: bool,

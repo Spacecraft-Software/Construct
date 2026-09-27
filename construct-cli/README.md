@@ -76,6 +76,33 @@ Machine output is a single `{ "metadata": …, "data": … }` document with ISO 
 UTC timestamps; errors are single-line `{ "error": … }` objects on stderr with a
 runnable `hint`.
 
+### Progress and accessible mode
+
+Long operations (`skill build`, the git clone/pull behind `skill add` /
+`skill update`, `nix flake update` and `nix build` behind `skill sync`, and
+the push / pull-request steps of `skill ship`) show progress on **stderr
+only**, and only when every condition holds: human output mode (no
+`--json`/`--format`, no agent or CI environment, stdout a TTY), stderr a TTY,
+no `--quiet`, and `TERM` not `dumb`. Everywhere else nothing is drawn, so
+piped and machine output is byte-for-byte what it was without progress. A
+diagnostic printed mid-operation erases the progress line first, so the two
+never share a row. `skill build` shows an animated bar; every subprocess
+step (git clone/pull, git push, `gh pr create`, `nix flake update`,
+`nix build`) is never animated — each can prompt on the terminal
+(credentials, nix's `accept-flake-config`), so it prints one static
+`Working: <step>…` line before and `… done` / `… failed` after, and a prompt
+stays readable.
+
+`--accessible` (or `SPACECRAFT_A11Y=1`) turns on Standard §18 accessible mode:
+no spinner, no animation, no cursor movement — progress becomes plain,
+append-only lines such as `Working: building bundles… 40%`, written only when
+the percentage rises and at most once per second, ending in
+`Working: building bundles… done`. Precedence: `--accessible` /
+`--no-accessible` beat `SPACECRAFT_A11Y` (`1`/`true`/`yes`/`on` on,
+`0`/`false`/`no`/`off` off), and unset everywhere means off. `--verbose`
+reports the resolved state and its source as an `ACCESSIBLE_MODE` info
+diagnostic.
+
 ## Build, test, lint
 
 ```sh

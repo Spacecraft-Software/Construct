@@ -278,13 +278,32 @@ struct Prepared {
     members: Members,
 }
 
+/// The number of `(skill, target)` steps [`plan`] reports through its
+/// `on_step` callback: every root skill for every target, plus each Grok-native
+/// skill for the `grok` target only.
+pub(crate) fn step_count(input: &BuildInput<'_>) -> usize {
+    let grok = if input.targets.contains(&Target::Grok) {
+        input.grok.len()
+    } else {
+        0
+    };
+    input.root.len() * input.targets.len() + grok
+}
+
 /// Gate, collect, project, transform, and encode every selected
 /// `(skill, target)` in memory. Writes nothing.
+///
+/// `on_step(skill, target)` is called once per `(skill, target)` pair just
+/// before it is built — [`step_count`] times in all — so a caller can report
+/// progress. The pipeline itself stays free of any output concern.
 ///
 /// # Errors
 ///
 /// [`BuildError`] naming every offender when any gate refuses.
-pub(crate) fn plan(input: &BuildInput<'_>) -> Result<Plan, BuildError> {
+pub(crate) fn plan(
+    input: &BuildInput<'_>,
+    on_step: &mut dyn FnMut(&str, Target),
+) -> Result<Plan, BuildError> {
     let mut plan = Plan::default();
     let wants_grok = input.targets.contains(&Target::Grok);
     let grok: Vec<SkillRef> = if wants_grok {
@@ -323,6 +342,7 @@ pub(crate) fn plan(input: &BuildInput<'_>) -> Result<Plan, BuildError> {
             if p.skill.origin == Origin::Grok && *target != Target::Grok {
                 continue;
             }
+            on_step(&p.skill.name, *target);
             match build_one(p, *target, categories.as_ref(), &siblings, &mut plan) {
                 Ok(artifacts) => {
                     for a in &artifacts {
