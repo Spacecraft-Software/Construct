@@ -39,6 +39,15 @@ toml = "0.8"
 jiff = { version = "0.2", default-features = false, features = ["std"] }
 owo-colors = "4"
 ratatui = "0.29"
+# Deterministic bundle writer for `skill build` (no `zip` binary needed in CI).
+# Default features pull aes/bzip2/zstd/lzma/time — none wanted;
+# `deflate-flate2-zlib-rs` is pure Rust (zlib-rs). zip 8.6 declares
+# rust-version 1.88, exactly this crate's MSRV — pin `~8.6` if a later minor
+# raises it.
+zip = { version = "8.6", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+# Faithful port of perplexity-skills/build.py's three patterns (already in the
+# lock transitively).
+regex = "1"
 
 [dev-dependencies]
 assert_cmd = "2"

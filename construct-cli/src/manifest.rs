@@ -342,7 +342,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                 ("3", "NOT_FOUND — repo path does not exist"),
                 (
                     "5",
-                    "CONFLICT — skill source changed without rebuilt .zip/.skill bundles, or a SKILL.md description exceeds the 1000-character cap (Standard §5.6)",
+                    "CONFLICT — skill source changed without rebuilt .zip/.skill bundles, or a SKILL.md description exceeds the 1000-character cap or compatibility exceeds 500 (Standard §5.6), or its frontmatter is not valid YAML",
                 ),
                 ("127", "DEPENDENCY_MISSING — git or gh not on PATH"),
             ]),
@@ -359,6 +359,187 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             supports_json: true,
             supports_dry_run: true,
             idempotent: false,
+            destructive: false,
+        },
+        CommandSpec {
+            name: "construct skill build".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "build".to_owned(),
+            description: "Build deterministic distributable bundles per target platform under dist/"
+                .to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "skills": { "type": "array", "items": { "type": "string" }, "description": "Skills to build (default: every root skill, plus Grok-native skills for the grok target)" },
+                    "target": { "type": "array", "items": { "type": "string", "enum": ["claude", "grok", "perplexity", "single-file", "all"] }, "default": ["all"], "description": "Targets to build" },
+                    "repo": { "type": "string", "format": "uri-reference", "description": "Construct catalogue clone to build from" },
+                    "out": { "type": "string", "format": "uri-reference", "description": "Output root; each target writes <out>/<target>/ (default: <repo>/dist)" }
+                }
+            }),
+            output_data: json!({
+                "type": "object",
+                "properties": {
+                    "repo": { "type": "string" },
+                    "out_dir": { "type": "string" },
+                    "targets": { "type": "array", "items": { "type": "string" } },
+                    "skills": { "type": "integer" },
+                    "written": { "type": "boolean" },
+                    "bundles": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "target": { "type": "string" },
+                                "skill": { "type": "string" },
+                                "path": { "type": "string" },
+                                "format": { "type": "string", "enum": ["zip", "skill", "md"] },
+                                "entries": { "type": "integer" },
+                                "bytes": { "type": "integer" }
+                            }
+                        }
+                    },
+                    "consolidated": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "skill": { "type": "string" },
+                                "files_before": { "type": "integer" },
+                                "files_after": { "type": "integer" },
+                                "categories": { "type": "integer" }
+                            }
+                        }
+                    },
+                    "palette_vendored": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "skill": { "type": "string" },
+                                "target": { "type": "string" },
+                                "path": { "type": "string" },
+                                "verified": { "type": "boolean" }
+                            }
+                        }
+                    },
+                    "skipped": { "type": "array", "items": { "type": "object" } },
+                    "fragments_dropped": { "type": "array", "items": { "type": "object" } },
+                    "built_at": { "type": "string", "format": "date-time" }
+                }
+            }),
+            exit_codes: pairs(&[
+                ("0", "SUCCESS — bundles written (or planned under --dry-run)"),
+                (
+                    "1",
+                    "INTERNAL_ERROR — an I/O failure, a frontmatter round-trip failure, or a written file (vendored palette included) that is not byte-identical to what was built",
+                ),
+                ("2", "USAGE_ERROR — bad --target value or other argument error"),
+                (
+                    "3",
+                    "NOT_FOUND — catalogue, skill name, palette source, or Perplexity categories map missing",
+                ),
+                (
+                    "5",
+                    "CONFLICT — a SKILL.md description exceeds 1000 characters or compatibility exceeds 500 (Standard §5.6), invalid or unprojectable frontmatter, missing LICENSE, symlink, Perplexity map problem, single-file anchor problem, or an output directory the build does not own (override with --force)",
+                ),
+            ]),
+            examples: pairs(&[
+                ("construct skill build", "Build every target into <repo>/dist/"),
+                (
+                    "construct skill build --target claude,grok --json",
+                    "Build two targets and report as JSON",
+                ),
+                (
+                    "construct skill build spacecraft-cli-preference --target perplexity --dry-run",
+                    "Validate one skill's Perplexity consolidation without writing",
+                ),
+            ]),
+            supports_json: true,
+            supports_dry_run: true,
+            idempotent: true,
+            destructive: false,
+        },
+        CommandSpec {
+            name: "construct skill vendor".to_owned(),
+            noun: "skill".to_owned(),
+            verb: "vendor".to_owned(),
+            description: "Vendor skills into a repository's .claude/skills/ for Claude Code cloud sessions (never runs git)"
+                .to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["skills"],
+                "properties": {
+                    "skills": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 64 }, "description": "Skills to vendor" },
+                    "into": { "type": "string", "format": "uri-reference", "description": "Consumer repository; writes <into>/.claude/skills/<name>/ (default: the enclosing git work tree)" },
+                    "source": { "type": "string", "description": "Catalogue source: a local path, git URL, or owner/repo (default: the local Construct clone)" }
+                }
+            }),
+            output_data: json!({
+                "type": "object",
+                "properties": {
+                    "into": { "type": "string" },
+                    "source": { "type": "string" },
+                    "written": { "type": "boolean" },
+                    "planned": { "type": "boolean" },
+                    "skills": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "skill": { "type": "string" },
+                                "path": { "type": "string" },
+                                "action": { "type": "string", "enum": ["created", "updated", "unchanged", "replaced"] },
+                                "files": { "type": "array", "items": { "type": "string" } }
+                            }
+                        }
+                    },
+                    "commit_paths": { "type": "array", "items": { "type": "string" } },
+                    "next_step": { "type": ["string", "null"] },
+                    "palette_vendored": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "skill": { "type": "string" },
+                                "path": { "type": "string" },
+                                "verified": { "type": "boolean" }
+                            }
+                        }
+                    },
+                    "note": { "type": "string" }
+                }
+            }),
+            exit_codes: pairs(&[
+                ("0", "SUCCESS — skills vendored, already current, or planned under --dry-run"),
+                (
+                    "1",
+                    "INTERNAL_ERROR — an I/O failure, or a written file (vendored palette included) that is not byte-identical to what was built",
+                ),
+                ("2", "USAGE_ERROR — no skill named, or a name that is not a valid skill id"),
+                (
+                    "3",
+                    "NOT_FOUND — source, --into directory, skill, or palette source missing; or no git work tree around the current directory when --into is omitted",
+                ),
+                (
+                    "5",
+                    "CONFLICT — a SKILL.md description exceeds 1000 characters or compatibility exceeds 500 (Standard §5.6), invalid frontmatter, missing LICENSE, symlink in the skill; a symlinked or non-directory .claude/skills path (never overridable); or a destination this command did not create or that holds files it did not write (override with --force)",
+                ),
+            ]),
+            examples: pairs(&[
+                (
+                    "construct skill vendor spacecraft-rust-guidelines microsoft-rust-guidelines",
+                    "Vendor two skills into the current repository's .claude/skills/",
+                ),
+                (
+                    "construct skill vendor spacecraft-brand-guidelines --into ../site --dry-run",
+                    "Preview vendoring one skill into another repository without writing",
+                ),
+            ]),
+            supports_json: true,
+            supports_dry_run: true,
+            idempotent: true,
             destructive: false,
         },
         CommandSpec {

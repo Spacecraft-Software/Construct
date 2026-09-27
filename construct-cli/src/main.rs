@@ -23,9 +23,12 @@
     reason = "AppError carries the full structured-error contract; boxing the cold error path is needless churn"
 )]
 
+mod bundle;
+mod catalogue;
 mod cli;
 mod commands;
 mod context;
+mod gate;
 mod install;
 mod manifest;
 mod output;

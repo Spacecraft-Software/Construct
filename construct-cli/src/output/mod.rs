@@ -44,6 +44,11 @@ pub(crate) enum HumanRender {
     },
     /// One or more ready-to-print message lines.
     Message(String),
+    /// A leading banner line (`[dry-run] …`) printed above another rendering.
+    Titled {
+        title: String,
+        body: Box<HumanRender>,
+    },
 }
 
 impl CommandOutput {

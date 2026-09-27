@@ -227,7 +227,8 @@ reference-heavy [`spacecraft-cli-preference`](spacecraft-cli-preference/) (110
 per-tool files) exceeds. [`perplexity-skills/`](perplexity-skills/) holds a
 **generated** consolidated bundle for it — the per-tool references merged into a
 handful of category files, same nested layout — produced by
-`perplexity-skills/build.py` from the canonical skill. It is a format variant of
+`construct skill build --target perplexity` from the canonical skill and the
+map in `perplexity-skills/categories.toml`. It is a format variant of
 an existing skill (like the Grok bundles), not a new first-party skill, so it is
 kept out of the §2 catalogue above. See the section's README for the
 regeneration contract.

@@ -47,6 +47,30 @@ so run it locally before adding a dependency (Standard §3.3).
   - `theme.rs` — the `steelbore` theme: the eleven Steelbore 2 role tokens of
     Standard §11.1 (no inline hex).
 - `src/commands/` — one handler per command.
+- `catalogue.rs` — root-skill discovery and `EXCLUDED_DIRS`, the one exclusion
+  set for `skill build` and `skill ship` (pinned by a unit test to
+  `.github/check-skill-frontmatter.py`'s `NOT_ROOT_SKILLS` and `flake.nix`'s
+  `excludedDirs`). `install::plan::NON_SKILL_DIRS` is different on purpose: it
+  serves arbitrary third-party sources.
+- `gate.rs` — the Standard §5.6 frontmatter gate (description ≤ 1000,
+  compatibility ≤ 500, strict YAML) shared by `ship`, `build`, and `vendor`. The counting
+  rule stays `sources::skillmd::field_len`; `gate` owns the policy and the
+  refusal shape.
+- `src/bundle/` — the **pure** pipeline behind `skill build`: `collect` →
+  `palette` → `frontmatter` (project + round-trip verify) → `consolidate`
+  (Perplexity: a faithful port of the retired `perplexity-skills/build.py`,
+  now the only generator of the committed
+  `perplexity-skills/spacecraft-cli-preference.zip`, driven by
+  `perplexity-skills/categories.toml`) / `single` (single-file render) →
+  `sink` (deterministic zips, atomic writes). `bundle::vendor_plan` runs the
+  same gates and `claude` projection for `skill vendor`, and `tree` is its
+  directory sink (ownership marker `.construct-vendor.toml`, stage → re-read →
+  swap, symlinks never followed). It never sees a `Context`, never prints, and
+  returns typed problems; `commands/build.rs` and `commands/vendor.rs` alone
+  map them to exit codes.
+  The four targets (`claude`, `grok`, `perplexity`, `single-file`), what each
+  platform is for, and the `dist/<target>/` layout are described under
+  *Distribution targets* in the repository-root `AGENTS.md`.
 - `manifest.rs` — the single source of truth for `schema` and `describe`; the
   `tests::manifest_in_sync_with_cli` test fails if it drifts from the clap tree.
 
@@ -64,6 +88,24 @@ so run it locally before adding a dependency (Standard §3.3).
 - Exit codes follow the canonical map (0,1,2,3,4,5,127,…).
 - Every `.rs` / `.toml` starts with the two-line SPDX header; license is
   `GPL-3.0-or-later`.
+- Build artifacts carry no timestamps: every zip entry uses the fixed
+  `sink::BUNDLE_EPOCH`, entries are byte-sorted, and deflate runs at a fixed
+  level, so identical inputs and an identical `Cargo.lock` give identical
+  bytes. `skill build` gates every selected skill before the first byte is
+  written (all-or-nothing) and replaces only directories carrying its
+  `.construct-build` marker unless `--force`.
+- Bundle and vendored file modes are host-independent: `0755` exactly when
+  the catalogue's git index records `100755` (one read-only
+  `git ls-files -s -z` per run), else `0644` — never the working-tree exec
+  bit, which `core.fileMode = false` makes unreliable.
+- A partial `skill build` (named skills) never writes the `.construct-build`
+  marker into a foreign directory, even under `--force`; only a directory it
+  created, an empty one, or a full `--force` replacement is adopted.
+- `skill vendor` never runs git in the consumer repository (its one git call
+  is that read-only `ls-files` on the source catalogue) and never writes
+  through a symlink (not even under `--force`); skill names are validated as
+  Agent Skills ids before any path is built from them. Tests always pass `--into <tempdir>` — a defaulted
+  `--into` from `construct-cli/` resolves to the Construct work tree itself.
 
 ## Forbidden
 

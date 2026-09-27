@@ -9,6 +9,7 @@
 //! code.
 
 pub(crate) mod agent;
+pub(crate) mod build;
 pub(crate) mod describe;
 pub(crate) mod explore;
 pub(crate) mod pointer;
@@ -16,12 +17,27 @@ pub(crate) mod schema;
 pub(crate) mod ship;
 pub(crate) mod skill;
 pub(crate) mod sync;
+pub(crate) mod vendor;
 
 use crate::cli::{AgentCommand, Cli, Command, SkillCommand};
 use crate::context::Context;
 use crate::output::error::AppError;
 use crate::output::mode::OutputMode;
 use crate::output::CommandOutput;
+
+/// `arg` quoted for a POSIX shell when it holds anything beyond a safe set,
+/// so a printed hint can be pasted back verbatim.
+pub(crate) fn shell_quote(arg: &str) -> String {
+    let safe = !arg.is_empty()
+        && arg
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"/._-+,:@=".contains(&b));
+    if safe {
+        arg.to_owned()
+    } else {
+        format!("'{}'", arg.replace('\'', r"'\''"))
+    }
+}
 
 /// Route the parsed command to its handler.
 ///
@@ -45,6 +61,8 @@ pub(crate) fn dispatch(cli: &Cli, ctx: &Context) -> Result<Option<CommandOutput>
             SkillCommand::Status(args) => pointer::status(ctx, args).map(Some),
             SkillCommand::Reset(args) => pointer::reset(ctx, args).map(Some),
             SkillCommand::Ship(args) => ship::run(ctx, args).map(Some),
+            SkillCommand::Build(args) => build::run(ctx, args).map(Some),
+            SkillCommand::Vendor(args) => vendor::run(ctx, args).map(Some),
         },
         Some(Command::Agent { verb }) => match verb {
             AgentCommand::List => Ok(Some(agent::list(ctx))),
