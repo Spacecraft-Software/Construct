@@ -568,6 +568,15 @@ The assistant performs no `rsync`, no symlink setup, and no
   the maintainer's call**, and an agent never merges its own PR.
   `construct skill ship` implements this end-to-end — branch, signed commit,
   push, `gh pr create` — and never pushes to the default branch.
+- **`execution-context.md` is a shared block.** `spacecraft-cli-shell`,
+  `spacecraft-cli-preference`, and `spacecraft-missing-pkg` each ship
+  `references/execution-context.md` — the Step −1 classifier (local-host /
+  disposable-sandbox / no-execution) that lets them run outside the user's own
+  machine. The canonical copy is `spacecraft-cli-shell`'s; edit it there, `cp`
+  it over the other two, and rebuild all three skills' bundles plus the
+  Perplexity zip in the same commit. `.github/check-shared-blocks.py` (CI)
+  fails on any byte difference, and also caps a `compatibility:` frontmatter
+  value at the spec's 500 characters.
 - **README §2 catalogue is load-bearing.** When adding a skill directory, add a
   matching alphabetical row to the table in `README.md`. When removing one,
   delete the row.

@@ -116,7 +116,14 @@ default; a project may declare `steelbore-classic`, `steelbore-blue`,
 `steelbore-green`, or `steelbore-greenalt` in its `README.md`. **Audit against
 that palette's own canvas and surfaces** — reference values for all eleven, plus every
 `<slug>-high-contrast` sibling, are in `steelbore-color-palette`'s
-`assets/steelbore.toml`. Two things to carry into the audit:
+`assets/steelbore.toml` — read the sibling skill's copy
+(`../steelbore-color-palette/assets/steelbore.toml`) first. If this skill
+ships its own `assets/steelbore.toml` (a vendored copy some distributions
+include), read it only when the sibling `steelbore-color-palette` skill is
+absent. If neither is reachable, say so and ask the
+user for the `steelbore-color-palette` skill; never recall, approximate, or
+invent a hex value, and do not record a ratio you could not compute from the
+file. Two things to carry into the audit:
 
 - **Restricted pairings are per-palette.** Modern: Pulse Violet (3.93:1) and
   Mars Red (4.12:1) on Quantum Blue. Blue: Electric Blue (3.91:1

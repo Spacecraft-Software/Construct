@@ -169,7 +169,7 @@ Perplexity rejects an uploaded zip with more than **100 files**. Only
 `spacecraft-cli-preference` (110 per-tool `references/` files) exceeds that.
 [`perplexity-skills/`](perplexity-skills/) ships a **generated** consolidated
 bundle for it: `build.py` merges the per-tool files into ~14 category files and
-emits `perplexity-skills/spacecraft-cli-preference.zip` (~18 entries) in the
+emits `perplexity-skills/spacecraft-cli-preference.zip` (~19 entries) in the
 same nested layout Perplexity accepts. The canonical
 `spacecraft-cli-preference/` stays the single source of truth and is unchanged.
 

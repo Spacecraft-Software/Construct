@@ -21,15 +21,16 @@ source of truth for Claude, Gemini, Codex, and Grok.
 | File | What it is |
 |------|------------|
 | `build.py` | The generator. Reads the canonical skill, merges the per-tool references into category files, rewrites `SKILL.md`'s links, and emits the zip. Not shipped inside the zip. |
-| `spacecraft-cli-preference.zip` | The generated bundle to upload to Perplexity (~18 entries, same nested `spacecraft-cli-preference/…` layout). |
+| `spacecraft-cli-preference.zip` | The generated bundle to upload to Perplexity (~19 entries, same nested `spacecraft-cli-preference/…` layout). |
 
 ## How the consolidation works
 
 `build.py` merges the 110 per-tool `references/<tool>.md` files into **14
 category files** and rewrites every `references/<tool>.md` link in `SKILL.md` to
 `references/<category>.md#<tool>` (each tool becomes a `## <tool>` anchor). The
-two non-tool reference files — `ATTRIBUTION.md` and `local-execution.md` — pass
-through verbatim. `CREDITS.md` and the frontmatter are unchanged.
+three non-tool reference files — `ATTRIBUTION.md`, `execution-context.md`, and
+`local-execution.md` — pass through verbatim. `CREDITS.md` and the frontmatter
+are unchanged.
 
 | `references/<category>.md` | Tools |
 |---|---|

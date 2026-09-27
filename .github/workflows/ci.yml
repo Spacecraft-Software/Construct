@@ -95,6 +95,20 @@ jobs:
       - name: Skill cross-references + version pins
         run: python3 .github/check-skill-refs.py --catalogue . .
 
+      # A bundle ships alone (§5.6), so guidance several skills need cannot be
+      # a cross-skill link — it dangles for anyone who installed one .zip. The
+      # execution-context block is therefore copied into spacecraft-cli-shell,
+      # spacecraft-cli-preference, and spacecraft-missing-pkg. Copies are how
+      # two texts stop being one text; §4.3 answers the same problem for
+      # license texts with one canonical file and enforced byte-equality, and
+      # so does this step. Edit the canonical file, then copy it over.
+      #
+      # Same script, same class of drift: the Agent Skills spec caps a
+      # top-level `compatibility:` at 500 characters, and a loader enforcing
+      # the spec rejects the whole skill, not the field.
+      - name: Shared reference blocks + compatibility cap
+        run: python3 .github/check-shared-blocks.py .
+
       # The step above proves every skill id *named* in prose resolves to a real
       # directory. It cannot see a list whose entries all resolve but whose
       # *set* is wrong — "CREDITS.md: currently A, B, C" says nothing about D,
