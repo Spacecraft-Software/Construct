@@ -165,6 +165,7 @@ fn resolve_targets(args: &[TargetArg]) -> Vec<Target> {
                     (TargetArg::Claude, Target::Claude)
                         | (TargetArg::Grok, Target::Grok)
                         | (TargetArg::Perplexity, Target::Perplexity)
+                        | (TargetArg::Gemini, Target::Gemini)
                         | (TargetArg::SingleFile, Target::SingleFile)
                 )
             })
@@ -445,6 +446,7 @@ fn output(
         .iter()
         .map(|c| {
             json!({
+                "target": c.target.slug(),
                 "skill": c.skill,
                 "files_before": c.files_before,
                 "files_after": c.files_after,

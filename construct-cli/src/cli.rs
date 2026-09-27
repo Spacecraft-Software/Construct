@@ -230,7 +230,8 @@ pub(crate) enum SkillCommand {
 
     /// Build distributable bundles for every target platform under dist/.
     #[command(
-        after_help = "Targets: claude (Claude Code, claude.ai, Gemini CLI, Codex), grok (flat zips),\nperplexity (consolidated under 100 files), single-file (one .md per skill).\nZips are deterministic; nothing is committed. A refused skill stops the\nwhole build before anything is written.\n\nExamples:\n  construct skill build\n  construct skill build --target claude,grok --json\n  construct skill build spacecraft-cli-preference --target perplexity --dry-run"
+        after_help = "Targets: claude (Claude Code, claude.ai, Gemini CLI, Codex), grok (flat zips),\nperplexity (consolidated under 100 files), gemini (Gemini app: flat zips,
+.csv/.py/.txt/.md only), single-file (one .md per skill).\nZips are deterministic; nothing is committed. A refused skill stops the\nwhole build before anything is written.\n\nExamples:\n  construct skill build\n  construct skill build --target claude,grok --json\n  construct skill build spacecraft-cli-preference --target perplexity --dry-run"
     )]
     Build(BuildArgs),
 
@@ -437,6 +438,8 @@ pub(crate) enum TargetArg {
     Grok,
     /// Perplexity: Claude layout, consolidated under 100 files.
     Perplexity,
+    /// The Gemini app: flat zips of .csv/.py/.txt/.md files only.
+    Gemini,
     /// One self-contained markdown file per skill.
     SingleFile,
     /// Every target above.

@@ -305,6 +305,8 @@ fn build_all_targets_writes_expected_layout() {
         expect(&["zip", "skill"], &["grokky"])
     );
     assert_eq!(tree(&p.join("dist/perplexity")), expect(&["zip"], &[]));
+    // Gemini: root skills only, one .zip each (no .skill, no Grok-native).
+    assert_eq!(tree(&p.join("dist/gemini")), expect(&["zip"], &[]));
     assert_eq!(tree(&p.join("dist/single-file")), expect(&["md"], &[]));
 
     // Claude is nested with directory entries; .skill has none.
@@ -506,6 +508,14 @@ fn palette_vendored_and_identical() {
         ),
         PALETTE
     );
+    // Gemini renames it to an allowed extension; the bytes are unchanged.
+    assert_eq!(
+        zip_text(
+            &p.join(format!("dist/gemini/{brand}.zip")),
+            "assets/steelbore.toml.txt"
+        ),
+        PALETTE
+    );
     let single = fs::read_to_string(p.join(format!("dist/single-file/{brand}.md"))).unwrap();
     assert!(single.contains(&format!(
         "<a id=\"ref-assets-steelbore-toml\"></a>\n## assets/steelbore.toml\n\n```toml\n{PALETTE}```\n"
@@ -517,8 +527,8 @@ fn palette_vendored_and_identical() {
     let vendored = d["palette_vendored"].as_array().unwrap();
     assert_eq!(
         vendored.len(),
-        6,
-        "zip+skill claude, zip+skill grok, perplexity, md"
+        7,
+        "zip+skill claude, zip+skill grok, perplexity, gemini, md"
     );
     assert!(vendored
         .iter()
@@ -1085,4 +1095,197 @@ fn real_catalogue_builds_clean() {
     assert!(d["consolidated"]
         .as_array()
         .is_some_and(|c| c.iter().any(|x| x["skill"] == "spacecraft-cli-preference")));
+}
+
+/// Whether a Gemini member name carries an extension the app accepts.
+fn gemini_allowed(name: &str) -> bool {
+    let file = name.rsplit_once('/').map_or(name, |(_, f)| f);
+    file.rsplit_once('.')
+        .is_some_and(|(stem, ext)| !stem.is_empty() && ["csv", "py", "txt", "md"].contains(&ext))
+}
+
+/// The `description` of a `SKILL.md` text, parsed.
+fn description(text: &str) -> String {
+    let rest = text.strip_prefix("---\n").unwrap();
+    let end = rest.find("\n---\n").unwrap();
+    let map: serde_yaml::Mapping = serde_yaml::from_str(&rest[..=end]).unwrap();
+    map["description"].as_str().unwrap().to_owned()
+}
+
+#[test]
+fn gemini_flat_allowed_extensions_and_rewritten_links() {
+    let cat = catalogue();
+    let p = cat.path();
+    build(p, &["--target", "gemini"]).success();
+    let zip = p.join("dist/gemini/alpha.zip");
+    // Flat, files only, every non-allowed extension renamed with `.txt`.
+    assert_eq!(
+        zip_names(&zip),
+        vec![
+            "LICENSE.txt",
+            "SKILL.md",
+            "assets/run.sh.txt",
+            "assets/x.json.txt",
+            "references/guide.md",
+            "references/other.md",
+        ]
+    );
+    // §5.6 license carriage: the text is byte-identical under the new name.
+    assert_eq!(zip_text(&zip, "LICENSE.txt"), "gpl text\n");
+    assert_eq!(
+        zip_names(&p.join("dist/gemini/dual.zip")),
+        vec![
+            "CREDITS.md",
+            "LICENSE.GPL.txt",
+            "LICENSE.MIT.txt",
+            "SKILL.md"
+        ]
+    );
+    assert_eq!(
+        zip_text(&p.join("dist/gemini/dual.zip"), "LICENSE.MIT.txt"),
+        "mit text\n"
+    );
+
+    // Links to renamed members follow them; everything else is untouched.
+    let guide = zip_text(&zip, "references/guide.md");
+    assert!(
+        guide.contains("Data lives in [x](../assets/x.json.txt).\n"),
+        "{guide}"
+    );
+    assert!(guide.contains("[lic](../LICENSE.txt)"), "{guide}");
+    assert!(guide.contains("[the palette](../../steelbore-color-palette/SKILL.md)"));
+    assert!(guide.contains("[back](../SKILL.md)"));
+
+    // Frontmatter: name + description only, description as in the source.
+    let skill = zip_text(&zip, "SKILL.md");
+    assert_eq!(frontmatter_keys(&skill), vec!["name", "description"]);
+    let source = fs::read_to_string(p.join("alpha/SKILL.md")).unwrap();
+    assert_eq!(description(&skill), description(&source));
+    assert!(skill.contains("[the guide](references/guide.md#usage) and `references/other.md`"));
+
+    for entry in fs::read_dir(p.join("dist/gemini")).unwrap() {
+        let path = entry.unwrap().path();
+        if path.extension().is_some_and(|e| e == "zip") {
+            for name in zip_names(&path) {
+                assert!(gemini_allowed(&name), "{}: {name}", path.display());
+            }
+        }
+    }
+}
+
+#[test]
+fn gemini_consolidates_like_perplexity() {
+    let cat = catalogue();
+    let p = cat.path();
+    big(p);
+    let d = data(&build(p, &["--target", "gemini"]).success());
+    let c = &d["consolidated"][0];
+    assert_eq!(c["target"], "gemini");
+    assert_eq!(c["skill"], "big");
+    assert_eq!(c["files_after"], 6);
+    let zip = p.join("dist/gemini/big.zip");
+    assert_eq!(
+        zip_names(&zip),
+        vec![
+            "LICENSE.txt",
+            "SKILL.md",
+            "references/ATTRIBUTION.md",
+            "references/first.md",
+            "references/second.md",
+            "references/third.md",
+        ]
+    );
+    assert!(zip_text(&zip, "SKILL.md").contains("- [t000](references/first.md#t000)\n"));
+}
+
+#[test]
+fn gemini_refuses_over_100_files() {
+    let cat = catalogue();
+    let p = cat.path();
+    big(p);
+    write(p, "perplexity-skills/categories.toml", "schema = 1\n");
+    let e = error(&build(p, &["--target", "gemini"]).code(5));
+    assert_eq!(e["code"], "CONFLICT");
+    assert_eq!(e["gemini"][0]["kind"], "too_many_files");
+    assert_eq!(e["gemini"][0]["skill"], "big");
+    assert!(!p.join("dist").exists());
+}
+
+#[test]
+fn gemini_refuses_non_kebab_name() {
+    let cat = catalogue();
+    let p = cat.path();
+    write(
+        p,
+        "Bad_Skill/SKILL.md",
+        "---\nname: Bad_Skill\ndescription: d\nlicense: GPL-3.0-or-later\n---\nbody\n",
+    );
+    write(p, "Bad_Skill/LICENSE", "gpl text\n");
+    let e = error(&build(p, &["--target", "gemini"]).code(5));
+    assert_eq!(e["invalid_name"][0]["skill"], "Bad_Skill", "{e}");
+    assert!(!p.join("dist").exists());
+}
+
+/// Every Gemini bundle built from the real catalogue satisfies the app's
+/// upload rules: `SKILL.md` at the root, only allowed extensions, at most 100
+/// files, a kebab-case name, and name + description frontmatter with the
+/// source description. Ignored for the same reason as
+/// `real_catalogue_builds_clean`.
+#[test]
+#[ignore = "reads the real catalogue; set CONSTRUCT_REPO"]
+fn real_catalogue_gemini_bundles_upload_clean() {
+    let Ok(repo) = std::env::var("CONSTRUCT_REPO") else {
+        return;
+    };
+    let out = TempDir::new().expect("temp out");
+    build(
+        Path::new(&repo),
+        &["--target", "gemini", "--out", out.path().to_str().unwrap()],
+    )
+    .success();
+    let kebab = |s: &str| {
+        !s.is_empty()
+            && s.split('-').all(|r| {
+                !r.is_empty()
+                    && r.bytes()
+                        .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit())
+            })
+    };
+    let mut zips = 0;
+    for entry in fs::read_dir(out.path().join("gemini")).unwrap() {
+        let path = entry.unwrap().path();
+        let Some(stem) = path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .and_then(|n| n.strip_suffix(".zip"))
+        else {
+            continue;
+        };
+        zips += 1;
+        let names = zip_names(&path);
+        assert!(
+            names.iter().any(|n| n == "SKILL.md"),
+            "{stem}: no root SKILL.md"
+        );
+        assert!(names.len() <= 100, "{stem}: {} files", names.len());
+        for n in &names {
+            assert!(gemini_allowed(n), "{stem}: {n}");
+        }
+        assert!(kebab(stem), "{stem}: not kebab-case");
+        let skill = zip_text(&path, "SKILL.md");
+        assert_eq!(
+            frontmatter_keys(&skill),
+            vec!["name", "description"],
+            "{stem}"
+        );
+        let source = fs::read_to_string(Path::new(&repo).join(stem).join("SKILL.md")).unwrap();
+        assert_eq!(description(&skill), description(&source), "{stem}");
+    }
+    assert!(zips > 0, "no gemini bundles");
+    let cli = zip_names(&out.path().join("gemini/spacecraft-cli-preference.zip"));
+    assert!(
+        cli.len() <= 30,
+        "cli-preference not consolidated: {}",
+        cli.len()
+    );
 }

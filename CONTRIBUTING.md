@@ -199,7 +199,7 @@ intentionally differs from any on-disk tree).
 
 ## Distribution targets (`construct skill build`)
 
-`construct skill build [SKILL...] [--target claude,grok,perplexity,single-file]`
+`construct skill build [SKILL...] [--target claude,grok,perplexity,gemini,single-file]`
 writes per-platform release bundles under `dist/<target>/` (gitignored; never
 commit it). Zips are deterministic — fixed mtimes, sorted entries — so CI
 release artifacts reproduce byte for byte. The source `SKILL.md` is never
@@ -210,10 +210,12 @@ edited; frontmatter is rewritten per target.
 | `claude` | Claude Code (local and web), claude.ai, Gemini CLI, Codex. Nested `<name>/` layout; `maintainer` / `website` under `metadata:`; keeps `user-invocable`. |
 | `grok` | Grok. Flat zips for every root skill plus `grok-skills/*`; frontmatter `name` + `description` only. |
 | `perplexity` | Perplexity. Claude layout without `user-invocable`; skills over 100 files consolidated from `categories.toml`. |
-| `single-file` | Platforms with no skill loader (Gemini Gems, MiniMax): one self-contained `<name>.md` with references inlined and links rewritten to in-document anchors. The document carries its license text (§5.6): every `LICENSE` / `LICENSE.<TAG>` is appended verbatim under a closing `## License` section, and links to those files anchor there. Outside fenced blocks, a sibling-skill link becomes plain text naming the skill and any other link that leaves the skill (upstream paths) keeps its text and loses the link. |
+| `gemini` | The Gemini app. Flat `<name>.zip` only, files only, root skills only; frontmatter `name` + `description` only. Only `.csv`/`.py`/`.txt`/`.md` members are accepted, so any other file gets `.txt` appended (`LICENSE` → `LICENSE.txt`, `assets/steelbore.toml` → `assets/steelbore.toml.txt`) and links to it inside the skill are rewritten. Consolidated like `perplexity`; refused over 100 files or for a non-kebab-case `name`. |
+| `single-file` | MiniMax and other platforms with no skill loader: one self-contained `<name>.md` with references inlined and links rewritten to in-document anchors. The document carries its license text (§5.6): every `LICENSE` / `LICENSE.<TAG>` is appended verbatim under a closing `## License` section, and links to those files anchor there. Outside fenced blocks, a sibling-skill link becomes plain text naming the skill and any other link that leaves the skill (upstream paths) keeps its text and loses the link. |
 
 Every target vendors the palette into `spacecraft-brand-guidelines` and
-`spacecraft-accessibility-support` (verified byte-identical), and the build
+`spacecraft-accessibility-support` (verified byte-identical; `gemini` ships it
+as `assets/steelbore.toml.txt`), and the build
 refuses any skill that fails the §5.6 description cap or the 500-character
 `compatibility` cap. It never touches the committed root or `grok-skills/`
 bundles.
