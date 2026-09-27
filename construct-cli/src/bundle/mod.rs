@@ -11,13 +11,14 @@
 //!
 //! For each `(skill, target)` the order is fixed:
 //! collect → palette vendoring → frontmatter projection → round-trip verify →
-//! target transform (Perplexity consolidation, single-file render) → post-emit
+//! target transform (Perplexity / Gemini consolidation, Gemini renaming,
+//! single-file render) → post-emit
 //! §5.6 gate → in-memory encoding. Every gate runs for every selected skill
 //! before [`plan`] returns, so a refusal writes nothing (all-or-nothing).
 //!
 //! # Concurrency (Standard §3.2)
 //!
-//! The pipeline is deliberately serial. The workload is about 45 skills × 4
+//! The pipeline is deliberately serial. The workload is about 45 skills × 5
 //! targets of small text files — tens of milliseconds, bound by I/O and
 //! deflate — and serial order makes deterministic output ordering and
 //! all-or-nothing gating trivial to guarantee. Each `(skill, target)` is a pure
@@ -27,6 +28,7 @@
 pub(crate) mod collect;
 pub(crate) mod consolidate;
 pub(crate) mod frontmatter;
+pub(crate) mod gemini;
 pub(crate) mod palette;
 pub(crate) mod single;
 pub(crate) mod sink;
@@ -50,14 +52,22 @@ pub(crate) enum Target {
     Grok,
     /// Perplexity: the Claude layout, consolidated under 100 files.
     Perplexity,
+    /// The Gemini app: flat `.zip` only, `name` + `description` frontmatter,
+    /// only `.csv`/`.py`/`.txt`/`.md` members, consolidated like Perplexity.
+    Gemini,
     /// One self-contained markdown file per skill, for loader-less platforms.
     SingleFile,
 }
 
 impl Target {
     /// Every target, in the fixed order `all` expands to.
-    pub(crate) const ALL: [Self; 4] =
-        [Self::Claude, Self::Grok, Self::Perplexity, Self::SingleFile];
+    pub(crate) const ALL: [Self; 5] = [
+        Self::Claude,
+        Self::Grok,
+        Self::Perplexity,
+        Self::Gemini,
+        Self::SingleFile,
+    ];
 
     /// The stable lowercase name, also the `dist/<target>/` directory.
     pub(crate) fn slug(self) -> &'static str {
@@ -65,6 +75,7 @@ impl Target {
             Self::Claude => "claude",
             Self::Grok => "grok",
             Self::Perplexity => "perplexity",
+            Self::Gemini => "gemini",
             Self::SingleFile => "single-file",
         }
     }
@@ -167,10 +178,11 @@ pub(crate) struct Note {
 /// How an artifact's vendored palette is re-checked after it is written.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum PaletteCheck {
-    /// Read `<prefix>assets/steelbore.toml` back out of the zip.
+    /// Read the vendored palette back out of the zip.
     Zip {
-        /// The in-archive path prefix (`<name>/`, or empty for flat bundles).
-        prefix: String,
+        /// Its full in-archive path: `<prefix>assets/steelbore.toml`, with
+        /// `.txt` appended for Gemini.
+        path: String,
     },
     /// Extract the fenced `assets/steelbore.toml` section of a single file.
     Markdown,
@@ -195,9 +207,11 @@ pub(crate) struct Artifact {
     pub(crate) palette: Option<PaletteCheck>,
 }
 
-/// A Perplexity consolidation that was applied.
+/// A consolidation that was applied (Perplexity or Gemini).
 #[derive(Debug, Clone)]
 pub(crate) struct Consolidation {
+    /// The target whose bundle was consolidated.
+    pub(crate) target: Target,
     /// The consolidated skill.
     pub(crate) skill: String,
     /// Files in the Claude-layout tree before consolidation.
@@ -213,7 +227,7 @@ pub(crate) struct Consolidation {
 pub(crate) struct Plan {
     /// Every output file, in `(target, skill, file)` order.
     pub(crate) artifacts: Vec<Artifact>,
-    /// Consolidations applied for Perplexity.
+    /// Consolidations applied for Perplexity and Gemini.
     pub(crate) consolidated: Vec<Consolidation>,
     /// Non-fatal observations.
     pub(crate) notes: Vec<Note>,
@@ -506,13 +520,18 @@ fn prepare(
     }
 }
 
-/// The Perplexity consolidation map, when the `perplexity` target is on and
-/// the file exists. Its absence is an error only when some skill needs it.
+/// The consolidation map, when a consolidating target (`perplexity`,
+/// `gemini`) is on and the file exists. Its absence is an error only when
+/// some skill needs it.
 fn load_categories(
     input: &BuildInput<'_>,
     prepared: &[Prepared],
 ) -> Result<Option<consolidate::CategoriesFile>, BuildError> {
-    let categories = if input.targets.contains(&Target::Perplexity) {
+    let wanted = input
+        .targets
+        .iter()
+        .any(|t| matches!(t, Target::Perplexity | Target::Gemini));
+    let categories = if wanted {
         match consolidate::load(input.repo) {
             Ok(map) => map,
             Err(problem) => return Err(BuildError::Problems(vec![*problem])),
@@ -520,7 +539,7 @@ fn load_categories(
     } else {
         None
     };
-    if input.targets.contains(&Target::Perplexity)
+    if wanted
         && categories.is_none()
         && prepared.iter().any(|p| {
             p.skill.origin == Origin::Root && p.members.len() > consolidate::PERPLEXITY_MAX_FILES
@@ -547,10 +566,11 @@ fn emitted_skill_md(a: &Artifact) -> Option<String> {
 }
 
 impl Artifact {
-    /// The in-archive path prefix: `<skill>/`, except for Grok's flat layout.
+    /// The in-archive path prefix: `<skill>/`, except for the flat Grok and
+    /// Gemini layouts.
     pub(crate) fn zip_prefix(&self) -> String {
         match self.target {
-            Target::Grok => String::new(),
+            Target::Grok | Target::Gemini => String::new(),
             _ => format!("{}/", self.skill),
         }
     }
@@ -596,6 +616,7 @@ fn build_one(
     match target {
         Target::Claude | Target::Grok => build_archive(p, target),
         Target::Perplexity => build_perplexity(p, categories, plan),
+        Target::Gemini => build_gemini(p, categories, plan),
         Target::SingleFile => build_single(p, siblings, plan),
     }
 }
@@ -681,7 +702,7 @@ fn build_archive(p: &Prepared, target: Target) -> Result<Vec<Artifact>, Vec<Prob
         (with_skill_md(&p.members, text), String::new())
     };
     let check = PaletteCheck::Zip {
-        prefix: prefix.clone(),
+        path: format!("{prefix}{}", palette::PALETTE_MEMBER),
     };
     Ok(vec![
         artifact(
@@ -720,36 +741,13 @@ fn build_perplexity(
         },
     )
     .map_err(|e| vec![e])?;
-    let mut members = with_skill_md(&p.members, text);
-    let map = categories.and_then(|c| c.skill.get(name.as_str()));
-    if members.len() > consolidate::PERPLEXITY_MAX_FILES {
-        let Some(map) = map else {
-            return Err(vec![consolidate::problem(
-                name,
-                "oversized_without_map",
-                &json!({ "files": members.len(), "max": consolidate::PERPLEXITY_MAX_FILES }),
-            )]);
-        };
-        let before = members.len();
-        members = consolidate::consolidate(name, &members, map)?;
-        plan.consolidated.push(Consolidation {
-            skill: name.clone(),
-            files_before: before,
-            files_after: members.len(),
-            categories: map.category.len(),
-        });
-    } else if map.is_some() {
-        plan.notes.push(Note {
-            level: NoteLevel::Warn,
-            code: "STALE_CONSOLIDATION_MAP",
-            message: format!(
-                "{name} has a Perplexity consolidation map but only {} files; not consolidated",
-                members.len()
-            ),
-            hint: Some(format!("$EDITOR {}", consolidate::CATEGORIES_PATH)),
-            detail: json!({ "skill": name, "files": members.len() }),
-        });
-    }
+    let members = consolidate_for(
+        p,
+        Target::Perplexity,
+        with_skill_md(&p.members, text),
+        categories,
+        plan,
+    )?;
     let prefix = format!("{name}/");
     Ok(vec![artifact(
         p,
@@ -757,7 +755,93 @@ fn build_perplexity(
         format!("{name}.zip"),
         "zip",
         encode(name, Target::Perplexity, &members, &prefix, false)?,
-        PaletteCheck::Zip { prefix },
+        PaletteCheck::Zip {
+            path: format!("{prefix}{}", palette::PALETTE_MEMBER),
+        },
+    )])
+}
+
+/// Consolidate `members` for a consolidating target when the skill is over
+/// [`consolidate::PERPLEXITY_MAX_FILES`] — the same condition, map, and
+/// output for Perplexity and Gemini, so the two cannot drift. An oversized
+/// skill with no map is refused for Perplexity; Gemini's own file-count gate
+/// refuses it there.
+fn consolidate_for(
+    p: &Prepared,
+    target: Target,
+    members: Members,
+    categories: Option<&consolidate::CategoriesFile>,
+    plan: &mut Plan,
+) -> Result<Members, Vec<Problem>> {
+    let name = &p.skill.name;
+    let map = categories.and_then(|c| c.skill.get(name.as_str()));
+    if members.len() > consolidate::PERPLEXITY_MAX_FILES {
+        let Some(map) = map else {
+            if target == Target::Gemini {
+                return Ok(members);
+            }
+            return Err(vec![consolidate::problem(
+                name,
+                "oversized_without_map",
+                &json!({ "files": members.len(), "max": consolidate::PERPLEXITY_MAX_FILES }),
+            )]);
+        };
+        let before = members.len();
+        let members = consolidate::consolidate(name, &members, map)?;
+        plan.consolidated.push(Consolidation {
+            target,
+            skill: name.clone(),
+            files_before: before,
+            files_after: members.len(),
+            categories: map.category.len(),
+        });
+        return Ok(members);
+    }
+    if map.is_some() {
+        plan.notes.push(Note {
+            level: NoteLevel::Warn,
+            code: "STALE_CONSOLIDATION_MAP",
+            message: format!(
+                "{name} has a consolidation map but only {} files; not consolidated for {}",
+                members.len(),
+                target.slug()
+            ),
+            hint: Some(format!("$EDITOR {}", consolidate::CATEGORIES_PATH)),
+            detail: json!({ "skill": name, "files": members.len(), "target": target.slug() }),
+        });
+    }
+    Ok(members)
+}
+
+/// Gemini: the Grok projection (`name` + `description`), consolidated like
+/// Perplexity, members renamed to the platform's allowed extensions with
+/// their links rewritten, flat, files only (the uploads that were accepted
+/// carried no directory entries), `.zip` only.
+fn build_gemini(
+    p: &Prepared,
+    categories: Option<&consolidate::CategoriesFile>,
+    plan: &mut Plan,
+) -> Result<Vec<Artifact>, Vec<Problem>> {
+    let name = &p.skill.name;
+    let text =
+        frontmatter::project(name, &p.text, frontmatter::Profile::Grok).map_err(|e| vec![e])?;
+    let members = consolidate_for(
+        p,
+        Target::Gemini,
+        with_skill_md(&p.members, text),
+        categories,
+        plan,
+    )?;
+    let members = gemini::transform(name, &members)?;
+    Ok(vec![artifact(
+        p,
+        Target::Gemini,
+        format!("{name}.zip"),
+        "zip",
+        encode(name, Target::Gemini, &members, "", false)?,
+        PaletteCheck::Zip {
+            path: gemini::platform_path(palette::PALETTE_MEMBER),
+        },
     )])
 }
 

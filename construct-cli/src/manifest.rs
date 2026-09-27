@@ -372,7 +372,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                 "additionalProperties": false,
                 "properties": {
                     "skills": { "type": "array", "items": { "type": "string" }, "description": "Skills to build (default: every root skill, plus Grok-native skills for the grok target)" },
-                    "target": { "type": "array", "items": { "type": "string", "enum": ["claude", "grok", "perplexity", "single-file", "all"] }, "default": ["all"], "description": "Targets to build" },
+                    "target": { "type": "array", "items": { "type": "string", "enum": ["claude", "grok", "perplexity", "gemini", "single-file", "all"] }, "default": ["all"], "description": "Targets to build" },
                     "repo": { "type": "string", "format": "uri-reference", "description": "Construct catalogue clone to build from" },
                     "out": { "type": "string", "format": "uri-reference", "description": "Output root; each target writes <out>/<target>/ (default: <repo>/dist)" }
                 }
@@ -404,6 +404,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                         "items": {
                             "type": "object",
                             "properties": {
+                                "target": { "type": "string" },
                                 "skill": { "type": "string" },
                                 "files_before": { "type": "integer" },
                                 "files_after": { "type": "integer" },
@@ -437,11 +438,11 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                 ("2", "USAGE_ERROR — bad --target value or other argument error"),
                 (
                     "3",
-                    "NOT_FOUND — catalogue, skill name, palette source, or Perplexity categories map missing",
+                    "NOT_FOUND — catalogue, skill name, palette source, or the categories map (Perplexity, Gemini) missing",
                 ),
                 (
                     "5",
-                    "CONFLICT — a SKILL.md description exceeds 1000 characters or compatibility exceeds 500 (Standard §5.6), invalid or unprojectable frontmatter, missing LICENSE, symlink, Perplexity map problem, single-file anchor problem, or an output directory the build does not own (override with --force)",
+                    "CONFLICT — a SKILL.md description exceeds 1000 characters or compatibility exceeds 500 (Standard §5.6), invalid or unprojectable frontmatter, missing LICENSE, symlink, Perplexity map problem, Gemini rename collision or file count over 100, single-file anchor problem, or an output directory the build does not own (override with --force)",
                 ),
             ]),
             examples: pairs(&[

@@ -136,7 +136,7 @@ fn fence_for(content: &str) -> String {
 /// Resolve `rel` against the directory `base` (`""` for the skill root),
 /// normalizing `.` and `..`. `None` when it escapes the skill root or is
 /// absolute.
-fn resolve(base: &str, rel: &str) -> Option<String> {
+pub(crate) fn resolve(base: &str, rel: &str) -> Option<String> {
     if rel.starts_with('/') || rel.is_empty() {
         return None;
     }
@@ -154,7 +154,7 @@ fn resolve(base: &str, rel: &str) -> Option<String> {
 }
 
 /// Whether a link target is external (`scheme:`) rather than a path.
-fn is_external(target: &str) -> bool {
+pub(crate) fn is_external(target: &str) -> bool {
     let Some((scheme, _)) = target.split_once(':') else {
         return false;
     };
@@ -212,7 +212,7 @@ fn segments(line: &str) -> Vec<(bool, &str)> {
 }
 
 /// The byte ranges `[start, end)` of every inline code span in a line.
-fn code_spans(line: &str) -> Vec<(usize, usize)> {
+pub(crate) fn code_spans(line: &str) -> Vec<(usize, usize)> {
     let mut at = 0;
     let mut out = Vec::new();
     for (code, seg) in segments(line) {
@@ -225,7 +225,7 @@ fn code_spans(line: &str) -> Vec<(usize, usize)> {
 }
 
 /// The end of the code span starting exactly at `i`, if one does.
-fn span_end(spans: &[(usize, usize)], i: usize) -> Option<usize> {
+pub(crate) fn span_end(spans: &[(usize, usize)], i: usize) -> Option<usize> {
     spans
         .binary_search_by_key(&i, |(s, _)| *s)
         .ok()
@@ -233,19 +233,19 @@ fn span_end(spans: &[(usize, usize)], i: usize) -> Option<usize> {
 }
 
 /// An inline link `[text](inner)` found in a line.
-struct Inline {
+pub(crate) struct Inline {
     /// Byte range of the link text (between the brackets).
-    text: (usize, usize),
+    pub(crate) text: (usize, usize),
     /// Byte range of the destination and optional title (between the parens).
-    inner: (usize, usize),
+    pub(crate) inner: (usize, usize),
     /// One past the closing `)`.
-    end: usize,
+    pub(crate) end: usize,
 }
 
 /// Parse an inline link whose `[` sits at `open`. Code spans are opaque
 /// inside the link text, brackets and parentheses nest, and `\` escapes the
 /// next byte. `None` when the brackets are not an inline link.
-fn parse_inline(line: &str, open: usize, spans: &[(usize, usize)]) -> Option<Inline> {
+pub(crate) fn parse_inline(line: &str, open: usize, spans: &[(usize, usize)]) -> Option<Inline> {
     let b = line.as_bytes();
     let mut j = open + 1;
     let mut depth = 0usize;
@@ -305,7 +305,7 @@ fn parse_inline(line: &str, open: usize, spans: &[(usize, usize)]) -> Option<Inl
 /// The byte range of the destination in a reference definition line
 /// (`[label]: target "title"`), or `None` when the line is not one.
 /// Footnote definitions (`[^n]: …`) are not links and are not matched.
-fn definition(line: &str) -> Option<(usize, usize)> {
+pub(crate) fn definition(line: &str) -> Option<(usize, usize)> {
     let indent = line.len() - line.trim_start_matches(' ').len();
     let rest = &line[indent..];
     if indent > 3 || !rest.starts_with('[') || rest.starts_with("[^") {
@@ -325,7 +325,7 @@ fn definition(line: &str) -> Option<(usize, usize)> {
 
 /// A fenced code block's opening run: its character and length.
 #[derive(Clone, Copy)]
-struct Fence {
+pub(crate) struct Fence {
     ch: u8,
     len: usize,
 }
@@ -333,7 +333,7 @@ struct Fence {
 impl Fence {
     /// The fence run a line opens with (≤ 3 spaces of indent, ≥ 3 of one
     /// character). A backtick fence's info string may not hold a backtick.
-    fn open(line: &str) -> Option<Self> {
+    pub(crate) fn open(line: &str) -> Option<Self> {
         let rest = line.trim_start_matches(' ');
         if line.len() - rest.len() > 3 {
             return None;
@@ -350,7 +350,7 @@ impl Fence {
     /// Whether `line` closes this fence: the same character, a run at least
     /// as long, and nothing after it but whitespace. A line with an info
     /// string (```` ```sh ````) never closes a fence.
-    fn closed_by(self, line: &str) -> bool {
+    pub(crate) fn closed_by(self, line: &str) -> bool {
         Self::open(line).is_some_and(|f| {
             f.ch == self.ch
                 && f.len >= self.len
@@ -580,7 +580,7 @@ impl<'a> Rewriter<'a> {
 }
 
 /// The parent directory of a member path (`""` at the skill root).
-fn parent(path: &str) -> &str {
+pub(crate) fn parent(path: &str) -> &str {
     path.rsplit_once('/').map_or("", |(dir, _)| dir)
 }
 

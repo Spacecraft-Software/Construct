@@ -261,12 +261,13 @@ Because nothing lands on `main`, `ship` no longer runs `skill sync`; run
 `construct skill sync` after the PR merges. `--no-sync` is retained as a hidden
 no-op so existing invocations keep working.
 
-`construct skill build [SKILL...] [--target claude,grok,perplexity,single-file]`
+`construct skill build [SKILL...] [--target claude,grok,perplexity,gemini,single-file]`
 generates per-platform release bundles under `dist/<target>/` (gitignored —
 release artifacts, never committed). It rewrites frontmatter per target (the
 source `SKILL.md` stays as is), vendors the palette into the brand and
 accessibility skills, consolidates any skill over Perplexity's 100-file limit
-from `perplexity-skills/categories.toml`, and writes deterministic zips. It
+from `perplexity-skills/categories.toml` (for the `perplexity` and `gemini`
+targets), and writes deterministic zips. It
 refuses — writing nothing — on any §5.6 gate failure. It does **not** touch the
 committed root `<name>.zip` / `<name>.skill` bundles, and ship's drift check is
 unchanged.
@@ -297,11 +298,13 @@ target.
 | `claude` | `dist/claude/<name>.zip` + `.skill`, nested `<name>/` layout | Claude Code (local and web), claude.ai, Gemini CLI, Codex. Spec-clean frontmatter: `name`, `description`, `license`, `compatibility` / `allowed-tools` when present, `maintainer` / `website` moved under `metadata:`; `user-invocable` kept (this target only). |
 | `grok` | `dist/grok/<name>.zip` + `.skill`, **flat** (`SKILL.md`, `LICENSE`, `references/`, `assets/` at the zip root) | Grok. Every root skill plus the Grok-native `grok-skills/*`; frontmatter `name` + `description` only. |
 | `perplexity` | `dist/perplexity/<name>.zip`, nested layout | Perplexity. Claude frontmatter minus `user-invocable`; any skill over 100 files is consolidated from `perplexity-skills/categories.toml`. |
-| `single-file` | `dist/single-file/<name>.md` | Platforms with no skill loader (Gemini Gems, MiniMax): a short frontmatter header, the `SKILL.md` body, every `references/` file inlined under its own heading with links rewritten to in-document anchors, text assets in fenced blocks, `CREDITS.md`, then a closing `## License` section carrying every `LICENSE` / `LICENSE.<TAG>` verbatim in fenced `text` blocks (§5.6 license carriage — `microsoft-rust-guidelines.md` ships both the GPL text and the MIT permission notice). No relative link survives outside a fenced block: a reference's `../SKILL.md` back-link points at the body's anchor, a link to a license file (`LICENSE.MIT`, a reference's `../LICENSE`) points at its subsection, a sibling-skill link becomes plain text naming that skill, and any other link that leaves the skill (upstream paths in `microsoft-rust-guidelines`) keeps its text and loses the link. Fenced content is verbatim. |
+| `gemini` | `dist/gemini/<name>.zip` only (no `.skill`), **flat**, files only (no directory entries) | The Gemini app's skill upload. Every root skill (no Grok-native skills); frontmatter `name` + `description` only, the description byte-identical to the source. The app accepts only `.csv`, `.py`, `.txt`, and `.md` members, so any other file gets `.txt` appended — `LICENSE` → `LICENSE.txt`, `LICENSE.MIT` → `LICENSE.MIT.txt` (§5.6 license carriage; §4.3's no-extension rule governs repository files, not this platform bundle), `assets/steelbore.toml` → `assets/steelbore.toml.txt` — and every markdown link inside the skill that points at a renamed file is rewritten to follow it (links only, outside fenced code). Skills over 100 files are consolidated exactly as for `perplexity`; a bundle still over 100 files, a rename that collides with an existing file, or a `name` that is not kebab-case is refused. |
+| `single-file` | `dist/single-file/<name>.md` | MiniMax and other platforms with no skill loader: a short frontmatter header, the `SKILL.md` body, every `references/` file inlined under its own heading with links rewritten to in-document anchors, text assets in fenced blocks, `CREDITS.md`, then a closing `## License` section carrying every `LICENSE` / `LICENSE.<TAG>` verbatim in fenced `text` blocks (§5.6 license carriage — `microsoft-rust-guidelines.md` ships both the GPL text and the MIT permission notice). No relative link survives outside a fenced block: a reference's `../SKILL.md` back-link points at the body's anchor, a link to a license file (`LICENSE.MIT`, a reference's `../LICENSE`) points at its subsection, a sibling-skill link becomes plain text naming that skill, and any other link that leaves the skill (upstream paths in `microsoft-rust-guidelines`) keeps its text and loses the link. Fenced content is verbatim. |
 
 Every non-source target vendors `steelbore-color-palette/assets/steelbore.toml`
 into `spacecraft-brand-guidelines` and `spacecraft-accessibility-support` as
-`assets/steelbore.toml` and verifies it byte-identical to the source. The build
+`assets/steelbore.toml` (`assets/steelbore.toml.txt` for `gemini`) and
+verifies it byte-identical to the source. The build
 enforces the §5.6 description cap (the same check `ship` uses) and the spec's
 500-character `compatibility` cap, emitting nothing for an offending skill.
 Scope is root skills (the `excludedDirs` set; `android-skills/` and
@@ -343,8 +346,10 @@ a GitHub release. Nobody runs it by hand in the normal flow:
   the run. Only missing or cut-off assets are uploaded (`manifest.json` is
   refreshed only alongside them), and a draft left by a killed job is
   completed and published.
-- **Assets.** `construct-bundles-<target>.zip` per target (the per-skill
-  `.zip` / `.skill` / `.md` files; the outer archives are themselves
+- **Assets.** `construct-bundles-<target>.zip` per target — `claude`, `grok`,
+  `perplexity`, `gemini`, `single-file` (the per-skill `.zip` / `.skill` /
+  `.md` files; `claude` and `grok` carry a `.zip` and a `.skill` per skill, the
+  others one file per skill; the outer archives are themselves
   byte-stable), `SHA256SUMS` over those archives, and `manifest.json` (commit,
   UTC commit and build times, construct version, per-target skill counts).
   Each archive also carries a Sigstore build-provenance attestation binding it

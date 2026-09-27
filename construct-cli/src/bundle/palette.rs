@@ -6,7 +6,8 @@
 //! `spacecraft-brand-guidelines` and `spacecraft-accessibility-support` read
 //! every palette value from the sibling `steelbore-color-palette` skill. A
 //! bundle installed on its own may not have that sibling, so every non-source
-//! target carries a byte-identical copy at `assets/steelbore.toml` — read only
+//! target carries a byte-identical copy at `assets/steelbore.toml` (Gemini:
+//! `assets/steelbore.toml.txt`, the platform's allowed extension) — read only
 //! when the sibling is absent. The copy is verified against the source after
 //! it is encoded and again after it is written; any difference fails the build.
 
@@ -62,10 +63,7 @@ pub(crate) fn vendor(skill: &str, members: &mut Members, palette: &[u8]) -> Resu
 /// Whether the palette inside `artifact` is byte-identical to `palette`.
 pub(crate) fn verify(check: &PaletteCheck, artifact: &[u8], palette: &[u8]) -> bool {
     match check {
-        PaletteCheck::Zip { prefix } => {
-            sink::read_member(artifact, &format!("{prefix}{PALETTE_MEMBER}")).as_deref()
-                == Some(palette)
-        }
+        PaletteCheck::Zip { path } => sink::read_member(artifact, path).as_deref() == Some(palette),
         PaletteCheck::Markdown => {
             let Ok(doc) = std::str::from_utf8(artifact) else {
                 return false;
