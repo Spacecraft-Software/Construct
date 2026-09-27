@@ -1,0 +1,98 @@
+# SPDX-FileCopyrightText: 2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Perplexity consolidation map, read by `construct skill build --target
+# perplexity`. Perplexity rejects a skill zip with more than 100 files; any
+# skill over that needs an entry here, keyed by skill id, so a second oversized
+# skill needs data, not code.
+#
+# Each [[skill.<id>.category]] becomes references/<slug>.md, titled <title>,
+# merging references/<tool>.md for every listed tool. The build refuses when
+# the tools listed here differ from the skill's references/*.md stems (minus
+# passthrough), so add or remove a tool here in the same change as the skill.
+
+schema = 1
+
+[skill.spacecraft-cli-preference]
+# Non-tool reference files: copied through verbatim, never consolidated.
+passthrough = ["ATTRIBUTION.md", "local-execution.md", "execution-context.md"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "file-and-text"
+title = "File & Text"
+tools = ["eza", "bat", "fd", "ripgrep", "sd", "delta", "tokei", "jaq", "ouch",
+  "uutils", "rustybox"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "disk-and-files"
+title = "Disk & Files"
+tools = ["dust", "dua", "fclones", "kondo", "disktui", "gptman", "yazi",
+  "broot", "superfile"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "process-and-monitoring"
+title = "Process & Monitoring"
+tools = ["procs", "bottom", "kmon", "macchina", "bandwhich"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "shells-and-terminal"
+title = "Shells & Terminal"
+tools = ["nushell", "ion", "brush", "starship", "atuin", "zellij", "zoxide",
+  "t-rec"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "text-editors"
+title = "Text Editors"
+tools = ["helix", "rsvim", "amp", "msedit"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "networking"
+title = "Networking"
+tools = ["xh", "curl", "wget2", "dog", "gping", "trippy", "rustscan",
+  "sniffglue", "monolith", "lychee"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "network-config"
+title = "Network Configuration"
+tools = ["impala", "iwd", "nmstate", "adguardvpn-cli"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "vcs-and-build"
+title = "Version Control & Build"
+tools = ["gitui", "jujutsu", "gitway", "cargo-update", "rustup", "lorri",
+  "cpx", "podman", "just"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "package-managers"
+title = "Package Managers"
+tools = ["omni", "zap", "am", "topgrade", "paru", "linutil", "dotter", "nix",
+  "flatpak", "brew", "guix"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "security-encryption"
+title = "Security & Encryption"
+tools = ["rage", "sequoia-chameleon", "sequoia", "rbw", "sudo-rs"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "multimedia"
+title = "Multimedia"
+tools = ["rav1e", "gifski", "oxipng", "viu", "mpv", "ffmpeg", "yt-dlp",
+  "ncspot", "termusic", "radio-browser"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "communication"
+title = "Communication"
+tools = ["matrix-commander", "iamb", "rumatui", "disrust", "rivetui"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "boot-login-session"
+title = "Boot, Login & Session"
+tools = ["lanzaboote", "greetd", "tuigreet", "lemurs", "xdpc",
+  "cosmic-session", "xremap"]
+
+[[skill.spacecraft-cli-preference.category]]
+slug = "ai-agents"
+title = "AI Agents & Coding CLIs"
+tools = ["claude-code", "aichat", "gemini-cli", "codex", "gh-copilot",
+  "opencode", "minimax-cli", "grok-cli", "kilo", "kiro-cli", "kimi-cli",
+  "gws-cli"]

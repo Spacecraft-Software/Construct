@@ -148,9 +148,18 @@ fn scalar_to_string(value: &Value) -> String {
 fn emit_human(human: &HumanRender, color: bool) {
     let stdout = std::io::stdout();
     let mut out = stdout.lock();
+    write_human(&mut out, human, color);
+    let _ = out.flush();
+}
+
+fn write_human(out: &mut impl std::io::Write, human: &HumanRender, color: bool) {
     match human {
         HumanRender::Message(text) => {
             let _ = writeln!(out, "{text}");
+        }
+        HumanRender::Titled { title, body } => {
+            let _ = writeln!(out, "{title}");
+            write_human(out, body, color);
         }
         HumanRender::Summary(pairs) => {
             let width = pairs.iter().map(|(k, _)| k.len()).max().unwrap_or(0);
@@ -199,7 +208,6 @@ fn emit_human(human: &HumanRender, color: bool) {
             }
         }
     }
-    let _ = out.flush();
 }
 
 fn column_widths(headers: &[String], rows: &[Vec<String>]) -> Vec<usize> {
@@ -274,4 +282,24 @@ fn print_line(text: &str) {
     let mut out = stdout.lock();
     let _ = writeln!(out, "{text}");
     let _ = out.flush();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::write_human;
+    use crate::output::HumanRender;
+
+    #[test]
+    fn titled_prints_its_banner_above_the_body() {
+        let human = HumanRender::Titled {
+            title: "[dry-run] would do it".to_owned(),
+            body: Box::new(HumanRender::Message("body".to_owned())),
+        };
+        let mut out = Vec::new();
+        write_human(&mut out, &human, false);
+        assert_eq!(
+            String::from_utf8(out).unwrap(),
+            "[dry-run] would do it\nbody\n"
+        );
+    }
 }

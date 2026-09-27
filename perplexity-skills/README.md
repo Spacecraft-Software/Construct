@@ -20,17 +20,24 @@ source of truth for Claude, Gemini, Codex, and Grok.
 
 | File | What it is |
 |------|------------|
-| `build.py` | The generator. Reads the canonical skill, merges the per-tool references into category files, rewrites `SKILL.md`'s links, and emits the zip. Not shipped inside the zip. |
-| `spacecraft-cli-preference.zip` | The generated bundle to upload to Perplexity (~19 entries, same nested `spacecraft-cli-preference/…` layout). |
+| `categories.toml` | The consolidation map: passthrough files, and each category's slug, title, and tools. Data, not code — read by `construct skill build --target perplexity`. |
+| `spacecraft-cli-preference.zip` | The generated bundle to upload to Perplexity (20 entries, same nested `spacecraft-cli-preference/…` layout). A verbatim copy of `dist/perplexity/spacecraft-cli-preference.zip`. |
+
+The generator is `construct skill build --target perplexity` (the Rust
+`construct` CLI in [`../construct-cli/`](../construct-cli/)). It replaced the
+former `build.py` script, whose output it reproduces except for two intended
+changes: spec-clean frontmatter and a bundled `LICENSE`.
 
 ## How the consolidation works
 
-`build.py` merges the 110 per-tool `references/<tool>.md` files into **14
+The build merges the 110 per-tool `references/<tool>.md` files into **14
 category files** and rewrites every `references/<tool>.md` link in `SKILL.md` to
 `references/<category>.md#<tool>` (each tool becomes a `## <tool>` anchor). The
 three non-tool reference files — `ATTRIBUTION.md`, `execution-context.md`, and
-`local-execution.md` — pass through verbatim. `CREDITS.md` and the frontmatter
-are unchanged.
+`local-execution.md` — pass through verbatim, as do `CREDITS.md` and
+`LICENSE`. The frontmatter gets the Perplexity target's rewrite: `maintainer`
+and `website` move under `metadata:` and `user-invocable` is dropped; the
+`SKILL.md` body is otherwise the canonical text with only its links rewritten.
 
 | `references/<category>.md` | Tools |
 |---|---|
@@ -52,16 +59,19 @@ are unchanged.
 ## Regenerating
 
 **Never hand-edit the category files or the zipped `SKILL.md`.** Edit the
-canonical `spacecraft-cli-preference/` and re-run the generator:
+canonical `spacecraft-cli-preference/`, rebuild, and copy the output here:
 
 ```sh
-python3 perplexity-skills/build.py
+construct skill build --target perplexity spacecraft-cli-preference
+cp dist/perplexity/spacecraft-cli-preference.zip perplexity-skills/
 ```
 
-It self-checks that every rewritten `#anchor` resolves to a real `## <tool>`
-heading and fails the build otherwise. When a tool is added to or removed from
-the canonical skill, update `CATEGORY_MAP` in `build.py` — it asserts the map
-covers exactly the canonical tool set and fails loudly if it drifts.
+The zip is deterministic (fixed mtimes, sorted entries), so an unchanged skill
+rebuilds byte-identical and leaves no git diff. The build self-checks that every
+rewritten `#anchor` resolves to a real `## <tool>` heading and fails otherwise.
+When a tool is added to or removed from the canonical skill, update its entry in
+[`categories.toml`](categories.toml) — the build asserts the map covers exactly
+the canonical tool set and fails loudly if it drifts.
 
 Per the repo's install-surface rule, regenerate and commit
 `spacecraft-cli-preference.zip` in the **same commit** as any change to the

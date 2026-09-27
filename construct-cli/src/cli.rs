@@ -227,6 +227,18 @@ pub(crate) enum SkillCommand {
         after_help = "Never pushes to the default branch — every change goes through a\nfeature branch and a pull request, and merging is the maintainer's call.\nRun `construct skill sync` after the PR merges.\n\nExamples:\n  construct skill ship --dry-run\n  construct skill ship --skills spacecraft-rust-guidelines\n  construct skill ship --branch ship/palette-fix --message \"docs: clarify X\" --json"
     )]
     Ship(ShipArgs),
+
+    /// Build distributable bundles for every target platform under dist/.
+    #[command(
+        after_help = "Targets: claude (Claude Code, claude.ai, Gemini CLI, Codex), grok (flat zips),\nperplexity (consolidated under 100 files), single-file (one .md per skill).\nZips are deterministic; nothing is committed. A refused skill stops the\nwhole build before anything is written.\n\nExamples:\n  construct skill build\n  construct skill build --target claude,grok --json\n  construct skill build spacecraft-cli-preference --target perplexity --dry-run"
+    )]
+    Build(BuildArgs),
+
+    /// Vendor skills into a repository's .claude/skills/ for Claude Code cloud sessions.
+    #[command(
+        after_help = "Writes the Claude-layout tree for each skill into <repo>/.claude/skills/<name>/,\nthe only place Claude Code cloud sessions load skills from. Never runs git:\ncommit the printed paths yourself. Replaces only directories it created\n(marked by .construct-vendor.toml) unless --force.\n\nExamples:\n  construct skill vendor spacecraft-rust-guidelines microsoft-rust-guidelines\n  construct skill vendor spacecraft-brand-guidelines --into ../site --dry-run"
+    )]
+    Vendor(VendorArgs),
 }
 
 /// Arguments for `construct skill add` / `construct skill update`.
@@ -414,6 +426,65 @@ pub(crate) struct ShipArgs {
     /// after the PR merges.
     #[arg(long, hide = true)]
     pub(crate) no_sync: bool,
+}
+
+/// `--target` values for `construct skill build`.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, ValueEnum)]
+pub(crate) enum TargetArg {
+    /// Claude Code (local + web), claude.ai, Gemini CLI, Codex.
+    Claude,
+    /// Grok: flat bundles, name + description frontmatter.
+    Grok,
+    /// Perplexity: Claude layout, consolidated under 100 files.
+    Perplexity,
+    /// One self-contained markdown file per skill.
+    SingleFile,
+    /// Every target above.
+    All,
+}
+
+/// Arguments for `construct skill build`.
+#[derive(Debug, Args)]
+pub(crate) struct BuildArgs {
+    /// Skills to build (default: every root skill, plus Grok-native skills
+    /// for the grok target).
+    #[arg(value_name = "SKILL")]
+    pub(crate) skills: Vec<String>,
+
+    /// Targets to build (comma-separated or repeated; default: all).
+    #[arg(
+        short = 't',
+        long = "target",
+        value_enum,
+        value_delimiter = ',',
+        value_name = "T[,T...]"
+    )]
+    pub(crate) targets: Vec<TargetArg>,
+
+    /// The Construct catalogue clone to build from.
+    #[arg(long, value_name = "DIR")]
+    pub(crate) repo: Option<PathBuf>,
+
+    /// Output root; each target writes <out>/<target>/ (default: <repo>/dist).
+    #[arg(long, value_name = "DIR")]
+    pub(crate) out: Option<PathBuf>,
+}
+
+/// Arguments for `construct skill vendor`.
+#[derive(Debug, Args)]
+pub(crate) struct VendorArgs {
+    /// Skills to vendor (at least one).
+    #[arg(value_name = "SKILL", required = true, num_args = 1..)]
+    pub(crate) skills: Vec<String>,
+
+    /// Consumer repository to vendor into; writes <into>/.claude/skills/<name>/
+    /// (default: the enclosing git work tree of the current directory).
+    #[arg(long, value_name = "DIR")]
+    pub(crate) into: Option<PathBuf>,
+
+    /// Catalogue source: a local path, git URL, or owner/repo.
+    #[arg(long, value_name = "SRC")]
+    pub(crate) source: Option<String>,
 }
 
 /// Render a clap parse outcome (help, version, or error) and return the exit

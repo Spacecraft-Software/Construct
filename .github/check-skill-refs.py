@@ -68,8 +68,10 @@ CLAUSE_PIN = re.compile(
 SUPPRESS = "skill-refs: allow"
 
 # Never walked: vendored upstream (§4.2 forbids local edits), the holding pen,
-# and generated trees that mirror a source elsewhere.
-SKIP_DIRS = {".git", ".claude", "android-skills", "Excluded", "node_modules", "target"}
+# and generated trees that mirror a source elsewhere (`dist/` is
+# `construct skill build` output: gitignored release bundles, e.g. the
+# single-file target inlines a skill's CHANGELOG.md under another file name).
+SKIP_DIRS = {".git", ".claude", "android-skills", "Excluded", "node_modules", "target", "dist"}
 
 # Names inside a skill namespace that are not skills. `spacecraft-software` is
 # the umbrella workspace and org, and appears in paths and prose.

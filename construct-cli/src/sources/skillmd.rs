@@ -18,6 +18,28 @@ use std::fmt;
 use std::path::Path;
 
 use serde::Deserialize;
+use serde_yaml::Value;
+
+/// Maximum rendered length of a skill's frontmatter `description` (Standard
+/// §5.6).
+///
+/// The consuming skill loader rejects anything over **1024** characters at
+/// install time — after the bundles are built and pushed — so the cap sits at
+/// 1000 for a 24-character margin covering encoding and trailing-newline edge
+/// cases. Raising it past the loader's limit would ship bundles that cannot be
+/// installed. `.githooks/check-description-length.py` enforces the same number
+/// in CI and in the pre-commit hook; changing one without the other lets a
+/// bundle pass one gate and fail the next.
+pub(crate) const DESCRIPTION_CAP: usize = 1000;
+
+/// Maximum length of a skill's frontmatter `compatibility` field.
+///
+/// The Agent Skills specification limits `compatibility` to 500 characters.
+/// Several Construct skills set it (`spacecraft-cli-shell`,
+/// `spacecraft-cli-preference`, `spacecraft-missing-pkg`); `skill ship` and
+/// `skill build` refuse one over the cap, measured with the same rule as
+/// [`DESCRIPTION_CAP`].
+pub(crate) const COMPATIBILITY_CAP: usize = 500;
 
 /// The frontmatter fields we care about.
 #[derive(Debug, Default, Deserialize)]
@@ -84,13 +106,46 @@ pub(crate) fn description_len(skill_md: &Path) -> Result<Option<usize>, InvalidF
     let Ok(content) = std::fs::read_to_string(skill_md) else {
         return Ok(None);
     };
-    let Some((fm, _)) = split(&content) else {
+    field_len(&content, "description")
+}
+
+/// The rendered length, in characters, of the string-valued frontmatter field
+/// `key` in the `SKILL.md` text `content`.
+///
+/// The one counting rule behind every frontmatter cap: `chars().count()` of the
+/// parsed, **untrimmed** string (see [`description_len`] for why untrimmed).
+/// `Ok(None)` when there is no frontmatter or no such key; `Err` when the
+/// frontmatter does not parse, or when `key` is present but is not a string —
+/// a strict loader has no string to measure there either.
+pub(crate) fn field_len(content: &str, key: &str) -> Result<Option<usize>, InvalidFrontmatter> {
+    let Some((fm, _)) = split(content) else {
         return Ok(None);
     };
-    let front = serde_yaml::from_str::<Front>(fm).map_err(|err| InvalidFrontmatter {
+    let parsed = parse_mapping(fm)?;
+    match parsed.get(key) {
+        None | Some(Value::Null) => Ok(None),
+        Some(Value::String(text)) => Ok(Some(text.chars().count())),
+        Some(_) => Err(InvalidFrontmatter {
+            reason: format!("`{key}` is not a string"),
+        }),
+    }
+}
+
+/// Parse a frontmatter block into an order-preserving YAML mapping.
+///
+/// An empty frontmatter is an empty mapping; anything that parses to a
+/// non-mapping value (a bare scalar, a sequence) is invalid.
+pub(crate) fn parse_mapping(fm: &str) -> Result<serde_yaml::Mapping, InvalidFrontmatter> {
+    let value = serde_yaml::from_str::<Value>(fm).map_err(|err| InvalidFrontmatter {
         reason: err.to_string(),
     })?;
-    Ok(front.description.map(|d| d.chars().count()))
+    match value {
+        Value::Mapping(map) => Ok(map),
+        Value::Null => Ok(serde_yaml::Mapping::new()),
+        _ => Err(InvalidFrontmatter {
+            reason: "frontmatter is not a mapping".to_owned(),
+        }),
+    }
 }
 
 /// The markdown body of a `SKILL.md` (everything after the frontmatter), or the
@@ -104,7 +159,7 @@ pub(crate) fn body(skill_md: &Path) -> String {
 }
 
 /// Split `---\n<frontmatter>\n---\n<body>` into `(frontmatter, body)`.
-fn split(content: &str) -> Option<(&str, &str)> {
+pub(crate) fn split(content: &str) -> Option<(&str, &str)> {
     let rest = content
         .strip_prefix("---\n")
         .or_else(|| content.strip_prefix("---\r\n"))?;

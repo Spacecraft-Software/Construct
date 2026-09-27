@@ -80,6 +80,38 @@ fn schema_for_one_command_has_parameters_and_examples() {
 }
 
 #[test]
+fn schema_for_skill_build_has_parameters_and_exit_codes() {
+    let out = bin()
+        .args(["schema", "skill", "build"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let value: Value = serde_json::from_slice(&out).expect("valid JSON");
+    assert_eq!(value["command"], "construct skill build");
+    assert!(value["parameters"]["properties"]["target"].is_object());
+    assert!(value["parameters"]["properties"]["skills"].is_object());
+    assert!(value["examples"].as_array().is_some_and(|a| !a.is_empty()));
+}
+
+#[test]
+fn describe_lists_skill_build() {
+    let out = bin()
+        .arg("describe")
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let text = String::from_utf8(out).expect("UTF-8");
+    assert!(
+        text.contains("construct skill build"),
+        "describe omits skill build"
+    );
+}
+
+#[test]
 fn sync_dry_run_envelope_has_iso_utc_timestamp() {
     // Use the crate dir as an existing flake dir so the test never depends on
     // the host default (`/spacecraft-software/bravais`) existing — notably in

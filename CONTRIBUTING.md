@@ -168,26 +168,61 @@ in sync with the subdirectory listing.
 Perplexity rejects an uploaded zip with more than **100 files**. Only
 `spacecraft-cli-preference` (110 per-tool `references/` files) exceeds that.
 [`perplexity-skills/`](perplexity-skills/) ships a **generated** consolidated
-bundle for it: `build.py` merges the per-tool files into ~14 category files and
-emits `perplexity-skills/spacecraft-cli-preference.zip` (~19 entries) in the
-same nested layout Perplexity accepts. The canonical
-`spacecraft-cli-preference/` stays the single source of truth and is unchanged.
+bundle for it: `construct skill build --target perplexity` merges the per-tool
+files into 14 category files, driven by the map in
+`perplexity-skills/categories.toml`, and emits a 20-entry zip in the same
+nested layout Perplexity accepts. The canonical `spacecraft-cli-preference/`
+stays the single source of truth and is unchanged.
 
 **Regeneration contract.** After any edit to `spacecraft-cli-preference/SKILL.md`
-or its `references/`, re-run the generator and commit the regenerated zip in the
-**same commit** — the Perplexity analogue of the "bundles are the install
-surface" rule:
+or its `references/`, rebuild and commit the regenerated zip in the **same
+commit** — the Perplexity analogue of the "bundles are the install surface"
+rule:
 
 ```sh
-python3 perplexity-skills/build.py     # rebuilds the zip; self-checks anchors
+construct skill build --target perplexity spacecraft-cli-preference
+cp dist/perplexity/spacecraft-cli-preference.zip perplexity-skills/
 ```
 
+The committed zip is the Perplexity target's output verbatim: frontmatter is
+spec-clean (`maintainer` / `website` under `metadata:`) and the bundle carries
+`LICENSE` (§5.6). The build self-checks every rewritten anchor. The former
+`perplexity-skills/build.py` generator is retired.
+
 Never hand-edit the category files or the zipped `SKILL.md` — edit the canonical
-skill and re-run. When a tool is added to or removed from the canonical skill,
-update `CATEGORY_MAP` in `build.py` (it asserts the map covers exactly the
-canonical tool set and fails loudly otherwise). `perplexity-skills/` is excluded
-from the flake skill auto-detection and from the drift sweep above (the
-consolidated zip intentionally differs from any on-disk tree).
+skill and rebuild. When a tool is added to or removed from the canonical skill,
+update its entry in `perplexity-skills/categories.toml` — the map is data, not
+code; the build asserts it covers exactly the canonical tool set and fails
+loudly otherwise. `perplexity-skills/` is excluded from the flake skill
+auto-detection and from the drift sweep above (the consolidated zip
+intentionally differs from any on-disk tree).
+
+## Distribution targets (`construct skill build`)
+
+`construct skill build [SKILL...] [--target claude,grok,perplexity,single-file]`
+writes per-platform release bundles under `dist/<target>/` (gitignored; never
+commit it). Zips are deterministic — fixed mtimes, sorted entries — so CI
+release artifacts reproduce byte for byte. The source `SKILL.md` is never
+edited; frontmatter is rewritten per target.
+
+| Target | Platform / purpose |
+|--------|--------------------|
+| `claude` | Claude Code (local and web), claude.ai, Gemini CLI, Codex. Nested `<name>/` layout; `maintainer` / `website` under `metadata:`; keeps `user-invocable`. |
+| `grok` | Grok. Flat zips for every root skill plus `grok-skills/*`; frontmatter `name` + `description` only. |
+| `perplexity` | Perplexity. Claude layout without `user-invocable`; skills over 100 files consolidated from `categories.toml`. |
+| `single-file` | Platforms with no skill loader (Gemini Gems, MiniMax): one self-contained `<name>.md` with references inlined and links rewritten to in-document anchors. The document carries its license text (§5.6): every `LICENSE` / `LICENSE.<TAG>` is appended verbatim under a closing `## License` section, and links to those files anchor there. Outside fenced blocks, a sibling-skill link becomes plain text naming the skill and any other link that leaves the skill (upstream paths) keeps its text and loses the link. |
+
+Every target vendors the palette into `spacecraft-brand-guidelines` and
+`spacecraft-accessibility-support` (verified byte-identical), and the build
+refuses any skill that fails the §5.6 description cap or the 500-character
+`compatibility` cap. It never touches the committed root or `grok-skills/`
+bundles.
+
+Claude Code **cloud sessions** load only a repository's committed
+`.claude/skills/`. `construct skill vendor <skill>... [--into <repo>]
+[--dry-run]` writes the `claude` target's tree there; it never runs git in that
+repository — commit the paths it prints. It replaces only directories it created (marked by
+`.construct-vendor.toml`) unless `--force`.
 
 ## Editing rules
 

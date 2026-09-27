@@ -32,29 +32,18 @@ use std::process::Command as Proc;
 
 use serde_json::{json, Value};
 
+use crate::catalogue;
 use crate::cli::ShipArgs;
 use crate::context::Context;
-use crate::install::plan::NON_SKILL_DIRS;
+use crate::gate;
 use crate::output::error::{AppError, ErrorCode};
 use crate::output::{CommandOutput, HumanRender};
-use crate::sources::skillmd;
 
 /// Default catalogue clone to ship from.
-const DEFAULT_REPO: &str = "/spacecraft-software/construct";
+pub(crate) const DEFAULT_REPO: &str = "/spacecraft-software/construct";
 /// The remote a ship is allowed to push to (substring check). Standard §6.4:
 /// publication targets are limited to namespaces Spacecraft Software controls.
 const EXPECTED_REMOTE: &str = "Spacecraft-Software/Construct";
-/// Maximum rendered length of a skill's frontmatter `description` (Standard
-/// §5.6).
-///
-/// The consuming skill loader rejects anything over **1024** characters at
-/// install time — after the bundles are built and pushed — so the cap sits at
-/// 1000 for a 24-character margin covering encoding and trailing-newline edge
-/// cases. Raising it past the loader's limit would ship bundles that cannot be
-/// installed. `.githooks/check-description-length.py` enforces the same number
-/// in CI and in the pre-commit hook; changing one without the other lets a
-/// bundle pass one gate and fail the next.
-const DESCRIPTION_CAP: usize = 1000;
 /// Assistant co-authorship trailer (CONTRIBUTING §4).
 const COAUTHOR: &str = "Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>";
 /// `owner/repo` slug passed to `gh --repo`, derived from [`EXPECTED_REMOTE`].
@@ -130,7 +119,15 @@ pub(crate) fn run(ctx: &Context, args: &ShipArgs) -> Result<CommandOutput, AppEr
     // Enforce the Standard §5.6 description gate before anything is staged: the
     // loader rejects an over-long description at install time, by which point
     // the bundles are built, committed, and pushed. Cheaper to refuse here.
-    check_descriptions(ctx, &repo, &shipped)?;
+    let audit = gate::audit(
+        &shipped
+            .iter()
+            .map(|s| (s.clone(), repo.join(s).join("SKILL.md")))
+            .collect::<Vec<_>>(),
+    );
+    if let Some(err) = gate::into_error(ctx, &repo, &audit) {
+        return Err(err);
+    }
 
     // Build the explicit stage list: shipped skills' files + their bundles +
     // catalogue-level root files (README.md, flake.lock). Never `git add -A`.
@@ -276,79 +273,6 @@ pub(crate) fn run(ctx: &Context, args: &ShipArgs) -> Result<CommandOutput, AppEr
     Ok(CommandOutput::new(data, human))
 }
 
-/// Enforce the Standard §5.6 description gate on every shipped skill.
-///
-/// Two refusals, both `CONFLICT` / exit 5. A frontmatter that does not parse is
-/// reported first, because nothing else about the skill can be measured until
-/// it does. It is a failure of this gate rather than an exemption from it: a
-/// strict loader sees no `description` at all for such a skill, and treating
-/// "unmeasurable" as "nothing to measure" is how a plain-scalar description
-/// containing `: ` (a YAML mapping, not a string) shipped past this command
-/// while `construct skill find` listed the skill with no description.
-fn check_descriptions(ctx: &Context, repo: &Path, shipped: &[String]) -> Result<(), AppError> {
-    let mut invalid: Vec<(String, String)> = Vec::new();
-    let mut oversized: Vec<(String, usize)> = Vec::new();
-    for skill in shipped {
-        match skillmd::description_len(&repo.join(skill).join("SKILL.md")) {
-            Err(err) => invalid.push((skill.clone(), err.reason().to_owned())),
-            Ok(Some(len)) if len > DESCRIPTION_CAP => oversized.push((skill.clone(), len)),
-            Ok(_) => {}
-        }
-    }
-
-    if !invalid.is_empty() {
-        let detail = invalid
-            .iter()
-            .map(|(skill, reason)| format!("{skill} ({reason})"))
-            .collect::<Vec<_>>()
-            .join(", ");
-        return Err(AppError::new(
-            ctx,
-            ErrorCode::Conflict,
-            5,
-            format!("SKILL.md frontmatter is not valid YAML: {detail}"),
-            format!(
-                "cd {} && python3 .github/validate-configs.py",
-                repo.display()
-            ),
-        )
-        .with_extension(
-            "invalid_frontmatter",
-            json!(invalid
-                .iter()
-                .map(|(skill, reason)| json!({ "skill": skill, "error": reason }))
-                .collect::<Vec<_>>()),
-        ));
-    }
-
-    if let Some((first, _)) = oversized.first() {
-        let detail = oversized
-            .iter()
-            .map(|(skill, len)| format!("{skill} ({len} chars, {} over)", len - DESCRIPTION_CAP))
-            .collect::<Vec<_>>()
-            .join(", ");
-        return Err(AppError::new(
-            ctx,
-            ErrorCode::Conflict,
-            5,
-            format!("SKILL.md description exceeds the {DESCRIPTION_CAP}-character cap: {detail}"),
-            format!("python3 .githooks/check-description-length.py {first}/SKILL.md"),
-        )
-        .with_extension(
-            "oversized_skills",
-            json!(oversized
-                .iter()
-                .map(|(skill, len)| json!({
-                    "skill": skill,
-                    "chars": len,
-                    "over_by": len - DESCRIPTION_CAP,
-                }))
-                .collect::<Vec<_>>()),
-        ));
-    }
-    Ok(())
-}
-
 // ── git helpers ───────────────────────────────────────────────────────────-
 
 /// Validate that `repo` is a git work tree whose `origin` is the Construct remote.
@@ -383,24 +307,12 @@ fn validate_repo(ctx: &Context, repo: &Path) -> Result<(), AppError> {
     Ok(())
 }
 
-/// Top-level directories that are skills (contain `SKILL.md`).
+/// Top-level directories that are root skills (contain `SKILL.md`).
 fn scan_skill_dirs(repo: &Path) -> BTreeSet<String> {
-    let mut dirs = BTreeSet::new();
-    if let Ok(entries) = std::fs::read_dir(repo) {
-        for entry in entries.flatten() {
-            if !entry.file_type().is_ok_and(|t| t.is_dir()) {
-                continue;
-            }
-            let name = entry.file_name().to_string_lossy().into_owned();
-            if name.starts_with('.') || NON_SKILL_DIRS.contains(&name.as_str()) {
-                continue;
-            }
-            if repo.join(&name).join("SKILL.md").is_file() {
-                dirs.insert(name);
-            }
-        }
-    }
-    dirs
+    catalogue::root_skills(repo)
+        .into_iter()
+        .map(|s| s.name)
+        .collect()
 }
 
 /// Parse `git status --porcelain=v1` into grouped [`Changes`].
