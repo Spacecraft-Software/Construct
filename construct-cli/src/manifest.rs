@@ -42,6 +42,8 @@ pub(crate) fn tool_info() -> ToolInfo {
             "--color",
             "--absolute-time",
             "--print0",
+            "--accessible",
+            "--no-accessible",
             "--yes",
             "--force",
         ],

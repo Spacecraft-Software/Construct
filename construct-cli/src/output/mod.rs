@@ -10,6 +10,7 @@ pub(crate) mod diagnostic;
 pub(crate) mod envelope;
 pub(crate) mod error;
 pub(crate) mod mode;
+pub(crate) mod progress;
 pub(crate) mod render;
 pub(crate) mod theme;
 

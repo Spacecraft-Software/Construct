@@ -28,6 +28,7 @@ use crate::context::Context;
 use crate::gate;
 use crate::output::diagnostic::{Diagnostic, Severity};
 use crate::output::error::{AppError, ErrorCode};
+use crate::output::progress::Progress;
 use crate::output::{CommandOutput, HumanRender};
 
 /// Run `construct skill build`.
@@ -68,7 +69,27 @@ pub(crate) fn run(ctx: &Context, args: &BuildArgs) -> Result<CommandOutput, AppE
         grok,
         targets: targets.clone(),
     };
-    let plan = bundle::plan(&input).map_err(|err| build_error(ctx, &repo, err))?;
+    // Progress on stderr (human TTY only): one step per `(skill, target)`
+    // encoded in memory, then one per target directory written.
+    let writes = if ctx.dry_run { 0 } else { targets.len() };
+    let steps = bundle::step_count(&input) + writes;
+    let progress = Progress::bar(
+        ctx,
+        "building bundles",
+        u64::try_from(steps).unwrap_or(u64::MAX),
+    );
+    let mut started = false;
+    let plan = bundle::plan(&input, &mut |skill, target| {
+        if started {
+            progress.inc(1);
+        }
+        started = true;
+        progress.set_message(format!("{}/{skill}", target.slug()));
+    });
+    if started {
+        progress.inc(1);
+    }
+    let plan = plan.map_err(|err| build_error(ctx, &repo, err))?;
 
     // Refuse before the first byte is written: a target directory that holds
     // files this command did not create is only replaced under --force.
@@ -100,8 +121,11 @@ pub(crate) fn run(ctx: &Context, args: &BuildArgs) -> Result<CommandOutput, AppE
     if written {
         let full = args.skills.is_empty();
         for target in &targets {
+            progress.set_message(format!("writing {}", target.slug()));
             write_target(ctx, &out, *target, &plan, full)?;
+            progress.inc(1);
         }
+        progress.finish();
         Diagnostic::new(
             ctx,
             Severity::Ok,
@@ -114,6 +138,8 @@ pub(crate) fn run(ctx: &Context, args: &BuildArgs) -> Result<CommandOutput, AppE
             ),
         )
         .emit(ctx);
+    } else {
+        progress.finish();
     }
 
     Ok(output(&repo, &out, &targets, &plan, written))

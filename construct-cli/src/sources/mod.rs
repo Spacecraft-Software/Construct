@@ -15,6 +15,7 @@ use std::process::Command as Proc;
 use crate::context::Context;
 use crate::install::plan::{looks_remote, NON_SKILL_DIRS};
 use crate::output::error::{AppError, ErrorCode};
+use crate::output::progress;
 
 /// Directories under a source root that may hold skills (`""` = the root).
 const CONTAINER_DIRS: &[&str] = &["", "skills", "skills/.curated", ".curated"];
@@ -194,18 +195,24 @@ fn cache_dir(ctx: &Context) -> Result<PathBuf, AppError> {
 fn clone_or_reuse(ctx: &Context, url: &str, dest: &Path, refresh: bool) -> Result<(), AppError> {
     if dest.exists() {
         if refresh {
-            let _ = Proc::new("git")
-                .arg("-C")
-                .arg(dest)
-                .args(["pull", "--ff-only", "--depth", "1"])
-                .output();
+            let _ = progress::step_command(
+                ctx,
+                format!("refreshing {url}"),
+                Proc::new("git")
+                    .arg("-C")
+                    .arg(dest)
+                    .args(["pull", "--ff-only", "--depth", "1"]),
+            );
         }
         return Ok(());
     }
-    let result = Proc::new("git")
-        .args(["clone", "--depth", "1", url])
-        .arg(dest)
-        .output();
+    let result = progress::step_command(
+        ctx,
+        format!("cloning {url}"),
+        Proc::new("git")
+            .args(["clone", "--depth", "1", url])
+            .arg(dest),
+    );
     let output = match result {
         Ok(output) => output,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {

@@ -11,8 +11,6 @@
 //! `ok`+, `--verbose` → `info`+) gates emission. Errors are not diagnostics —
 //! they are [`crate::output::error::AppError`], which is never suppressible.
 
-use std::io::Write as _;
-
 use owo_colors::OwoColorize as _;
 use serde::Serialize;
 use serde_json::{Map, Value};
@@ -169,13 +167,16 @@ impl Diagnostic {
         if !ctx.allows(self.severity) {
             return;
         }
-        let mut stderr = std::io::stderr();
-        if ctx.mode.is_machine() {
-            let _ = writeln!(stderr, "{}", self.machine_line());
+        let text = if ctx.mode.is_machine() {
+            format!("{}\n", self.machine_line())
         } else {
-            let _ = write!(stderr, "{}", self.render_human(ctx.color));
-        }
-        let _ = stderr.flush();
+            self.render_human(ctx.color)
+        };
+        // Through the progress hook: a live progress line is erased first,
+        // so the two never share a row.
+        crate::output::progress::write_stderr(|stderr| {
+            let _ = stderr.write_all(text.as_bytes());
+        });
     }
 }
 
@@ -203,9 +204,9 @@ pub(crate) fn emit_passthrough(ctx: &Context, text: &str) {
     if !ctx.allows(Severity::Info) || text.trim().is_empty() {
         return;
     }
-    let mut stderr = std::io::stderr();
-    let _ = write!(stderr, "{text}");
-    let _ = stderr.flush();
+    crate::output::progress::write_stderr(|stderr| {
+        let _ = stderr.write_all(text.as_bytes());
+    });
 }
 
 #[cfg(test)]

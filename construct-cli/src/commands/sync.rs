@@ -17,6 +17,7 @@ use crate::cli::SyncArgs;
 use crate::commands::pointer;
 use crate::context::Context;
 use crate::output::error::{AppError, ErrorCode};
+use crate::output::progress;
 use crate::output::{CommandOutput, HumanRender};
 
 /// Default consuming flake — the bravais NixOS configuration.
@@ -120,16 +121,19 @@ pub(crate) fn flake_update(ctx: &Context, flake_dir: &Path) -> Result<String, Ap
     }
     let flake_dir_str = flake_dir.display().to_string();
 
-    let result = Proc::new("nix")
-        .args([
-            "--extra-experimental-features",
-            "nix-command flakes",
-            "flake",
-            "update",
-            INPUT_NAME,
-        ])
-        .current_dir(flake_dir)
-        .output();
+    let result = progress::step_command(
+        ctx,
+        format!("updating flake input {INPUT_NAME}"),
+        Proc::new("nix")
+            .args([
+                "--extra-experimental-features",
+                "nix-command flakes",
+                "flake",
+                "update",
+                INPUT_NAME,
+            ])
+            .current_dir(flake_dir),
+    );
 
     let output = match result {
         Ok(output) => output,

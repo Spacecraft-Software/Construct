@@ -37,6 +37,7 @@ use crate::cli::ShipArgs;
 use crate::context::Context;
 use crate::gate;
 use crate::output::error::{AppError, ErrorCode};
+use crate::output::progress;
 use crate::output::{CommandOutput, HumanRender};
 
 /// Default catalogue clone to ship from.
@@ -237,11 +238,15 @@ pub(crate) fn run(ctx: &Context, args: &ShipArgs) -> Result<CommandOutput, AppEr
     }
 
     // ── push the branch (never the default branch) ──────────────────────────
-    git_capture(ctx, &repo, &["push", "-u", "origin", branch.as_str()])?;
+    progress::step(ctx, format!("pushing {branch}"), || {
+        git_capture(ctx, &repo, &["push", "-u", "origin", branch.as_str()])
+    })?;
     let signed = head_signed(ctx, &repo);
 
     // ── open the pull request; merging is the maintainer's call ─────────────
-    let pr_url = open_pull_request(ctx, &repo, &branch, &default_branch, &message, &shipped)?;
+    let pr_url = progress::step(ctx, "opening the pull request", || {
+        open_pull_request(ctx, &repo, &branch, &default_branch, &message, &shipped)
+    })?;
 
     let data = json!({
         "repo": repo.display().to_string(),
