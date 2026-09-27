@@ -213,13 +213,13 @@ renderers.
 
 Always specify a language identifier after the opening fence:
 
-```markdown
+````markdown
 ```rust
 fn main() {
     println!("Hello, Spacecraft Software!");
 }
 ```
-```
+````
 
 Supported identifiers include `rust`, `nix`, `bash`, `sh`, `nushell`, `toml`,
 `json`, `yaml`, `markdown`, `text`, `console`, etc. Use `text` when no

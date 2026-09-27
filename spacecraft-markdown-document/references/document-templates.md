@@ -24,7 +24,7 @@ are mandatory; those in `[square brackets]` are optional.
 
 ## `readme` — Project README
 
-```markdown
+````markdown
 <!--
 SPDX-License-Identifier: GPL-3.0-or-later
 Copyright (C) <YYYY> Mohamed Hammad & Spacecraft Software
@@ -95,7 +95,7 @@ GPL-3.0-or-later — see [`LICENSE`](LICENSE).
 ---
 
 *— Built by [Spacecraft Software](https://SpacecraftSoftware.org/) —*
-```
+````
 
 ---
 
@@ -350,7 +350,7 @@ the current state without this solution?>
 
 ## `release-notes` — Release Notes
 
-```markdown
+````markdown
 <!-- GFM Document
      title:      Release Notes — <ProjectName> v<X.Y.Z>
      author:     Mohamed Hammad & Spacecraft Software
@@ -396,7 +396,7 @@ the current state without this solution?>
 ---
 
 *— Built by [Spacecraft Software](https://SpacecraftSoftware.org/) —*
-```
+````
 
 ---
 
