@@ -224,6 +224,24 @@ Claude Code **cloud sessions** load only a repository's committed
 repository — commit the paths it prints. It replaces only directories it created (marked by
 `.construct-vendor.toml`) unless `--force`.
 
+### Releases
+
+You do not cut releases by hand. After CI passes on a push to `main`,
+`.github/workflows/release.yml` builds every target (twice, failing on any
+difference), packages one `construct-bundles-<target>.zip` per target plus
+`SHA256SUMS` and `manifest.json`, and publishes them as a GitHub release tagged
+`bundles-YYYY-MM-DD-<sha7>` — dated by the commit, so the tag names the
+content. The tag is created by Actions on the signed squash commit already on
+`main`; nothing is committed or pushed. Each archive carries a build-provenance
+attestation; verify it with `--signer-workflow
+Spacecraft-Software/Construct/.github/workflows/release.yml --source-ref
+refs/heads/main` as the release notes show (`--repo` alone accepts any workflow
+on any branch).
+If a release is missing, backfill it with
+`gh workflow run release.yml --ref main -f ref=<full-40-char-sha>`; the commit
+must be on `main`. A re-run never replaces a published asset: it uploads only
+what is missing and fails if any existing asset differs from the rebuild.
+
 ## Editing rules
 
 - **`SKILL.md` frontmatter `description` — hard cap 1000 characters.** The loader's

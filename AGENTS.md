@@ -313,6 +313,52 @@ bundles are separate and untouched by `build`.
 `.claude/skills/`, not `~/.claude/skills`. To give a cloud session a skill, run
 `construct skill vendor <skill>... --into <repo>` and commit what it prints.
 
+### Releases
+
+`.github/workflows/release.yml` publishes the `construct skill build` output as
+a GitHub release. Nobody runs it by hand in the normal flow:
+
+- **Trigger.** `workflow_run` on CI completing — it proceeds only when CI
+  succeeded on a `push` to `main` of `Spacecraft-Software/Construct`, so a
+  release never ships a tree the gates refused and a fork never cuts one
+  (§6.4). `workflow_dispatch` (input `ref`, default `main`) is the manual
+  backfill for a run that never fired; it is accepted only when dispatched
+  from `main`, refuses any commit not on `main`, and does not re-check CI:
+  `gh workflow run release.yml --ref main -f ref=<full-40-char-sha>` (a
+  7-character sha fails checkout).
+- **Two jobs, split on the token.** `build` (`contents: read`) compiles
+  `construct` from a clean `cargo build --release --locked` — no rust-cache,
+  so no restored artifact can reach the shipped binary — builds every target
+  twice and fails on any byte difference, then packages. `publish`
+  (`contents: write`, plus `id-token`/`attestations` for provenance) runs no
+  repository code: it takes `build`'s artifact and talks to the Releases API
+  with `gh`. Every action is pinned to a full commit sha.
+- **Tag.** `bundles-YYYY-MM-DD-<sha7>`, dated by the commit's UTC committer
+  date, not the build — the tag is a function of the sha, so a re-run lands on
+  the same tag. A tag on another commit, or any tag lookup failure other than a
+  clean 404, fails the run. `--latest` is set unless the current latest
+  release's commit already descends from this one.
+- **Never rewrites a published byte.** On a re-run, every asset the release
+  already holds is checked against this build by digest; any difference fails
+  the run. Only missing or cut-off assets are uploaded (`manifest.json` is
+  refreshed only alongside them), and a draft left by a killed job is
+  completed and published.
+- **Assets.** `construct-bundles-<target>.zip` per target (the per-skill
+  `.zip` / `.skill` / `.md` files; the outer archives are themselves
+  byte-stable), `SHA256SUMS` over those archives, and `manifest.json` (commit,
+  UTC commit and build times, construct version, per-target skill counts).
+  Each archive also carries a Sigstore build-provenance attestation binding it
+  to `release.yml` on `main`; verify with `gh attestation verify <archive>
+  --repo Spacecraft-Software/Construct --signer-workflow
+  Spacecraft-Software/Construct/.github/workflows/release.yml --source-ref
+  refs/heads/main` (`--repo` alone accepts any workflow on any branch). The
+  attestation is minted only after the digest checks pass; `manifest.json`,
+  not the attestation, names the source commit. The notes carry a
+  per-platform install table.
+- **No new commits.** The tag is created by Actions through the Releases API
+  on the squash commit already on `main`, which is signed and Verified under
+  Standard §6.3.
+
 ## Vendored Android skills (`android-skills/`)
 
 `android-skills/` is Google's official [android/skills](https://github.com/android/skills)

@@ -1,0 +1,453 @@
+# SPDX-FileCopyrightText: 2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Per-platform skill bundles as a GitHub release, cut from main after CI passes.
+#
+# `construct skill build` writes dist/<target>/ for every platform that cannot
+# read this repository directly — claude.ai, Grok, Perplexity, Gemini Gems —
+# and dist/ is gitignored, so without this workflow the only way to reach
+# those platforms is a maintainer building by hand and uploading from a laptop.
+# That is an unreproducible artifact with no record of which commit it came
+# from. This workflow makes the release a function of a commit on main.
+#
+# Nothing here commits or pushes a branch. The only write is the tag, created
+# through the Releases API on a squash commit that is already signed and
+# Verified on main (Standard §6.3) — the release points at that commit, it does
+# not make a new one.
+#
+# Two jobs, split on the token. `build` compiles and runs code — every
+# dependency's build.rs and proc-macros, then the fresh `construct` binary —
+# and holds only `contents: read`. `publish` holds the write token and runs no
+# code from this repository or its dependencies: no checkout, no cargo, only
+# the artifact `build` handed over and `gh`. A job's GITHUB_TOKEN sits in the
+# runner's memory for the whole job whether or not a step asks for it, so
+# `persist-credentials: false` alone would not keep a compromised crate away
+# from a token that can rewrite releases; a job boundary does.
+#
+# Every action is pinned to a full commit sha. ci.yml uses tags because it
+# never holds more than `contents: read`; here the actions produce the
+# published artifacts, so whoever could move a tag upstream would control
+# what ships.
+name: Release bundles
+
+on:
+  # After CI, not on push: a release must never ship a tree the gates refused.
+  # workflow_run fires for every CI completion — failed ones, pull requests,
+  # forks — so the job-level `if:` below is the real filter; `branches:` only
+  # saves spinning up a runner for the obvious misses.
+  #
+  # workflow_run always uses the copy of this file on the default branch, so
+  # this trigger does nothing until the file itself has merged.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+  # Manual re-run. ci.yml documents a window in which this repository fired no
+  # events at all; a release that silently never happened is the same failure
+  # one step later, and this is the way to backfill it without a commit whose
+  # only purpose is to produce an event.
+  #
+  # CI is not re-checked on this path. Two things keep it on main: the `if:`
+  # accepts a dispatch only when the workflow itself runs from main (a
+  # dispatch with `--ref <branch>` would run that branch's unreviewed copy of
+  # this file), and the resolve step refuses any commit that is not on main.
+  # A 7-character sha does not work: actions/checkout takes only a full
+  # 40-character ref as a commit and tries anything shorter as a branch or tag.
+  #
+  #   gh workflow run release.yml --ref main -f ref=<full-sha>
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Full 40-character commit sha, branch, or tag on main
+        required: false
+        default: main
+
+permissions:
+  contents: read
+
+# One release at a time across the whole repository, not per ref: two merges
+# landing together would otherwise race to create tags and to set --latest.
+# Never cancel — a half-uploaded release is worse than a late one. GitHub keeps
+# only one *pending* run per group, so a burst of three merges can supersede
+# the middle one's release; a dispatch with that commit's sha backfills it.
+concurrency:
+  group: release-bundles
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build skill bundles
+    # The repository check stops a fork with Actions enabled from cutting
+    # `bundles-*` releases that carry this project's install notes: §6.4
+    # limits publication to Spacecraft-Software-controlled hosts, and the
+    # workflow enforces that itself rather than relying on forks to notice.
+    if: >-
+      github.repository == 'Spacecraft-Software/Construct' &&
+      ((github.event_name == 'workflow_dispatch' &&
+        github.ref == 'refs/heads/main') ||
+       (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_branch == 'main' &&
+        github.event.workflow_run.head_repository.full_name == github.repository))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      sha: ${{ steps.resolve.outputs.sha }}
+      tag: ${{ steps.resolve.outputs.tag }}
+    # Named `bash`, GitHub runs `bash -eo pipefail`; the default shell has no
+    # pipefail, and every jq and sha256sum pipe below must fail the step.
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # The exact commit CI passed, not whatever main points at by the time
+      # this runs. The .git directory stays: construct reads file modes from
+      # the git index. No persisted credentials: nothing in this job pushes.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || inputs.ref }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      # The tag carries the commit's UTC date, not the build's. The tag is then
+      # a pure function of the sha: a dispatch re-run days later lands on the
+      # same tag instead of cutting a second release of identical content. The
+      # squash commit's committer date is the merge time, which is the date a
+      # reader expects.
+      - name: Resolve commit and tag
+        id: resolve
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          sha=$(git rev-parse HEAD)
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            # identical: sha is main's tip; behind: an ancestor of it.
+            status=$(gh api "repos/$GH_REPO/compare/main...$sha" --jq .status)
+            case "$status" in
+              identical|behind) ;;
+              *)
+                echo "::error::$sha is not on main (compare status: $status); refusing to release it"
+                exit 1
+                ;;
+            esac
+          fi
+          commit_date=$(TZ=UTC git show -s --format=%cd --date=format-local:%Y-%m-%d HEAD)
+          tag="bundles-$commit_date-${sha:0:7}"
+          {
+            echo "SHA=$sha"
+            echo "SHA7=${sha:0:7}"
+            echo "COMMIT_DATE=$commit_date"
+            echo "COMMIT_TIME=$(TZ=UTC git show -s --format=%cd --date=format-local:%Y-%m-%dT%H:%M:%SZ HEAD)"
+            echo "COMMIT_EPOCH=$(git show -s --format=%ct HEAD)"
+            echo "TAG=$tag"
+          } >> "$GITHUB_ENV"
+          {
+            echo "sha=$sha"
+            echo "tag=$tag"
+          } >> "$GITHUB_OUTPUT"
+
+      # `toolchain:` is required once the action is pinned by sha: it reads
+      # the toolchain from the ref name otherwise, and a sha names none.
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+
+      # No rust-cache, on purpose. The main-branch cache scope is writable by
+      # any step that runs in main context, and a restored target/ carries
+      # dependency rlibs whose fingerprints cargo trusts — a poisoned entry
+      # would link into the `construct` that writes the published bundles,
+      # and neither the determinism guard (one binary builds both copies) nor
+      # SHA256SUMS would notice. A release runs once per merge; a clean build
+      # is the integrity property worth the minutes.
+      #
+      # --locked refuses a Cargo.lock that differs from the committed one
+      # instead of resolving a fresh one on the runner; ci.yml's cargo steps
+      # pass it too, so a stale lock fails CI before it gets here.
+      - name: Build construct
+        working-directory: construct-cli
+        run: cargo build --release --locked
+
+      # Twice, into two directories, and compared. The build promises
+      # byte-identical output for the same tree (fixed mtimes, sorted entries);
+      # this is where that promise is checked rather than assumed, because the
+      # SHA256SUMS below are only worth publishing if anyone can reproduce them.
+      - name: Build bundles (+ determinism guard)
+        run: |
+          construct="construct-cli/target/release/construct"
+          "$construct" skill build --target all --repo "$GITHUB_WORKSPACE" \
+            --out dist --json > "$RUNNER_TEMP/build.json"
+          "$construct" skill build --target all --repo "$GITHUB_WORKSPACE" \
+            --out "$RUNNER_TEMP/dist2" --json > /dev/null
+          if ! diff -r dist "$RUNNER_TEMP/dist2"; then
+            echo "::error::two builds of $SHA differ; construct skill build is not deterministic"
+            exit 1
+          fi
+          jq -e '.data.written and (.data.bundles | length > 0)' "$RUNNER_TEMP/build.json" > /dev/null
+
+      # One .zip per target, not .tar.gz: every consumer in the notes table is
+      # someone uploading through a browser, on whatever OS they have, and zip
+      # is the one format every desktop opens without a tool. Compression buys
+      # nothing either way — the contents are already zips, and -n stores them.
+      #
+      # The outer archives are pinned too (mtimes to the commit time, sorted
+      # entries, -X to drop uid/gid and extra timestamps), so the same commit
+      # always yields the same SHA256SUMS — which is what lets a re-run check
+      # its build against the release already published.
+      #
+      # Only the files the build reported go in, not the directory listing:
+      # dist/<target>/ also holds the build's ownership marker, which is
+      # bookkeeping for the next `skill build`, not something to install.
+      - name: Package archives
+        run: |
+          mkdir -p release "$RUNNER_TEMP/stage"
+          for target in $(jq -r '.data.targets[]' "$RUNNER_TEMP/build.json"); do
+            name="construct-bundles-$target"
+            mkdir "$RUNNER_TEMP/stage/$name"
+            jq -r --arg t "$target" '.data.bundles[] | select(.target == $t) | .path' \
+              "$RUNNER_TEMP/build.json" \
+              | xargs -d '\n' cp -t "$RUNNER_TEMP/stage/$name" --
+            find "$RUNNER_TEMP/stage/$name" -type d -exec chmod 0755 {} +
+            find "$RUNNER_TEMP/stage/$name" -type f -exec chmod 0644 {} +
+            find "$RUNNER_TEMP/stage/$name" -exec touch -h -d "@$COMMIT_EPOCH" {} +
+            (
+              cd "$RUNNER_TEMP/stage"
+              find "$name" -type f | LC_ALL=C sort \
+                | TZ=UTC zip -X -D -q -n .zip:.skill "$GITHUB_WORKSPACE/release/$name.zip" -@
+            )
+          done
+          (cd release && sha256sum construct-bundles-*.zip > SHA256SUMS)
+
+      # Per-target skill counts dedupe on the skill: claude and grok emit a .zip
+      # and a .skill for each one, so the bundle count is double.
+      - name: Write manifest
+        run: |
+          jq --arg tag "$TAG" --arg commit "$SHA" --arg commit_time "$COMMIT_TIME" \
+             --arg built_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
+            {
+              tag: $tag,
+              commit: $commit,
+              commit_time: $commit_time,
+              built_at: $built_at,
+              construct_version: .metadata.version,
+              targets: (
+                .data.bundles
+                | group_by(.target)
+                | map({
+                    key: .[0].target,
+                    value: {
+                      archive: ("construct-bundles-" + .[0].target + ".zip"),
+                      skills: (map(.skill) | unique | length),
+                      files: length
+                    }
+                  })
+                | from_entries
+              )
+            }' "$RUNNER_TEMP/build.json" > release/manifest.json
+
+      # Written into the workspace, not $RUNNER_TEMP: it crosses to the
+      # publish job as an artifact, and $RUNNER_TEMP does not survive the job.
+      - name: Write release notes
+        run: |
+          count() { jq -r --arg t "$1" '.targets[$t].skills' release/manifest.json; }
+          version=$(jq -r .construct_version release/manifest.json)
+          mkdir -p release-notes
+          echo "Skill bundles $COMMIT_DATE ($SHA7)" > release-notes/title.txt
+          cat > release-notes/notes.md <<EOF
+          Per-platform skill bundles built from $SHA ($COMMIT_TIME) by \`construct skill build\` $version.
+
+          Install only the skills you need. The claude and grok archives carry two files per skill, \`<name>.zip\` and \`<name>.skill\`; either one is enough to upload. The perplexity and single-file archives carry one file per skill.
+
+          | Platform | Archive | Install |
+          |----------|---------|---------|
+          | claude.ai | \`construct-bundles-claude.zip\` ($(count claude) skills) | Extract, then Settings → Capabilities → Skills → upload \`<name>.zip\`, one skill at a time. |
+          | Claude Code cloud sessions | — | Cloud sessions load only a repository's committed \`.claude/skills/\`. Run \`construct skill vendor <skill>... --source Spacecraft-Software/Construct --into <repo>\`, then commit the paths it prints. |
+          | Grok | \`construct-bundles-grok.zip\` ($(count grok) skills) | Extract, then upload the flat \`<name>.zip\`. |
+          | Perplexity | \`construct-bundles-perplexity.zip\` ($(count perplexity) skills) | Extract, then upload \`<name>.zip\` (skills over 100 files arrive consolidated). |
+          | Gemini Gems, MiniMax | \`construct-bundles-single-file.zip\` ($(count single-file) skills) | Extract, then attach \`<name>.md\` as knowledge, or paste it as instructions. |
+          | Home Manager hosts | — | Unchanged: the flake's \`homeManagerModules.default\`. Run \`construct skill sync\`, then rebuild Home Manager. |
+
+          Verify an archive. \`SHA256SUMS\` catches a damaged download. The provenance attestation proves the archive was produced by this repository's \`release.yml\` running on \`main\` — pin both, because \`--repo\` alone accepts an attestation from any workflow on any branch:
+
+          \`\`\`sh
+          sha256sum -c --ignore-missing SHA256SUMS
+          gh attestation verify construct-bundles-<target>.zip --repo Spacecraft-Software/Construct --signer-workflow Spacecraft-Software/Construct/.github/workflows/release.yml --source-ref refs/heads/main
+          \`\`\`
+
+          \`manifest.json\` records the source commit ($SHA7), build time, construct version, and per-target counts. Building the same commit with \`construct skill build --target all\` reproduces every file inside the archives byte for byte.
+          EOF
+
+      # Two artifacts, not one upload with two paths: a multi-path upload
+      # roots the artifact at the paths' common ancestor, and the layout the
+      # publish job sees would then depend on that rule. Kept a day — the
+      # release is the durable copy; this is only the hand-over.
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release
+          path: release/
+          if-no-files-found: error
+          retention-days: 1
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-notes
+          path: release-notes/
+          if-no-files-found: error
+          retention-days: 1
+
+  # The only job with a write token, and it runs nothing from the repository:
+  # no checkout, no cargo, no construct. It receives the build's files as an
+  # artifact and talks to the Releases API with `gh`.
+  #
+  # No `environment:` gate. A deployment-branch rule binds only jobs that name
+  # the environment, and GITHUB_TOKEN is not environment-scoped, so a branch
+  # copy of this file could drop the key as easily as the `if:` above —
+  # whoever can push that branch already holds contents: write anyway.
+  publish:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      # Provenance attestation: an OIDC token to sign with, and the write that
+      # records it against this repository.
+      id-token: write
+      attestations: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release
+          path: release
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-notes
+          path: release-notes
+
+      # Idempotent, because dispatch exists to re-run, and never rewrites a
+      # published byte:
+      #
+      #   - The tag must be absent or already on this commit. Only a clean 404
+      #     counts as absent; any other lookup failure stops the run, because
+      #     the Releases API ignores --target for a tag that exists and would
+      #     attach these assets to whatever commit it points at.
+      #   - A release that exists has every asset it already holds checked
+      #     against this build by digest. Any difference fails the run: the
+      #     archives are byte-stable, so a mismatch means toolchain drift or a
+      #     tampered build, and users who verified the old SHA256SUMS must not
+      #     find different bytes behind the same tag. Only missing assets, and
+      #     ones whose upload was cut off, are uploaded; manifest.json is
+      #     refreshed only alongside them (or when it is missing).
+      #   - `gh release create` deletes its own draft when an upload fails, so
+      #     the one partial state that survives is a draft left by a job killed
+      #     mid-upload. `gh release view` finds drafts too; that path fills the
+      #     missing assets, then publishes the draft with the --latest decision
+      #     the create path would have made.
+      #
+      # --latest unless the current latest release's commit descends from
+      # this one: a dispatch backfilling an older merge must not demote the
+      # newer release.
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SHA: ${{ needs.build.outputs.sha }}
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          title=$(cat release-notes/title.txt)
+          notes=release-notes/notes.md
+
+          # Latest unless the current latest release already points at a
+          # commit that descends from this one. Tip equality would strand
+          # "Latest" whenever a later merge's release fails or is skipped.
+          latest_flag() {
+            local cur status
+            if ! cur=$(gh release view --json targetCommitish --jq .targetCommitish 2> "$RUNNER_TEMP/latest.err"); then
+              if grep -qx 'release not found' "$RUNNER_TEMP/latest.err"; then echo true; return 0; fi
+              cat "$RUNNER_TEMP/latest.err" >&2
+              return 1
+            fi
+            status=$(gh api "repos/$GH_REPO/compare/$SHA...$cur" --jq .status) || return 1
+            if [ "$status" = ahead ]; then echo false; else echo true; fi
+          }
+
+          if ref=$(gh api "repos/$GH_REPO/git/ref/tags/$TAG" 2> "$RUNNER_TEMP/ref.err"); then
+            kind=$(jq -r .object.type <<< "$ref")
+            tagged=$(jq -r .object.sha <<< "$ref")
+            if [ "$kind" != commit ] || [ "$tagged" != "$SHA" ]; then
+              echo "::error::tag $TAG already points at $kind $tagged, not commit $SHA"
+              exit 1
+            fi
+          elif ! grep -q 'HTTP 404' "$RUNNER_TEMP/ref.err"; then
+            cat "$RUNNER_TEMP/ref.err" >&2
+            echo "::error::could not look up tag $TAG; refusing to publish blind"
+            exit 1
+          fi
+
+          if view=$(gh release view "$TAG" --json isDraft,targetCommitish,assets 2> "$RUNNER_TEMP/view.err"); then
+            draft=$(jq -r .isDraft <<< "$view")
+            target=$(jq -r .targetCommitish <<< "$view")
+            if [ "$draft" = true ] && [ "$target" != "$SHA" ]; then
+              echo "::error::draft release $TAG targets $target, not $SHA"
+              exit 1
+            fi
+            fill=()
+            for f in release/construct-bundles-*.zip release/SHA256SUMS; do
+              name=${f##*/}
+              state=$(jq -r --arg n "$name" '[.assets[] | select(.name == $n)][0].state // "absent"' <<< "$view")
+              if [ "$state" != uploaded ]; then
+                fill+=("$f")
+                continue
+              fi
+              have=$(jq -r --arg n "$name" '[.assets[] | select(.name == $n)][0].digest // "none"' <<< "$view")
+              want="sha256:$(sha256sum "$f" | cut -d' ' -f1)"
+              if [ "$have" != "$want" ]; then
+                echo "::error::$name on $TAG is $have, but this build of $SHA produced $want; refusing to replace a published asset"
+                exit 1
+              fi
+            done
+            # manifest.json describes the build that produced the assets, so
+            # it is refreshed only when this run completes the release (or it
+            # is missing) — a no-op re-run rewrites nothing.
+            mstate=$(jq -r '[.assets[] | select(.name == "manifest.json")][0].state // "absent"' <<< "$view")
+            if [ "${#fill[@]}" -gt 0 ] || [ "$mstate" != uploaded ]; then
+              gh release upload "$TAG" "${fill[@]}" release/manifest.json --clobber
+            fi
+            edit=(--title "$title" --notes-file "$notes")
+            if [ "$draft" = true ]; then
+              latest=$(latest_flag)
+              edit+=(--draft=false --latest="$latest")
+            fi
+            gh release edit "$TAG" "${edit[@]}"
+          elif grep -qx 'release not found' "$RUNNER_TEMP/view.err"; then
+            latest=$(latest_flag)
+            gh release create "$TAG" release/construct-bundles-*.zip release/SHA256SUMS \
+              release/manifest.json --target "$SHA" \
+              --title "$title" --notes-file "$notes" --latest="$latest"
+          else
+            cat "$RUNNER_TEMP/view.err" >&2
+            echo "::error::could not look up release $TAG"
+            exit 1
+          fi
+
+      # SHA256SUMS rides in the same release as the archives, under the same
+      # token, so anyone able to replace an archive could replace it too: it
+      # catches a damaged download, not a substituted one. The attestation is
+      # signed by Sigstore against this workflow's identity and ref, which is
+      # what the notes tell users to pin (--signer-workflow, --source-ref);
+      # --repo alone would accept any workflow on any branch. Its commit claim
+      # is github.sha — main's tip when the run started, not necessarily the
+      # released commit — so manifest.json, not the attestation, names the
+      # source commit. It runs after Publish so an archive the digest check
+      # refuses never gets signed provenance; a re-run attests the same
+      # digests again, which is harmless.
+      - uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
+        with:
+          subject-path: release/construct-bundles-*.zip
