@@ -222,10 +222,10 @@ jobs:
 
       # -D warnings matches construct-cli/CLAUDE.md; a warning is a failure.
       - name: Clippy
-        run: cargo clippy --all-targets -- -D warnings
+        run: cargo clippy --locked --all-targets -- -D warnings
 
       - name: Test
-        run: cargo test
+        run: cargo test --locked
 
   # Separate from the gate above so an MSRV bump is a visible, deliberate
   # change rather than something that silently rides along with a dependency
@@ -249,4 +249,4 @@ jobs:
       # `check`, not `test`: dev-dependencies are not bound by the MSRV the
       # crate advertises to consumers.
       - name: Check against the declared MSRV
-        run: cargo check --all-features
+        run: cargo check --locked --all-features
