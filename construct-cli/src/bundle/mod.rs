@@ -696,7 +696,8 @@ fn artifact(
 }
 
 /// The Claude-layout members of a prepared skill: the spec-clean frontmatter
-/// with `user-invocable` kept, over the collected (palette-vendored) files.
+/// with `user-invocable` and `disable-model-invocation` kept, over the
+/// collected (palette-vendored) files.
 /// Shared by the `claude` target and `construct skill vendor`, so the two can
 /// never ship different trees.
 fn claude_members(p: &Prepared) -> Result<Members, Problem> {
@@ -710,7 +711,7 @@ fn claude_members(p: &Prepared) -> Result<Members, Problem> {
     Ok(with_skill_md(&p.members, text))
 }
 
-/// Claude (nested, `user-invocable` kept) or Grok (flat, name + description):
+/// Claude (nested, invocation controls kept) or Grok (flat, name + description):
 /// a `.zip` with directory entries and a `.skill` without.
 fn build_archive(p: &Prepared, target: Target) -> Result<Vec<Artifact>, Vec<Problem>> {
     let name = &p.skill.name;
@@ -744,7 +745,7 @@ fn build_archive(p: &Prepared, target: Target) -> Result<Vec<Artifact>, Vec<Prob
     ])
 }
 
-/// Perplexity: the Claude layout minus `user-invocable`, consolidated when
+/// Perplexity: the Claude layout minus the invocation controls, consolidated when
 /// over [`consolidate::PERPLEXITY_MAX_FILES`], files only (no directory
 /// entries, `build.py` parity), `.zip` only.
 fn build_perplexity(

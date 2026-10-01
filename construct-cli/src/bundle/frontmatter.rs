@@ -36,6 +36,7 @@ const KNOWN_KEYS: &[&str] = &[
     "website",
     "metadata",
     "user-invocable",
+    "disable-model-invocation",
     "compatibility",
     "allowed-tools",
 ];
@@ -50,9 +51,11 @@ const NAME_MAX: usize = 64;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Profile {
     /// Spec-clean: `name`, `description`, `license`, `compatibility`?,
-    /// `allowed-tools`?, `user-invocable`? (Claude only), `metadata`?.
+    /// `allowed-tools`?, `user-invocable`? and `disable-model-invocation`?
+    /// (Claude only), `metadata`?.
     Claude {
-        /// Keep `user-invocable` (the Claude target; Perplexity drops it).
+        /// Keep Claude Code's invocation controls, `user-invocable` and
+        /// `disable-model-invocation` (the Claude target; Perplexity drops both).
         user_invocable: bool,
     },
     /// `name` + `description` only.
@@ -74,6 +77,7 @@ impl Profile {
                 "compatibility",
                 "allowed-tools",
                 "user-invocable",
+                "disable-model-invocation",
             ],
             Self::Claude {
                 user_invocable: false,
@@ -470,6 +474,32 @@ mod tests {
         )
         .unwrap();
         assert!(!perplexity.contains("user-invocable"));
+    }
+
+    #[test]
+    fn disable_model_invocation_is_kept_for_claude_only() {
+        let src = "---\nname: manual\ndescription: d\ndisable-model-invocation: true\nlicense: MIT\n---\nb\n";
+        assert!(validate("manual", src).is_empty(), "a known key");
+        let claude = project(
+            "manual",
+            src,
+            Profile::Claude {
+                user_invocable: true,
+            },
+        )
+        .unwrap();
+        assert!(claude.contains("disable-model-invocation: true\n"));
+        let perplexity = project(
+            "manual",
+            src,
+            Profile::Claude {
+                user_invocable: false,
+            },
+        )
+        .unwrap();
+        assert!(!perplexity.contains("disable-model-invocation"));
+        let grok = project("manual", src, Profile::Grok).unwrap();
+        assert!(!grok.contains("disable-model-invocation"));
     }
 
     #[test]

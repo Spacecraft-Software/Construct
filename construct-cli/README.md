@@ -52,9 +52,9 @@ entries — so a rebuild of an unchanged tree is byte-identical. The source
 
 | Target | Platform / purpose |
 |--------|--------------------|
-| `claude` | Claude Code (local and web), claude.ai, Gemini CLI, Codex — nested `<name>/` layout, `maintainer` / `website` under `metadata:`, keeps `user-invocable`. |
+| `claude` | Claude Code (local and web), claude.ai, Gemini CLI, Codex — nested `<name>/` layout, `maintainer` / `website` under `metadata:`, keeps `user-invocable` and `disable-model-invocation`. |
 | `grok` | Grok — flat zips (`SKILL.md` at the root) for every root skill plus the Grok-native skills; frontmatter `name` + `description` only. |
-| `perplexity` | Perplexity — Claude layout without `user-invocable`; any skill over 100 files consolidated from `perplexity-skills/categories.toml`. The committed `perplexity-skills/spacecraft-cli-preference.zip` is a copy of this output. |
+| `perplexity` | Perplexity — Claude layout without `user-invocable` or `disable-model-invocation`; any skill over 100 files consolidated from `perplexity-skills/categories.toml`. The committed `perplexity-skills/spacecraft-cli-preference.zip` is a copy of this output. |
 | `gemini` | The Gemini app — flat `<name>.zip` only (files only) for every root skill; frontmatter `name` + `description` only; members restricted to `.csv` / `.py` / `.txt` / `.md`, any other file shipped with `.txt` appended (`LICENSE.txt`, `assets/steelbore.toml.txt`) and in-skill links to it rewritten; consolidated like `perplexity`; refused over 100 files. |
 | `single-file` | MiniMax and other platforms with no skill loader — one self-contained `<name>.md`, references inlined, in-skill links rewritten to anchors, and every `LICENSE` / `LICENSE.<TAG>` appended verbatim under a closing `## License` section (links to them anchor there); outside fenced blocks, links that leave the skill become plain text (a sibling skill is named, upstream paths keep their text). |
 

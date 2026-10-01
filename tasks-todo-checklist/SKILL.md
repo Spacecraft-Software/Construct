@@ -3,16 +3,14 @@ name: tasks-todo-checklist
 description: >
   Keeps a single, evidence-backed task checklist for the whole conversation and
   shows it at the top of every response while multi-step work is in progress.
-  ALWAYS use when a request contains more than one deliverable, when work spans
-  several turns, when implementing from a plan, PRD, TODO list, or issue, or
-  when the user asks to track tasks, keep a checklist, or not stop until
-  everything is done. A task is ticked only once its result has been checked
-  and the evidence is named on the same line; a task that cannot be finished is
-  marked blocked with the reason, never dropped or quietly reworded. The work
-  is not complete until every item is ticked or blocked with a reason the user
-  can act on. Sits beside the Standard §17 progress block and the closing
-  TL;DR, never replacing either. Do NOT use for one-shot questions or
-  single-step edits.
+  Manual only: runs when the user calls it with `/tasks-todo-checklist`, never
+  on its own. A task is ticked only once its result has been checked and the
+  evidence is named on the same line; a task that cannot be finished is marked
+  blocked with the reason, never dropped or quietly reworded. The work is not
+  complete until every item is ticked or blocked with a reason the user can act
+  on. Sits beside the Standard §17 progress block and the closing TL;DR, never
+  replacing either.
+disable-model-invocation: true
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
@@ -32,7 +30,9 @@ proven finished.
 
 ## §1 — When to keep a checklist
 
-Keep one when any of these hold:
+This skill is manual: it loads only when the user calls it, never because a
+request looks like a fit. Once called, it governs the rest of the
+conversation. Keep the checklist when any of these hold:
 
 - the request names more than one deliverable, or one deliverable with
   several distinct steps;
