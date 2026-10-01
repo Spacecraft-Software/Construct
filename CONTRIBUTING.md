@@ -207,9 +207,9 @@ edited; frontmatter is rewritten per target.
 
 | Target | Platform / purpose |
 |--------|--------------------|
-| `claude` | Claude Code (local and web), claude.ai, Gemini CLI, Codex. Nested `<name>/` layout; `maintainer` / `website` under `metadata:`; keeps `user-invocable`. |
+| `claude` | Claude Code (local and web), claude.ai, Gemini CLI, Codex. Nested `<name>/` layout; `maintainer` / `website` under `metadata:`; keeps `user-invocable` and `disable-model-invocation`. |
 | `grok` | Grok. Flat zips for every root skill plus `grok-skills/*`; frontmatter `name` + `description` only. |
-| `perplexity` | Perplexity. Claude layout without `user-invocable`; skills over 100 files consolidated from `categories.toml`. |
+| `perplexity` | Perplexity. Claude layout without `user-invocable` or `disable-model-invocation`; skills over 100 files consolidated from `categories.toml`. |
 | `gemini` | The Gemini app. Flat `<name>.zip` only, files only, root skills only; frontmatter `name` + `description` only. Only `.csv`/`.py`/`.txt`/`.md` members are accepted, so any other file gets `.txt` appended (`LICENSE` → `LICENSE.txt`, `assets/steelbore.toml` → `assets/steelbore.toml.txt`) and links to it inside the skill are rewritten. Consolidated like `perplexity`; refused over 100 files or for a non-kebab-case `name`. |
 | `single-file` | MiniMax and other platforms with no skill loader: one self-contained `<name>.md` with references inlined and links rewritten to in-document anchors. The document carries its license text (§5.6): every `LICENSE` / `LICENSE.<TAG>` is appended verbatim under a closing `## License` section, and links to those files anchor there. Outside fenced blocks, a sibling-skill link becomes plain text naming the skill and any other link that leaves the skill (upstream paths) keeps its text and loses the link. |
 
