@@ -8,7 +8,7 @@ description: >
   Spacecraft Software-umbrella project — even if the user doesn't explicitly mention the Standard.
   If the user mentions "Spacecraft Software", a Spacecraft Software subproject name, or asks you to work on
   anything in the Spacecraft Software ecosystem, consult this skill immediately. It encodes
-  The Steelbore Standard v2.10 (§19-§26 assurance + requirements + V&V; §13 design systems; §3.1.1 TypeScript; §5.7 AGENTS.md; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.6 system theme; §18 accessibility; §17 progress reporting; §3.3 security-by-design) so
+  The Steelbore Standard v2.11 (§19-§26 assurance + requirements + V&V; §13 design systems; §3.1.1 TypeScript; §5.7 AGENTS.md; §6.4 contribution targets; §5.6 skill packaging; §11 palettes + §11.6 system theme; §18 accessibility; §17 progress reporting; §3.3 security-by-design) so
   you never need to ask for it or have it attached to a prompt again.
 license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
@@ -17,7 +17,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # The Steelbore Standard — Compliance Reference
 
-**Version:** 2.10 | **Date:** 2026-10-04 | **Author:** Mohamed Hammad
+**Version:** 2.11 | **Date:** 2026-10-05 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** Copyright (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -256,7 +256,7 @@ A progress report is a title line followed by a block of labelled rows, one row 
 ```
 Project: Operator
 
-M0:   [████████████████████] 100%   Foundation and build
+M0:   [████████████████████] 100%   Foundation: not needed
 M1:   [████████████████░░░░]  80%   Daily-driver shell
 M2:   [████░░░░░░░░░░░░░░░░]  20%   Plugin system
 MVP:  [██████████████░░░░░░]  70%   Operator v0.1
@@ -274,13 +274,13 @@ PRD:  [██████████░░░░░░░░░░]  50%   PRD.
 - **`TODO`** carries its count as `<done>/<total> tasks`, which is the denominator its percentage is a fraction of, stated rather than implied.
 - **`PLAN` and `PRD`** name the artifact and the part of it the figure covers: `PRD.md, M0–M2`.
 
-A milestone the plan still defines but that the work no longer needs stays in the block at its true figure, and its description says so — `Foundation: not needed`, `Sync: dropped` — so a reader does not mistake a deliberate skip for work not yet started. A description never stands in for a missing row or justifies a fabricated one: the rule below on applicable rows is unchanged.
+**A milestone the work no longer needs reports 100%.** The block exists so a reader can see at a glance how much is done and how much remains, and nothing remains of a milestone nobody has to build — shown at 0%, it would read as the largest piece of outstanding work in the block, which is the opposite of the truth. Its description says why it is complete — `Foundation: not needed`, `Sync: dropped` — and that description is what keeps the 100% honest: without it the row would claim the milestone was built. The row stays in the block rather than being removed, so the milestone numbering the plan defines is still visible. A description never stands in for a missing row or justifies a fabricated one: the rule below on applicable rows is unchanged.
 
-**Percentages have a denominator.** Where the project maintains a requirement set (§20), each figure is the fraction of that milestone's baselined requirements whose status is `verified` (§20.3), read from the traceability matrix (§21.3) rather than estimated. Where no requirement set exists — Category D work, or a project below the §19.3 threshold — the figure is the maintainer's estimate and is understood as one. A percentage that cannot name what it is a fraction of is an impression, and impressions are what §17 exists to replace.
+**Percentages have a denominator.** Where the project maintains a requirement set (§20), each figure is the fraction of that milestone's baselined requirements whose status is `verified` (§20.3), read from the traceability matrix (§21.3) rather than estimated. Where no requirement set exists — Category D work, or a project below the §19.3 threshold — the figure is the maintainer's estimate and is understood as one. Withdrawn requirements leave the denominator, so a milestone whose requirements have all been withdrawn has nothing left open and reports 100%, as above. A percentage that cannot name what it is a fraction of is an impression, and impressions are what §17 exists to replace.
 
 **Row order** is fixed: milestone rows `M0`…`Mn` in ascending order, then `MVP`, then `TODO`, then `PLAN`, then `PRD`.
 
-**Only applicable rows are emitted.** The milestone rows match the milestones the plan actually defines — there is no fixed count, and `M0`–`M4` in the template above is an illustration, not a required set. `TODO`, `PLAN`, and `PRD` each appear only when the task is driven by such an artifact. `MVP` is always present. A row is never padded in at 0% to fill out the block: a fabricated track reports progress against nothing and misrepresents the work.
+**Only applicable rows are emitted.** The milestone rows match the milestones the plan actually defines — there is no fixed count, and `M0`–`M2` in the template above is an illustration, not a required set. `TODO`, `PLAN`, and `PRD` each appear only when the task is driven by such an artifact. `MVP` is always present. A row is never padded in at 0% to fill out the block: a fabricated track reports progress against nothing and misrepresents the work.
 
 ### §17.2 — Progress Bar Style
 
