@@ -273,7 +273,7 @@ mod tests {
         audit_text("bad", Path::new("d/SKILL.md"), bad, &mut a);
         audit_text("bad", Path::new("d/SKILL.md"), bad, &mut a);
         assert_eq!(a.invalid.len(), 1);
-        assert!(a.oversized.is_empty());
+        assert_eq!(a.oversized, Vec::<(String, usize)>::new());
     }
 
     #[test]
