@@ -202,17 +202,22 @@ Report audit results with §17 progress format when the audit is part of an
 implementation effort:
 
 ```
-M0:   [████████████████████] 100%
-M1:   [████████████████████] 100%
-M2:   [██████████████░░░░░░]  70%
-M3:   [░░░░░░░░░░░░░░░░░░░░]   0%
-MVP:  [██████████████████░░]  90%
-PRD:  [██████████████░░░░░░]  70%
+Project: Operator — accessibility audit
+
+M0:   [████████████████████] 100%   Toggle and precedence
+M1:   [████████████████████] 100%   Linear TUI mode
+M2:   [██████████████░░░░░░]  70%   Screen-reader names
+M3:   [░░░░░░░░░░░░░░░░░░░░]   0%   High-contrast theme
+MVP:  [██████████████████░░]  90%   Accessible mode v1
+PRD:  [██████████████░░░░░░]  70%   PRD.md, M0–M3
 ```
 
+Open with a `Project:` title line naming the project, then a blank line.
 One row per track, each with its own 20-cell bar: milestone rows first,
 then `MVP`, then whichever of `TODO`/`PLAN`/`PRD` the audit is driven by.
 Emit only the rows that apply — never pad the block with 0% rows for
 tracks that do not exist. Every row uses `█`/`░` with tight brackets:
 label in a six-character field, bar in columns 8–27, percentage
-right-aligned in a five-character field after the closing bracket.
+right-aligned in a five-character field after the closing bracket, then
+three spaces and a description of the track (at most 40 characters)
+starting in column 37.
