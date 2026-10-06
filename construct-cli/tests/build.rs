@@ -301,6 +301,10 @@ fn build_all_targets_writes_expected_layout() {
     };
     assert_eq!(tree(&p.join("dist/claude")), expect(&["zip", "skill"], &[]));
     assert_eq!(
+        tree(&p.join("dist/chatgpt")),
+        expect(&["zip", "skill"], &[])
+    );
+    assert_eq!(
         tree(&p.join("dist/grok")),
         expect(&["zip", "skill"], &["grokky"])
     );
@@ -463,6 +467,43 @@ fn claude_frontmatter_is_spec_clean() {
     ));
 }
 
+/// ChatGPT takes the Claude layout — same members, same directory entries —
+/// with the frontmatter Perplexity gets: the Agent Skills fields only.
+#[test]
+fn chatgpt_is_the_claude_layout_without_invocation_controls() {
+    let cat = catalogue();
+    let p = cat.path();
+    build(p, &["--target", "claude,chatgpt"]).success();
+
+    assert_eq!(
+        zip_names(&p.join("dist/chatgpt/alpha.zip")),
+        zip_names(&p.join("dist/claude/alpha.zip"))
+    );
+    assert!(zip_names(&p.join("dist/chatgpt/alpha.skill"))
+        .iter()
+        .all(|n| n.starts_with("alpha/") && !n.ends_with('/')));
+
+    let dual = zip_text(&p.join("dist/chatgpt/dual.zip"), "dual/SKILL.md");
+    assert_eq!(
+        frontmatter_keys(&dual),
+        vec!["name", "description", "license", "metadata"]
+    );
+    assert!(dual.ends_with("---\nbody\n"), "body untouched: {dual}");
+}
+
+/// A member over ChatGPT's 25 MB per-file limit refuses the whole build.
+#[test]
+fn chatgpt_refuses_a_file_over_25_mb() {
+    let cat = catalogue();
+    let p = cat.path();
+    write(p, "alpha/references/huge.md", &"x".repeat(25_000_001));
+    let e = error(&build(p, &["--target", "chatgpt"]).code(5));
+    assert_eq!(e["code"], "CONFLICT");
+    assert_eq!(e["chatgpt"][0]["kind"], "file_too_large", "{e}");
+    assert_eq!(e["chatgpt"][0]["detail"]["path"], "references/huge.md");
+    assert!(!p.join("dist").exists());
+}
+
 #[test]
 fn grok_frontmatter_is_name_and_description_only() {
     let cat = catalogue();
@@ -503,6 +544,13 @@ fn palette_vendored_and_identical() {
     );
     assert_eq!(
         zip_text(
+            &p.join(format!("dist/chatgpt/{brand}.zip")),
+            &format!("{brand}/assets/steelbore.toml")
+        ),
+        PALETTE
+    );
+    assert_eq!(
+        zip_text(
             &p.join(format!("dist/perplexity/{brand}.zip")),
             &format!("{brand}/assets/steelbore.toml")
         ),
@@ -527,8 +575,8 @@ fn palette_vendored_and_identical() {
     let vendored = d["palette_vendored"].as_array().unwrap();
     assert_eq!(
         vendored.len(),
-        7,
-        "zip+skill claude, zip+skill grok, perplexity, gemini, md"
+        9,
+        "zip+skill claude, zip+skill chatgpt, zip+skill grok, perplexity, gemini, md"
     );
     assert!(vendored
         .iter()

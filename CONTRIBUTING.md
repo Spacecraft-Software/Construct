@@ -199,7 +199,7 @@ intentionally differs from any on-disk tree).
 
 ## Distribution targets (`construct skill build`)
 
-`construct skill build [SKILL...] [--target claude,grok,perplexity,gemini,single-file]`
+`construct skill build [SKILL...] [--target claude,chatgpt,grok,perplexity,gemini,single-file]`
 writes per-platform release bundles under `dist/<target>/` (gitignored; never
 commit it). Zips are deterministic — fixed mtimes, sorted entries — so CI
 release artifacts reproduce byte for byte. The source `SKILL.md` is never

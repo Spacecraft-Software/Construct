@@ -4,8 +4,8 @@
 # Per-platform skill bundles as a GitHub release, cut from main after CI passes.
 #
 # `construct skill build` writes dist/<target>/ for every platform that cannot
-# read this repository directly — claude.ai (and ChatGPT web, which takes the
-# claude bundles), Grok, Perplexity, the Gemini app, MiniMax —
+# read this repository directly — claude.ai, ChatGPT web, Grok, Perplexity,
+# the Gemini app, MiniMax —
 # and dist/ is gitignored, so without this workflow the only way to reach
 # those platforms is a maintainer building by hand and uploading from a laptop.
 # That is an unreproducible artifact with no record of which commit it came
@@ -261,13 +261,13 @@ jobs:
           cat > release-notes/notes.md <<EOF
           Per-platform skill bundles built from $SHA ($COMMIT_TIME) by \`construct skill build\` $version.
 
-          Install only the skills you need. The claude and grok archives carry two files per skill, \`<name>.zip\` and \`<name>.skill\`; either one is enough to upload. The perplexity, gemini, and single-file archives carry one file per skill.
+          Install only the skills you need. The claude, chatgpt, and grok archives carry two files per skill, \`<name>.zip\` and \`<name>.skill\`; either one is enough to upload. The perplexity, gemini, and single-file archives carry one file per skill.
 
           | Platform | Archive | Install |
           |----------|---------|---------|
           | claude.ai | \`construct-bundles-claude.zip\` ($(count claude) skills) | Extract, then Settings → Capabilities → Skills → upload \`<name>.zip\`, one skill at a time. |
           | Claude Code cloud sessions | — | Cloud sessions load only a repository's committed \`.claude/skills/\`. Run \`construct skill vendor <skill>... --source Spacecraft-Software/Construct --into <repo>\`, then commit the paths it prints. |
-          | ChatGPT (web) | \`construct-bundles-claude.zip\` ($(count claude) skills) | Same skill-folder format as Claude. Extract, then Skills → Create → Upload from your computer → \`<name>.zip\`, one skill at a time (25 MB per file on the web). If ChatGPT refuses the nested \`<name>/\` layout, upload that skill's flat \`<name>.zip\` from \`construct-bundles-gemini.zip\` instead. |
+          | ChatGPT (web) | \`construct-bundles-chatgpt.zip\` ($(count chatgpt) skills) | Extract, then Skills → Create → Upload from your computer → \`<name>.zip\`, one skill at a time. Agent Skills layout without Claude Code's invocation controls; every bundle is checked against ChatGPT's limits (25 MB per file, 50 MB per archive, 500 files). |
           | Grok | \`construct-bundles-grok.zip\` ($(count grok) skills) | Extract, then upload the flat \`<name>.zip\`. |
           | Perplexity | \`construct-bundles-perplexity.zip\` ($(count perplexity) skills) | Extract, then upload \`<name>.zip\` (skills over 100 files arrive consolidated). |
           | Gemini (web) | \`construct-bundles-gemini.zip\` ($(count gemini) skills) | Extract, then upload \`<name>.zip\` (flat; a file the app refuses by extension ships with \`.txt\` appended, e.g. \`LICENSE.txt\`; skills over 100 files arrive consolidated). |

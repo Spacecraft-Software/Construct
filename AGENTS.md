@@ -261,7 +261,7 @@ Because nothing lands on `main`, `ship` no longer runs `skill sync`; run
 `construct skill sync` after the PR merges. `--no-sync` is retained as a hidden
 no-op so existing invocations keep working.
 
-`construct skill build [SKILL...] [--target claude,grok,perplexity,gemini,single-file]`
+`construct skill build [SKILL...] [--target claude,chatgpt,grok,perplexity,gemini,single-file]`
 generates per-platform release bundles under `dist/<target>/` (gitignored —
 release artifacts, never committed). It rewrites frontmatter per target (the
 source `SKILL.md` stays as is), vendors the palette into the brand and
@@ -301,7 +301,8 @@ target.
 
 | Target | Output | Platform / purpose |
 |--------|--------|--------------------|
-| `claude` | `dist/claude/<name>.zip` + `.skill`, nested `<name>/` layout | Claude Code (local and web), claude.ai, ChatGPT web (same skill-folder format; falls back to the flat `gemini` zip if the nested layout is refused), Gemini CLI, Codex. Spec-clean frontmatter: `name`, `description`, `license`, `compatibility` / `allowed-tools` when present, `maintainer` / `website` moved under `metadata:`; Claude Code's invocation controls `user-invocable` and `disable-model-invocation` kept (this target only). |
+| `claude` | `dist/claude/<name>.zip` + `.skill`, nested `<name>/` layout | Claude Code (local and web), claude.ai, Gemini CLI, Codex. Spec-clean frontmatter: `name`, `description`, `license`, `compatibility` / `allowed-tools` when present, `maintainer` / `website` moved under `metadata:`; Claude Code's invocation controls `user-invocable` and `disable-model-invocation` kept (this target only). |
+| `chatgpt` | `dist/chatgpt/<name>.zip` + `.skill`, nested `<name>/` layout | ChatGPT web (Skills → Create → Upload from your computer). The open Agent Skills layout ChatGPT validates against: the `claude` tree and frontmatter minus `user-invocable` and `disable-model-invocation`, never consolidated. Refused when over ChatGPT's published limits — 25 MB per uncompressed file, 50 MB per archive, 500 files (`construct-cli/src/bundle/chatgpt.rs`). A manual-only skill (`disable-model-invocation: true`) loses that control here, as on Perplexity. |
 | `grok` | `dist/grok/<name>.zip` + `.skill`, **flat** (`SKILL.md`, `LICENSE`, `references/`, `assets/` at the zip root) | Grok. Every root skill plus the Grok-native `grok-skills/*`; frontmatter `name` + `description` only. |
 | `perplexity` | `dist/perplexity/<name>.zip`, nested layout | Perplexity. Claude frontmatter minus `user-invocable` and `disable-model-invocation`; any skill over 100 files is consolidated from `perplexity-skills/categories.toml`. |
 | `gemini` | `dist/gemini/<name>.zip` only (no `.skill`), **flat**, files only (no directory entries) | The Gemini app's skill upload. Every root skill (no Grok-native skills); frontmatter `name` + `description` only, the description byte-identical to the source. The app accepts only `.csv`, `.py`, `.txt`, and `.md` members, so any other file gets `.txt` appended — `LICENSE` → `LICENSE.txt`, `LICENSE.MIT` → `LICENSE.MIT.txt` (§5.6 license carriage; §4.3's no-extension rule governs repository files, not this platform bundle), `assets/steelbore.toml` → `assets/steelbore.toml.txt` — and every markdown link inside the skill that points at a renamed file is rewritten to follow it (links only, outside fenced code). Skills over 100 files are consolidated exactly as for `perplexity`; a bundle still over 100 files, a rename that collides with an existing file, or a `name` that is not kebab-case is refused. |
@@ -352,9 +353,9 @@ a GitHub release. Nobody runs it by hand in the normal flow:
   the run. Only missing or cut-off assets are uploaded (`manifest.json` is
   refreshed only alongside them), and a draft left by a killed job is
   completed and published.
-- **Assets.** `construct-bundles-<target>.zip` per target — `claude`, `grok`,
-  `perplexity`, `gemini`, `single-file` (the per-skill `.zip` / `.skill` /
-  `.md` files; `claude` and `grok` carry a `.zip` and a `.skill` per skill, the
+- **Assets.** `construct-bundles-<target>.zip` per target — `claude`, `chatgpt`,
+  `grok`, `perplexity`, `gemini`, `single-file` (the per-skill `.zip` / `.skill` /
+  `.md` files; `claude`, `chatgpt`, and `grok` carry a `.zip` and a `.skill` per skill, the
   others one file per skill; the outer archives are themselves
   byte-stable), `SHA256SUMS` over those archives, and `manifest.json` (commit,
   UTC commit and build times, construct version, per-target skill counts).

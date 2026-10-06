@@ -36,7 +36,7 @@ and `construct describe` are the authority:
 construct skill sync                 # nix flake update construct (in the bravais flake)
 construct skill sync --json          # machine-readable envelope
 construct skill sync --dry-run       # show the plan, change nothing
-construct skill build                # per-platform bundles under <repo>/dist/ (claude, grok, perplexity, gemini, single-file)
+construct skill build                # per-platform bundles under <repo>/dist/ (claude, chatgpt, grok, perplexity, gemini, single-file)
 construct skill build --target claude,grok --dry-run   # gate + encode in memory, write nothing
 construct skill vendor spacecraft-rust-guidelines --into ../repo   # .claude/skills/ for Claude Code cloud sessions; never commits
 construct describe                   # capability manifest for agents
@@ -53,6 +53,7 @@ entries — so a rebuild of an unchanged tree is byte-identical. The source
 | Target | Platform / purpose |
 |--------|--------------------|
 | `claude` | Claude Code (local and web), claude.ai, Gemini CLI, Codex — nested `<name>/` layout, `maintainer` / `website` under `metadata:`, keeps `user-invocable` and `disable-model-invocation`. |
+| `chatgpt` | ChatGPT web — the `claude` layout without `user-invocable` or `disable-model-invocation` (the Agent Skills fields only), never consolidated; refused over 25 MB per file, 50 MB per archive, or 500 files. |
 | `grok` | Grok — flat zips (`SKILL.md` at the root) for every root skill plus the Grok-native skills; frontmatter `name` + `description` only. |
 | `perplexity` | Perplexity — Claude layout without `user-invocable` or `disable-model-invocation`; any skill over 100 files consolidated from `perplexity-skills/categories.toml`. The committed `perplexity-skills/spacecraft-cli-preference.zip` is a copy of this output. |
 | `gemini` | The Gemini app — flat `<name>.zip` only (files only) for every root skill; frontmatter `name` + `description` only; members restricted to `.csv` / `.py` / `.txt` / `.md`, any other file shipped with `.txt` appended (`LICENSE.txt`, `assets/steelbore.toml.txt`) and in-skill links to it rewritten; consolidated like `perplexity`; refused over 100 files. |
