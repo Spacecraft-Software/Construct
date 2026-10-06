@@ -312,6 +312,11 @@ fn build_all_targets_writes_expected_layout() {
     // Gemini: root skills only, one .zip each (no .skill, no Grok-native).
     assert_eq!(tree(&p.join("dist/gemini")), expect(&["zip"], &[]));
     assert_eq!(tree(&p.join("dist/single-file")), expect(&["md"], &[]));
+    // MiniMax: root skills only, a .zip and a .skill each (no Grok-native).
+    assert_eq!(
+        tree(&p.join("dist/minimax")),
+        expect(&["zip", "skill"], &[])
+    );
 
     // Claude is nested with directory entries; .skill has none.
     assert_eq!(
@@ -491,6 +496,44 @@ fn chatgpt_is_the_claude_layout_without_invocation_controls() {
     assert!(dual.ends_with("---\nbody\n"), "body untouched: {dual}");
 }
 
+/// `MiniMax` Agent's uploader accepts the ChatGPT bundle as is (verified
+/// 2026-10-06), so the two targets must stay byte-identical while the
+/// one-`SKILL.md` rule holds.
+#[test]
+fn minimax_is_byte_identical_to_chatgpt() {
+    let cat = catalogue();
+    let p = cat.path();
+    build(p, &["--target", "chatgpt,minimax"]).success();
+    for skill in ["alpha", "dual", "spacecraft-brand-guidelines"] {
+        for ext in ["zip", "skill"] {
+            let rel = format!("{skill}.{ext}");
+            assert_eq!(
+                fs::read(p.join("dist/minimax").join(&rel)).unwrap(),
+                fs::read(p.join("dist/chatgpt").join(&rel)).unwrap(),
+                "{rel}"
+            );
+        }
+    }
+}
+
+/// A second `SKILL.md` anywhere in the tree refuses the whole build, naming
+/// every offender; the ChatGPT target, which has no such rule, still builds.
+#[test]
+fn minimax_refuses_a_nested_skill_md() {
+    let cat = catalogue();
+    let p = cat.path();
+    write(p, "alpha/references/SKILL.md", "nested\n");
+    let e = error(&build(p, &["--target", "minimax"]).code(5));
+    assert_eq!(e["code"], "CONFLICT");
+    assert_eq!(e["minimax"][0]["kind"], "extra_skill_md", "{e}");
+    assert_eq!(
+        e["minimax"][0]["detail"]["paths"],
+        serde_json::json!(["references/SKILL.md"])
+    );
+    assert!(!p.join("dist").exists());
+    build(p, &["--target", "chatgpt"]).success();
+}
+
 /// A member over ChatGPT's 25 MB per-file limit refuses the whole build.
 #[test]
 fn chatgpt_refuses_a_file_over_25_mb() {
@@ -551,6 +594,13 @@ fn palette_vendored_and_identical() {
     );
     assert_eq!(
         zip_text(
+            &p.join(format!("dist/minimax/{brand}.zip")),
+            &format!("{brand}/assets/steelbore.toml")
+        ),
+        PALETTE
+    );
+    assert_eq!(
+        zip_text(
             &p.join(format!("dist/perplexity/{brand}.zip")),
             &format!("{brand}/assets/steelbore.toml")
         ),
@@ -575,8 +625,8 @@ fn palette_vendored_and_identical() {
     let vendored = d["palette_vendored"].as_array().unwrap();
     assert_eq!(
         vendored.len(),
-        9,
-        "zip+skill claude, zip+skill chatgpt, zip+skill grok, perplexity, gemini, md"
+        11,
+        "zip+skill claude, zip+skill chatgpt, zip+skill grok, perplexity, gemini, md, zip+skill minimax"
     );
     assert!(vendored
         .iter()

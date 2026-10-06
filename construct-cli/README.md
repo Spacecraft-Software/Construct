@@ -36,7 +36,7 @@ and `construct describe` are the authority:
 construct skill sync                 # nix flake update construct (in the bravais flake)
 construct skill sync --json          # machine-readable envelope
 construct skill sync --dry-run       # show the plan, change nothing
-construct skill build                # per-platform bundles under <repo>/dist/ (claude, chatgpt, grok, perplexity, gemini, single-file)
+construct skill build                # per-platform bundles under <repo>/dist/ (claude, chatgpt, grok, perplexity, gemini, single-file, minimax)
 construct skill build --target claude,grok --dry-run   # gate + encode in memory, write nothing
 construct skill vendor spacecraft-rust-guidelines --into ../repo   # .claude/skills/ for Claude Code cloud sessions; never commits
 construct describe                   # capability manifest for agents
@@ -57,7 +57,8 @@ entries — so a rebuild of an unchanged tree is byte-identical. The source
 | `grok` | Grok — flat zips (`SKILL.md` at the root) for every root skill plus the Grok-native skills; frontmatter `name` + `description` only. |
 | `perplexity` | Perplexity — Claude layout without `user-invocable` or `disable-model-invocation`; any skill over 100 files consolidated from `perplexity-skills/categories.toml`. The committed `perplexity-skills/spacecraft-cli-preference.zip` is a copy of this output. |
 | `gemini` | The Gemini app — flat `<name>.zip` only (files only) for every root skill; frontmatter `name` + `description` only; members restricted to `.csv` / `.py` / `.txt` / `.md`, any other file shipped with `.txt` appended (`LICENSE.txt`, `assets/steelbore.toml.txt`) and in-skill links to it rewritten; consolidated like `perplexity`; refused over 100 files. |
-| `single-file` | MiniMax and other platforms with no skill loader — one self-contained `<name>.md`, references inlined, in-skill links rewritten to anchors, and every `LICENSE` / `LICENSE.<TAG>` appended verbatim under a closing `## License` section (links to them anchor there); outside fenced blocks, links that leave the skill become plain text (a sibling skill is named, upstream paths keep their text). |
+| `minimax` | MiniMax Agent (web), Create → Upload a skill — byte-identical to `chatgpt` (verified accepted 2026-10-06), refused when a second `SKILL.md` sits anywhere in the tree (the uploader's one stated rule). Save to My skills only; **Publish skill** is a public listing (Standard §6.4). |
+| `single-file` | Platforms with no skill loader — one self-contained `<name>.md`, references inlined, in-skill links rewritten to anchors, and every `LICENSE` / `LICENSE.<TAG>` appended verbatim under a closing `## License` section (links to them anchor there); outside fenced blocks, links that leave the skill become plain text (a sibling skill is named, upstream paths keep their text). |
 
 The build vendors the palette into `spacecraft-brand-guidelines` and
 `spacecraft-accessibility-support`, and refuses any skill over the §5.6

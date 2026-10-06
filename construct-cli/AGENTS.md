@@ -73,6 +73,8 @@ so run it locally before adding a dependency (Standard §3.3).
   `perplexity-skills/categories.toml`, reused for Gemini) / `gemini` (the
   Gemini app's allowed-extension renames + link rewrite + file-count gate) /
   `chatgpt` (ChatGPT's per-file, per-archive, and file-count limits) /
+  `minimax` (`MiniMax` Agent's one-`SKILL.md`-per-bundle rule; the archive is
+  the `chatgpt` build, shared through `build_agent_skills`) /
   `single` (single-file render) →
   `sink` (deterministic zips, atomic writes). `bundle::vendor_plan` runs the
   same gates and `claude` projection for `skill vendor`, and `tree` is its
@@ -80,7 +82,7 @@ so run it locally before adding a dependency (Standard §3.3).
   swap, symlinks never followed). It never sees a `Context`, never prints, and
   returns typed problems; `commands/build.rs` and `commands/vendor.rs` alone
   map them to exit codes.
-  The six targets (`claude`, `chatgpt`, `grok`, `perplexity`, `gemini`, `single-file`), what each
+  The seven targets (`claude`, `chatgpt`, `grok`, `perplexity`, `gemini`, `single-file`, `minimax`), what each
   platform is for, and the `dist/<target>/` layout are described under
   *Distribution targets* in the repository-root `AGENTS.md`.
 - `manifest.rs` — the single source of truth for `schema` and `describe`; the
