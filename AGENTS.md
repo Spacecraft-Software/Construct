@@ -261,7 +261,7 @@ Because nothing lands on `main`, `ship` no longer runs `skill sync`; run
 `construct skill sync` after the PR merges. `--no-sync` is retained as a hidden
 no-op so existing invocations keep working.
 
-`construct skill build [SKILL...] [--target claude,chatgpt,grok,perplexity,gemini,single-file]`
+`construct skill build [SKILL...] [--target claude,chatgpt,grok,perplexity,gemini,single-file,minimax]`
 generates per-platform release bundles under `dist/<target>/` (gitignored —
 release artifacts, never committed). It rewrites frontmatter per target (the
 source `SKILL.md` stays as is), vendors the palette into the brand and
@@ -306,7 +306,8 @@ target.
 | `grok` | `dist/grok/<name>.zip` + `.skill`, **flat** (`SKILL.md`, `LICENSE`, `references/`, `assets/` at the zip root) | Grok. Every root skill plus the Grok-native `grok-skills/*`; frontmatter `name` + `description` only. |
 | `perplexity` | `dist/perplexity/<name>.zip`, nested layout | Perplexity. Claude frontmatter minus `user-invocable` and `disable-model-invocation`; any skill over 100 files is consolidated from `perplexity-skills/categories.toml`. |
 | `gemini` | `dist/gemini/<name>.zip` only (no `.skill`), **flat**, files only (no directory entries) | The Gemini app's skill upload. Every root skill (no Grok-native skills); frontmatter `name` + `description` only, the description byte-identical to the source. The app accepts only `.csv`, `.py`, `.txt`, and `.md` members, so any other file gets `.txt` appended — `LICENSE` → `LICENSE.txt`, `LICENSE.MIT` → `LICENSE.MIT.txt` (§5.6 license carriage; §4.3's no-extension rule governs repository files, not this platform bundle), `assets/steelbore.toml` → `assets/steelbore.toml.txt` — and every markdown link inside the skill that points at a renamed file is rewritten to follow it (links only, outside fenced code). Skills over 100 files are consolidated exactly as for `perplexity`; a bundle still over 100 files, a rename that collides with an existing file, or a `name` that is not kebab-case is refused. |
-| `single-file` | `dist/single-file/<name>.md` | MiniMax and other platforms with no skill loader: a short frontmatter header, the `SKILL.md` body, every `references/` file inlined under its own heading with links rewritten to in-document anchors, text assets in fenced blocks, `CREDITS.md`, then a closing `## License` section carrying every `LICENSE` / `LICENSE.<TAG>` verbatim in fenced `text` blocks (§5.6 license carriage — `microsoft-rust-guidelines.md` ships both the GPL text and the MIT permission notice). No relative link survives outside a fenced block: a reference's `../SKILL.md` back-link points at the body's anchor, a link to a license file (`LICENSE.MIT`, a reference's `../LICENSE`) points at its subsection, a sibling-skill link becomes plain text naming that skill, and any other link that leaves the skill (upstream paths in `microsoft-rust-guidelines`) keeps its text and loses the link. Fenced content is verbatim. |
+| `minimax` | `dist/minimax/<name>.zip` + `.skill`, nested `<name>/` layout | MiniMax Agent (web): Create → Upload a skill → "Saved to My skills" (personal; never press **Publish skill** — that is a public listing, gated by Standard §6.4). Byte-identical to `chatgpt`, which the uploader was verified to accept on 2026-10-06. Gated on the uploader's one stated rule, exactly one `SKILL.md` per `.zip` / `.skill`: a second one anywhere under `references/` or `assets/` is refused. MiniMax publishes no size limits for this uploader, so none is enforced. Not a MiniMax marketplace plugin (`.minimax-plugin/plugin.json`) — that route is a public submission. |
+| `single-file` | `dist/single-file/<name>.md` | Platforms with no skill loader: a short frontmatter header, the `SKILL.md` body, every `references/` file inlined under its own heading with links rewritten to in-document anchors, text assets in fenced blocks, `CREDITS.md`, then a closing `## License` section carrying every `LICENSE` / `LICENSE.<TAG>` verbatim in fenced `text` blocks (§5.6 license carriage — `microsoft-rust-guidelines.md` ships both the GPL text and the MIT permission notice). No relative link survives outside a fenced block: a reference's `../SKILL.md` back-link points at the body's anchor, a link to a license file (`LICENSE.MIT`, a reference's `../LICENSE`) points at its subsection, a sibling-skill link becomes plain text naming that skill, and any other link that leaves the skill (upstream paths in `microsoft-rust-guidelines`) keeps its text and loses the link. Fenced content is verbatim. |
 
 Every non-source target vendors `steelbore-color-palette/assets/steelbore.toml`
 into `spacecraft-brand-guidelines` and `spacecraft-accessibility-support` as
@@ -354,8 +355,9 @@ a GitHub release. Nobody runs it by hand in the normal flow:
   refreshed only alongside them), and a draft left by a killed job is
   completed and published.
 - **Assets.** `construct-bundles-<target>.zip` per target — `claude`, `chatgpt`,
-  `grok`, `perplexity`, `gemini`, `single-file` (the per-skill `.zip` / `.skill` /
-  `.md` files; `claude`, `chatgpt`, and `grok` carry a `.zip` and a `.skill` per skill, the
+  `grok`, `perplexity`, `gemini`, `single-file`, `minimax` (the per-skill `.zip` /
+  `.skill` / `.md` files; `claude`, `chatgpt`, `grok`, and `minimax` carry a `.zip` and a
+  `.skill` per skill, the
   others one file per skill; the outer archives are themselves
   byte-stable), `SHA256SUMS` over those archives, and `manifest.json` (commit,
   UTC commit and build times, construct version, per-target skill counts).

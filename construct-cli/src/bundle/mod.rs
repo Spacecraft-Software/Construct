@@ -30,6 +30,7 @@ pub(crate) mod collect;
 pub(crate) mod consolidate;
 pub(crate) mod frontmatter;
 pub(crate) mod gemini;
+pub(crate) mod minimax;
 pub(crate) mod palette;
 pub(crate) mod single;
 pub(crate) mod sink;
@@ -61,17 +62,21 @@ pub(crate) enum Target {
     Gemini,
     /// One self-contained markdown file per skill, for loader-less platforms.
     SingleFile,
+    /// `MiniMax` Agent (web): the ChatGPT layout, gated on the uploader's
+    /// one-`SKILL.md`-per-bundle rule.
+    MiniMax,
 }
 
 impl Target {
     /// Every target, in the fixed order `all` expands to.
-    pub(crate) const ALL: [Self; 6] = [
+    pub(crate) const ALL: [Self; 7] = [
         Self::Claude,
         Self::ChatGpt,
         Self::Grok,
         Self::Perplexity,
         Self::Gemini,
         Self::SingleFile,
+        Self::MiniMax,
     ];
 
     /// The stable lowercase name, also the `dist/<target>/` directory.
@@ -83,6 +88,7 @@ impl Target {
             Self::Perplexity => "perplexity",
             Self::Gemini => "gemini",
             Self::SingleFile => "single-file",
+            Self::MiniMax => "minimax",
         }
     }
 }
@@ -641,7 +647,7 @@ fn build_one(
 ) -> Result<Vec<Artifact>, Vec<Problem>> {
     match target {
         Target::Claude | Target::Grok => build_archive(p, target),
-        Target::ChatGpt => build_chatgpt(p),
+        Target::ChatGpt | Target::MiniMax => build_agent_skills(p, target),
         Target::Perplexity => build_perplexity(p, categories, plan),
         Target::Gemini => build_gemini(p, categories, plan),
         Target::SingleFile => build_single(p, siblings, plan),
@@ -752,11 +758,13 @@ fn build_archive(p: &Prepared, target: Target) -> Result<Vec<Artifact>, Vec<Prob
     ])
 }
 
-/// ChatGPT: the Claude layout minus the invocation controls (the Agent Skills
-/// specification ChatGPT validates against has no such fields), never
-/// consolidated, as a `.zip` with directory entries and a `.skill` without —
-/// both refused when over a [`chatgpt`] size limit.
-fn build_chatgpt(p: &Prepared) -> Result<Vec<Artifact>, Vec<Problem>> {
+/// ChatGPT and `MiniMax`: the Claude layout minus the invocation controls (the
+/// Agent Skills specification both uploaders validate against has no such
+/// fields), never consolidated, as a `.zip` with directory entries and a
+/// `.skill` without. Each target applies its own platform gate: ChatGPT's
+/// [`chatgpt`] size limits, `MiniMax`'s [`minimax`] one-`SKILL.md` rule.
+fn build_agent_skills(p: &Prepared, target: Target) -> Result<Vec<Artifact>, Vec<Problem>> {
+    debug_assert!(matches!(target, Target::ChatGpt | Target::MiniMax));
     let name = &p.skill.name;
     let text = frontmatter::project(
         name,
@@ -767,7 +775,11 @@ fn build_chatgpt(p: &Prepared) -> Result<Vec<Artifact>, Vec<Problem>> {
     )
     .map_err(|e| vec![e])?;
     let members = with_skill_md(&p.members, text);
-    chatgpt::check_members(name, &members)?;
+    if target == Target::MiniMax {
+        minimax::check_members(name, &members)?;
+    } else {
+        chatgpt::check_members(name, &members)?;
+    }
     let prefix = format!("{name}/");
     let check = PaletteCheck::Zip {
         path: format!("{prefix}{}", palette::PALETTE_MEMBER),
@@ -777,11 +789,13 @@ fn build_chatgpt(p: &Prepared) -> Result<Vec<Artifact>, Vec<Problem>> {
         (format!("{name}.zip"), "zip", true),
         (format!("{name}.skill"), "skill", false),
     ] {
-        let encoded = encode(name, Target::ChatGpt, &members, &prefix, dir_entries)?;
-        chatgpt::check_archive(name, &file_name, encoded.0.len())?;
+        let encoded = encode(name, target, &members, &prefix, dir_entries)?;
+        if target == Target::ChatGpt {
+            chatgpt::check_archive(name, &file_name, encoded.0.len())?;
+        }
         out.push(artifact(
             p,
-            Target::ChatGpt,
+            target,
             file_name,
             format,
             encoded,

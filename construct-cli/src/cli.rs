@@ -241,7 +241,7 @@ pub(crate) enum SkillCommand {
     #[command(
         after_help = "Targets: claude (Claude Code, claude.ai, Gemini CLI, Codex), chatgpt (ChatGPT web),
 grok (flat zips),\nperplexity (consolidated under 100 files), gemini (Gemini app: flat zips,
-.csv/.py/.txt/.md only), single-file (one .md per skill).\nZips are deterministic; nothing is committed. A refused skill stops the\nwhole build before anything is written.\n\nExamples:\n  construct skill build\n  construct skill build --target claude,grok --json\n  construct skill build spacecraft-cli-preference --target perplexity --dry-run"
+.csv/.py/.txt/.md only), single-file (one .md per skill),\nminimax (MiniMax Agent web, one SKILL.md per bundle).\nZips are deterministic; nothing is committed. A refused skill stops the\nwhole build before anything is written.\n\nExamples:\n  construct skill build\n  construct skill build --target claude,grok --json\n  construct skill build spacecraft-cli-preference --target perplexity --dry-run"
     )]
     Build(BuildArgs),
 
@@ -455,6 +455,9 @@ pub(crate) enum TargetArg {
     Gemini,
     /// One self-contained markdown file per skill.
     SingleFile,
+    /// `MiniMax` Agent (web): ChatGPT layout, one `SKILL.md` per bundle.
+    #[value(name = "minimax")]
+    MiniMax,
     /// Every target above.
     All,
 }

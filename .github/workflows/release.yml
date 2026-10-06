@@ -261,7 +261,7 @@ jobs:
           cat > release-notes/notes.md <<EOF
           Per-platform skill bundles built from $SHA ($COMMIT_TIME) by \`construct skill build\` $version.
 
-          Install only the skills you need. The claude, chatgpt, and grok archives carry two files per skill, \`<name>.zip\` and \`<name>.skill\`; either one is enough to upload. The perplexity, gemini, and single-file archives carry one file per skill.
+          Install only the skills you need. The claude, chatgpt, grok, and minimax archives carry two files per skill, \`<name>.zip\` and \`<name>.skill\`; either one is enough to upload. The perplexity, gemini, and single-file archives carry one file per skill.
 
           | Platform | Archive | Install |
           |----------|---------|---------|
@@ -271,7 +271,8 @@ jobs:
           | Grok | \`construct-bundles-grok.zip\` ($(count grok) skills) | Extract, then upload the flat \`<name>.zip\`. |
           | Perplexity | \`construct-bundles-perplexity.zip\` ($(count perplexity) skills) | Extract, then upload \`<name>.zip\` (skills over 100 files arrive consolidated). |
           | Gemini (web) | \`construct-bundles-gemini.zip\` ($(count gemini) skills) | Extract, then upload \`<name>.zip\` (flat; a file the app refuses by extension ships with \`.txt\` appended, e.g. \`LICENSE.txt\`; skills over 100 files arrive consolidated). |
-          | MiniMax and other platforms without a skill loader | \`construct-bundles-single-file.zip\` ($(count single-file) skills) | Extract, then attach \`<name>.md\` as knowledge, or paste it as instructions. |
+          | MiniMax Agent (web) | \`construct-bundles-minimax.zip\` ($(count minimax) skills) | Extract, then Create → Upload a skill → \`<name>.zip\`, one skill at a time, and keep it in My skills. **Publish skill** lists it publicly. |
+          | Platforms without a skill loader | \`construct-bundles-single-file.zip\` ($(count single-file) skills) | Extract, then attach \`<name>.md\` as knowledge, or paste it as instructions. |
           | Home Manager hosts | — | Unchanged: the flake's \`homeManagerModules.default\`. Run \`construct skill sync\`, then rebuild Home Manager. |
 
           Verify an archive. \`SHA256SUMS\` catches a damaged download. The provenance attestation proves the archive was produced by this repository's \`release.yml\` running on \`main\` — pin both, because \`--repo\` alone accepts an attestation from any workflow on any branch:

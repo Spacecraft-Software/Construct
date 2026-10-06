@@ -194,6 +194,7 @@ fn resolve_targets(args: &[TargetArg]) -> Vec<Target> {
                         | (TargetArg::Perplexity, Target::Perplexity)
                         | (TargetArg::Gemini, Target::Gemini)
                         | (TargetArg::SingleFile, Target::SingleFile)
+                        | (TargetArg::MiniMax, Target::MiniMax)
                 )
             })
         })
