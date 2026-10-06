@@ -239,7 +239,8 @@ pub(crate) enum SkillCommand {
 
     /// Build distributable bundles for every target platform under dist/.
     #[command(
-        after_help = "Targets: claude (Claude Code, claude.ai, Gemini CLI, Codex), grok (flat zips),\nperplexity (consolidated under 100 files), gemini (Gemini app: flat zips,
+        after_help = "Targets: claude (Claude Code, claude.ai, Gemini CLI, Codex), chatgpt (ChatGPT web),
+grok (flat zips),\nperplexity (consolidated under 100 files), gemini (Gemini app: flat zips,
 .csv/.py/.txt/.md only), single-file (one .md per skill).\nZips are deterministic; nothing is committed. A refused skill stops the\nwhole build before anything is written.\n\nExamples:\n  construct skill build\n  construct skill build --target claude,grok --json\n  construct skill build spacecraft-cli-preference --target perplexity --dry-run"
     )]
     Build(BuildArgs),
@@ -443,6 +444,9 @@ pub(crate) struct ShipArgs {
 pub(crate) enum TargetArg {
     /// Claude Code (local + web), claude.ai, Gemini CLI, Codex.
     Claude,
+    /// ChatGPT (web): Claude layout without the invocation controls.
+    #[value(name = "chatgpt")]
+    ChatGpt,
     /// Grok: flat bundles, name + description frontmatter.
     Grok,
     /// Perplexity: Claude layout, consolidated under 100 files.

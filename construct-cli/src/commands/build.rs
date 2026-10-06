@@ -189,6 +189,7 @@ fn resolve_targets(args: &[TargetArg]) -> Vec<Target> {
                 matches!(
                     (a, t),
                     (TargetArg::Claude, Target::Claude)
+                        | (TargetArg::ChatGpt, Target::ChatGpt)
                         | (TargetArg::Grok, Target::Grok)
                         | (TargetArg::Perplexity, Target::Perplexity)
                         | (TargetArg::Gemini, Target::Gemini)

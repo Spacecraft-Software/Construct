@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Product names `doc_markdown` would otherwise read as code identifiers.
+# `..` keeps clippy's default list (GitHub, JavaScript, …).
+doc-valid-idents = ["ChatGPT", "OpenAI", ".."]

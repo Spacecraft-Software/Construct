@@ -374,7 +374,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                 "additionalProperties": false,
                 "properties": {
                     "skills": { "type": "array", "items": { "type": "string" }, "description": "Skills to build (default: every root skill, plus Grok-native skills for the grok target)" },
-                    "target": { "type": "array", "items": { "type": "string", "enum": ["claude", "grok", "perplexity", "gemini", "single-file", "all"] }, "default": ["all"], "description": "Targets to build" },
+                    "target": { "type": "array", "items": { "type": "string", "enum": ["claude", "chatgpt", "grok", "perplexity", "gemini", "single-file", "all"] }, "default": ["all"], "description": "Targets to build" },
                     "repo": { "type": "string", "format": "uri-reference", "description": "Construct catalogue clone to build from" },
                     "out": { "type": "string", "format": "uri-reference", "description": "Output root; each target writes <out>/<target>/ (default: <repo>/dist)" }
                 }
@@ -444,7 +444,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                 ),
                 (
                     "5",
-                    "CONFLICT — a SKILL.md description exceeds 1000 characters or compatibility exceeds 500 (Standard §5.6), invalid or unprojectable frontmatter, missing LICENSE, symlink, Perplexity map problem, Gemini rename collision or file count over 100, single-file anchor problem, or an output directory the build does not own (override with --force)",
+                    "CONFLICT — a SKILL.md description exceeds 1000 characters or compatibility exceeds 500 (Standard §5.6), invalid or unprojectable frontmatter, missing LICENSE, symlink, Perplexity map problem, Gemini rename collision or file count over 100, a ChatGPT bundle over 500 files, a file over 25 MB, or an archive over 50 MB, single-file anchor problem, or an output directory the build does not own (override with --force)",
                 ),
             ]),
             examples: pairs(&[

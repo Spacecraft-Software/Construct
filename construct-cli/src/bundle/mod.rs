@@ -25,6 +25,7 @@
 //! function of its inputs, so a later `par_iter` would be a local change if
 //! the catalogue ever grows enough to measure a benefit.
 
+pub(crate) mod chatgpt;
 pub(crate) mod collect;
 pub(crate) mod consolidate;
 pub(crate) mod frontmatter;
@@ -48,6 +49,9 @@ pub(crate) enum Target {
     /// Claude Code (local + web), claude.ai, Gemini CLI, Codex: nested
     /// `<name>/…` zips with spec-clean frontmatter.
     Claude,
+    /// ChatGPT (web): the Claude layout without Claude Code's invocation
+    /// controls, gated on OpenAI's published Skills size limits.
+    ChatGpt,
     /// Grok: flat zips, `name` + `description` frontmatter only.
     Grok,
     /// Perplexity: the Claude layout, consolidated under 100 files.
@@ -61,8 +65,9 @@ pub(crate) enum Target {
 
 impl Target {
     /// Every target, in the fixed order `all` expands to.
-    pub(crate) const ALL: [Self; 5] = [
+    pub(crate) const ALL: [Self; 6] = [
         Self::Claude,
+        Self::ChatGpt,
         Self::Grok,
         Self::Perplexity,
         Self::Gemini,
@@ -73,6 +78,7 @@ impl Target {
     pub(crate) fn slug(self) -> &'static str {
         match self {
             Self::Claude => "claude",
+            Self::ChatGpt => "chatgpt",
             Self::Grok => "grok",
             Self::Perplexity => "perplexity",
             Self::Gemini => "gemini",
@@ -635,6 +641,7 @@ fn build_one(
 ) -> Result<Vec<Artifact>, Vec<Problem>> {
     match target {
         Target::Claude | Target::Grok => build_archive(p, target),
+        Target::ChatGpt => build_chatgpt(p),
         Target::Perplexity => build_perplexity(p, categories, plan),
         Target::Gemini => build_gemini(p, categories, plan),
         Target::SingleFile => build_single(p, siblings, plan),
@@ -743,6 +750,45 @@ fn build_archive(p: &Prepared, target: Target) -> Result<Vec<Artifact>, Vec<Prob
             check,
         ),
     ])
+}
+
+/// ChatGPT: the Claude layout minus the invocation controls (the Agent Skills
+/// specification ChatGPT validates against has no such fields), never
+/// consolidated, as a `.zip` with directory entries and a `.skill` without —
+/// both refused when over a [`chatgpt`] size limit.
+fn build_chatgpt(p: &Prepared) -> Result<Vec<Artifact>, Vec<Problem>> {
+    let name = &p.skill.name;
+    let text = frontmatter::project(
+        name,
+        &p.text,
+        frontmatter::Profile::Claude {
+            user_invocable: false,
+        },
+    )
+    .map_err(|e| vec![e])?;
+    let members = with_skill_md(&p.members, text);
+    chatgpt::check_members(name, &members)?;
+    let prefix = format!("{name}/");
+    let check = PaletteCheck::Zip {
+        path: format!("{prefix}{}", palette::PALETTE_MEMBER),
+    };
+    let mut out = Vec::with_capacity(2);
+    for (file_name, format, dir_entries) in [
+        (format!("{name}.zip"), "zip", true),
+        (format!("{name}.skill"), "skill", false),
+    ] {
+        let encoded = encode(name, Target::ChatGpt, &members, &prefix, dir_entries)?;
+        chatgpt::check_archive(name, &file_name, encoded.0.len())?;
+        out.push(artifact(
+            p,
+            Target::ChatGpt,
+            file_name,
+            format,
+            encoded,
+            check.clone(),
+        ));
+    }
+    Ok(out)
 }
 
 /// Perplexity: the Claude layout minus the invocation controls, consolidated when
