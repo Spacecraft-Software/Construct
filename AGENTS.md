@@ -161,10 +161,12 @@ is mechanical — apply it after **any** edit inside a `<skill-name>/` directory
    gh pr create --repo Spacecraft-Software/Construct --base main --head <branch> \
      --title "…" --body "…"
    ```
-   Use HTTPS on this host — the SSH remote
-   (`git@github.com:Spacecraft-Software/Construct.git`) is intermittently
-   unreachable here. The HTTPS push still carries the locally-made signed
-   commit, so GitHub's "Verified" status is preserved.
+   Push over HTTPS, never SSH — Standard §6.4 (v2.13) requires it for every
+   push to GitHub. Pass the HTTPS URL as above, or set
+   `git config --global url.https://github.com/.pushInsteadOf git@github.com:`
+   so a push to an SSH-configured `origin` is rewritten. The HTTPS push still
+   carries the locally-made signed commit, so GitHub's "Verified" status is
+   preserved.
 
    There is **no auto-push pre-authorisation.** A prior note in this file
    claimed skill-directory changes could be pushed straight to `main` without a
