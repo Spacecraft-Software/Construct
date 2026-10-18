@@ -96,9 +96,11 @@ diverge. Verify with `unzip -l <name>.zip` before committing.
      --title "…" --body "…"
    ```
    Push over HTTPS, never SSH — Standard §6.4 (v2.13) requires it for every
-   push to GitHub. Pass the HTTPS URL as above, or set
-   `git config --global url.https://github.com/.pushInsteadOf git@github.com:`
-   so a push to an SSH-configured `origin` is rewritten. The HTTPS push still
+   push to GitHub. Pass the HTTPS URL as above, or rewrite both SSH forms:
+   `git config --global --add url.https://github.com/.pushInsteadOf git@github.com:`
+   and the same with `ssh://git@github.com/`, so a push to an SSH-configured
+   `origin` is rewritten (an explicit `pushurl` bypasses the rewrite and must
+   itself be HTTPS). The HTTPS push still
    carries the locally-made signed commit, so GitHub's "Verified" status is
    preserved.
 
