@@ -257,7 +257,9 @@ cap, and a frontmatter every strict YAML parser accepts — a plain-scalar
 `description:` containing `: ` is a mapping, not a string, and is refused),
 switches to a feature branch (generated from the shipped skills, or
 `--branch`), stages by explicit name, makes the signed UTC commit, pushes the
-branch, and opens the PR with `gh`. It **never** pushes to the default branch, and it never merges — that
+branch over HTTPS (Standard §6.4 — both SSH forms of `origin` are rewritten
+for the push, and an explicit SSH `pushurl` is refused, exit 2), and opens
+the PR with `gh`. It **never** pushes to the default branch, and it never merges — that
 stays the maintainer's call. `--dry-run` reports the whole plan, including the
 branch it would use, without touching anything.
 

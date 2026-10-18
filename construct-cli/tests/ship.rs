@@ -474,3 +474,61 @@ fn ship_nothing_to_ship_on_clean_repo() {
     let v: Value = serde_json::from_slice(&out).expect("valid JSON");
     assert_eq!(v["data"]["status"], "nothing_to_ship");
 }
+
+/// Standard §6.4: an explicit SSH `pushurl` bypasses the HTTPS rewrite, so
+/// ship refuses before planning anything.
+#[test]
+fn ship_refuses_an_ssh_pushurl() {
+    let repo = fixture(REMOTE);
+    let p = repo.path();
+    run_git(p, &["remote", "set-url", "--push", "origin", REMOTE]);
+    let out = bin()
+        .env("GIT_CONFIG_COUNT", "0")
+        .env("GIT_CONFIG_GLOBAL", "/dev/null")
+        .env("GIT_CONFIG_NOSYSTEM", "1")
+        .args([
+            "skill",
+            "ship",
+            "--repo",
+            p.to_str().unwrap(),
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .code(2)
+        .get_output()
+        .clone();
+    let text =
+        String::from_utf8_lossy(&out.stdout).into_owned() + &String::from_utf8_lossy(&out.stderr);
+    assert!(text.contains("HTTPS"), "refusal names the rule: {text}");
+}
+
+/// Both SSH URL forms are rewritten to HTTPS, so an SSH `origin` without an
+/// explicit `pushurl` still ships.
+#[test]
+fn ship_accepts_ssh_scheme_origin_via_rewrite() {
+    let repo = fixture("ssh://git@github.com/Spacecraft-Software/Construct.git");
+    let p = repo.path();
+    write(p, "demo/SKILL.md", "---\nname: demo\n---\nv1\n");
+    write(p, "demo.zip", "z1");
+    write(p, "demo.skill", "s1");
+    run_git(p, &["add", "demo/SKILL.md", "demo.zip", "demo.skill"]);
+    run_git(p, &["commit", "-qm", "init"]);
+    write(p, "demo/SKILL.md", "---\nname: demo\n---\nv2\n");
+    write(p, "demo.zip", "z2");
+    write(p, "demo.skill", "s2");
+    bin()
+        .env("GIT_CONFIG_COUNT", "0")
+        .env("GIT_CONFIG_GLOBAL", "/dev/null")
+        .env("GIT_CONFIG_NOSYSTEM", "1")
+        .args([
+            "skill",
+            "ship",
+            "--repo",
+            p.to_str().unwrap(),
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .success();
+}
