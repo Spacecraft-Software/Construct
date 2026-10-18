@@ -161,10 +161,14 @@ is mechanical — apply it after **any** edit inside a `<skill-name>/` directory
    gh pr create --repo Spacecraft-Software/Construct --base main --head <branch> \
      --title "…" --body "…"
    ```
-   Use HTTPS on this host — the SSH remote
-   (`git@github.com:Spacecraft-Software/Construct.git`) is intermittently
-   unreachable here. The HTTPS push still carries the locally-made signed
-   commit, so GitHub's "Verified" status is preserved.
+   Push over HTTPS, never SSH — Standard §6.4 (v2.13) requires it for every
+   push to GitHub. Pass the HTTPS URL as above, or rewrite both SSH forms:
+   `git config --global --add url.https://github.com/.pushInsteadOf git@github.com:`
+   and the same with `ssh://git@github.com/`, so a push to an SSH-configured
+   `origin` is rewritten (an explicit `pushurl` bypasses the rewrite and must
+   itself be HTTPS). The HTTPS push still
+   carries the locally-made signed commit, so GitHub's "Verified" status is
+   preserved.
 
    There is **no auto-push pre-authorisation.** A prior note in this file
    claimed skill-directory changes could be pushed straight to `main` without a
@@ -253,7 +257,9 @@ cap, and a frontmatter every strict YAML parser accepts — a plain-scalar
 `description:` containing `: ` is a mapping, not a string, and is refused),
 switches to a feature branch (generated from the shipped skills, or
 `--branch`), stages by explicit name, makes the signed UTC commit, pushes the
-branch, and opens the PR with `gh`. It **never** pushes to the default branch, and it never merges — that
+branch over HTTPS (Standard §6.4 — both SSH forms of `origin` are rewritten
+for the push, and an explicit SSH `pushurl` is refused, exit 2), and opens
+the PR with `gh`. It **never** pushes to the default branch, and it never merges — that
 stays the maintainer's call. `--dry-run` reports the whole plan, including the
 branch it would use, without touching anything.
 

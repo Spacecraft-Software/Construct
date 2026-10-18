@@ -45,6 +45,16 @@ pub(crate) const DEFAULT_REPO: &str = "/spacecraft-software/construct";
 /// The remote a ship is allowed to push to (substring check). Standard §6.4:
 /// publication targets are limited to namespaces Spacecraft Software controls.
 const EXPECTED_REMOTE: &str = "Spacecraft-Software/Construct";
+/// Per-invocation config that rewrites both SSH forms of a GitHub URL to
+/// HTTPS for pushes. Standard §6.4 (v2.13): every push to GitHub goes over
+/// HTTPS, never SSH. A remote with an explicit SSH `pushurl` bypasses
+/// `pushInsteadOf`; [`validate_repo`] refuses that case.
+const HTTPS_PUSH_CONFIG: [&str; 4] = [
+    "-c",
+    "url.https://github.com/.pushInsteadOf=git@github.com:",
+    "-c",
+    "url.https://github.com/.pushInsteadOf=ssh://git@github.com/",
+];
 /// Assistant co-authorship trailer (CONTRIBUTING §4).
 const COAUTHOR: &str = "Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>";
 /// `owner/repo` slug passed to `gh --repo`, derived from [`EXPECTED_REMOTE`].
@@ -239,7 +249,9 @@ pub(crate) fn run(ctx: &Context, args: &ShipArgs) -> Result<CommandOutput, AppEr
 
     // ── push the branch (never the default branch) ──────────────────────────
     progress::step(ctx, format!("pushing {branch}"), || {
-        git_capture(ctx, &repo, &["push", "-u", "origin", branch.as_str()])
+        let mut args: Vec<&str> = HTTPS_PUSH_CONFIG.to_vec();
+        args.extend(["push", "-u", "origin", branch.as_str()]);
+        git_capture(ctx, &repo, &args)
     })?;
     let signed = head_signed(ctx, &repo);
 
@@ -307,6 +319,24 @@ fn validate_repo(ctx: &Context, repo: &Path) -> Result<(), AppError> {
             2,
             format!("origin '{}' is not the Construct remote", remote.trim()),
             "construct skill ship --repo <the-Construct-clone>",
+        ));
+    }
+    // Standard §6.4: the push must go over HTTPS. `get-url --push` reports the
+    // URL `git push` will actually use, after `pushInsteadOf` (which an
+    // explicit `pushurl` bypasses).
+    let mut args: Vec<&str> = HTTPS_PUSH_CONFIG.to_vec();
+    args.extend(["remote", "get-url", "--push", "origin"]);
+    let push_url = git_capture(ctx, repo, &args).unwrap_or_default();
+    if !push_url.trim().starts_with("https://") {
+        return Err(AppError::new(
+            ctx,
+            ErrorCode::InvalidArgument,
+            2,
+            format!(
+                "origin would push over SSH ('{}'); Standard §6.4 requires HTTPS",
+                push_url.trim()
+            ),
+            "git remote set-url --push origin https://github.com/Spacecraft-Software/Construct.git",
         ));
     }
     Ok(())
