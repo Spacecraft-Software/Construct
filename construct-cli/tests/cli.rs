@@ -349,3 +349,220 @@ fn verbose_reports_the_accessible_mode_source() {
     assert_eq!(v["diagnostic"]["accessible"], true);
     assert_eq!(v["diagnostic"]["source"], "flag");
 }
+
+#[test]
+fn timestamps_are_whole_seconds_utc() {
+    let out = bin()
+        .args(["agent", "list", "--json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let value: Value = serde_json::from_slice(&out).expect("valid JSON envelope");
+    let ts = value["metadata"]["timestamp"].as_str().expect("timestamp");
+    // YYYY-MM-DDTHH:MM:SSZ exactly (Standard §14, CLI Standard §1 item 1).
+    assert_eq!(ts.len(), 20, "not YYYY-MM-DDTHH:MM:SSZ: {ts}");
+    assert!(ts.ends_with('Z') && ts.as_bytes()[10] == b'T', "{ts}");
+}
+
+#[test]
+fn version_json_is_an_envelope_with_maintainer_and_website() {
+    let out = bin()
+        .args(["--version", "--json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let value: Value = serde_json::from_slice(&out).expect("--version --json is JSON");
+    assert_eq!(value["metadata"]["tool"], "construct");
+    assert_eq!(
+        value["metadata"]["maintainer"],
+        "Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>"
+    );
+    assert_eq!(
+        value["metadata"]["website"],
+        "https://Construct.SpacecraftSoftware.org/"
+    );
+    assert_eq!(value["data"]["version"], env!("CARGO_PKG_VERSION"));
+}
+
+#[test]
+fn every_help_page_carries_the_project_footer() {
+    for args in [
+        vec!["--help"],
+        vec!["skill", "--help"],
+        vec!["skill", "delete", "--help"],
+        vec!["agent", "list", "--help"],
+        vec!["mcp", "--help"],
+    ] {
+        let out = bin()
+            .args(&args)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let text = String::from_utf8(out).expect("valid UTF-8");
+        assert!(
+            text.contains("https://Construct.SpacecraftSoftware.org/")
+                && text.contains("Mohamed Hammad"),
+            "{args:?}: help lacks the project footer"
+        );
+    }
+}
+
+#[test]
+fn usage_error_hint_points_at_the_nearest_help() {
+    let err = bin()
+        .args(["skill", "vendor", "--json"])
+        .assert()
+        .code(2)
+        .get_output()
+        .stderr
+        .clone();
+    let value: Value = serde_json::from_slice(&err).expect("structured error");
+    assert_eq!(value["error"]["hint"], "construct skill vendor --help");
+}
+
+#[test]
+fn control_characters_in_arguments_are_refused() {
+    let err = bin()
+        .args(["skill", "find", "a\u{1b}[31mb", "--json"])
+        .assert()
+        .code(2)
+        .get_output()
+        .stderr
+        .clone();
+    let value: Value = serde_json::from_slice(&err).expect("structured error");
+    assert_eq!(value["error"]["code"], "INVALID_ARGUMENT");
+    assert_eq!(value["error"]["exit_code"], 2);
+}
+
+#[test]
+fn init_refuses_a_name_that_is_a_path() {
+    let dir = tempfile::TempDir::new().expect("temp dir");
+    bin()
+        .current_dir(dir.path())
+        .args(["skill", "init", "../escape", "--json"])
+        .assert()
+        .code(2);
+    assert!(!dir.path().join("../escape").exists());
+}
+
+#[test]
+fn explore_fallback_hint_is_the_same_command_as_json() {
+    let err = bin()
+        .env("AI_AGENT", "test-harness")
+        .args(["--format", "explore", "agent", "list"])
+        .assert()
+        .success()
+        .get_output()
+        .stderr
+        .clone();
+    let line = String::from_utf8(err).expect("utf-8");
+    let value: Value = serde_json::from_str(line.trim()).expect("diagnostic envelope");
+    assert_eq!(value["diagnostic"]["hint"], "construct agent list --json");
+}
+
+#[test]
+fn schema_provider_formats() {
+    let openai: Value = serde_json::from_slice(
+        &bin()
+            .args(["schema", "skill", "list", "--format", "openai"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone(),
+    )
+    .expect("openai JSON");
+    assert_eq!(openai["type"], "function");
+    assert_eq!(openai["function"]["name"], "construct_skill_list");
+    assert_eq!(openai["function"]["strict"], true);
+    assert_eq!(
+        openai["function"]["parameters"]["additionalProperties"],
+        false
+    );
+
+    let gemini: Value = serde_json::from_slice(
+        &bin()
+            .args(["schema", "--format", "gemini"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone(),
+    )
+    .expect("gemini JSON");
+    assert_eq!(
+        gemini["function_declarations"][0]["parameters"]["type"],
+        "OBJECT"
+    );
+
+    let mcp: Value = serde_json::from_slice(
+        &bin()
+            .args(["schema", "skill", "delete", "--format", "mcp"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone(),
+    )
+    .expect("mcp JSON");
+    assert_eq!(mcp["tools"][0]["name"], "construct_skill_delete");
+    assert!(mcp["tools"][0]["inputSchema"]["properties"].is_object());
+}
+
+#[test]
+fn provider_format_is_refused_outside_schema() {
+    let err = bin()
+        .args(["agent", "list", "--format", "openai"])
+        .assert()
+        .code(2)
+        .get_output()
+        .stderr
+        .clone();
+    let value: Value = serde_json::from_slice(&err).expect("structured error");
+    assert_eq!(value["error"]["hint"], "construct schema --format openai");
+}
+
+#[test]
+fn mcp_stdio_lists_lazily_and_calls_tools() {
+    let input = [
+        r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}"#,
+        r#"{"jsonrpc":"2.0","method":"notifications/initialized"}"#,
+        r#"{"jsonrpc":"2.0","id":2,"method":"tools/list"}"#,
+        r#"{"jsonrpc":"2.0","id":3,"method":"tools/get","params":{"name":"construct_agent_list"}}"#,
+        r#"{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"construct_agent_list","arguments":{"fields":["id"]}}}"#,
+        r#"{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"construct_skill_list","arguments":{"agents":["no-such-agent"]}}}"#,
+    ]
+    .join("\n");
+    let out = bin()
+        .arg("mcp")
+        .write_stdin(input + "\n")
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let frames: Vec<Value> = String::from_utf8(out)
+        .expect("utf-8")
+        .lines()
+        .map(|l| serde_json::from_str(l).expect("one JSON-RPC frame per line"))
+        .collect();
+    assert_eq!(frames.len(), 5, "the notification gets no answer");
+    assert_eq!(frames[0]["result"]["serverInfo"]["name"], "construct");
+    let tools = frames[1]["result"]["tools"].as_array().expect("tools");
+    assert!(tools
+        .iter()
+        .all(|t| t["inputSchema"] == serde_json::json!({ "type": "object" })));
+    assert!(!tools.iter().any(|t| t["name"] == "construct_mcp"));
+    assert!(frames[2]["result"]["outputSchema"].is_object());
+    let data = &frames[3]["result"]["structuredContent"]["data"];
+    assert!(data[0]["id"].is_string() && data[0].get("global_path").is_none());
+    assert_eq!(frames[4]["error"]["code"], -32000);
+    assert_eq!(frames[4]["error"]["message"], "NOT_FOUND");
+    assert_eq!(frames[4]["error"]["data"]["exit_code"], 3);
+}

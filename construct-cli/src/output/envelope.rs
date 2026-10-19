@@ -67,6 +67,35 @@ pub(crate) fn wrap(ctx: &Context, data: Value) -> Value {
     Value::Object(document)
 }
 
+/// The `--version` envelope (CLI Standard §3): the usual metadata plus the
+/// `maintainer` and `website` keys, and the same three facts as `data`.
+/// Built before a [`Context`] exists, because clap answers `--version`
+/// during parsing.
+pub(crate) fn version_document() -> Value {
+    let metadata = Metadata {
+        tool: env!("CARGO_PKG_NAME"),
+        version: env!("CARGO_PKG_VERSION"),
+        command: crate::output::error::early_command(),
+        timestamp: crate::time::now_iso8601(),
+        pagination: None,
+        tool_agent: detect_tool_agent(),
+        dry_run: false,
+    };
+    let mut metadata = serde_json::to_value(metadata).unwrap_or(Value::Null);
+    if let Value::Object(map) = &mut metadata {
+        map.insert("maintainer".to_owned(), Value::from(crate::cli::MAINTAINER));
+        map.insert("website".to_owned(), Value::from(crate::cli::WEBSITE));
+    }
+    serde_json::json!({
+        "metadata": metadata,
+        "data": {
+            "version": env!("CARGO_PKG_VERSION"),
+            "maintainer": crate::cli::MAINTAINER,
+            "website": crate::cli::WEBSITE,
+        },
+    })
+}
+
 /// Detect the agent harness from informational environment variables. These
 /// never change the output format on their own (that is `AI_AGENT`'s job); they
 /// are recorded for telemetry/debugging only.

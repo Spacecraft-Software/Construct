@@ -46,10 +46,12 @@ pub(crate) fn tool_info() -> ToolInfo {
             "--no-accessible",
             "--yes",
             "--force",
+            "--help",
+            "--version",
         ],
         output_formats: &["json", "jsonl", "yaml", "csv", "explore"],
         context_files: &["CLAUDE.md", "AGENTS.md", "SKILL.md", "CONTRIBUTING.md"],
-        mcp_available: false,
+        mcp_available: true,
     }
 }
 
@@ -96,7 +98,7 @@ fn pairs(items: &[(&str, &str)]) -> Vec<(String, String)> {
         .collect()
 }
 
-/// The `data` schema shared by the installer commands (add/list/remove/update).
+/// The `data` schema shared by the installer commands (add/list/delete/update).
 fn install_output_schema() -> Value {
     json!({
         "type": "object",
@@ -298,7 +300,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             ]),
             examples: pairs(&[
                 ("construct skill reset", "Discard a moved pointer"),
-                ("construct skill reset --dry-run", "Show what it would do"),
+                ("construct skill reset --dry-run --json", "Show what it would do"),
             ]),
             supports_json: true,
             supports_dry_run: true,
@@ -354,7 +356,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                     "Preview the branch, commit, and pull request without changing anything",
                 ),
                 (
-                    "construct skill ship --skills spacecraft-rust-guidelines",
+                    "construct skill ship --skills spacecraft-rust-guidelines --dry-run --json",
                     "Ship one skill's edits on a generated branch and open its PR",
                 ),
             ]),
@@ -536,7 +538,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                     "Vendor two skills into the current repository's .claude/skills/",
                 ),
                 (
-                    "construct skill vendor spacecraft-brand-guidelines --into ../site --dry-run",
+                    "construct skill vendor spacecraft-brand-guidelines --into ../site --dry-run --json",
                     "Preview vendoring one skill into another repository without writing",
                 ),
             ]),
@@ -624,7 +626,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                     "Print one skill's prompt",
                 ),
                 (
-                    "construct skill use vercel-labs/skills --skills find-skills",
+                    "construct skill use vercel-labs/skills --skills find-skills --json",
                     "Print from a remote source",
                 ),
             ]),
@@ -665,7 +667,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                     "Scaffold ./my-skill/SKILL.md",
                 ),
                 (
-                    "construct skill init my-skill --dir ./skills",
+                    "construct skill init my-skill --dir ./skills --dry-run --json",
                     "Scaffold under ./skills",
                 ),
             ]),
@@ -689,7 +691,8 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                     "skills": { "type": "array", "items": { "type": "string" }, "description": "Skills to install (default: all in source)" },
                     "global": { "type": "boolean", "default": false, "description": "Install into each agent's home skills dir" },
                     "copy": { "type": "boolean", "default": false, "description": "Copy instead of symlink" },
-                    "all": { "type": "boolean", "default": false, "description": "Target every known agent" }
+                    "all": { "type": "boolean", "default": false, "description": "Target every known agent" },
+                    "refresh": { "type": "boolean", "default": false, "description": "Re-clone a cached remote source before installing" }
                 }
             }),
             output_data: install_output_schema(),
@@ -736,8 +739,8 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
-                    "agents": { "type": "array", "items": { "type": "string" } },
-                    "global": { "type": "boolean", "default": false }
+                    "agents": { "type": "array", "items": { "type": "string" }, "description": "Restrict to these agent ids" },
+                    "global": { "type": "boolean", "default": false, "description": "Inspect the home skills dirs instead of the project" }
                 }
             }),
             output_data: install_output_schema(),
@@ -758,37 +761,38 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             destructive: false,
         },
         CommandSpec {
-            name: "construct skill remove".to_owned(),
+            name: "construct skill delete".to_owned(),
             noun: "skill".to_owned(),
-            verb: "remove".to_owned(),
-            description: "Remove installed skills from one or more agents".to_owned(),
+            verb: "delete".to_owned(),
+            description: "Delete installed skills from one or more agents (needs --yes off a terminal)".to_owned(),
             parameters: json!({
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
-                    "skills": { "type": "array", "items": { "type": "string" } },
-                    "agents": { "type": "array", "items": { "type": "string" } },
-                    "global": { "type": "boolean", "default": false },
-                    "all": { "type": "boolean", "default": false }
+                    "skills": { "type": "array", "items": { "type": "string" }, "description": "Installed skill names to delete (one directory entry each, never a path)" },
+                    "agents": { "type": "array", "items": { "type": "string" }, "description": "Agent ids to delete from" },
+                    "global": { "type": "boolean", "default": false, "description": "Operate on the home skills dirs instead of the project" },
+                    "all": { "type": "boolean", "default": false, "description": "Required to delete across all agents when no skills or agents are given" }
                 }
             }),
             output_data: install_output_schema(),
             exit_codes: pairs(&[
-                ("0", "SUCCESS — removed (or planned under --dry-run)"),
+                ("0", "SUCCESS — deleted (or planned under --dry-run); a missing skill is not an error"),
+                ("1", "DECLINED — the operator answered no at the confirmation prompt"),
                 (
                     "2",
-                    "MISSING_ARGUMENT — refused to remove everything without a selection",
+                    "MISSING_ARGUMENT / INVALID_ARGUMENT — no selection, no --yes off a terminal, or a skill name that is a path",
                 ),
                 ("3", "NOT_FOUND — unknown agent"),
             ]),
             examples: pairs(&[
                 (
-                    "construct skill remove --skills foo --agents cursor",
-                    "Remove one skill from one agent",
+                    "construct skill delete --skills foo --agents cursor --yes",
+                    "Delete one skill from one agent",
                 ),
                 (
-                    "construct skill remove --all --global --dry-run",
-                    "Preview removing all globally installed skills",
+                    "construct skill delete --all --global --dry-run --json",
+                    "Preview deleting every globally installed skill",
                 ),
             ]),
             supports_json: true,
@@ -806,12 +810,13 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
-                    "source": { "type": "string" },
-                    "agents": { "type": "array", "items": { "type": "string" } },
-                    "skills": { "type": "array", "items": { "type": "string" } },
-                    "global": { "type": "boolean", "default": false },
-                    "copy": { "type": "boolean", "default": false },
-                    "all": { "type": "boolean", "default": false }
+                    "source": { "type": "string", "description": "Catalogue source path (default: the local Construct clone)" },
+                    "agents": { "type": "array", "items": { "type": "string" }, "description": "Agent ids to refresh (default: detected-installed)" },
+                    "skills": { "type": "array", "items": { "type": "string" }, "description": "Skills to refresh (default: all in source)" },
+                    "global": { "type": "boolean", "default": false, "description": "Refresh each agent's home skills dir" },
+                    "copy": { "type": "boolean", "default": false, "description": "Copy instead of symlink" },
+                    "all": { "type": "boolean", "default": false, "description": "Target every known agent" },
+                    "refresh": { "type": "boolean", "default": false, "description": "Re-clone a cached remote source before installing" }
                 }
             }),
             output_data: install_output_schema(),
@@ -891,13 +896,21 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             exit_codes: pairs(&[
                 ("0", "SUCCESS"),
                 (
+                    "2",
+                    "INVALID_ARGUMENT — a provider --format given to a command other than schema",
+                ),
+                (
                     "3",
                     "NOT_FOUND — no command matches the requested noun/verb",
                 ),
             ]),
             examples: pairs(&[
                 ("construct schema", "Full tool schema"),
-                ("construct schema skill sync", "Schema for one command"),
+                ("construct schema skill sync --json", "Schema for one command"),
+                (
+                    "construct schema skill list --format openai",
+                    "One command as an OpenAI strict function tool",
+                ),
             ]),
             supports_json: true,
             supports_dry_run: false,
@@ -930,6 +943,44 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                 ("construct describe --json", "Same, machine-readable"),
             ]),
             supports_json: true,
+            supports_dry_run: false,
+            idempotent: true,
+            destructive: false,
+        },
+        CommandSpec {
+            name: "construct mcp".to_owned(),
+            noun: String::new(),
+            verb: "mcp".to_owned(),
+            description: "Serve every command as an MCP tool over stdio, with lazily loaded schemas"
+                .to_owned(),
+            parameters: json!({
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "transport": {
+                        "type": "string",
+                        "enum": ["stdio"],
+                        "default": "stdio",
+                        "description": "MCP transport; stdio (newline-delimited JSON-RPC) is the only one"
+                    }
+                }
+            }),
+            output_data: json!({
+                "type": "object",
+                "description": "None: stdout carries JSON-RPC 2.0 frames, one per line, until stdin closes"
+            }),
+            exit_codes: pairs(&[
+                ("0", "SUCCESS — stdin closed and the server shut down"),
+                ("2", "INVALID_ARGUMENT — unknown transport"),
+            ]),
+            examples: pairs(&[
+                ("construct mcp", "Serve over stdio (what an MCP client launches)"),
+                (
+                    "construct schema --format mcp --json",
+                    "The tool set the server advertises, with full input schemas",
+                ),
+            ]),
+            supports_json: false,
             supports_dry_run: false,
             idempotent: true,
             destructive: false,
@@ -974,6 +1025,92 @@ mod tests {
             assert!(
                 manifest.contains(leaf),
                 "clap command '{leaf}' has no matching manifest entry"
+            );
+        }
+    }
+
+    /// The leaf clap command for a manifest path such as `construct skill add`.
+    fn leaf<'a>(root: &'a clap::Command, path: &str) -> &'a clap::Command {
+        path.split(' ').skip(1).fold(root, |cmd, name| {
+            cmd.find_subcommand(name)
+                .unwrap_or_else(|| panic!("no clap command for '{path}'"))
+        })
+    }
+
+    /// Schema-introspection §5: a manifest parameter is a real flag or
+    /// positional of its command (keyed by long name with `_` for `-`, or by
+    /// positional id), and every visible command-local argument is documented.
+    /// `construct mcp` builds argv from these keys, so drift here would turn
+    /// into usage errors on `tools/call`.
+    #[test]
+    fn manifest_parameters_match_clap_args() {
+        let root = crate::cli::command();
+        for spec in commands() {
+            let cmd = leaf(&root, &spec.name);
+            let local: Vec<&clap::Arg> = cmd
+                .get_arguments()
+                .filter(|a| !a.is_global_set() && a.get_id() != "help" && a.get_id() != "version")
+                .collect();
+            let props = spec.parameters["properties"]
+                .as_object()
+                .unwrap_or_else(|| panic!("{}: parameters lack properties", spec.name));
+            for key in props.keys() {
+                assert!(
+                    local
+                        .iter()
+                        .any(|a| crate::commands::mcp::arg_key(a) == *key),
+                    "{}: manifest parameter '{key}' is not a clap argument",
+                    spec.name
+                );
+            }
+            for arg in local.iter().filter(|a| !a.is_hide_set()) {
+                let key = crate::commands::mcp::arg_key(arg);
+                assert!(
+                    props.contains_key(&key),
+                    "{}: clap argument '{key}' is missing from the manifest",
+                    spec.name
+                );
+            }
+        }
+    }
+
+    /// CLI Standard §3 and schema-introspection §1: at least two examples per
+    /// command, one of them `--json`, in both the manifest and `--help`.
+    #[test]
+    fn every_command_has_two_examples_one_json() {
+        let root = crate::cli::command();
+        for spec in commands() {
+            assert!(
+                spec.examples.len() >= 2,
+                "{}: fewer than two examples",
+                spec.name
+            );
+            assert!(
+                spec.examples.iter().any(|(c, _)| c.contains("--json")),
+                "{}: no --json example in the manifest",
+                spec.name
+            );
+            let help = leaf(&root, &spec.name)
+                .get_after_help()
+                .map(ToString::to_string)
+                .unwrap_or_default();
+            let examples = help
+                .split_once("Examples:")
+                .map(|(_, e)| e)
+                .unwrap_or_default();
+            let lines: Vec<&str> = examples
+                .lines()
+                .filter(|l| l.trim_start().starts_with("construct "))
+                .collect();
+            assert!(
+                lines.len() >= 2,
+                "{}: fewer than two --help examples",
+                spec.name
+            );
+            assert!(
+                lines.iter().any(|l| l.contains("--json")),
+                "{}: no --json example in --help",
+                spec.name
             );
         }
     }

@@ -3,7 +3,7 @@
 
 //! Black-box tests for the imperative installer: project-local symlinking,
 //! `--dry-run` safety, the Home-Manager collision refusal, and an
-//! add → list → remove roundtrip. All run against throwaway temp directories.
+//! add → list → delete roundtrip, with the destructive `--yes` gate. All run against throwaway temp directories.
 
 use std::fs;
 
@@ -170,13 +170,59 @@ fn add_list_remove_roundtrip() {
     assert!(items.iter().any(|i| i["skill"] == "alpha"));
     assert!(items.iter().any(|i| i["skill"] == "beta"));
 
-    bin()
+    // Off a terminal, a destructive delete without --yes is refused with the
+    // exact command to re-run — and nothing is touched. `remove` is the
+    // retained alias of `delete`.
+    let refused = bin()
         .current_dir(proj.path())
         .args([
             "skill", "remove", "--skills", "alpha", "--agents", "cursor", "--json",
         ])
         .assert()
+        .code(2)
+        .get_output()
+        .stderr
+        .clone();
+    let err: Value = serde_json::from_slice(&refused).expect("structured error");
+    assert_eq!(err["error"]["code"], "MISSING_ARGUMENT");
+    assert!(err["error"]["hint"]
+        .as_str()
+        .is_some_and(|h| h.starts_with("construct skill remove") && h.ends_with(" --yes")));
+    assert!(proj.path().join(".agents/skills/alpha").exists());
+
+    bin()
+        .current_dir(proj.path())
+        .args([
+            "skill", "delete", "--skills", "alpha", "--agents", "cursor", "--yes", "--json",
+        ])
+        .assert()
         .success();
     assert!(!proj.path().join(".agents/skills/alpha").exists());
     assert!(proj.path().join(".agents/skills/beta").exists());
+
+    // Deleting what is already gone is a no-op success (idempotent retries).
+    bin()
+        .current_dir(proj.path())
+        .args([
+            "skill", "delete", "--skills", "alpha", "--agents", "cursor", "--json",
+        ])
+        .assert()
+        .success();
+}
+
+#[test]
+fn delete_refuses_a_skill_name_that_is_a_path() {
+    let proj = make_project();
+    let victim = proj.path().join("keep");
+    fs::create_dir_all(&victim).expect("mkdir victim");
+    for name in ["../../keep", "/etc", ".."] {
+        bin()
+            .current_dir(proj.path())
+            .args([
+                "skill", "delete", "--skills", name, "--agents", "cursor", "--yes", "--json",
+            ])
+            .assert()
+            .code(2);
+    }
+    assert!(victim.exists());
 }

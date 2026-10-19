@@ -39,9 +39,6 @@ mod tui;
 
 use std::panic::AssertUnwindSafe;
 
-use clap::Parser as _;
-
-use crate::cli::Cli;
 use crate::context::Context;
 use crate::output::error::AppError;
 
@@ -57,7 +54,27 @@ fn main() {
 /// All panics in command handlers are caught here and reported as a structured
 /// `INTERNAL_ERROR` so an agent never sees a bare Rust panic on a broken pipe.
 fn real_main() -> i32 {
-    let cli = match Cli::try_parse() {
+    // Agent threat model: an argument carrying a control character is refused
+    // before clap or any handler sees it (validation-safety §2).
+    let raw: Vec<std::ffi::OsString> = std::env::args_os().skip(1).collect();
+    if let Some((position, byte)) = cli::find_control_char(&raw) {
+        let args: Vec<String> = raw
+            .iter()
+            .map(|a| a.to_string_lossy().into_owned())
+            .collect();
+        let err = AppError::usage_early(
+            &format!("argument {position} contains control character 0x{byte:02X}"),
+            &cli::help_hint(&args),
+        );
+        let mode = if output::mode::is_machine_requested(&args) {
+            output::mode::OutputMode::Json
+        } else {
+            output::mode::OutputMode::HumanNoColor
+        };
+        return output::error::report(&err, mode);
+    }
+
+    let cli = match cli::parse() {
         Ok(cli) => cli,
         Err(err) => return cli::handle_parse_error(&err),
     };

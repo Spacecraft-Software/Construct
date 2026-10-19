@@ -43,7 +43,8 @@ so run it locally before adding a dependency (Standard §3.3).
     gated by `Context::severity_floor` (`--quiet` → errors only, agent env →
     `warn`+, default → `ok`+, `--verbose` → `info`+). See the CLI Standard's
     `references/diagnostics.md`.
-  - `render.rs` — json / jsonl / yaml / csv / human renderers; `--fields`.
+  - `render.rs` — json / jsonl / yaml / csv / human renderers; `--fields`;
+    the machine-mode `--version` envelope; `write_frame` for `construct mcp`.
   - `progress.rs` — progress bars and static step lines for long operations, **stderr
     only**, enabled only in human mode with a TTY stderr, no `--quiet`, and
     `TERM` ≠ `dumb` (resolved once into `Context::progress`); otherwise every
@@ -55,7 +56,15 @@ so run it locally before adding a dependency (Standard §3.3).
     first — never write stderr around it.
   - `theme.rs` — the `steelbore` theme: the eleven Steelbore 2 role tokens of
     Standard §11.1 (no inline hex).
-- `src/commands/` — one handler per command.
+- `src/commands/` — one handler per command. `commands/mcp.rs` is the stdio
+  MCP server: tool definitions come from `manifest.rs`, arguments map onto the
+  clap argument with the same key (`mcp::arg_key`), and each `tools/call` runs
+  this binary as a child with `--json` (in-process dispatch would write a
+  handler's stdout into the frame stream). `commands/schema.rs` also renders
+  the `--format anthropic|openai|gemini|mcp` provider shapes, which every other
+  command refuses.
+- `cli::command()` — the clap tree with the project footer appended to every
+  command's help; parse and introspect through it, never `Cli::command()`.
 - `catalogue.rs` — root-skill discovery and `EXCLUDED_DIRS`, the one exclusion
   set for `skill build` and `skill ship` (pinned by a unit test to
   `.github/check-skill-frontmatter.py`'s `NOT_ROOT_SKILLS` and `flake.nix`'s
@@ -93,9 +102,20 @@ so run it locally before adding a dependency (Standard §3.3).
 - Printing to stdout happens ONLY in `src/output/`. No `println!` elsewhere.
 - Data commands return `CommandOutput`; `main` renders it. Handlers never call
   `std::process::exit` — `main` owns the exit code.
-- All timestamps go through `time::now_iso8601()` → ISO 8601 UTC with `Z`. Never
-  local time, never `chrono::Local` / `NaiveDateTime`.
-- Errors are `AppError` whose `hint` is a RUNNABLE command, not prose.
+- All timestamps go through `time::now_iso8601()` → `YYYY-MM-DDTHH:MM:SSZ`
+  (ISO 8601 UTC, whole seconds). Never local time, never sub-second, never
+  `chrono::Local` / `NaiveDateTime`.
+- Errors are `AppError` whose `hint` is a RUNNABLE command, not prose. A usage
+  error's hint is the `--help` of the deepest command the line named
+  (`cli::help_hint`).
+- Arguments with a C0 control character (0x00–0x08, 0x0B–0x0C, 0x0E–0x1F) are
+  refused in `main` before clap runs. An argument that becomes a path component
+  (`skill init NAME`, `skill delete --skills`) is validated as one component
+  first.
+- `skill delete` asks on a human terminal (default no) and otherwise needs
+  `--yes`; the refusal is `MISSING_ARGUMENT` with the re-run as its hint.
+  `install::remove` plans first and calls its `confirm` callback with the real
+  count before deleting anything.
 - Progress never reaches stdout and is silent off a human TTY. A countable
   in-process loop uses the animated `output::progress::Progress::bar`, never a
   bare write. Every subprocess wait uses `progress::{step, step_command}`:
@@ -134,6 +154,12 @@ so run it locally before adding a dependency (Standard §3.3).
 - `chrono::Local`, naive/offset timestamps in any output.
 - Hand-rolled argument parsing — use clap.
 - Adding a command without a matching `manifest.rs` entry (the sync test fails).
+- A manifest parameter that is not a clap argument of that command, or a
+  visible clap argument missing from the manifest
+  (`manifest_parameters_match_clap_args` fails) — `construct mcp` builds argv
+  from those keys.
+- A command with fewer than two examples, or none using `--json`, in either
+  its `--help` or its manifest entry.
 
 ## Adding a command
 

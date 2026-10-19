@@ -241,15 +241,18 @@ cargo fmt --check
 ```
 
 Currently implemented (`construct --help` / `construct describe` are the
-authority): the imperative installer `construct skill add | list | remove |
-update | find | use` across the agent registry (`construct agent list`), from a
+authority): the imperative installer `construct skill add | list | delete |
+update | find | use` (`delete` is the Standard verb; `remove` / `rm` stay as
+aliases, and off a terminal it needs `--yes`) across the agent registry (`construct agent list`), from a
 local path, git URL, or `owner/repo` source; `construct skill init`;
 `construct skill sync` (runs `nix flake update construct` in a consumer flake,
 default `/spacecraft-software/bravais`); `construct skill status` / `skill
 reset` (the live skill tree against the flake pin); `construct skill ship`;
 `construct skill build`; `construct skill vendor`; `construct describe`;
-`construct schema`; and the `--format explore` TUI (also what a bare
-invocation on a terminal opens).
+`construct schema` (plus `--format anthropic|openai|gemini|mcp` for LLM tool
+definitions); `construct mcp` (every command as an MCP tool over stdio,
+lazy schemas); and the `--format explore` TUI (also what a bare invocation on a
+terminal opens).
 
 `construct skill ship` implements the branch+PR workflow above end-to-end:
 it enforces bundle-drift and the §5.6 description gate (the 1000-character

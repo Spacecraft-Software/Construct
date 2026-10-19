@@ -41,6 +41,20 @@ pub(crate) fn emit_raw_json(ctx: &Context, value: &Value) {
     }
 }
 
+/// Print the machine-mode `--version` envelope (CLI Standard §3).
+pub(crate) fn emit_version_json() {
+    print_json_doc(
+        &envelope::version_document(),
+        std::io::stdout().is_terminal(),
+    );
+}
+
+/// Write one MCP JSON-RPC frame: compact, one line, flushed (CLI Standard
+/// `mcp-surface.md` §6 — stdout carries frames and nothing else).
+pub(crate) fn write_frame(frame: &Value) {
+    print_json_doc(frame, false);
+}
+
 // ── machine modes ───────────────────────────────────────────────────────────
 
 fn emit_json(ctx: &Context, data: &Value) {
