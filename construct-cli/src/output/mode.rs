@@ -62,6 +62,10 @@ pub(crate) fn resolve(g: &GlobalArgs) -> (OutputMode, Option<&'static str>) {
             FormatArg::Yaml => (OutputMode::Yaml, None),
             FormatArg::Csv => (OutputMode::Csv, None),
             FormatArg::Explore => resolve_explore(),
+            // `schema`'s provider shapes are JSON documents.
+            FormatArg::Anthropic | FormatArg::OpenAi | FormatArg::Gemini | FormatArg::Mcp => {
+                (OutputMode::Json, None)
+            }
         };
     }
 
@@ -124,10 +128,26 @@ fn is_dumb_term() -> bool {
     std::env::var("TERM").as_deref() == Ok("dumb")
 }
 
-/// Early machine-mode probe used before argument parsing succeeds, so clap usage
-/// errors can still be reported as structured JSON for agents and pipelines.
-pub(crate) fn is_machine_early() -> bool {
-    is_agent_env() || is_ci() || !std::io::stdout().is_terminal()
+/// Early machine-mode probe used before argument parsing succeeds (usage
+/// errors, `--version`), following the same cascade as [`resolve`]: an
+/// explicit `--json` / `--format <fmt>` in `args` decides first, then the
+/// agent / CI environment, then whether stdout is a terminal.
+pub(crate) fn is_machine_requested(args: &[String]) -> bool {
+    let mut explicit = None;
+    let mut iter = args.iter();
+    while let Some(arg) = iter.next() {
+        if arg == "--" {
+            break;
+        }
+        if arg == "--json" {
+            explicit = Some(true);
+        } else if let Some(fmt) = arg.strip_prefix("--format=") {
+            explicit = Some(fmt != "explore");
+        } else if arg == "--format" {
+            explicit = iter.next().map(|fmt| fmt != "explore");
+        }
+    }
+    explicit.unwrap_or_else(|| is_agent_env() || is_ci() || !std::io::stdout().is_terminal())
 }
 
 /// The color-precedence chain (CLI Standard §6). First match wins.

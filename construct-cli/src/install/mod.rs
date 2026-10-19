@@ -17,7 +17,7 @@ pub(crate) mod plan;
 
 use std::io;
 use std::os::unix::fs::symlink as unix_symlink;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use serde::Serialize;
 
@@ -286,15 +286,24 @@ pub(crate) fn list_installed(
 
 // ── remove ──────────────────────────────────────────────────────────────────
 
-/// Remove installed skills from the selected agents.
-pub(crate) fn remove(ctx: &Context, opts: &RemoveOptions) -> Result<InstallReport, AppError> {
+/// Delete installed skills from the selected agents.
+///
+/// Plans first, then hands the number of entries that would be deleted to
+/// `confirm` before touching anything, so the caller can ask (or refuse) with
+/// the real count. `confirm` is not consulted under `--dry-run` or when the
+/// plan is empty.
+pub(crate) fn remove(
+    ctx: &Context,
+    opts: &RemoveOptions,
+    confirm: impl FnOnce(usize) -> Result<(), AppError>,
+) -> Result<InstallReport, AppError> {
     if opts.skills.is_empty() && opts.agents.is_empty() && !opts.all_agents {
         return Err(AppError::new(
             ctx,
             ErrorCode::MissingArgument,
             2,
-            "refusing to remove everything without an explicit selection",
-            "construct skill remove --skills <name>   # or --agents <id>, or --all",
+            "refusing to delete everything without an explicit selection",
+            "construct skill delete --skills <name>   # or --agents <id>, or --all",
         ));
     }
 
@@ -306,7 +315,8 @@ pub(crate) fn remove(ctx: &Context, opts: &RemoveOptions) -> Result<InstallRepor
     };
     let root = plan::project_root();
 
-    let mut items = Vec::new();
+    // (item, path) — `path` is `Some` only for an entry that exists.
+    let mut planned: Vec<(ItemResult, Option<PathBuf>)> = Vec::new();
     for agent in &agents {
         let Some(base) = plan::base_dir(agent, opts.scope, &root) else {
             continue;
@@ -325,34 +335,38 @@ pub(crate) fn remove(ctx: &Context, opts: &RemoveOptions) -> Result<InstallRepor
         };
         for skill in targets {
             let target = base.join(&skill);
-            if detect::classify(&target) == detect::TargetState::Free {
-                if !opts.skills.is_empty() {
-                    items.push(ItemResult {
-                        agent: agent.id.clone(),
-                        skill,
-                        scope: opts.scope.label(),
-                        target: target.display().to_string(),
-                        action: "not_found",
-                        detail: None,
-                    });
-                }
+            let present = detect::classify(&target) != detect::TargetState::Free;
+            if !present && opts.skills.is_empty() {
                 continue;
             }
-            let action = if ctx.dry_run {
-                "planned_remove"
-            } else {
-                remove_path(&target).map_err(|e| io_error(ctx, &target, &e))?;
-                "removed"
-            };
-            items.push(ItemResult {
+            let item = ItemResult {
                 agent: agent.id.clone(),
                 skill,
                 scope: opts.scope.label(),
                 target: target.display().to_string(),
-                action,
+                action: if present {
+                    "planned_remove"
+                } else {
+                    "not_found"
+                },
                 detail: None,
-            });
+            };
+            planned.push((item, present.then_some(target)));
         }
+    }
+
+    let count = planned.iter().filter(|(_, path)| path.is_some()).count();
+    if !ctx.dry_run && count > 0 {
+        confirm(count)?;
+    }
+
+    let mut items = Vec::with_capacity(planned.len());
+    for (mut item, path) in planned {
+        if let (Some(target), false) = (path, ctx.dry_run) {
+            remove_path(&target).map_err(|e| io_error(ctx, &target, &e))?;
+            item.action = "removed";
+        }
+        items.push(item);
     }
 
     Ok(InstallReport {

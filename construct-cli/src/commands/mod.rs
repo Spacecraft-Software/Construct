@@ -12,6 +12,7 @@ pub(crate) mod agent;
 pub(crate) mod build;
 pub(crate) mod describe;
 pub(crate) mod explore;
+pub(crate) mod mcp;
 pub(crate) mod pointer;
 pub(crate) mod schema;
 pub(crate) mod ship;
@@ -39,11 +40,35 @@ pub(crate) fn shell_quote(arg: &str) -> String {
     }
 }
 
+/// The current invocation, shell-quoted so it can be pasted back, with
+/// `flag` appended — the runnable hint for an error a single flag resolves.
+pub(crate) fn rerun_with(flag: &str) -> String {
+    let mut parts = vec!["construct".to_owned()];
+    parts.extend(
+        std::env::args_os()
+            .skip(1)
+            .map(|a| shell_quote(&a.to_string_lossy())),
+    );
+    parts.push(flag.to_owned());
+    parts.join(" ")
+}
+
 /// Route the parsed command to its handler.
 ///
 /// `Ok(Some(output))` is rendered by the caller; `Ok(None)` means the handler
 /// already emitted its own output (help, schema, describe).
 pub(crate) fn dispatch(cli: &Cli, ctx: &Context) -> Result<Option<CommandOutput>, AppError> {
+    // The provider shapes are `schema`'s alone; anywhere else they would
+    // silently mean `--format json`.
+    if let Some((_, name)) = ctx.schema_provider {
+        if !matches!(cli.command, Some(Command::Schema { .. })) {
+            return Err(AppError::invalid_argument(
+                ctx,
+                format!("--format {name} applies only to `construct schema`"),
+                format!("construct schema --format {name}"),
+            ));
+        }
+    }
     // `--format explore` launches the interactive TUI regardless of sub-command.
     if ctx.mode == OutputMode::Explore {
         return explore::run(ctx);
@@ -52,7 +77,7 @@ pub(crate) fn dispatch(cli: &Cli, ctx: &Context) -> Result<Option<CommandOutput>
         Some(Command::Skill { verb }) => match verb {
             SkillCommand::Add(args) => skill::add(ctx, args).map(Some),
             SkillCommand::List(args) => skill::list(ctx, args).map(Some),
-            SkillCommand::Remove(args) => skill::remove(ctx, args).map(Some),
+            SkillCommand::Delete(args) => skill::delete(ctx, args).map(Some),
             SkillCommand::Update(args) => skill::update(ctx, args).map(Some),
             SkillCommand::Find(args) => skill::find(ctx, args).map(Some),
             SkillCommand::Use(args) => skill::use_prompt(ctx, args).map(Some),
@@ -69,6 +94,10 @@ pub(crate) fn dispatch(cli: &Cli, ctx: &Context) -> Result<Option<CommandOutput>
         },
         Some(Command::Schema { noun, verb }) => {
             schema::run(ctx, noun.as_deref(), verb.as_deref())?;
+            Ok(None)
+        }
+        Some(Command::Mcp(args)) => {
+            mcp::run(ctx, args);
             Ok(None)
         }
         Some(Command::Describe { noun, verb }) => {

@@ -19,8 +19,10 @@ and `construct describe` are the authority:
 - **CLI skeleton** conforming to the Spacecraft Software Dual-Mode
   Self-Documenting CLI Standard — global flags, output-mode cascade,
   `{ metadata, data }` JSON envelope, structured errors, canonical exit codes,
-  `construct schema` / `construct describe`.
-- **Imperative installer** — `skill add | list | remove | update | find | use`
+  `construct schema` / `construct describe`, LLM tool definitions
+  (`construct schema --format openai|gemini|anthropic|mcp`), and an MCP server
+  (`construct mcp`, stdio, lazy schemas).
+- **Imperative installer** — `skill add | list | delete | update | find | use`
   across the agent registry (`construct agent list`), from a local path, git
   URL, or `owner/repo` source; `skill init` scaffolds a new skill.
 - **Flake loop** — `skill sync` (flake-update only), `skill status` /
@@ -41,6 +43,9 @@ construct skill build --target claude,grok --dry-run   # gate + encode in memory
 construct skill vendor spacecraft-rust-guidelines --into ../repo   # .claude/skills/ for Claude Code cloud sessions; never commits
 construct describe                   # capability manifest for agents
 construct schema skill sync          # JSON Schema (Draft 2020-12) for one command
+construct schema --format openai     # every command as an OpenAI strict function tool
+construct skill delete --skills foo --agents cursor --yes   # destructive: --yes needed off a terminal
+construct mcp                        # MCP server over stdio (names first, tools/get for schemas)
 ```
 
 ## Distribution targets

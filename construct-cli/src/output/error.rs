@@ -35,6 +35,8 @@ pub(crate) enum ErrorCode {
     DependencyMissing,
     InternalError,
     FeatureUnavailable,
+    /// Tool-specific: the operator answered "no" at a confirmation prompt.
+    Declined,
 }
 
 /// A structured, agent-actionable error.
@@ -135,19 +137,16 @@ impl AppError {
     }
 
     /// A usage error raised before a full [`Context`] exists (clap parse
-    /// failure). Reconstructs `command` from the raw arguments.
-    pub(crate) fn usage_early(message: &str) -> Self {
-        let mut args: Vec<String> = std::env::args().collect();
-        if let Some(first) = args.first_mut() {
-            "construct".clone_into(first);
-        }
+    /// failure, a control character in an argument). Reconstructs `command`
+    /// from the raw arguments.
+    pub(crate) fn usage_early(message: &str, hint: &str) -> Self {
         Self {
             code: ErrorCode::InvalidArgument,
             exit_code: 2,
             message: message.to_owned(),
-            hint: "construct --help".to_owned(),
+            hint: hint.to_owned(),
             timestamp: crate::time::now_iso8601(),
-            command: args.join(" "),
+            command: early_command(),
             docs_url: None,
             extensions: Map::new(),
         }
@@ -200,6 +199,18 @@ impl AppError {
             let _ = stderr.write_all(text.as_bytes());
         });
     }
+}
+
+/// The invocation as typed, with the binary path normalized to `construct`,
+/// for output produced before a [`Context`] exists.
+pub(crate) fn early_command() -> String {
+    let mut args: Vec<String> = std::env::args_os()
+        .map(|a| a.to_string_lossy().into_owned())
+        .collect();
+    if let Some(first) = args.first_mut() {
+        "construct".clone_into(first);
+    }
+    args.join(" ")
 }
 
 /// Emit an error in the form appropriate to the output mode and return its exit

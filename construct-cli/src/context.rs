@@ -39,6 +39,8 @@ pub(crate) struct Context {
     pub(crate) print0: bool,
     /// `--yes` / `--force`: assume yes for confirmations.
     pub(crate) yes: bool,
+    /// `--format anthropic|openai|gemini|mcp`: a `schema`-only provider shape.
+    pub(crate) schema_provider: Option<(crate::cli::SchemaProvider, &'static str)>,
     /// `--absolute-time`: render absolute timestamps in human mode.
     pub(crate) absolute_time: bool,
     /// The minimum severity emitted to stderr (diagnostics.md §4), resolved
@@ -108,6 +110,10 @@ impl Context {
             fields: g.fields.clone(),
             print0: g.print0,
             yes: g.yes,
+            schema_provider: g
+                .format
+                .filter(|_| !g.json)
+                .and_then(|f| f.provider().map(|p| (p, f.name()))),
             absolute_time: g.absolute_time,
             severity_floor: resolve_floor(g.quiet, g.verbose, mode::is_agent_env()),
             tui_fallback,
@@ -163,11 +169,7 @@ fn resolve_accessible(flag: Option<bool>, env: Option<&str>) -> (bool, A11ySourc
 /// The full command line with `argv[0]` normalized to the canonical binary name
 /// so the recorded command is stable regardless of how the binary was invoked.
 fn invocation_string() -> String {
-    let mut args: Vec<String> = std::env::args().collect();
-    if let Some(first) = args.first_mut() {
-        "construct".clone_into(first);
-    }
-    args.join(" ")
+    crate::output::error::early_command()
 }
 
 #[cfg(test)]

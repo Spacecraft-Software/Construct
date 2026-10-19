@@ -191,9 +191,35 @@ pub(crate) fn emit_tui_fallback(ctx: &Context, reason: &'static str) {
         "TUI_FALLBACK",
         "interactive explore mode unavailable; falling back to `--format json`",
     )
-    .with_hint("construct skill find --json")
+    .with_hint(fallback_hint(
+        std::env::args_os()
+            .skip(1)
+            .map(|a| a.to_string_lossy().into_owned()),
+    ))
     .with_extension("reason", Value::String(reason.to_owned()))
     .emit(ctx);
+}
+
+/// The invocation that ran instead of the TUI: the same command with
+/// `--format explore` swapped for `--json`. A bare `--format explore` opened
+/// the skill browser, whose non-interactive equivalent is `skill find`.
+fn fallback_hint(args: impl Iterator<Item = String>) -> String {
+    let mut kept = Vec::new();
+    let mut args = args.peekable();
+    while let Some(arg) = args.next() {
+        if arg == "--format=explore" {
+            continue;
+        }
+        if arg == "--format" && args.peek().is_some_and(|v| v == "explore") {
+            args.next();
+            continue;
+        }
+        kept.push(crate::commands::shell_quote(&arg));
+    }
+    if kept.iter().all(|a| a.starts_with('-')) {
+        return "construct skill find --json".to_owned();
+    }
+    format!("construct {} --json", kept.join(" "))
 }
 
 /// Raw passthrough of subprocess progress output to stderr. This is
@@ -207,6 +233,22 @@ pub(crate) fn emit_passthrough(ctx: &Context, text: &str) {
     crate::output::progress::write_stderr(|stderr| {
         let _ = stderr.write_all(text.as_bytes());
     });
+}
+
+/// Ask a yes/no question on stderr and read the answer from stdin. Only
+/// `y` / `yes` (any case) is a yes; Enter, EOF, or a read error is a no
+/// (validation-safety §6: destructive prompts default to "no"). Callers
+/// decide whether a prompt is possible at all — this never checks for a TTY.
+pub(crate) fn confirm(question: &str) -> bool {
+    crate::output::progress::write_stderr(|stderr| {
+        let _ = write!(stderr, "{question} [y/N] ");
+        let _ = stderr.flush();
+    });
+    let mut answer = String::new();
+    if std::io::stdin().read_line(&mut answer).is_err() {
+        return false;
+    }
+    matches!(answer.trim().to_ascii_lowercase().as_str(), "y" | "yes")
 }
 
 #[cfg(test)]
@@ -259,6 +301,28 @@ mod tests {
         let text = sample(None).render_human(true);
         assert!(text.contains("[WARN]"), "tag must survive coloring: {text}");
         assert!(text.contains('\u{1b}'), "colored render carries ANSI");
+    }
+
+    #[test]
+    fn fallback_hint_reruns_the_same_command_as_json() {
+        let args = |a: &[&str]| {
+            a.iter()
+                .map(|s| (*s).to_owned())
+                .collect::<Vec<_>>()
+                .into_iter()
+        };
+        assert_eq!(
+            fallback_hint(args(&["--format", "explore", "agent", "list"])),
+            "construct agent list --json"
+        );
+        assert_eq!(
+            fallback_hint(args(&["skill", "find", "rust", "--format=explore"])),
+            "construct skill find rust --json"
+        );
+        assert_eq!(
+            fallback_hint(args(&["--format", "explore"])),
+            "construct skill find --json"
+        );
     }
 
     #[test]
