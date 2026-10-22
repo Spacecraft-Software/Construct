@@ -21,6 +21,7 @@ Current skills (authoritative list is `README.md §2`; run `ls -d spacecraft-*
 gnu-* microsoft-*` or check the README table if this drifts) span three
 groups: infra/tooling (`spacecraft-agentic-cli`, `spacecraft-brand-guidelines`,
 `spacecraft-cli-preference`, `spacecraft-cli-shell`, `spacecraft-cli-standard`,
+`spacecraft-coding-orchestrator`,
 `spacecraft-document-format`, `spacecraft-markdown-document`,
 `spacecraft-missing-pkg`, `spacecraft-steelbore-standard`,
 `spacecraft-texinfo-document`, `spacecraft-theme-factory`, `gnu-coding-standards`,
