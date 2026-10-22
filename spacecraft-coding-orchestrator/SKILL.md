@@ -93,29 +93,31 @@ when step 0.2 ruled them out.
 
 A delegate's "done" is a claim, not a result.
 
-**Before every delegate run,** record the baseline: `git status --porcelain`
-and `git diff HEAD --stat`, kept for the comparison below. The user may have
-uncommitted work of their own; it is not the delegate's, and it is never
-reverted. Where the tree is not clean and the task's files overlap the user's
-changes, run the delegate in its own worktree (§6) instead.
+**A delegate only ever writes into a clean tree.** Before each run,
+`git status --porcelain` must print nothing in the checkout it will use. If
+the user has uncommitted work, never stash, move or restore it: run the
+delegate in a separate worktree off `HEAD` (§6) instead, and bring the
+accepted result back as a commit or patch. A clean starting point is what
+makes the rollback below safe, since nothing in that tree belongs to anyone
+but the delegate.
 
 **After every delegate run:**
 
 1. `git status --porcelain` and `git diff HEAD --stat` (against `HEAD`, so
-   staged changes are seen too), compared with the baseline. A path that
-   changed or appeared since the baseline and is outside the brief's file list
-   is a rejection. Revert **only those paths**: `git restore --staged
-   --worktree --source=HEAD -- <path>` for a tracked file that was clean in the
-   baseline, removal for an untracked file that was absent from it. A path
-   that was already dirty in the baseline is never restored or deleted; if the
-   delegate touched it, stop and tell the user.
-2. Read the whole diff (`git diff HEAD`, plus every new untracked file). Reject on a wrong approach, a silenced test, a
-   disabled lint, a hard-coded value the repository's rules forbid, or code the
-   brief did not ask for.
+   staged changes are seen too). Any path outside the brief's file list is a
+   rejection: revert it with `git restore --staged --worktree --source=HEAD --
+   <path>`, or remove it if untracked. In a tree that was clean before the
+   run, every change is the delegate's, so this cannot touch the user's work.
+2. Read the whole diff (`git diff HEAD`, plus every new untracked file).
+   Reject on a wrong approach, a silenced test, a disabled lint, a hard-coded
+   value the repository's rules forbid, or code the brief did not ask for.
 3. Run the brief's check command **and** the repository's gates from step 0.3.
    A delegate saying it ran them is not evidence.
 4. Accept, re-brief, or fall back (§5). Record which delegate wrote what; the
    final report names it.
+5. On acceptance, Claude commits the task on the working branch before the
+   next delegate starts, so the next run begins from a clean tree again.
+   These commits may be squashed before the PR if the repository prefers.
 
 ## 5. Retries and fallbacks
 
@@ -133,11 +135,14 @@ changes, run the delegate in its own worktree (§6) instead.
 
 ## 6. Parallel delegates
 
-All delegates write into the same checkout. Run two at once only when their
-file lists do not overlap **and** neither task's check builds the other's
-files. Otherwise run them one after another, or give each its own git worktree
-(`git worktree add ../<repo>-<task> -b <task-branch>`) and merge the accepted
-branches yourself. Never let two delegates touch one file concurrently.
+Two delegates never share a checkout at the same time: each one's rollback
+would see the other's files as out of scope and undo them. To run delegates
+concurrently, give each its own clean worktree off `HEAD`
+(`git worktree add ../<repo>-<task> -b <task-branch>`), check and accept each
+result there, then merge the accepted branches yourself, one at a time,
+re-running the gates after each merge. Only tasks whose file lists do not
+overlap go in parallel; the rest run one after another. Remove each worktree
+(`git worktree remove`) once its branch is merged or dropped.
 
 ## 7. The review chain
 
