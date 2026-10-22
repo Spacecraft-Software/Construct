@@ -94,19 +94,25 @@ when step 0.2 ruled them out.
 A delegate's "done" is a claim, not a result.
 
 **A delegate only ever writes into a clean tree.** Before each run,
-`git status --porcelain` must print nothing in the checkout it will use. If
-the user has uncommitted work, never stash, move or restore it: run the
-delegate in a separate worktree off `HEAD` (§6) instead, and bring the
-accepted result back as a commit or patch. A clean starting point is what
+`git status --porcelain --untracked-files=all` must print nothing in the
+checkout it will use. If the user has uncommitted work, never stash, move or
+restore it: run the delegate in a separate worktree off `HEAD` (§6) instead,
+and bring the accepted result back as a commit or patch. A clean starting point is what
 makes the rollback below safe, since nothing in that tree belongs to anyone
 but the delegate.
 
+Git does not report ignored files (build output, caches, a local `.env`), so a
+clean status says nothing about them. The brief forbids touching them; where
+the checkout holds ignored files that matter, such as local secrets or
+configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
+
 **After every delegate run:**
 
-1. `git status --porcelain` and `git diff HEAD --stat` (against `HEAD`, so
-   staged changes are seen too). Any path outside the brief's file list is a
-   rejection: revert it with `git restore --staged --worktree --source=HEAD --
-   <path>`, or remove it if untracked. In a tree that was clean before the
+1. `git status --porcelain --untracked-files=all` and `git diff HEAD --stat`
+   (against `HEAD`, so staged changes are seen too). Any path outside the
+   brief's file list is a rejection: revert it with
+   `git restore --staged --worktree --source=HEAD -- <path>`, or remove it if
+   untracked. In a tree that was clean before the
    run, every change is the delegate's, so this cannot touch the user's work.
 2. Read the whole diff (`git diff HEAD`, plus every new untracked file).
    Reject on a wrong approach, a silenced test, a disabled lint, a hard-coded

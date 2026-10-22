@@ -31,6 +31,7 @@ STANDING ORDERS
 - Do not add dependencies, change lockfiles or edit CI.
 - Do not disable, skip or weaken a test or a lint to make the check pass.
 - Do not edit any file outside FILES YOU MAY EDIT.
+- Do not read or edit files git ignores (`.env`, local config, build output).
 - If the task cannot be done as written, stop and report why instead of
   guessing; partial work is fine if you say what is missing.
 - End with: the files you changed, the CHECK output, and anything you were
