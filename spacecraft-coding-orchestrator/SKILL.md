@@ -99,9 +99,10 @@ checkout it will use. If the user has uncommitted work, never stash, move or
 restore it: run the delegate in a separate worktree off `HEAD` (§6) instead,
 and bring the accepted result back as a commit or patch. A clean starting point is what
 makes the rollback below safe, since nothing in that tree belongs to anyone
-but the delegate. Record the starting commit too, `base=$(git rev-parse HEAD)`,
-so a delegate that commits against orders cannot hide its work behind a
-moved `HEAD`.
+but the delegate. Record where the run starts, too:
+`branch=$(git symbolic-ref -q --short HEAD || echo DETACHED)` and
+`base=$(git rev-parse HEAD)`, so a delegate that commits or switches branches
+against orders cannot hide its work behind a moved `HEAD`.
 
 Git does not report ignored files (build output, caches, a local `.env`), so a
 clean status says nothing about them. The brief forbids touching them; where
@@ -110,8 +111,11 @@ configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
 
 **After every delegate run:**
 
-1. If `git rev-parse HEAD` is no longer `$base`, the delegate committed
-   against orders. Undo the commit but keep its changes with
+1. If the branch (or detached state) is no longer `$branch`, the delegate
+   switched branches: reset nothing, since a reset would now move a branch the
+   task never owned. Stop, reject the run, and tell the user what changed.
+   Otherwise, if `git rev-parse HEAD` is no longer `$base`, the delegate
+   committed against orders. Undo the commit but keep its changes with
    `git reset --soft "$base"`, check them below like any other run, and name
    the breach in the report; if it also pushed, stop and tell the user.
 2. `git status --porcelain --untracked-files=all` and
@@ -124,7 +128,10 @@ configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
    Reject on a wrong approach, a silenced test, a disabled lint, a hard-coded
    value the repository's rules forbid, or code the brief did not ask for.
 4. Run the brief's check command **and** the repository's gates from step 0.3.
-   A delegate saying it ran them is not evidence.
+   A delegate saying it ran them is not evidence. A check that writes files
+   (a formatter, a code generator, a lockfile refresh) changes what you
+   reviewed: if status or the diff moved, repeat steps 2 and 3 on the result
+   before accepting.
 5. Accept, re-brief, or fall back (§5). Record which delegate wrote what; the
    final report names it.
 6. On acceptance, Claude commits the task on the working branch before the
