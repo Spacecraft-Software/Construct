@@ -115,9 +115,13 @@ configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
    switched branches: reset nothing, since a reset would now move a branch the
    task never owned. Stop, reject the run, and tell the user what changed.
    Otherwise, if `git rev-parse HEAD` is no longer `$base`, the delegate
-   committed against orders. Undo the commit but keep its changes with
+   moved `HEAD` against orders. Only when `$base` is an ancestor of the new
+   `HEAD` (`git merge-base --is-ancestor "$base" HEAD`), that is, the delegate
+   added commits on top of it, undo them but keep their changes with
    `git reset --soft "$base"`, check them below like any other run, and name
-   the breach in the report; if it also pushed, stop and tell the user.
+   the breach in the report. Any other movement (a reset, a checkout of
+   another commit while detached) gets no reset: stop, reject the run and
+   tell the user. If the delegate also pushed, stop and tell the user.
 2. `git status --porcelain --untracked-files=all` and
    `git diff "$base" --stat` (against the recorded commit, so staged changes
    are seen too). Any path outside the brief's file list is a rejection:
@@ -130,8 +134,8 @@ configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
 4. Run the brief's check command **and** the repository's gates from step 0.3.
    A delegate saying it ran them is not evidence. A check that writes files
    (a formatter, a code generator, a lockfile refresh) changes what you
-   reviewed: if status or the diff moved, repeat steps 2 and 3 on the result
-   before accepting.
+   reviewed: if status or the diff moved, repeat steps 2 to 4 on the result,
+   until a pass leaves both unchanged, before accepting.
 5. Accept, re-brief, or fall back (§5). Record which delegate wrote what; the
    final report names it.
 6. On acceptance, Claude commits the task on the working branch before the
