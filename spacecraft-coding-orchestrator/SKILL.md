@@ -91,13 +91,25 @@ when step 0.2 ruled them out.
 
 ## 4. Checking what comes back
 
-A delegate's "done" is a claim, not a result. After **every** delegate run:
+A delegate's "done" is a claim, not a result.
 
-1. `git status --porcelain` and `git diff --stat`: any path outside the
-   brief's file list is a rejection. Revert those paths
-   (`git restore -- <path>`, and remove untracked files the delegate created)
-   before going further.
-2. Read the whole diff. Reject on a wrong approach, a silenced test, a
+**Before every delegate run,** record the baseline: `git status --porcelain`
+and `git diff HEAD --stat`, kept for the comparison below. The user may have
+uncommitted work of their own; it is not the delegate's, and it is never
+reverted. Where the tree is not clean and the task's files overlap the user's
+changes, run the delegate in its own worktree (§6) instead.
+
+**After every delegate run:**
+
+1. `git status --porcelain` and `git diff HEAD --stat` (against `HEAD`, so
+   staged changes are seen too), compared with the baseline. A path that
+   changed or appeared since the baseline and is outside the brief's file list
+   is a rejection. Revert **only those paths**: `git restore --staged
+   --worktree --source=HEAD -- <path>` for a tracked file that was clean in the
+   baseline, removal for an untracked file that was absent from it. A path
+   that was already dirty in the baseline is never restored or deleted; if the
+   delegate touched it, stop and tell the user.
+2. Read the whole diff (`git diff HEAD`, plus every new untracked file). Reject on a wrong approach, a silenced test, a
    disabled lint, a hard-coded value the repository's rules forbid, or code the
    brief did not ask for.
 3. Run the brief's check command **and** the repository's gates from step 0.3.
@@ -133,9 +145,10 @@ Run once, on the finished change, in this order:
 
 1. **`oc-glm-review`** on every change (it diffs against `origin/main`; pass
    another base ref when the branch targets something else).
-2. **`oc-glm-security`** as well when the diff touches PAM, sudo or setuid,
+2. **`oc-glm-security`** as well when the diff is security-relevant,
+   including authentication, cryptography, PAM, sudo or setuid, permissions,
    systemd units, secrets, network services, downloads or fetchers, sandbox
-   settings, or `unsafe` Rust.
+   settings, or `unsafe` Rust. When in doubt, run it.
 3. Triage each finding: fix it (Claude, or a re-brief), or note why it does
    not apply. A review model is a second opinion, not the gate.
 4. **`coderabbit review --agent --base <base>`** once, after the GLM findings

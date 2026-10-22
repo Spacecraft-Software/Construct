@@ -27,7 +27,7 @@ CHECK
 <the exact command that proves the task, and what passing looks like>
 
 STANDING ORDERS
-- Do not commit, push, create branches or open pull requests.
+- Do not stage, commit, push, create branches or open pull requests.
 - Do not add dependencies, change lockfiles or edit CI.
 - Do not disable, skip or weaken a test or a lint to make the check pass.
 - Do not edit any file outside FILES YOU MAY EDIT.
