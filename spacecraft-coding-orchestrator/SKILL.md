@@ -99,7 +99,9 @@ checkout it will use. If the user has uncommitted work, never stash, move or
 restore it: run the delegate in a separate worktree off `HEAD` (§6) instead,
 and bring the accepted result back as a commit or patch. A clean starting point is what
 makes the rollback below safe, since nothing in that tree belongs to anyone
-but the delegate.
+but the delegate. Record the starting commit too, `base=$(git rev-parse HEAD)`,
+so a delegate that commits against orders cannot hide its work behind a
+moved `HEAD`.
 
 Git does not report ignored files (build output, caches, a local `.env`), so a
 clean status says nothing about them. The brief forbids touching them; where
@@ -108,20 +110,24 @@ configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
 
 **After every delegate run:**
 
-1. `git status --porcelain --untracked-files=all` and `git diff HEAD --stat`
-   (against `HEAD`, so staged changes are seen too). Any path outside the
-   brief's file list is a rejection: revert it with
-   `git restore --staged --worktree --source=HEAD -- <path>`, or remove it if
-   untracked. In a tree that was clean before the
-   run, every change is the delegate's, so this cannot touch the user's work.
-2. Read the whole diff (`git diff HEAD`, plus every new untracked file).
+1. If `git rev-parse HEAD` is no longer `$base`, the delegate committed
+   against orders. Undo the commit but keep its changes with
+   `git reset --soft "$base"`, check them below like any other run, and name
+   the breach in the report; if it also pushed, stop and tell the user.
+2. `git status --porcelain --untracked-files=all` and
+   `git diff "$base" --stat` (against the recorded commit, so staged changes
+   are seen too). Any path outside the brief's file list is a rejection:
+   revert it with `git restore --staged --worktree --source="$base" -- <path>`,
+   or remove it if untracked. In a tree that was clean before the run, every
+   change is the delegate's, so this cannot touch the user's work.
+3. Read the whole diff (`git diff "$base"`, plus every new untracked file).
    Reject on a wrong approach, a silenced test, a disabled lint, a hard-coded
    value the repository's rules forbid, or code the brief did not ask for.
-3. Run the brief's check command **and** the repository's gates from step 0.3.
+4. Run the brief's check command **and** the repository's gates from step 0.3.
    A delegate saying it ran them is not evidence.
-4. Accept, re-brief, or fall back (§5). Record which delegate wrote what; the
+5. Accept, re-brief, or fall back (§5). Record which delegate wrote what; the
    final report names it.
-5. On acceptance, Claude commits the task on the working branch before the
+6. On acceptance, Claude commits the task on the working branch before the
    next delegate starts, so the next run begins from a clean tree again.
    These commits may be squashed before the PR if the repository prefers.
 
