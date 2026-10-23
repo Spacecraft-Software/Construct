@@ -75,7 +75,11 @@ reviewer from another model family if the user allowed one.
 Only when the user asked for a Codex review on the PR. It needs the repository
 connected to Codex and code review turned on at
 <https://chatgpt.com/settings/code-review>; if no review appears, say so
-rather than retrying.
+rather than retrying. If the Codex connector answers with "create an
+environment for this repo" instead, the repository has no Codex cloud
+environment yet: tell the user to create one at
+<https://chatgpt.com/codex/cloud/settings/environments>, and do not post
+the comment again until they have.
 
 - After the PR is open, post one comment: `@codex review` (optionally followed
   by what to focus on). Codex reacts with 👀 and posts a review.
