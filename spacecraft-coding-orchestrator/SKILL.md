@@ -4,52 +4,70 @@ license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
 description: >
-  Makes Claude Code the planner and reviewer while OpenCode Go models write the
-  code through the oc-* delegate subagents. Use ONLY when the user explicitly
-  asks to orchestrate, to delegate coding, or to use OpenCode Go or the oc-*
-  agents, or invokes this skill by name; never on its own for ordinary edits.
-  Claude plans, splits the work into bounded tasks, writes a brief for each,
-  picks the delegate from its agent description, checks every diff and runs the
-  repository's own gates, then runs the review chain (oc-glm-review,
-  oc-glm-security when the change is security-relevant, the CodeRabbit CLI
-  once) and opens the pull request. Delegates never commit or push. Contributor
-  models are used only on public repositories.
+  Makes Claude Code the planner and reviewer while other models write or review
+  the code: OpenCode Go through the oc-* subagents, OpenAI Codex (codex exec,
+  codex review, @codex review), Poe API models, or Google Antigravity (agy).
+  Use ONLY when the user explicitly asks to orchestrate or delegate coding, or
+  names one of those backends or this skill; never on its own for ordinary
+  edits, and only the backends the user named. Claude plans, splits the work
+  into bounded tasks, writes a brief for each, checks every diff and runs the
+  repository's own gates, then runs the review chain and opens the pull
+  request. Delegates never commit or push. Private code goes only to backends
+  whose data use the user has cleared.
 ---
 
 # Spacecraft coding orchestrator
 
-Claude Code plans, delegates, checks and ships. OpenCode Go models write the
-code. This skill is the procedure; it holds **no model list and no routing
-table**. The delegates are Claude Code subagents named `oc-<slug>`, each a thin
-forwarder around one `opencode run -m opencode-go/<id>` call, and each one's
-description says what it is for. On a Steelbore OS host those files are
-rendered by Home Manager from one registry (Bravais `lib/opencode-go.nix`), so
-a model added or swapped there reaches this skill with no edit here.
+Claude Code plans, delegates, checks and ships. Other models write or review
+the code. This file is the procedure every backend shares; each backend's
+commands, limits and quirks live in its own reference, read only when that
+backend is in use:
+
+| Backend | Reference | What it is good for |
+|---------|-----------|---------------------|
+| OpenCode Go (`oc-*` subagents) | [`references/backend-opencode-go.md`](references/backend-opencode-go.md) | Volume coding across many cheap models; the GLM review pair |
+| OpenAI Codex (ChatGPT plan) | [`references/backend-codex.md`](references/backend-codex.md) | Main coder for real multi-file work; local and GitHub PR review |
+| Poe API | [`references/backend-poe.md`](references/backend-poe.md) | One-shot calls to a named model (Mistral, Grok, …) for small, self-contained tasks or a second opinion |
+| Google Antigravity (`agy`, IDE, Desktop) | [`references/backend-antigravity.md`](references/backend-antigravity.md) | Gemini models as a headless coder; the IDE or Desktop for work the user drives |
+
+This skill holds **no model list and no routing table**. Models change
+monthly; read what each backend offers on the machine, every run.
 
 ```
-plan ──> brief ──> oc-<model> writes ──> Claude checks the diff + gates
+plan ──> brief ──> delegate writes ──> Claude checks the diff + gates
   ^                                              │
   └──────────── rejected: re-brief or fall back ─┘
                           │ all tasks accepted
                           v
-oc-glm-review (+ oc-glm-security) ──> coderabbit review ──> commit ──> PR
+        review chain (§7) ──> commit ──> PR
 ```
 
 ## 0. Before the first task
 
-1. **List the delegates.** Read the `oc-*` agents available in this session
-   and their descriptions. If there are none, stop and say so: this skill
-   needs them, and Claude does not fall back to writing everything itself
-   without telling the user.
-2. **Check the repository's visibility** when any delegate is marked
-   *Contributor* in its description (its provider trains on the prompts):
-   `gh repo view --json visibility -q .visibility`. Anything but `PUBLIC`,
-   including no answer, means **no Contributor delegate for this whole run**.
-3. **Read the repository's own rules** (`AGENTS.md`, `CLAUDE.md`,
+1. **Pick the backends from the request, not from habit.** Use only the
+   backends the user named in this request ("use Codex", "ask Poe's
+   mistral-large-4", "let Antigravity do it"). When they asked to orchestrate
+   without naming one, use OpenCode Go, and say so in the plan. Never add a
+   backend the user did not ask for, and never move to another backend as a
+   fallback without telling them.
+2. **Check each named backend is reachable**, as its reference says (the
+   `oc-*` agents are listed, `codex` / `agy` are on `PATH` and signed in,
+   `POE_API_KEY` is set). If one is not, stop and say which, rather than
+   installing anything, signing in, or quietly writing everything yourself.
+3. **Check the data-use guard.** Read the repository's visibility:
+   `gh repo view --json visibility -q .visibility`. On anything but `PUBLIC`,
+   including no answer, a backend may receive the repository's code only when
+   the user has said its provider does not train on it, for this backend on
+   this account. Until they have, ask once before the first delegation, and
+   send nothing in the meantime. OpenCode Go delegates whose description
+   marks them *Contributor* are never used on a non-public repository, whatever
+   the answer.
+4. **Read the repository's own rules** (`AGENTS.md`, `CLAUDE.md`,
    `CONTRIBUTING.md`) and note its gate commands: build, lint, format, test.
    Those are what every delegated diff must pass.
-4. **Report the plan** as a Standard §17 progress block, one row per
-   milestone of the plan, before delegating anything.
+5. **Report the plan** as a Standard §17 progress block, one row per
+   milestone of the plan, naming the backend each task goes to, before
+   delegating anything.
 
 ## 1. What Claude keeps, what it delegates
 
@@ -57,7 +75,7 @@ Delegate a task only when all of these hold:
 
 - its **goal fits in one sentence** and its **file list is known**;
 - **a command proves it** (a build, a test, a lint, an eval);
-- it fits one delegate run (each `oc-*` call has a 10-minute ceiling);
+- it fits one delegate run (each backend's reference gives its time limit);
 - writing the brief costs less than writing the code.
 
 Claude keeps, and writes itself:
@@ -78,20 +96,24 @@ no edits outside the list, stop and report rather than guess). A delegate sees
 nothing of this conversation, so the brief is all it knows.
 
 Never put a secret, a token, a private URL or a private file's content in a
-brief, whatever the repository's visibility.
+brief, whatever the repository's visibility. A backend that cannot read the
+tree (Poe) gets the file contents it needs inside the brief, so the §0.3 guard
+applies to those contents too.
 
 ## 3. Choosing the delegate
 
-Match the task to the agent whose **description** fits it, reading the
-descriptions each run rather than remembering them. Prefer the delegates whose
-descriptions call them high-volume or default for routine work, and keep the
-ones described as for hard, multi-file or stuck work for exactly that, since
-the cheaper allowances are the larger ones. Never pick a Contributor delegate
-when step 0.2 ruled them out.
+Within the backends §0.1 allows, match the task to the model whose stated
+purpose fits it: the `oc-*` agent descriptions, `codex` / `agy` model lists,
+or the Poe model the user named. Prefer the cheap, high-allowance models for
+routine work and keep the expensive ones for hard, multi-file or stuck work.
+When the user named a specific model, use that model; if it is unavailable,
+say so instead of substituting another.
 
 ## 4. Checking what comes back
 
-A delegate's "done" is a claim, not a result.
+A delegate's "done" is a claim, not a result. This applies to every backend
+that writes into the tree (OpenCode Go, Codex, Antigravity). A Poe reply is
+text: Claude applies it (§4a) and then checks it the same way.
 
 **A delegate only ever writes into a clean tree.** Before each run,
 `git status --porcelain --untracked-files=all` must print nothing in the
@@ -100,9 +122,10 @@ restore it: run the delegate in a separate worktree off `HEAD` (§6) instead,
 and bring the accepted result back as a commit or patch. A clean starting point is what
 makes the rollback below safe, since nothing in that tree belongs to anyone
 but the delegate. Record where the run starts, too:
-`branch=$(git symbolic-ref -q --short HEAD || echo DETACHED)` and
-`base=$(git rev-parse HEAD)`, so a delegate that commits or switches branches
-against orders cannot hide its work behind a moved `HEAD`.
+`branch=$(git symbolic-ref -q --short HEAD || echo DETACHED)`,
+`base=$(git rev-parse HEAD)` and
+`remote=$(git ls-remote --heads origin)`, so a delegate that commits,
+switches branches or pushes against orders cannot hide it.
 
 Git does not report ignored files (build output, caches, a local `.env`), so a
 clean status says nothing about them. The brief forbids touching them; where
@@ -111,7 +134,10 @@ configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
 
 **After every delegate run:**
 
-1. If the branch (or detached state) is no longer `$branch`, the delegate
+1. If `git ls-remote --heads origin` no longer matches `$remote` and the user
+   did not push in the meantime, the delegate pushed: stop and tell the user,
+   and change nothing on the remote yourself.
+   If the branch (or detached state) is no longer `$branch`, the delegate
    switched branches: reset nothing, since a reset would now move a branch the
    task never owned. Stop, reject the run, and tell the user what changed.
    Otherwise, if `git rev-parse HEAD` is no longer `$base`, the delegate
@@ -121,7 +147,7 @@ configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
    `git reset --soft "$base"`, check them below like any other run, and name
    the breach in the report. Any other movement (a reset, a checkout of
    another commit while detached) gets no reset: stop, reject the run and
-   tell the user. If the delegate also pushed, stop and tell the user.
+   tell the user.
 2. `git status --porcelain --untracked-files=all` and
    `git diff "$base" --stat` (against the recorded commit, so staged changes
    are seen too). Any path outside the brief's file list is a rejection:
@@ -131,30 +157,39 @@ configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
 3. Read the whole diff (`git diff "$base"`, plus every new untracked file).
    Reject on a wrong approach, a silenced test, a disabled lint, a hard-coded
    value the repository's rules forbid, or code the brief did not ask for.
-4. Run the brief's check command **and** the repository's gates from step 0.3.
+4. Run the brief's check command **and** the repository's gates from step 0.4.
    A delegate saying it ran them is not evidence. A check that writes files
    (a formatter, a code generator, a lockfile refresh) changes what you
    reviewed: if status or the diff moved, repeat steps 2 to 4 on the result,
    until a pass leaves both unchanged, before accepting.
-5. Accept, re-brief, or fall back (§5). Record which delegate wrote what; the
-   final report names it.
+5. Accept, re-brief, or fall back (§5). Record which backend, model and
+   effort wrote what; the final report names them.
 6. On acceptance, Claude commits the task on the working branch before the
    next delegate starts, so the next run begins from a clean tree again.
    These commits may be squashed before the PR if the repository prefers.
 
+### 4a. Text-only replies (Poe)
+
+A model with no access to the tree answers with text. Ask it for a unified
+diff against the files the brief quoted, or for whole replacement files, never
+for prose instructions. Claude applies the reply with `git apply --check` then
+`git apply` (or writes the files), touching only paths in the brief's list,
+and the reply then goes through steps 2 to 6 above like any other run. A diff
+that does not apply cleanly is a failed attempt (§5), not something to repair
+by hand into a different change.
+
 ## 5. Retries and fallbacks
 
-- **Rate limit, sign-in or unknown-model error:** the forwarder returns the
-  error text. Move to the next delegate whose description fits the same task
-  (descriptions name the overflow or fallback model where one exists).
+- **Rate limit, sign-in, quota or unknown-model error:** report the error
+  text. Within the backend the user named, move to the next model whose stated
+  purpose fits; crossing to another backend needs the user's word (§0.1).
 - **Wrong or failing result:** re-brief once with the concrete failure (the
-  failing command and its output), to the same delegate or a stronger one.
+  failing command and its output), to the same model or a stronger one.
 - **Two failed attempts on one task:** Claude either writes it itself or hands
-  it to the delegate described as for stuck debugging, for a diagnosis only,
-  then writes the fix. Never loop a third time on the same brief.
-- **`opencode` not found:** the forwarders call `opencode` from
-  `~/.opencode/bin`; if that is missing, stop and tell the user, rather than
-  installing anything.
+  it to a model meant for stuck debugging, for a diagnosis only, then writes
+  the fix. Never loop a third time on the same brief.
+- **A backend's binary or key is missing:** stop and tell the user, rather
+  than installing anything.
 
 ## 6. Parallel delegates
 
@@ -169,40 +204,51 @@ overlap go in parallel; the rest run one after another. Remove each worktree
 
 ## 7. The review chain
 
-Run once, on the finished change, in this order:
+Run once, on the finished change. The reviewers are the ones the user asked
+for; when they named none, use the OpenCode Go chain below.
 
-1. **`oc-glm-review`** on every change (it diffs against `origin/main`; pass
-   another base ref when the branch targets something else).
-2. **`oc-glm-security`** as well when the diff is security-relevant,
-   including authentication, cryptography, PAM, sudo or setuid, permissions,
-   systemd units, secrets, network services, downloads or fetchers, sandbox
-   settings, or `unsafe` Rust. When in doubt, run it.
-3. Triage each finding: fix it (Claude, or a re-brief), or note why it does
+- **OpenCode Go (default):** `oc-glm-review` on every change, plus
+  `oc-glm-security` when the diff is security-relevant (authentication,
+  cryptography, PAM, sudo or setuid, permissions, systemd units, secrets,
+  network services, downloads or fetchers, sandbox settings, `unsafe` Rust;
+  when in doubt, run it), then `coderabbit review --agent --base <base>` once.
+  Details in the OpenCode Go reference.
+- **Codex as reviewer:** `codex review --base <base>` locally, before the PR,
+  and, when asked, an `@codex review` comment on the PR once it is open. See
+  the Codex reference.
+- **Another named model** (a Poe model, an Antigravity model): the same
+  read-only review prompt the reference gives, on `git diff <base>`.
+
+For every reviewer:
+
+1. Triage each finding: fix it (Claude, or a re-brief), or note why it does
    not apply. A review model is a second opinion, not the gate.
-4. **`coderabbit review --agent --base <base>`** once, after the GLM findings
-   are dealt with. The free and open-source allowance is a few reviews an
-   hour, so never run it per task. If it is unavailable or rate-limited, say
-   so and continue.
-5. Re-run the repository's gates after the last fix.
+2. A model that wrote a task does not review it alone; add a reviewer from
+   another model family when one is available.
+3. Re-run the repository's gates after the last fix.
 
-Do not use the OpenCode Claude Code plugin's `/opencode:*` commands or its
-stop-time review gate unless `/opencode:setup` reports ready; on a mismatched
-OpenCode version the gate blocks every stop.
+Rate-limited or unavailable review services (CodeRabbit's free allowance, a
+Codex quota) are reported and skipped, never retried in a loop.
 
 ## 8. Commit and pull request
 
 Claude commits, following the repository's rules (message convention,
 signing, timestamps). The delegates' work is attributed in the PR body, not in
-`Co-Authored-By` trailers. Open the PR as the repository's rules say; when
-CodeRabbit's GitHub app is installed and the repository needs a manual
-trigger, the PR must not be a draft and gets an `@coderabbitai review`
-comment. Merging stays the maintainer's call unless they have said otherwise.
+`Co-Authored-By` trailers: per task, the model, its reasoning effort where it
+has one, the provider that served it and the harness that drove it
+(Standard §15.4 records these separately, because the same model through a
+different provider or harness is a different result). Never estimate token
+counts or points spent; report them only where a tool printed them. Open the
+PR as the repository's rules say; a review bot that needs a non-draft PR or a
+trigger comment is covered in its backend's reference. Merging stays the
+maintainer's call unless they have said otherwise.
 
 ## 9. Reporting
 
 - At the start, after each accepted milestone, and at the end: the §17
   progress block for the plan.
-- At the end, one line per task: what it did, which delegate wrote it, how
-  many attempts, and the check that proved it. Then the review findings and
-  what happened to each, and the PR link.
+- At the end, one line per task: what it did, which backend and model wrote
+  it, how many attempts, and the check that proved it. Then the review
+  findings and what happened to each, any quota or points readings the tools
+  printed, and the PR link.
 - Close with the §17.4 TL;DR.
