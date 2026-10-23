@@ -2,6 +2,8 @@
 
 Back to [`../SKILL.md`](../SKILL.md). Fill every section; an empty section is
 a brief that is not ready to send. The delegate sees nothing but this text.
+For a backend that cannot read the tree (Poe), add a `CURRENT FILES`
+section quoting every file under FILES YOU MAY EDIT in full.
 
 ```text
 GOAL
@@ -52,5 +54,5 @@ review finding; what must be different this time>
 ## Sizing
 
 A brief whose FILES list grows past a handful, or whose CHECK needs more than
-one command, is usually two tasks. Split it; the 10-minute ceiling on each
-delegate run is a hard limit.
+one command, is usually two tasks. Split it; each backend's time limit on a
+run (its reference gives it) is a hard limit.
