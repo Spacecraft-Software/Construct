@@ -47,9 +47,15 @@ plan ──> brief ──> delegate writes ──> Claude checks the diff + gate
 1. **Pick the backends from the request, not from habit.** Use only the
    backends the user named in this request ("use Codex", "ask Poe's
    mistral-large-4", "let Antigravity do it"). When they asked to orchestrate
-   without naming one, use OpenCode Go, and say so in the plan. Never add a
-   backend the user did not ask for, and never move to another backend as a
-   fallback without telling them.
+   without naming one, **ask**: put one multiple-choice question to the user
+   with the harness's question tool (in Claude Code, `AskUserQuestion`), one
+   option per backend that is reachable (§0.2), **Codex marked recommended**
+   and listed first, then OpenCode Go, a Poe model, Antigravity, and a mix
+   where the work splits naturally (for example Codex writes, another model
+   reviews). Each option says in a line what it is good for. Wait for the
+   answer. Only when the session cannot ask (headless, CI) use Codex and say
+   so in the plan. Never add a backend the user did not choose, and never
+   move to another backend as a fallback without telling them.
 2. **Check each named backend is reachable**, as its reference says (the
    `oc-*` agents are listed, `codex` / `agy` are on `PATH` and signed in,
    `POE_API_KEY` is set). If one is not, stop and say which, rather than
@@ -205,9 +211,11 @@ overlap go in parallel; the rest run one after another. Remove each worktree
 ## 7. The review chain
 
 Run once, on the finished change. The reviewers are the ones the user asked
-for; when they named none, use the OpenCode Go chain below.
+for, else the ones paired with the backend they chose in §0.1 (Codex:
+`codex review`; OpenCode Go: its chain below); with a mix, a reviewer from a
+different model family than the writer.
 
-- **OpenCode Go (default):** `oc-glm-review` on every change, plus
+- **OpenCode Go:** `oc-glm-review` on every change, plus
   `oc-glm-security` when the diff is security-relevant (authentication,
   cryptography, PAM, sudo or setuid, permissions, systemd units, secrets,
   network services, downloads or fetchers, sandbox settings, `unsafe` Rust;

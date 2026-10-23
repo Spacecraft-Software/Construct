@@ -1,7 +1,8 @@
 # Backend: OpenAI Codex (ChatGPT plan)
 
-Back to [`../SKILL.md`](../SKILL.md). Used only when the user names Codex for
-this request ("have Codex write it", "Codex review"). Codex is a full agent:
+Back to [`../SKILL.md`](../SKILL.md). Used when the user names Codex for this
+request ("have Codex write it", "Codex review") or picks it from the §0.1
+question, where it is the recommended default. Codex is a full agent:
 it reads the tree, edits files and runs commands, so every run goes through
 the whole of §4.
 

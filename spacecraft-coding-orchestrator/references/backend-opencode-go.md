@@ -1,7 +1,7 @@
 # Backend: OpenCode Go (`oc-*` subagents)
 
-Back to [`../SKILL.md`](../SKILL.md). This is the default backend when the
-user asks to orchestrate without naming one.
+Back to [`../SKILL.md`](../SKILL.md). Used when the user names it, or picks it
+from the §0.1 question (Codex is the recommended default there).
 
 ## How it is wired
 
