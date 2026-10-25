@@ -21,8 +21,9 @@ breaking this can suspend the subscription or revoke the key. A headless
 - **Headless runs only on a pay-as-you-go key,** and only after the user has
   said that this key may be billed for the request.
 
-"Qwen Go!", the personal agent in the Qwen app, is not a coding plan and has
-no programmatic access; it is not a backend.
+The Qwen consumer plans (Go and up, at chat.qwen.ai) give no key for Qwen
+Code. Their cloud agent, Qwen Coder, is a separate backend:
+[`backend-qwen-coder.md`](backend-qwen-coder.md).
 
 ## Reachability (§0.2)
 

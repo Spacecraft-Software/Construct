@@ -7,14 +7,14 @@ description: >
   Makes Claude Code the planner and reviewer while other models write or review
   the code: OpenCode Go through the oc-* subagents, OpenAI Codex (codex exec,
   codex review, @codex review), Poe API models, Google Antigravity (agy), xAI
-  Grok Build (grok), or Qwen Code.
+  Grok Build (grok), Qwen Code, or Qwen Coder.
   Use ONLY when the user explicitly asks to orchestrate or delegate coding, or
   names one of those backends or this skill; never on its own for ordinary
   edits, and only the backends the user named. Claude plans, splits the work
   into bounded tasks, writes a brief for each, checks every diff and runs the
   repository's own gates, then runs the review chain and opens the pull
-  request. Delegates never commit or push. Private code goes only to backends
-  whose data use the user has cleared.
+  request. Delegates never commit to or push the working branch. Private code
+  goes only to backends whose data use the user has cleared.
 ---
 
 # Spacecraft coding orchestrator
@@ -32,6 +32,7 @@ backend is in use:
 | Google Antigravity (`agy`, IDE, Desktop) | [`references/backend-antigravity.md`](references/backend-antigravity.md) | Gemini models as a headless coder; the IDE or Desktop for work the user drives |
 | xAI Grok Build (`grok`, SuperGrok plan) | [`references/backend-grok.md`](references/backend-grok.md) | Grok models as a headless coder on the subscription; a second-family reviewer |
 | Qwen Code (Token Plan, Coding Plan) | [`references/backend-qwen.md`](references/backend-qwen.md) | Qwen models in a session the user drives (the plans forbid headless use); headless only on a pay-as-you-go key |
+| Qwen Coder (cloud agent, Qwen Go plan) | [`references/backend-qwen-coder.md`](references/backend-qwen-coder.md) | A cloud task the user starts in the web app; it publishes a branch and PR that Claude checks and re-applies |
 
 This skill holds **no model list and no routing table**. Models change
 monthly; read what each backend offers on the machine, every run.
@@ -54,9 +55,9 @@ plan ──> brief ──> delegate writes ──> Claude checks the diff + gate
    multiple-choice question to the user with the harness's question tool (in
    Claude Code, `AskUserQuestion`), one option per backend that is reachable
    (§0.2), **Codex marked recommended** and listed first, then OpenCode Go, a
-   Poe model, Antigravity, Grok Build, Qwen Code (noting that it is a hand-off
-   the user drives), and a mix where the work splits naturally (for example
-   Codex writes, another model reviews). Each option says in a line what it
+   Poe model, Antigravity, Grok Build, Qwen Code and Qwen Coder (noting that
+   both are hand-offs the user drives), and a mix where the work splits
+   naturally (for example Codex writes, another model reviews). Each option says in a line what it
    is good for. When the tool takes fewer options than there are backends
    (`AskUserQuestion` takes four), keep Codex first and recommended, offer the
    ones that fit the task best, and name the rest in the question text so the
@@ -66,9 +67,9 @@ plan ──> brief ──> delegate writes ──> Claude checks the diff + gate
    move to another backend as a fallback without telling them.
 2. **Check each named backend is reachable**, as its reference says (the
    `oc-*` agents are listed, `codex` / `agy` / `grok` / `qwen` are on `PATH`
-   and signed in, `POE_API_KEY` is set). If one is not, stop and say which,
-   rather than installing anything, signing in, or quietly writing everything
-   yourself.
+   and signed in, `POE_API_KEY` is set, the user confirms Qwen Coder's GitHub
+   app is installed). If one is not, stop and say which, rather than
+   installing anything, signing in, or quietly writing everything yourself.
 3. **Check the data-use guard.** Read the repository's visibility:
    `gh repo view --json visibility -q .visibility`. On anything but `PUBLIC`,
    including no answer, a backend may receive the repository's code only when
@@ -129,8 +130,11 @@ say so instead of substituting another.
 
 A delegate's "done" is a claim, not a result. This applies to every backend
 that writes into the tree (OpenCode Go, Codex, Antigravity, Grok Build, Qwen
-Code, including a session the user drove). A Poe reply is text: Claude
-applies it (§4a) and then checks it the same way.
+Code, including a session the user drove) and to Qwen Coder, whose published
+branch Claude re-applies as a patch. Qwen Coder is the one delegate allowed to
+push, and only a single new branch of its own (its reference says how that is
+checked). A Poe reply is text: Claude applies it (§4a) and then checks it the
+same way.
 
 **A delegate only ever writes into a clean tree.** Before each run,
 `git status --porcelain --untracked-files=all` must print nothing in the
@@ -152,7 +156,8 @@ configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
 **After every delegate run:**
 
 1. If `git ls-remote --heads origin` no longer matches `$remote` and the user
-   did not push in the meantime, the delegate pushed: stop and tell the user,
+   did not push in the meantime, the delegate pushed (Qwen Coder's one new
+   branch excepted, as its reference says): stop and tell the user,
    and change nothing on the remote yourself.
    If the branch (or detached state) is no longer `$branch`, the delegate
    switched branches: reset nothing, since a reset would now move a branch the
