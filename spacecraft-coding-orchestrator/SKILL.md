@@ -6,7 +6,8 @@ website: https://Construct.SpacecraftSoftware.org/
 description: >
   Makes Claude Code the planner and reviewer while other models write or review
   the code: OpenCode Go through the oc-* subagents, OpenAI Codex (codex exec,
-  codex review, @codex review), Poe API models, or Google Antigravity (agy).
+  codex review, @codex review), Poe API models, Google Antigravity (agy), xAI
+  Grok Build (grok), or Qwen Code.
   Use ONLY when the user explicitly asks to orchestrate or delegate coding, or
   names one of those backends or this skill; never on its own for ordinary
   edits, and only the backends the user named. Claude plans, splits the work
@@ -29,6 +30,8 @@ backend is in use:
 | OpenAI Codex (ChatGPT plan) | [`references/backend-codex.md`](references/backend-codex.md) | Main coder for real multi-file work; local and GitHub PR review |
 | Poe API | [`references/backend-poe.md`](references/backend-poe.md) | One-shot calls to a named model (Mistral, Grok, …) for small, self-contained tasks or a second opinion |
 | Google Antigravity (`agy`, IDE, Desktop) | [`references/backend-antigravity.md`](references/backend-antigravity.md) | Gemini models as a headless coder; the IDE or Desktop for work the user drives |
+| xAI Grok Build (`grok`, SuperGrok plan) | [`references/backend-grok.md`](references/backend-grok.md) | Grok models as a headless coder on the subscription; a second-family reviewer |
+| Qwen Code (Token Plan, Coding Plan) | [`references/backend-qwen.md`](references/backend-qwen.md) | Qwen models in a session the user drives (the plans forbid headless use); headless only on a pay-as-you-go key |
 
 This skill holds **no model list and no routing table**. Models change
 monthly; read what each backend offers on the machine, every run.
@@ -46,20 +49,26 @@ plan ──> brief ──> delegate writes ──> Claude checks the diff + gate
 
 1. **Pick the backends from the request, not from habit.** Use only the
    backends the user named in this request ("use Codex", "ask Poe's
-   mistral-large-4", "let Antigravity do it"). When they asked to orchestrate
-   without naming one, **ask**: put one multiple-choice question to the user
-   with the harness's question tool (in Claude Code, `AskUserQuestion`), one
-   option per backend that is reachable (§0.2), **Codex marked recommended**
-   and listed first, then OpenCode Go, a Poe model, Antigravity, and a mix
-   where the work splits naturally (for example Codex writes, another model
-   reviews). Each option says in a line what it is good for. Wait for the
+   mistral-large-4", "let Antigravity do it", "give it to Grok", "Qwen").
+   When they asked to orchestrate without naming one, **ask**: put one
+   multiple-choice question to the user with the harness's question tool (in
+   Claude Code, `AskUserQuestion`), one option per backend that is reachable
+   (§0.2), **Codex marked recommended** and listed first, then OpenCode Go, a
+   Poe model, Antigravity, Grok Build, Qwen Code (noting that it is a hand-off
+   the user drives), and a mix where the work splits naturally (for example
+   Codex writes, another model reviews). Each option says in a line what it
+   is good for. When the tool takes fewer options than there are backends
+   (`AskUserQuestion` takes four), keep Codex first and recommended, offer the
+   ones that fit the task best, and name the rest in the question text so the
+   user can still pick one through its free-text answer. Wait for the
    answer. Only when the session cannot ask (headless, CI) use Codex and say
    so in the plan. Never add a backend the user did not choose, and never
    move to another backend as a fallback without telling them.
 2. **Check each named backend is reachable**, as its reference says (the
-   `oc-*` agents are listed, `codex` / `agy` are on `PATH` and signed in,
-   `POE_API_KEY` is set). If one is not, stop and say which, rather than
-   installing anything, signing in, or quietly writing everything yourself.
+   `oc-*` agents are listed, `codex` / `agy` / `grok` / `qwen` are on `PATH`
+   and signed in, `POE_API_KEY` is set). If one is not, stop and say which,
+   rather than installing anything, signing in, or quietly writing everything
+   yourself.
 3. **Check the data-use guard.** Read the repository's visibility:
    `gh repo view --json visibility -q .visibility`. On anything but `PUBLIC`,
    including no answer, a backend may receive the repository's code only when
@@ -110,16 +119,18 @@ applies to those contents too.
 
 Within the backends §0.1 allows, match the task to the model whose stated
 purpose fits it: the `oc-*` agent descriptions, `codex` / `agy` model lists,
-or the Poe model the user named. Prefer the cheap, high-allowance models for
-routine work and keep the expensive ones for hard, multi-file or stuck work.
+the `grok` / `qwen` defaults, or the Poe model the user named. Prefer the
+cheap, high-allowance models for routine work and keep the expensive ones for
+hard, multi-file or stuck work.
 When the user named a specific model, use that model; if it is unavailable,
 say so instead of substituting another.
 
 ## 4. Checking what comes back
 
 A delegate's "done" is a claim, not a result. This applies to every backend
-that writes into the tree (OpenCode Go, Codex, Antigravity). A Poe reply is
-text: Claude applies it (§4a) and then checks it the same way.
+that writes into the tree (OpenCode Go, Codex, Antigravity, Grok Build, Qwen
+Code, including a session the user drove). A Poe reply is text: Claude
+applies it (§4a) and then checks it the same way.
 
 **A delegate only ever writes into a clean tree.** Before each run,
 `git status --porcelain --untracked-files=all` must print nothing in the
@@ -224,7 +235,7 @@ different model family than the writer.
 - **Codex as reviewer:** `codex review --base <base>` locally, before the PR,
   and, when asked, an `@codex review` comment on the PR once it is open. See
   the Codex reference.
-- **Another named model** (a Poe model, an Antigravity model): the same
+- **Another named model** (a Poe, Antigravity, Grok or Qwen model): the same
   read-only review prompt the reference gives, on `git diff <base>`.
 
 For every reviewer:
