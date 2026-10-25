@@ -48,10 +48,14 @@ credentials is what this skill exists to prevent.
 1. Prepare the clean checkout or worktree exactly as §4 says, and record
    `$branch`, `$base` and `$remote`.
 2. Write the brief from [`task-brief.md`](task-brief.md) to a file outside the
-   tree (the scratch directory), with two lines added to its standing orders:
-   `Publish to a new branch named qwen-coder/<task> based on <base branch>.`
-   and `Open one pull request from it. Push nothing else.` Give the user its
-   path, the repository and the base branch to pick in Qwen Coder.
+   tree (the scratch directory). Its first standing order forbids the very
+   steps that bring this work back, so replace that line (and only that line)
+   with these two:
+   `Commit only on a new branch named qwen-coder/<task>, created from <base
+   branch>; do not reset, rewrite or switch to any other branch.` and
+   `Push only that branch, and open one pull request from it. Push nothing
+   else.` Give the user its path, the repository and the base branch to pick
+   in Qwen Coder.
 3. Wait for the user to say it published, with the PR's link or branch name.
 4. Check the remote as *Pushing* says, then bring the work in without taking
    its commits:
