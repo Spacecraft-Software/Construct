@@ -75,8 +75,19 @@ timeout 20m grok --no-auto-update --no-alt-screen \
 ## Reviewing
 
 `grok -p` with the review instruction from the Poe reference and
-`git diff <base>` in the prompt, read-only: no `--always-approve`, and
-`--deny 'Bash(*)'` so it reads and answers only. Triage as §7 says.
+`git diff <base>` in the prompt, read-only. Leaving out `--always-approve` is
+not enough, since the user's own `permission_mode` may approve edits anyway, so
+deny every tool that can change the tree:
+
+```sh
+grok --no-auto-update --no-alt-screen -p "$(cat <scratch>/review.txt)" \
+  --cwd <checkout> --deny 'Bash(*)' --deny 'Edit(*)' --deny 'Write(*)' \
+  --output-format json > <scratch>/grok-review.json
+```
+
+Run it in a clean tree and check `git status --porcelain
+--untracked-files=all` afterwards: anything it changed rejects the review and
+is reverted as §4 step 2 says. Triage the findings as §7 says.
 
 ## Errors
 
