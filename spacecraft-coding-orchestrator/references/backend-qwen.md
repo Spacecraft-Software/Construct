@@ -52,9 +52,12 @@ code only after the user has cleared it for this account.
 3. Wait for the user to say Qwen Code is done. Then run every §4 step, as for
    any other delegate: the result is checked, not trusted.
 
-For a review, give the user the review instruction from the Poe reference and
-the output of `git diff <base>` the same way, and triage what they paste back
-as §7 says.
+For a review, the user starts Qwen Code read-only with
+`qwen --approval-mode plan`, in a clean tree, and gives it the review
+instruction from the Poe reference and the output of `git diff <base>`.
+Afterwards check `git status --porcelain --untracked-files=all`: anything it
+changed rejects the review and is reverted as §4 step 2 says. Triage what the
+user pastes back as §7 says.
 
 ## Writing code headless: `qwen -p` (pay-as-you-go key only)
 

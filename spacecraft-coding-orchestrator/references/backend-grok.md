@@ -40,8 +40,15 @@ which win over every approval mode:
 - `--deny 'Bash(git *)'` and `--deny 'Bash(gh *)'` on every run, so it cannot
   commit, switch branches or push. §4's branch, `HEAD` and remote checks still
   run afterwards, since a pattern does not catch every way of reaching `git`.
-- When `grok --help` offers a sandbox (`--sandbox strict` or a profile), use
-  it.
+- **The sandbox is required.** `--always-approve` lets it run any shell
+  command that is not denied, with the user's privileges, and §4's checks
+  see the tree, not what a command read or sent over the network. Pass the
+  strict sandbox profile (`--sandbox strict` in the current docs; confirm the
+  spelling with `grok --help`). If this `grok` has no sandbox, do not run it
+  with `--always-approve`: stop and tell the user, who can either run it in
+  a disposable container or VM holding nothing but the worktree, or give it
+  narrow `allow` rules for the gate commands and run without
+  `--always-approve`.
 
 Never edit the user's `~/.grok/config.toml` (its `[permission]` rules and
 `permission_mode` are theirs). When a task needs more than the flags give,
@@ -55,7 +62,7 @@ Run from the checkout (or worktree, §6) that §4 recorded, with the brief from
 ```sh
 timeout 20m grok --no-auto-update --no-alt-screen \
   -p "$(cat <scratch>/brief-<task>.txt)" \
-  --cwd <checkout> --always-approve \
+  --cwd <checkout> --always-approve --sandbox strict \
   --deny 'Bash(git *)' --deny 'Bash(gh *)' \
   --output-format json --max-turns 60 \
   > <scratch>/grok-<task>.json
