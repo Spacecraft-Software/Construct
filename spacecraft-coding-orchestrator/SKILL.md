@@ -46,14 +46,36 @@ plan ──> brief ──> delegate writes ──> Claude checks the diff + gate
         review chain (§7) ──> commit ──> PR
 ```
 
+## Asking the user
+
+Every decision this skill needs from the user is asked the same way: one
+multiple-choice question per decision, never an open-ended one. Put it to the
+user with the harness's question tool (in Claude Code, `AskUserQuestion`; in a
+thread or chat surface without one, its decision card, or else a numbered list
+the user answers with one number). Each question:
+
+- offers two or more **concrete options** the skill can act on as written,
+  each with a line on what happens if it is picked;
+- lists the **recommended option first** and marks it recommended, with the
+  reason in a few words;
+- leaves room for an answer of the user's own (the tool's free-text "other",
+  or a closing "or tell me something else");
+- carries only the context needed to choose.
+
+Ask several independent decisions together, one question each, in a single
+round when the tool allows it, rather than one after another. Ask each
+decision once; do not re-ask what the user already answered in this request.
+While waiting, do nothing the answer could change. Only when the session
+cannot ask at all (headless, CI) take the recommended option and say so in the
+plan or report.
+
 ## 0. Before the first task
 
 1. **Pick the backends from the request, not from habit.** Use only the
    backends the user named in this request ("use Codex", "ask Poe's
    mistral-large-4", "let Antigravity do it", "give it to Grok", "Qwen").
-   When they asked to orchestrate without naming one, **ask**: put one
-   multiple-choice question to the user with the harness's question tool (in
-   Claude Code, `AskUserQuestion`), one option per backend that is reachable
+   When they asked to orchestrate without naming one, **ask** (see *Asking
+   the user*): one option per backend that is reachable
    (§0.2), **Codex marked recommended** and listed first, then OpenCode Go, a
    Poe model, Antigravity, Grok Build, Qwen Code and Qwen Coder (noting that
    both are hand-offs the user drives), and a mix where the work splits
@@ -74,8 +96,9 @@ plan ──> brief ──> delegate writes ──> Claude checks the diff + gate
    `gh repo view --json visibility -q .visibility`. On anything but `PUBLIC`,
    including no answer, a backend may receive the repository's code only when
    the user has said its provider does not train on it, for this backend on
-   this account. Until they have, ask once before the first delegation, and
-   send nothing in the meantime. OpenCode Go delegates whose description
+   this account. Until they have, ask once before the first delegation (for
+   example: send it to this backend, use a backend already cleared, or keep
+   the work local), and send nothing in the meantime. OpenCode Go delegates whose description
    marks them *Contributor* are never used on a non-public repository, whatever
    the answer.
 4. **Read the repository's own rules** (`AGENTS.md`, `CLAUDE.md`,
@@ -204,14 +227,17 @@ by hand into a different change.
 
 - **Rate limit, sign-in, quota or unknown-model error:** report the error
   text. Within the backend the user named, move to the next model whose stated
-  purpose fits; crossing to another backend needs the user's word (§0.1).
+  purpose fits; crossing to another backend needs the user's word (§0.1),
+  asked as a choice between the reachable backends, waiting, and Claude
+  writing it.
 - **Wrong or failing result:** re-brief once with the concrete failure (the
   failing command and its output), to the same model or a stronger one.
 - **Two failed attempts on one task:** Claude either writes it itself or hands
   it to a model meant for stuck debugging, for a diagnosis only, then writes
-  the fix. Never loop a third time on the same brief.
+  the fix; when the right move is not clear, offer those as options. Never loop a third time on the same brief.
 - **A backend's binary or key is missing:** stop and tell the user, rather
-  than installing anything.
+  than installing anything; offer the choices left (another reachable
+  backend, waiting while they fix it, or Claude writing the task).
 
 ## 6. Parallel delegates
 
