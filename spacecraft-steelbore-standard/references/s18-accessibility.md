@@ -168,6 +168,7 @@ same declaration-plus-registry pattern as the §5.3 general-use carve-out:
 | Project | Class |
 |---------|-------|
 | Ironway | **Game** — exempt from §18 and §10 |
+| Phobos | **Game** — exempt from §18 and §10 |
 | (all other projects) | Standard — §18 and §10 apply in full |
 
 #### §18.5.2 — Recommended for Games (never required)
