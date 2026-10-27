@@ -59,6 +59,7 @@ what is *on disk* — and none is published by us or has anything to serve at a 
 | Majestic 4                 | https://Majestic4.SpacecraftSoftware.org/ |
 | MajesticOS                 | https://MajesticOS.SpacecraftSoftware.org/ |
 | Packages                   | https://Packages.SpacecraftSoftware.org/ |
+| Phobos                     | https://Phobos.SpacecraftSoftware.org/ |
 | Projects                   | https://Projects.SpacecraftSoftware.org/ |
 | Reel                       | https://Reel.SpacecraftSoftware.org/ |
 | Specs                      | https://Specs.SpacecraftSoftware.org/ |
