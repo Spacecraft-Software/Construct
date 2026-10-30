@@ -86,7 +86,7 @@ as written, say why and send no diff.
 
 Then apply it as §4a says: extract the fenced diff, `git apply --check`, and
 only then `git apply`. The result goes through §4 steps 2 to 6 like any other
-run; Claude runs the CHECK, since the model could not.
+run; the orchestrator runs the CHECK, since the model could not.
 
 Pass a model-specific setting (a reasoning effort, a thinking budget) only
 when the user asked for one, under `extra_body` in the request, as Poe's docs

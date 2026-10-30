@@ -5,7 +5,8 @@ from the §0.1 question (Codex is the recommended default there).
 
 ## How it is wired
 
-The delegates are Claude Code subagents named `oc-<slug>`, each a thin
+The delegates are Claude Code subagents named `oc-<slug>`, so this backend
+is reachable only when the orchestrator runs in Claude Code. Each is a thin
 forwarder around one `opencode run -m opencode-go/<id>` call, and each one's
 description says what it is for. On a Steelbore OS host those files are
 rendered by Home Manager from one registry (Bravais `lib/opencode-go.nix`), so

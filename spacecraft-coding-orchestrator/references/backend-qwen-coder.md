@@ -6,14 +6,14 @@ comes with the Qwen consumer plans (Go and up, at chat.qwen.ai). It works in a
 cloud sandbox on a GitHub repository it reaches through its GitHub app, and
 publishes its work as a branch and a pull request.
 
-It has no API and no CLI, so Claude cannot start or steer it. It is a
-**hand-off**: Claude writes the brief, the user runs it in the web app, and
-Claude checks what comes back. It is not Qwen Code with a Token Plan key; that
+It has no API and no CLI, so the orchestrator cannot start or steer it. It is a
+**hand-off**: the orchestrator writes the brief, the user runs it in the web app, and
+the orchestrator checks what comes back. It is not Qwen Code with a Token Plan key; that
 is [`backend-qwen.md`](backend-qwen.md).
 
 ## Reachability (§0.2)
 
-Claude cannot check it from the shell. Ask the user to confirm, unless they
+The orchestrator cannot check it from the shell. Ask the user to confirm, unless they
 already said so in this request, that the Qwen GitHub app is **installed** on
 the repository's account or organization (authorizing it is not enough) and
 that the repository shows up in Qwen Coder.
@@ -36,8 +36,8 @@ delegate never pushes, and only this far:
   `git ls-remote --heads origin` with `$remote`: the new branch is the only
   difference allowed. Any change to an existing branch, the default branch
   included, is a breach: stop and tell the user.
-- Its pull request is never the one that ships. Claude never merges it, and
-  Claude's own commits and PR (§8) carry the accepted work.
+- Its pull request is never the one that ships. The orchestrator never merges it, and
+  the orchestrator's own commits and PR (§8) carry the accepted work.
 
 Never give it a GitHub token or a deploy key, and never suggest it, even though
 that is a known workaround for its publishing failures: a delegate holding push
@@ -72,9 +72,9 @@ credentials is what this skill exists to prevent.
    `$base` instead and say so. A patch that does not apply cleanly is a failed
    attempt (§5).
 5. Run §4 steps 2 to 6 on the result, as for any other delegate: the result is
-   checked, not trusted, and Claude commits it.
+   checked, not trusted, and the orchestrator commits it.
 6. Once the work is accepted or dropped, close Qwen Coder's PR with a one-line
-   comment linking Claude's PR (or saying why it was dropped). Delete its
+   comment linking the orchestrator's PR (or saying why it was dropped). Delete its
    branch only when the user says so.
 
 ## Errors
