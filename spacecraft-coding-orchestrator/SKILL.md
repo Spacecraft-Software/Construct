@@ -15,8 +15,9 @@ description: >
   repository's own gates, then runs the review chain and opens the pull
   request. Delegates never commit to or push the working branch. Private code
   goes only to backends whose data use the user has cleared. Also use when
-  the user says "orchestrator off" or "Claude only" (no delegation for the
-  rest of the session) or "orchestrator on".
+  the user says "orchestrator off", "no delegation" or "<model> only" (the
+  orchestrating model works alone for the rest of the session) or
+  "orchestrator on".
 ---
 
 # Spacecraft coding orchestrator
@@ -74,36 +75,53 @@ plan or report.
 ## Turning orchestration off and on
 
 The user can switch delegation off at any point in a session and back on
-later. The switch is session state: it lasts until the user flips it again or
-the session ends, and a new session starts with the skill unloaded, which is
-the same as off.
+later. **Off means single-model mode: the orchestrator works alone**, and the
+orchestrator is whichever model is running this session and reading this
+skill. That is Claude in Claude Code, but the switch is the same when the
+orchestrator is a GPT model in Codex, Kimi in its own CLI, or any other model:
+off returns the session to that model alone, never to a particular vendor.
+The switch is session state: it lasts until the user flips it again or the
+session ends, and a new session starts with the skill unloaded, which is the
+same as off.
 
-**Off.** Any of "orchestrator off", "Claude only", "no delegation", "stop
-delegating", "only use Claude models", or the like, turns it off. From then on:
+**Off.** Any of "orchestrator off", "no delegation", "stop delegating",
+"single model", or "<orchestrator> only" ("Claude only", "GPT only", "Kimi
+only", "only use Claude models"), or the like, turns it off. From then on:
 
-- no task, review or second opinion goes to any backend in this skill: no
-  `oc-*` subagent, no `codex`, Poe call, `agy`, `grok`, `qwen`, Qwen Coder
-  hand-off, `coderabbit`, and no `@codex review` comment on a PR;
-- the same holds for every other route to a non-Claude model: another skill,
+- no task, review or second opinion goes to any other model or service: none
+  of this skill's backends (`oc-*` subagents, `codex`, Poe, `agy`, `grok`,
+  `qwen`, a Qwen Coder hand-off, `coderabbit`, an `@codex review` comment),
+  and no CLI, API or agent that reaches a different model, including Claude
+  (`claude -p`) when Claude is not the orchestrator;
+- the same holds for every other route to another model: another skill,
   plugin or subagent whose job is delegating to one (for example a Codex
   dispatch or OpenCode rescue plugin), even where its own description says to
   use it proactively;
-- Claude plans, writes, checks and reviews everything itself, still running
-  the repository's gates (§0.4) and committing as §8 says. Claude's own
-  subagents (Claude models only) stay allowed;
+- the orchestrator plans, writes, checks and reviews everything itself, still
+  running the repository's gates (§0.4) and committing as §8 says. Its own
+  subagents stay allowed only while they run the same model family through
+  the same provider (in Claude Code, Claude subagents);
 - the §0.3 data-use guard has nothing to guard and is not asked.
+
+A user who names the orchestrator's model by a vendor that is not running this
+session ("GPT only" while Claude orchestrates) is asking for something else:
+ask (see *Asking the user*) whether they mean **this model alone**
+(recommended: that is what off does), or to hand the whole job to that model,
+which turns delegation on for that one backend.
 
 If a delegate is running or a hand-off is open when the switch goes off, start
 nothing new and ask once (see *Asking the user*): **wait for it, then check
 its result as §4 says and use it** (recommended: the work is already spent),
 stop it and discard whatever it produced, or stop it and keep the diff only
-for Claude to read as a draft. A Qwen Coder PR that is already open is left as
-it is; say so.
+for the orchestrator to read as a draft. A Qwen Coder PR that is already open
+is left as it is; say so.
 
-Confirm the switch in one line that names the state, for example
-`Orchestrator: off. Claude only until you say "orchestrator on".`, and repeat
-the state at the head of each later progress block (§9). Writing it into the
-conversation is what lets it survive a context summary, so do not skip it.
+Confirm the switch in one line that names the state and the model left
+working, for example
+`Orchestrator: off. Claude only until you say "orchestrator on".` (or `GPT
+only`, `Kimi only`), and repeat the state at the head of each later progress
+block (§9). Writing it into the conversation is what lets it survive a context
+summary, so do not skip it.
 
 **On.** "Orchestrator on", or a later request that again asks to orchestrate or
 delegate, or names a backend, turns it back on. Start again at §0 as for a new
