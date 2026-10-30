@@ -3,8 +3,8 @@
 Back to [`../SKILL.md`](../SKILL.md). Used only when the user names
 Antigravity, `agy` or a Gemini model through it. There are two ways in:
 
-- **`agy` headless**, which Claude drives like any other delegate (below);
-- **the Antigravity IDE or Desktop app**, which the user drives and Claude
+- **`agy` headless**, which the orchestrator drives like any other delegate (below);
+- **the Antigravity IDE or Desktop app**, which the user drives and the orchestrator
   checks (*IDE and Desktop*, further down).
 
 Flags change between releases. Before the first run of a session, confirm the
@@ -79,7 +79,7 @@ none should be added for it. Triage as §7 says.
 
 ## IDE and Desktop
 
-Claude cannot drive the Antigravity IDE or the Desktop app. When the user
+The orchestrator cannot drive the Antigravity IDE or the Desktop app. When the user
 wants a task done there:
 
 1. Prepare the clean checkout or worktree exactly as §4 says, and record

@@ -4,26 +4,33 @@ license: GPL-3.0-or-later
 maintainer: Mohamed Hammad <Mohamed.Hammad@SpacecraftSoftware.org>
 website: https://Construct.SpacecraftSoftware.org/
 description: >
-  Makes Claude Code the planner and reviewer while other models write or review
-  the code: OpenCode Go through the oc-* subagents, OpenAI Codex (codex exec,
+  Makes the session's own model (Claude, GPT, Kimi, any other) the planner
+  and reviewer while other models write or review the code: OpenCode Go through the oc-* subagents, OpenAI Codex (codex exec,
   codex review, @codex review), Poe API models, Google Antigravity (agy), xAI
   Grok Build (grok), Qwen Code, or Qwen Coder.
   Use ONLY when the user explicitly asks to orchestrate or delegate coding, or
   names one of those backends or this skill; never on its own for ordinary
-  edits, and only the backends the user named. Claude plans, splits the work
+  edits, and only the backends the user named. The orchestrator plans, splits the work
   into bounded tasks, writes a brief for each, checks every diff and runs the
   repository's own gates, then runs the review chain and opens the pull
   request. Delegates never commit to or push the working branch. Private code
-  goes only to backends whose data use the user has cleared. Also use when
-  the user says "orchestrator off", "no delegation" or "<model> only" (the
-  orchestrating model works alone for the rest of the session) or
-  "orchestrator on".
+  goes only to backends whose data use the user has cleared. Also use for
+  "orchestrator off", "no delegation" or "<model> only" (the orchestrator
+  works alone for the session) and "orchestrator on".
 ---
 
 # Spacecraft coding orchestrator
 
-Claude Code plans, delegates, checks and ships. Other models write or review
-the code. This file is the procedure every backend shares; each backend's
+The **orchestrator** plans, delegates, checks and ships; other models write or
+review the code. The orchestrator is whichever model is running this session
+and reading this skill: Claude in Claude Code, a GPT model in Codex, Kimi in
+its own CLI, or any other. Nothing below depends on which one it is. Where a
+step names a Claude Code tool (`AskUserQuestion`, subagents), use the
+harness's equivalent; where a backend works only from one harness (the `oc-*`
+subagents need Claude Code), its reference says so. A backend that is the
+orchestrator's own model through the same harness (Codex while GPT
+orchestrates in Codex) is not a delegate: that work is the orchestrator's
+own. This file is the procedure every backend shares; each backend's
 commands, limits and quirks live in its own reference, read only when that
 backend is in use:
 
@@ -35,15 +42,15 @@ backend is in use:
 | Google Antigravity (`agy`, IDE, Desktop) | [`references/backend-antigravity.md`](references/backend-antigravity.md) | Gemini models as a headless coder; the IDE or Desktop for work the user drives |
 | xAI Grok Build (`grok`, SuperGrok plan) | [`references/backend-grok.md`](references/backend-grok.md) | Grok models as a headless coder on the subscription; a second-family reviewer |
 | Qwen Code (Token Plan, Coding Plan) | [`references/backend-qwen.md`](references/backend-qwen.md) | Qwen models in a session the user drives (the plans forbid headless use); headless only on a pay-as-you-go key |
-| Qwen Coder (cloud agent, Qwen Go plan) | [`references/backend-qwen-coder.md`](references/backend-qwen-coder.md) | A cloud task the user starts in the web app; it publishes a branch and PR that Claude checks and re-applies |
+| Qwen Coder (cloud agent, Qwen Go plan) | [`references/backend-qwen-coder.md`](references/backend-qwen-coder.md) | A cloud task the user starts in the web app; it publishes a branch and PR that the orchestrator checks and re-applies |
 
 This skill holds **no model list and no routing table**. Models change
 monthly; read what each backend offers on the machine, every run.
 
 ```
-plan ──> brief ──> delegate writes ──> Claude checks the diff + gates
-  ^                                              │
-  └──────────── rejected: re-brief or fall back ─┘
+plan ──> brief ──> delegate writes ──> orchestrator checks the diff + gates
+  ^                                                    │
+  └──────────── rejected: re-brief or fall back ───────┘
                           │ all tasks accepted
                           v
         review chain (§7) ──> commit ──> PR
@@ -170,7 +177,7 @@ question, not the switch: answer it and stay off.
    milestone of the plan, naming the backend each task goes to, before
    delegating anything.
 
-## 1. What Claude keeps, what it delegates
+## 1. What the orchestrator keeps, what it delegates
 
 Delegate a task only when all of these hold:
 
@@ -179,7 +186,7 @@ Delegate a task only when all of these hold:
 - it fits one delegate run (each backend's reference gives its time limit);
 - writing the brief costs less than writing the code.
 
-Claude keeps, and writes itself:
+The orchestrator keeps, and writes itself:
 
 - design decisions, interfaces between tasks and anything the plan is unsure of;
 - one-line and few-line fixes, where the brief would be longer than the change;
@@ -216,9 +223,9 @@ say so instead of substituting another.
 A delegate's "done" is a claim, not a result. This applies to every backend
 that writes into the tree (OpenCode Go, Codex, Antigravity, Grok Build, Qwen
 Code, including a session the user drove) and to Qwen Coder, whose published
-branch Claude re-applies as a patch. Qwen Coder is the one delegate allowed to
+branch the orchestrator re-applies as a patch. Qwen Coder is the one delegate allowed to
 push, and only a single new branch of its own (its reference says how that is
-checked). A Poe reply is text: Claude applies it (§4a) and then checks it the
+checked). A Poe reply is text: the orchestrator applies it (§4a) and then checks it the
 same way.
 
 **A delegate only ever writes into a clean tree.** Before each run,
@@ -271,7 +278,7 @@ configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
    until a pass leaves both unchanged, before accepting.
 5. Accept, re-brief, or fall back (§5). Record which backend, model and
    effort wrote what; the final report names them.
-6. On acceptance, Claude commits the task on the working branch before the
+6. On acceptance, the orchestrator commits the task on the working branch before the
    next delegate starts, so the next run begins from a clean tree again.
    These commits may be squashed before the PR if the repository prefers.
 
@@ -279,7 +286,7 @@ configuration, run the delegate in a fresh worktree off `HEAD`, which has none.
 
 A model with no access to the tree answers with text. Ask it for a unified
 diff against the files the brief quoted, or for whole replacement files, never
-for prose instructions. Claude applies the reply with `git apply --check` then
+for prose instructions. The orchestrator applies the reply with `git apply --check` then
 `git apply` (or writes the files), touching only paths in the brief's list,
 and the reply then goes through steps 2 to 6 above like any other run. A diff
 that does not apply cleanly is a failed attempt (§5), not something to repair
@@ -290,16 +297,16 @@ by hand into a different change.
 - **Rate limit, sign-in, quota or unknown-model error:** report the error
   text. Within the backend the user named, move to the next model whose stated
   purpose fits; crossing to another backend needs the user's word (§0.1),
-  asked as a choice between the reachable backends, waiting, and Claude
-  writing it.
+  asked as a choice between the reachable backends, waiting, and the
+  orchestrator writing it.
 - **Wrong or failing result:** re-brief once with the concrete failure (the
   failing command and its output), to the same model or a stronger one.
-- **Two failed attempts on one task:** Claude either writes it itself or hands
+- **Two failed attempts on one task:** the orchestrator either writes it itself or hands
   it to a model meant for stuck debugging, for a diagnosis only, then writes
   the fix; when the right move is not clear, offer those as options. Never loop a third time on the same brief.
 - **A backend's binary or key is missing:** stop and tell the user, rather
   than installing anything; offer the choices left (another reachable
-  backend, waiting while they fix it, or Claude writing the task).
+  backend, waiting while they fix it, or the orchestrator writing the task).
 
 ## 6. Parallel delegates
 
@@ -333,7 +340,7 @@ different model family than the writer.
 
 For every reviewer:
 
-1. Triage each finding: fix it (Claude, or a re-brief), or note why it does
+1. Triage each finding: fix it (the orchestrator, or a re-brief), or note why it does
    not apply. A review model is a second opinion, not the gate.
 2. A model that wrote a task does not review it alone; add a reviewer from
    another model family when one is available.
@@ -344,7 +351,7 @@ Codex quota) are reported and skipped, never retried in a loop.
 
 ## 8. Commit and pull request
 
-Claude commits, following the repository's rules (message convention,
+The orchestrator commits, following the repository's rules (message convention,
 signing, timestamps). The delegates' work is attributed in the PR body, not in
 `Co-Authored-By` trailers: per task, the model, its reasoning effort where it
 has one, the provider that served it and the harness that drove it

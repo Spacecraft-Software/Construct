@@ -93,7 +93,7 @@ the comment again until they have.
   user asked for exactly that: those start a cloud task that can push to the
   branch, which this skill's delegates never do.
 - Triage its findings like any other reviewer's, and fix them in the local
-  checkout; the push is Claude's, as §8 says.
+  checkout; the push is the orchestrator's, as §8 says.
 
 ## Report fields
 

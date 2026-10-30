@@ -14,10 +14,10 @@ Qwen OAuth tier ended on 2026-04-15, so it runs on one of these keys:
 Both subscription plans state that their keys are for interactive use inside
 coding tools, never for scripts, backends or non-interactive calls, and that
 breaking this can suspend the subscription or revoke the key. A headless
-`qwen -p` that Claude starts is a non-interactive call. So:
+`qwen -p` that the orchestrator starts is a non-interactive call. So:
 
-- **On a subscription key, Claude never runs `qwen` itself.** The user runs
-  Qwen Code, and Claude briefs and checks (*Hand-off*, below).
+- **On a subscription key, the orchestrator never runs `qwen` itself.** The user runs
+  Qwen Code, and the orchestrator briefs and checks (*Hand-off*, below).
 - **Headless runs only on a pay-as-you-go key,** and only after the user has
   said that this key may be billed for the request.
 
@@ -74,7 +74,7 @@ jq -r '.[] | select(.type == "result") | .is_error, .result' \
 ```
 
 - `auto-edit` approves file edits but not shell commands, so the delegate
-  cannot run the CHECK itself; Claude runs it in §4, as for Poe. Never pass
+  cannot run the CHECK itself; the orchestrator runs it in §4, as for Poe. Never pass
   `--yolo` or `--approval-mode yolo`: it runs every shell command, `git`
   included, with the host's privileges.
 - `--sandbox` runs shell, write and edit tools in the sandbox image; where no
