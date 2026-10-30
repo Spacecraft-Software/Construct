@@ -14,7 +14,9 @@ description: >
   into bounded tasks, writes a brief for each, checks every diff and runs the
   repository's own gates, then runs the review chain and opens the pull
   request. Delegates never commit to or push the working branch. Private code
-  goes only to backends whose data use the user has cleared.
+  goes only to backends whose data use the user has cleared. Also use when
+  the user says "orchestrator off" or "Claude only" (no delegation for the
+  rest of the session) or "orchestrator on".
 ---
 
 # Spacecraft coding orchestrator
@@ -68,6 +70,48 @@ decision once; do not re-ask what the user already answered in this request.
 While waiting, do nothing the answer could change. Only when the session
 cannot ask at all (headless, CI) take the recommended option and say so in the
 plan or report.
+
+## Turning orchestration off and on
+
+The user can switch delegation off at any point in a session and back on
+later. The switch is session state: it lasts until the user flips it again or
+the session ends, and a new session starts with the skill unloaded, which is
+the same as off.
+
+**Off.** Any of "orchestrator off", "Claude only", "no delegation", "stop
+delegating", "only use Claude models", or the like, turns it off. From then on:
+
+- no task, review or second opinion goes to any backend in this skill: no
+  `oc-*` subagent, no `codex`, Poe call, `agy`, `grok`, `qwen`, Qwen Coder
+  hand-off, `coderabbit`, and no `@codex review` comment on a PR;
+- the same holds for every other route to a non-Claude model: another skill,
+  plugin or subagent whose job is delegating to one (for example a Codex
+  dispatch or OpenCode rescue plugin), even where its own description says to
+  use it proactively;
+- Claude plans, writes, checks and reviews everything itself, still running
+  the repository's gates (§0.4) and committing as §8 says. Claude's own
+  subagents (Claude models only) stay allowed;
+- the §0.3 data-use guard has nothing to guard and is not asked.
+
+If a delegate is running or a hand-off is open when the switch goes off, start
+nothing new and ask once (see *Asking the user*): **wait for it, then check
+its result as §4 says and use it** (recommended: the work is already spent),
+stop it and discard whatever it produced, or stop it and keep the diff only
+for Claude to read as a draft. A Qwen Coder PR that is already open is left as
+it is; say so.
+
+Confirm the switch in one line that names the state, for example
+`Orchestrator: off. Claude only until you say "orchestrator on".`, and repeat
+the state at the head of each later progress block (§9). Writing it into the
+conversation is what lets it survive a context summary, so do not skip it.
+
+**On.** "Orchestrator on", or a later request that again asks to orchestrate or
+delegate, or names a backend, turns it back on. Start again at §0 as for a new
+request: the backends are picked from that request, and an earlier choice is
+not reused without asking. Confirm in one line (`Orchestrator: on.`).
+
+Asking about delegation while it is off ("could Codex do this faster?") is a
+question, not the switch: answer it and stay off.
 
 ## 0. Before the first task
 
@@ -296,7 +340,8 @@ maintainer's call unless they have said otherwise.
 ## 9. Reporting
 
 - At the start, after each accepted milestone, and at the end: the §17
-  progress block for the plan.
+  progress block for the plan, headed by the switch state once the user has
+  used it (`Orchestrator: off` / `on`).
 - At the end, one line per task: what it did, which backend and model wrote
   it, how many attempts, and the check that proved it. Then the review
   findings and what happened to each, any quota or points readings the tools
