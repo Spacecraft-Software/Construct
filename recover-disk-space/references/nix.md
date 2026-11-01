@@ -13,15 +13,16 @@ which is the bluntest option; this file is where the finer ones come from.
 ## Survey (read-only)
 
 ```sh
-du -sh /nix/store                                          # slow on a big store; full survey only
+df -h /nix/store                                           # quick: the filesystem holding the store
+du -sh /nix/store                                          # full survey only: slow on a big store
 nix config show auto-optimise-store                        # older Nix: nix show-config | grep auto-optimise
 nix-env --list-generations --profile /nix/var/nix/profiles/system
 nix-env --list-generations                                 # the user's default profile
 nix profile history                                        # if the user uses `nix profile`
 home-manager generations                                   # standalone Home Manager only
-nix-store --gc --print-roots | rg -v '^(/proc|\{)'         # GC roots, without live process roots
+nix-store --gc --print-roots | rg -v '^(/proc|\{)'         # GC roots, without live process roots (no rg: grep -Ev)
 nix-collect-garbage --delete-older-than 14d --dry-run      # what generations would go (user profiles)
-df -h /boot                                                # NixOS: is the ESP the full one?
+findmnt -no TARGET,SIZE,USED,AVAIL -t vfat                 # NixOS: where the ESP is (/boot, /efi, /boot/efi) and how full
 ```
 
 Also read, without changing them, what the host already does: `nix.gc`
@@ -40,7 +41,11 @@ Collecting a generation removes the ability to roll back to it. Offer:
   profiles: the session runs the user one, the root one is handed over.
   `nix-collect-garbage --delete-older-than 14d` (user)
   `sudo nix-collect-garbage --delete-older-than 14d` (system, root's and
-  legacy `/nix/var/nix/profiles/per-user` profiles)
+  legacy `/nix/var/nix/profiles/per-user` profiles, which on a multi-user
+  host includes **other users'** legacy generations: list those users in
+  the option text, or offer the system profile alone instead with
+  `sudo nix-env --profile /nix/var/nix/profiles/system
+  --delete-generations 14d` followed by `sudo nix store gc`)
   Root's run does **not** see other users' profiles under their
   `~/.local/state/nix/profiles` (the default on current Nix); Nix's own
   manual says it "cannot know about all profiles". On a multi-user host,
@@ -50,8 +55,9 @@ Collecting a generation removes the ability to roll back to it. Offer:
   `nix-collect-garbage --delete-older-than 14d`
   (covers the user's `nix-env` / `nix profile` / Home Manager profiles under
   `~/.local/state/nix/profiles`, not the system profile)
-- **Every old generation** — the most space, no rollback at all; again
-  one user and one root command:
+- **Every old generation** — the most space, no rollback at all, and the
+  same cross-user reach as above (say so on a multi-user host); again one
+  user and one root command:
   `nix-collect-garbage -d` then `sudo nix-collect-garbage -d`
 - **Skip**
 
@@ -65,8 +71,10 @@ in the user's terminal, so hand it over). `nh clean user …` is the
 user-only variant. Check `nh clean --help` on the host before quoting other
 flags.
 
-Standalone Home Manager (not the NixOS module) keeps its own generations:
-`home-manager expire-generations "-14 days"`, then a GC to free the store.
+Standalone Home Manager (not the NixOS module) keeps its own generations.
+Offer `home-manager expire-generations "-14 days"` followed by
+`nix store gc` (deletes every store path no root references any more) as
+one option that shows both lines; expiring alone frees nothing.
 
 ## Stale boot entries (`/boot` full)
 
@@ -91,7 +99,7 @@ project trees (link path → store path), with the store path's closure size
 where cheap (`nix path-info -Sh <store path>`). Offer:
 
 - **Remove the roots I tick** — a numbered list; the user names which.
-  Removing the *symlink* (`rm <link>` — never the store path) is what frees
+  Removing the *symlink* (`rm -- <link>` — never the store path) is what frees
   it at the next GC.
 - **Remove all `result*` links under the project roots**, listed in full
   first.

@@ -49,6 +49,15 @@ example for build artifacts:
 `cargo-prune` and `build-artifacts` overlap on the same `target/`: offer one
 or the other, never both in one pick.
 
+**Bind the pick to what the user saw.** `vacuum clean --apply` re-scans and
+acts on whatever that scan finds, not on the earlier listing. So, right
+before applying, re-run the same command without `--apply` (a dry run) and
+compare its candidates with the ones the user approved. Identical: apply.
+Anything new or larger: show the difference and ask again. Narrow the scope
+to what was approved with `--cleaner` and `--root <path>` where that
+separates it. When the approved set cannot be isolated that way, offer the
+TUI hand-over below instead of applying.
+
 The same shape works for `caches`. For `temp-files`, Vacuum always purges
 (trashing under `/tmp` would reclaim nothing) and says so; put that in the
 option text. Root-owned temp files are left to `sudo systemd-tmpfiles
@@ -56,14 +65,17 @@ option text. Root-owned temp files are left to `sudo systemd-tmpfiles
 
 **`package-gc`** wraps commands such as `nix-collect-garbage -d`,
 `flatpak uninstall --unused -y`, `journalctl --vacuum-time=7d`,
-`podman system prune -f`. Do not apply the whole category in one pick: list
-each command it would run, offer them individually, and route the Nix one
+`podman system prune -f`. Never apply this category through Vacuum, which
+would run every command in it: list each command it would run, offer them
+individually, run the user-level ones the user picks directly (not via
+`vacuum clean`), and route the Nix one
 through [`nix.md`](nix.md), which has gentler options than `-d`. Commands
 marked as needing root are handed to the user, not run through Vacuum.
 
 **`large-files`** is the user's call, file by file: show the list, ask the
 user to name the entries, then offer trash or permanent removal for exactly
-those paths (`gio trash <path>` or `rm -r <path>`, as the option shows), or
+those paths (`gio trash -- <path>` or `rm -r -- <path>`, each path its own
+argument, as the option shows), or
 the TUI hand-over below. Never offer "all large files".
 
 `--yes` appears in these commands only because a non-terminal `--apply`
@@ -74,7 +86,9 @@ requires it; the user's pick of that option is the confirmation. Never add
 
 `vacuum empty-trash` (dry run) shows what is there; `vacuum empty-trash
 --apply --yes` empties it permanently. Ask it as its own question, after the
-categories, with the dry-run listing in front of the user. Never recommend
+categories, with the dry-run listing in front of the user, and re-run the
+dry run right before applying: if anything was added to the trash since,
+show it and ask again. Never recommend
 it first unless the user has just reviewed the listing.
 
 ## The TUI

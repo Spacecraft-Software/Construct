@@ -51,14 +51,21 @@ Two references are read only when they apply:
    `-y`, `-f`, `--force`, `--purge`, `kondo -a` — unless the option the user
    picked shows that flag. Tools such as `vacuum clean --apply` need `--yes`
    when not on a terminal; that is fine *because* the picked option listed it.
-4. **Never escalate.** Do not run `sudo`, `doas` or `run0`, and do not ask for
+   The same holds for prompts: a command that would stop to ask on stdin
+   (where no one can answer) carries its own `-f` / `-y` in the option text.
+4. **Paths are arguments, never shell text.** Pass every path or link the
+   user picked as its own argument (the tool's argv), or quote it for the
+   user's shell, and put `--` before paths where the command accepts it
+   (`rm -r -- <path>`, `gio trash -- <path>`). A name with spaces, a
+   leading `-` or shell metacharacters must reach the command unchanged.
+5. **Never escalate.** Do not run `sudo`, `doas` or `run0`, and do not ask for
    a password. Commands that need root are handed to the user to run (see
    *Handing commands to the user*). This matches Vacuum's own rule.
-5. **No pick, no action.** If the user dismisses a question, answers
+6. **No pick, no action.** If the user dismisses a question, answers
    ambiguously, or the session cannot ask at all (headless, CI, a scheduled
    run), take **no** action for that decision and say so. Unlike other
    skills, a missing answer never defaults to the recommended option.
-6. **Auto-loaded is not invoked.** If this skill is loaded because of a
+7. **Auto-loaded is not invoked.** If this skill is loaded because of a
    disk-full error in unrelated work, say in one line that
    `/recover-disk-space` can help, then return to the task. Do not survey.
 
@@ -93,8 +100,8 @@ through a remote-control or folder bridge, treat it as local.
 
 Ask which survey to run:
 
-- **Quick survey (recommended)** — free space per filesystem, the Nix store
-  size if Nix is present, and `vacuum list` if Vacuum is installed. Seconds.
+- **Quick survey (recommended)** — free space per filesystem (including the
+  one holding `/nix/store` and the ESP if Nix is present), and `vacuum list` if Vacuum is installed. Seconds.
 - **Full survey** — the quick survey plus the largest directories under
   `$HOME` and the Nix GC roots and generations. Can take a minute on a big
   home.
@@ -103,7 +110,7 @@ Ask which survey to run:
 The survey always starts with tool detection, which is cheap and read-only:
 
 ```sh
-command -v vacuum nix nh home-manager dust dua kondo flatpak podman docker journalctl
+command -v vacuum nix nh home-manager dust dua kondo rg gio flatpak podman docker journalctl systemd-tmpfiles
 df -h -x tmpfs -x devtmpfs -x efivarfs
 ```
 
@@ -133,11 +140,12 @@ short. Order the questions by how much they free and how little they risk:
 Without Vacuum, the system-level commands are:
 
 ```sh
-flatpak uninstall --unused           # user; omit -y so flatpak asks too
-sudo journalctl --vacuum-time=7d     # root: hand to the user
-podman system prune                  # omit -f so podman asks too
-docker system prune
-sudo systemd-tmpfiles --clean        # root: hand to the user
+flatpak --user uninstall --unused -y    # the user's installation; the session can run it
+flatpak --system uninstall --unused     # shared runtimes: hand to the user (polkit asks)
+sudo journalctl --vacuum-time=7d        # root: hand to the user
+podman system prune -f                  # -f: the pick is the confirmation, no stdin prompt
+docker system prune -f
+sudo systemd-tmpfiles --clean           # root: hand to the user
 ```
 
 Build artifacts without Vacuum: `kondo ~/projects` lists projects and asks per
@@ -160,8 +168,9 @@ commands the session runs itself; root-level commands are handed over.
 ### Handing commands to the user
 
 When the user must run commands themselves (root, or a machine this session
-cannot reach), list them one per line with a short comment each, then end
-with **one combined line** that stops at the first failure. Match the user's
+cannot reach), list **only the commands the user approved**, one per line
+with a short comment each, then end with **one combined line of those same
+commands** that stops at the first failure. Match the user's
 shell: `;` in Nushell and mjsh (an external command's failure stops the
 line), `&&` in POSIX shells (bash, zsh, dash). If unsure of the shell, check
 `$env.NU_VERSION` / `$SHELL`, or give both lines. Example for Nushell:
