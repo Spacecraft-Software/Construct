@@ -35,15 +35,24 @@ cleanup that will free nothing.
 
 Collecting a generation removes the ability to roll back to it. Offer:
 
-- **Older than 14 days, all profiles (recommended)** — keeps recent
-  rollbacks. System-wide needs root, so it is handed to the user:
-  `sudo nix-collect-garbage --delete-older-than 14d`
+- **Older than 14 days, my profiles and the system's (recommended)** —
+  keeps recent rollbacks. Two commands, because neither reaches the other's
+  profiles: the session runs the user one, the root one is handed over.
+  `nix-collect-garbage --delete-older-than 14d` (user)
+  `sudo nix-collect-garbage --delete-older-than 14d` (system, root's and
+  legacy `/nix/var/nix/profiles/per-user` profiles)
+  Root's run does **not** see other users' profiles under their
+  `~/.local/state/nix/profiles` (the default on current Nix); Nix's own
+  manual says it "cannot know about all profiles". On a multi-user host,
+  name the other users whose generations stay, and say each must run the
+  user command themselves.
 - **Older than 14 days, my user profiles only** — the session can run it:
   `nix-collect-garbage --delete-older-than 14d`
   (covers the user's `nix-env` / `nix profile` / Home Manager profiles under
   `~/.local/state/nix/profiles`, not the system profile)
-- **Every old generation** — the most space, no rollback at all:
-  `sudo nix-collect-garbage -d`
+- **Every old generation** — the most space, no rollback at all; again
+  one user and one root command:
+  `nix-collect-garbage -d` then `sudo nix-collect-garbage -d`
 - **Skip**
 
 Pick a period that fits the survey: if the oldest generation is ten days old,

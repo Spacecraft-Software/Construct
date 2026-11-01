@@ -167,7 +167,7 @@ line), `&&` in POSIX shells (bash, zsh, dash). If unsure of the shell, check
 `$env.NU_VERSION` / `$SHELL`, or give both lines. Example for Nushell:
 
 ```nu
-sudo nix-collect-garbage --delete-older-than 14d          # system + all users' generations older than 14 days
+sudo nix-collect-garbage --delete-older-than 14d          # system and root generations older than 14 days (your own: the session ran the user form)
 sudo /run/current-system/bin/switch-to-configuration boot # drop boot entries for the collected generations
 sudo journalctl --vacuum-time=7d                          # journal entries older than a week
 
