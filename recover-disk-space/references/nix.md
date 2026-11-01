@@ -76,11 +76,13 @@ Offer `home-manager expire-generations "-14 days"` followed by
 `nix store gc` (deletes every store path no root references any more) as
 one option that shows both lines; expiring alone frees nothing.
 
-## Stale boot entries (`/boot` full)
+## Stale boot entries (ESP full)
 
 On NixOS, collecting system generations does not by itself rewrite the boot
 menu, so their kernels and initrds stay on the ESP. After the generations
-question, if `/boot` is the short filesystem, offer:
+question, if the ESP the `findmnt` probe found (`/boot`, `/efi` or
+`/boot/efi`) is the short filesystem, name that mountpoint in the option text
+and offer:
 
 - **Rewrite the boot entries (recommended)** — hand to the user:
   `sudo /run/current-system/bin/switch-to-configuration boot`

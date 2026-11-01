@@ -7,8 +7,9 @@ It is safe by construction — dry-run unless `--apply`, XDG trash unless
 symlinks, never escalates — and this skill leans on that rather than
 re-implementing it.
 
-The host's own copy is the authority: run `vacuum describe --json` once at
-the start of a session and use the commands, categories and cleaner ids it
+The host's own copy is the authority: once the user has picked a survey in
+Step 1 (never before, and not at all on Skip), run `vacuum describe --json`
+and use the commands, categories and cleaner ids it
 reports. What follows matches Vacuum as of 2026-11; where the two disagree,
 the host wins.
 
@@ -71,6 +72,9 @@ individually, run the user-level ones the user picks directly (not via
 `vacuum clean`), and route the Nix one
 through [`nix.md`](nix.md), which has gentler options than `-d`. Commands
 marked as needing root are handed to the user, not run through Vacuum.
+Vacuum's Flatpak recipe has no `--user`, so it acts on the system-wide
+installation: offer `flatpak --user uninstall --unused -y` for the session to
+run, and `flatpak --system uninstall --unused` as a hand-over.
 
 **`large-files`** is the user's call, file by file: show the list, ask the
 user to name the entries, then offer trash or permanent removal for exactly

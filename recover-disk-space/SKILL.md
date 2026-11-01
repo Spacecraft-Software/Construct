@@ -119,7 +119,7 @@ them over `du -sh`), falling back to `du -xsh ~/* ~/.[!.]* | sort -h`.
 
 Report the survey as a short table: filesystem, used, free, percent; then
 the top consumers. Name the filesystem that is short — cleaning `$HOME` does
-nothing for a full `/boot`.
+nothing for a full ESP (`/boot`, `/efi` or `/boot/efi`).
 
 ## Step 2 — Offer the cleanups
 
@@ -129,7 +129,7 @@ short. Order the questions by how much they free and how little they risk:
 | Area | Source of the options | Typical risk |
 |------|-----------------------|--------------|
 | Nix generations and store | `references/nix.md` | Loses rollback targets |
-| Stale boot entries (`/boot` full on NixOS) | `references/nix.md` | Low |
+| Stale boot entries (ESP full on NixOS) | `references/nix.md` | Low |
 | Build artifacts (`target/`, `node_modules`, …) | Vacuum `build-artifacts`, `cargo-prune`; else `kondo` | Rebuild time |
 | App and user caches | Vacuum `caches`; else named `~/.cache/<app>` dirs | Re-download |
 | Stale temp files | Vacuum `temp-files`; root-owned ones via `systemd-tmpfiles --clean` | Low |
