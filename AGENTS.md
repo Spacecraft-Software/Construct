@@ -24,7 +24,7 @@ groups: infra/tooling (`spacecraft-agentic-cli`, `spacecraft-brand-guidelines`,
 `spacecraft-coding-orchestrator`, `spacecraft-document-format`, `spacecraft-markdown-document`,
 `spacecraft-missing-pkg`, `spacecraft-steelbore-standard`,
 `spacecraft-texinfo-document`, `spacecraft-theme-factory`, `gnu-coding-standards`,
-`gnu-free-software`), the governing Standard skill
+`gnu-free-software`, `recover-disk-space`), the governing Standard skill
 (`spacecraft-steelbore-standard`), and one `spacecraft-<language>-guidelines`
 skill per supported language (currently: ada, carbon, chez, clang, clojure,
 commonlisp, cpp, dartflutter, elixir, erlang, gleam, golang, guile, java,
