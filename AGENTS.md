@@ -23,7 +23,8 @@ groups: infra/tooling (`spacecraft-agentic-cli`, `spacecraft-brand-guidelines`,
 `spacecraft-cli-preference`, `spacecraft-cli-shell`, `spacecraft-cli-standard`,
 `spacecraft-coding-orchestrator`, `spacecraft-document-format`, `spacecraft-markdown-document`,
 `spacecraft-missing-pkg`, `spacecraft-steelbore-standard`,
-`spacecraft-texinfo-document`, `spacecraft-theme-factory`, `gnu-coding-standards`,
+`spacecraft-texinfo-document`, `spacecraft-theme-factory`, `spacecraft-tui-protocols`,
+`gnu-coding-standards`,
 `gnu-free-software`, `recover-disk-space`), the governing Standard skill
 (`spacecraft-steelbore-standard`), and one `spacecraft-<language>-guidelines`
 skill per supported language (currently: ada, carbon, chez, clang, clojure,
@@ -57,7 +58,7 @@ changes flow skill → published standard, so this `SKILL.md` may lead it.
 <skill-name>/
 ├── SKILL.md           # frontmatter (name, description, license, maintainer, website) + body
 ├── LICENSE            # REQUIRED (Standard §5.6 license carriage). Verbatim license text, byte-identical to the matching `LICENSES/` file, a regular file, no extension (§4.3). Almost always GPL-3.0-or-later; `gnu-coding-standards` carries the GFDL-1.3-or-later text instead. Multi-licensed skills carry `LICENSE.<TAG>` in its place — `microsoft-rust-guidelines` ships `LICENSE.GPL` + `LICENSE.MIT`.
-├── CREDITS.md         # required when the skill builds on third-party work (Standard §15.3); currently microsoft-rust-guidelines, gnu-coding-standards, gnu-free-software, spacecraft-cli-preference, spacecraft-rust-guidelines, spacecraft-ada-guidelines, spacecraft-steelbore-standard
+├── CREDITS.md         # required when the skill builds on third-party work (Standard §15.3); currently microsoft-rust-guidelines, gnu-coding-standards, gnu-free-software, spacecraft-cli-preference, spacecraft-rust-guidelines, spacecraft-ada-guidelines, spacecraft-steelbore-standard, spacecraft-tui-protocols
 ├── references/        # optional; loaded on demand by the agent
 └── assets/            # optional; currently spacecraft-agentic-cli, spacecraft-texinfo-document, steelbore-color-palette
 ```
@@ -92,7 +93,8 @@ in place of a single `LICENSE`. Include the other arguments only when they
 exist. `CREDITS.md` appears only where §15.3 triggers fire (currently
 `microsoft-rust-guidelines`, `gnu-coding-standards`, `gnu-free-software`,
 `spacecraft-cli-preference`, `spacecraft-rust-guidelines`,
-`spacecraft-ada-guidelines`, `spacecraft-steelbore-standard`). `references/`
+`spacecraft-ada-guidelines`, `spacecraft-steelbore-standard`,
+`spacecraft-tui-protocols`). `references/`
 and `assets/` are optional. Run `ls <name>/` first whenever you're unsure.
 
 The `.skill` bundle uses `-D` to drop directory entries; the `.zip` keeps them.
@@ -123,7 +125,7 @@ is mechanical — apply it after **any** edit inside a `<skill-name>/` directory
    `CREDITS.md` exists only where §15.3 applies (`microsoft-rust-guidelines`,
    `gnu-coding-standards`, `gnu-free-software`, `spacecraft-cli-preference`,
    `spacecraft-rust-guidelines`, `spacecraft-ada-guidelines`,
-   `spacecraft-steelbore-standard`).
+   `spacecraft-steelbore-standard`, `spacecraft-tui-protocols`).
 
    **Run `ls <name>/` and pass every file you see — do not rebuild from the
    lists above.** They are a map, not ground truth, and an omission here is
