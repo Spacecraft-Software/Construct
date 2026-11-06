@@ -196,10 +196,13 @@ environment.
       bytes in the shell.
 - [ ] `kill -TERM` and a forced panic both leave the shell typing normally
       (no `CSI u` garbage), the pointer shape reset, and no stuck progress bar.
-- [ ] Images: kitty or Ghostty shows the kitty path; foot or WezTerm the sixel
+- [ ] Images: kitty, Ghostty or WezTerm shows the kitty path; foot the sixel
       path; tmux without passthrough shows half-blocks; GNOME Terminal (VTE)
       shows half-blocks.
-- [ ] OSC 9;4 is not sent in a terminal outside the allow-list.
+- [ ] OSC 9;4 is not sent in a terminal outside the allow-list, including
+      WezTerm's 2024 stable release, where it would pop a notification.
+- [ ] WezTerm (the reference terminal, [`references/wezterm.md`](references/wezterm.md))
+      is tested both with and without `enable_kitty_keyboard = true`.
 - [ ] `--term-protocols=-all` turns every protocol off, `SPACECRAFT_TERM_PROTOCOLS`
       is honoured, and the flag beats the variable.
 - [ ] Accessible mode shows image descriptions and text progress, with no
@@ -217,4 +220,5 @@ environment.
 | [`references/clipboard.md`](references/clipboard.md) | Copy and paste: OSC 52, OSC 5522, why not OSC 1337 |
 | [`references/progress-pointer.md`](references/progress-pointer.md) | OSC 9;4 progress and OSC 22 pointer shapes |
 | [`references/support-matrix.md`](references/support-matrix.md) | Which terminals support what, with sources and the date checked |
+| [`references/wezterm.md`](references/wezterm.md) | Testing in WezTerm, the maintainer's daily driver: per-protocol status checked against its source, the stable-vs-nightly split, and the config to enable |
 | [`CREDITS.md`](CREDITS.md) | The upstream specifications this skill is based on (Standard §15.3) |

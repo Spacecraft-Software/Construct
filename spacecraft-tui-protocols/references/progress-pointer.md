@@ -34,7 +34,8 @@ emission is **allow-list only**, never "send and hope":
 |--------|----------|
 | `WT_SESSION` set | Windows Terminal |
 | `ConEmuPID` or `ConEmuANSI=ON` | ConEmu |
-| `TERM_PROGRAM` contains `ghostty`, `wezterm`, `iterm`, `vscode`, `rio`, `contour` (case-insensitive) | Ghostty, WezTerm, iTerm2 3.6+, VS Code, Rio, contour |
+| `TERM_PROGRAM` contains `ghostty`, `iterm`, `vscode`, `rio`, `contour` (case-insensitive) | Ghostty, iTerm2 3.6+, VS Code, Rio, contour |
+| `TERM_PROGRAM=WezTerm` **and** `TERM_PROGRAM_VERSION` (or XTVERSION) date ≥ `20250210` | WezTerm nightly / snapshot builds. The 20240203 stable treats it as a notification (`wezterm.md`) |
 | `TERM=xterm-kitty` / `KITTY_WINDOW_ID` set **and** XTVERSION at or above the first release kitty's changelog lists OSC 9;4 for (record that version in the program's source when you implement this) | kitty |
 | `TERM` starts with `foot` | foot |
 

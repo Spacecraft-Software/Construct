@@ -17,7 +17,7 @@ Send only the probes for features the program uses, then DA1 last.
 | Sixel | (DA1 itself) | `4` among the DA1 parameters | |
 | Cell size in pixels | `CSI 16 t` | `CSI 6 ; <h> ; <w> t` | Needed to size images. Fall back to `CSI 14 t` (window pixels) divided by rows and columns, then to a default of 8×16 |
 | Pointer shape | `OSC 22 ; ?__current__ ST` | `OSC 22 ; <name or 0> ST` | |
-| Terminal identity | `CSI > 0 q` (XTVERSION) | `DCS > \| <name(version)> ST` | A hint only (SKILL.md §2.2) |
+| Terminal identity | `CSI > 0 q` (XTVERSION) | `DCS > \| <name(version)> ST` or `DCS > \| <name> <version> ST` (WezTerm) | A hint only (SKILL.md §2.2). Parse both forms |
 | OSC 5522 | `OSC 5522 ; type=read ; Lg== ST` | `OSC 5522 ; type=read:status=OK ST` … | `Lg==` is base64 of `.`, which lists available MIME types without a permission prompt. `status=ENOSYS` or no reply means unsupported |
 | Fence | `CSI c` (DA1) | `CSI ? <params> c` | Always last |
 

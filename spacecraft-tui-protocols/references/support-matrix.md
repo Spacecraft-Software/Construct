@@ -15,7 +15,7 @@ Legend: **Y** supported · **P** partial or opt-in · **N** not supported ·
 |----------|---------------|----------------|-----------------|-------|--------------|---------|--------|----------|
 | kitty | Y | Y | Y | N | Y | Y (recent) | Y | Y |
 | Ghostty | Y | Y | ? | N | Y | Y | Y | ? |
-| WezTerm | P (`enable_kitty_keyboard`) | P | ? | Y | Y | Y | ? | ? |
+| WezTerm (see `wezterm.md`) | P (off until `enable_kitty_keyboard = true`) | P (no Unicode placeholders) | P (frames play, no `a=a` control) | Y | Y (read: N) | P (nightly ≥ 2025-02-10 only; stable shows a notification) | N | N |
 | foot | Y | N | N | Y | Y | Y | Y | ? |
 | iTerm2 3.6 | Y | Y (reported) | ? | Y | Y | Y | Y | ? |
 | Alacritty | Y | N | N | N | Y | ? | ? | N |
