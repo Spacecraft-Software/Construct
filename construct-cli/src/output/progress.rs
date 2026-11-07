@@ -213,6 +213,12 @@ impl Progress {
                 drawn: false,
                 throttle: Throttle::default(),
             };
+            // The tab mirrors the line (output::term; a no-op off the
+            // OSC 9;4 allow-list). A supplement in accessible mode, never
+            // the only report (Standard §18).
+            super::term::taskbar(total.map_or(super::term::Taskbar::Indeterminate, |t| {
+                super::term::Taskbar::Normal(percent(0, t))
+            }));
             let mut stderr = std::io::stderr().lock();
             if style == Style::Accessible {
                 let pct = total.map(|t| percent(0, t));
@@ -261,6 +267,9 @@ impl Progress {
             return;
         };
         change(line);
+        if let Some(total) = line.total {
+            super::term::taskbar(super::term::Taskbar::Normal(percent(line.pos, total)));
+        }
         let mut stderr = std::io::stderr().lock();
         match line.style {
             Style::Accessible => {
@@ -295,6 +304,8 @@ impl Drop for Progress {
                         let _ = writeln!(stderr, "{}", a11y_done(&line.label));
                     }
                     let _ = stderr.flush();
+                    drop(stderr);
+                    super::term::taskbar_clear();
                 }
             }
         }
@@ -346,7 +357,16 @@ pub(crate) fn step<T, E>(
         });
     };
     line(Outcome::Started);
+    // Indeterminate in the tab while the subprocess runs, unless an outer bar
+    // owns the indicator.
+    let owns_taskbar = live().is_none();
+    if owns_taskbar {
+        super::term::taskbar(super::term::Taskbar::Indeterminate);
+    }
     let result = work();
+    if owns_taskbar {
+        super::term::taskbar_clear();
+    }
     line(if result.is_ok() {
         Outcome::Done
     } else {

@@ -138,6 +138,13 @@ pub(crate) struct GlobalArgs {
     /// Assume "yes" for confirmations in non-interactive contexts.
     #[arg(long, short = 'y', visible_alias = "force", global = true)]
     pub(crate) yes: bool,
+
+    /// Force terminal protocols on (`+name`) or off (`-name`), comma-separated;
+    /// beats `SPACECRAFT_TERM_PROTOCOLS`. Names: keyboard, graphics, animation,
+    /// clipboard, clipboard-rich, progress, pointer, all. Never sends anything
+    /// to an agent, CI or a pipe.
+    #[arg(long, global = true, value_name = "LIST", allow_hyphen_values = true)]
+    pub(crate) term_protocols: Option<String>,
 }
 
 /// `--format` values.

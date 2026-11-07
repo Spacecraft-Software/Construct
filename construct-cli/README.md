@@ -110,6 +110,24 @@ the percentage rises and at most once per second, ending in
 reports the resolved state and its source as an `ACCESSIBLE_MODE` info
 diagnostic.
 
+Terminal protocols (`src/output/term.rs`, the `spacecraft-tui-protocols`
+skill): on terminals known to handle it, a progress bar or a subprocess step
+also shows in the terminal's tab or taskbar (OSC 9;4 — Windows Terminal,
+Ghostty, foot, Rio, VS Code, iTerm2 3.6+, kitty 0.39+, WezTerm builds from
+2025-02-10; never an unknown terminal, where OSC 9 is a notification, and not
+inside tmux, Zellij or screen). The explore TUI turns on the kitty keyboard
+protocol when the terminal answers for it (WezTerm needs
+`config.enable_kitty_keyboard = true`), and `y` copies the highlighted skills'
+`construct skill add --skills …` command, or an agent's project path, with
+OSC 52. One DA1-fenced probe with a 200 ms deadline decides; nothing is sent
+or probed for an agent, CI, a pipe, `TERM=dumb` or the Linux console, and
+every mode is undone on exit, panic and SIGINT/SIGTERM/SIGHUP.
+`--term-protocols=-all,+progress` (names: `keyboard`, `graphics`, `animation`,
+`clipboard`, `clipboard-rich`, `progress`, `pointer`, `all`) beats
+`SPACECRAFT_TERM_PROTOCOLS`, which beats detection. `describe` reports each
+protocol's state and reason under `terminal_protocols`; `--verbose` adds a
+`TERM_PROTOCOLS` info diagnostic.
+
 ## Build, test, lint
 
 ```sh

@@ -52,6 +52,7 @@ pub(crate) fn run(ctx: &Context, noun: Option<&str>, verb: Option<&str>) -> Resu
         "mcp_available": info.mcp_available,
         "schema_command": "construct schema",
         "context_files": info.context_files,
+        "terminal_protocols": crate::output::term::caps(),
     });
 
     render::emit_raw_json(ctx, &document);
