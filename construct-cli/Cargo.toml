@@ -48,6 +48,12 @@ zip = { version = "8.6", default-features = false, features = ["deflate-flate2-z
 # Faithful port of perplexity-skills/build.py's three patterns (already in the
 # lock transitively).
 regex = "1"
+# Terminal-protocol probe (src/output/term.rs): raw mode and `poll(2)` on
+# /dev/tty for the DA1-fenced reply read. Already in the lock (1.1.4).
+rustix = { version = "1", default-features = false, features = ["std", "event", "termios"] }
+# Restore the terminal protocols on SIGINT/SIGTERM/SIGHUP before dying of the
+# signal. Already in the lock through crossterm.
+signal-hook = "0.3"
 
 [dev-dependencies]
 assert_cmd = "2"

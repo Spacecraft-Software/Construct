@@ -12,6 +12,7 @@ pub(crate) mod error;
 pub(crate) mod mode;
 pub(crate) mod progress;
 pub(crate) mod render;
+pub(crate) mod term;
 pub(crate) mod theme;
 
 use serde_json::Value;

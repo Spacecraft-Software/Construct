@@ -48,6 +48,7 @@ pub(crate) fn tool_info() -> ToolInfo {
             "--force",
             "--help",
             "--version",
+            "--term-protocols",
         ],
         output_formats: &["json", "jsonl", "yaml", "csv", "explore"],
         context_files: &["CLAUDE.md", "AGENTS.md", "SKILL.md", "CONTRIBUTING.md"],

@@ -566,3 +566,73 @@ fn mcp_stdio_lists_lazily_and_calls_tools() {
     assert_eq!(frames[4]["error"]["message"], "NOT_FOUND");
     assert_eq!(frames[4]["error"]["data"]["exit_code"], 3);
 }
+
+#[test]
+fn describe_reports_the_terminal_protocols() {
+    let out = bin()
+        .args(["describe", "--json"])
+        .env_remove("SPACECRAFT_TERM_PROTOCOLS")
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let v: Value = serde_json::from_slice(&out).expect("describe emits valid JSON");
+    assert!(v["global_flags"]
+        .as_array()
+        .is_some_and(|f| f.iter().any(|x| x == "--term-protocols")));
+    let protocols = v["terminal_protocols"]["protocols"]
+        .as_array()
+        .expect("terminal_protocols.protocols is an array");
+    assert_eq!(protocols.len(), 7);
+    // Piped: the gate is closed, so nothing is enabled whatever is detected.
+    assert_eq!(v["terminal_protocols"]["gated"], false);
+    assert!(protocols.iter().all(|p| p["enabled"] == false));
+}
+
+#[test]
+fn unknown_terminal_protocol_is_a_usage_error() {
+    let assert = bin()
+        .args(["describe", "--json", "--term-protocols=+images"])
+        .assert()
+        .code(2);
+    let stderr = String::from_utf8_lossy(&assert.get_output().stderr).into_owned();
+    let v: Value = serde_json::from_str(stderr.trim()).expect("structured error");
+    assert_eq!(v["error"]["code"], "INVALID_ARGUMENT");
+    assert!(v["error"]["hint"]
+        .as_str()
+        .is_some_and(|h| h.starts_with("construct describe")));
+}
+
+#[test]
+fn terminal_protocol_variable_is_validated_and_the_flag_parses_hyphen_lists() {
+    bin()
+        .args(["describe", "--json"])
+        .env("SPACECRAFT_TERM_PROTOCOLS", "bogus")
+        .assert()
+        .code(2);
+    bin()
+        .args(["describe", "--json", "--term-protocols", "-all,+progress"])
+        .assert()
+        .success();
+}
+
+#[test]
+fn piped_and_agent_runs_emit_no_escape_sequences() {
+    for agent in [None, Some("claude-code_2-1-218_agent")] {
+        let mut cmd = bin();
+        cmd.args(["describe", "--verbose"]);
+        if let Some(a) = agent {
+            cmd.env("AI_AGENT", a);
+        }
+        let out = cmd.assert().success().get_output().clone();
+        assert!(
+            !out.stdout.contains(&0x1b),
+            "ESC on stdout (agent={agent:?})"
+        );
+        assert!(
+            !out.stderr.contains(&0x1b),
+            "ESC on stderr (agent={agent:?})"
+        );
+    }
+}

@@ -9,6 +9,8 @@
 
 use std::collections::BTreeSet;
 use std::path::Path;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::OnceLock;
 
 use ratatui::crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::layout::{Constraint, Direction, Layout};
@@ -20,6 +22,7 @@ use ratatui::{DefaultTerminal, Frame};
 use crate::context::Context;
 use crate::install::plan::DEFAULT_SOURCE;
 use crate::output::error::{AppError, ErrorCode};
+use crate::output::term;
 use crate::output::theme;
 use crate::registry::{self, detect};
 use crate::sources::{self, DiscoveredSkill};
@@ -62,6 +65,9 @@ struct App {
     skill_state: ListState,
     agent_state: ListState,
     marks: BTreeSet<String>,
+    /// One-line result of the last copy (`y`), shown in the help bar until
+    /// the next key.
+    status: Option<String>,
 }
 
 impl App {
@@ -94,7 +100,42 @@ impl App {
             skill_state,
             agent_state,
             marks: BTreeSet::new(),
+            status: None,
         }
+    }
+
+    /// `y`: copy a runnable command for the highlighted (or marked) skills, or
+    /// the highlighted agent's project skills path, with OSC 52. The terminal
+    /// never acknowledges, so the status line says how to check and what to do
+    /// without OSC 52 (`references/clipboard.md` rule 2).
+    fn copy(&mut self) {
+        let (what, text) = match self.tab {
+            Tab::Skills => {
+                let skills = self.action_skills();
+                if skills.is_empty() {
+                    return;
+                }
+                (
+                    "install command",
+                    format!("construct skill add --skills {}", skills.join(",")),
+                )
+            }
+            Tab::Agents => match self.current_agent() {
+                Some(a) => ("project path", a.project_path.clone()),
+                None => return,
+            },
+        };
+        self.status = Some(match term::copy(&text) {
+            term::Copied::Sent { .. } => {
+                format!("copied {what} (OSC 52) — paste to check; without OSC 52, Shift+drag selects: {text}")
+            }
+            term::Copied::TooLarge { bytes } => {
+                format!("{what} is {bytes} bytes; too large to copy")
+            }
+            term::Copied::Unavailable => {
+                format!("clipboard off (--term-protocols); {what}: {text}")
+            }
+        });
     }
 
     /// Indices of skills matching the current filter.
@@ -184,11 +225,20 @@ impl App {
     }
 }
 
+/// The alternate screen and raw mode are on.
+static TUI_ON: AtomicBool = AtomicBool::new(false);
+
 /// Run the explore TUI, returning the action chosen on exit.
 pub(crate) fn run(ctx: &Context) -> Result<TuiAction, AppError> {
+    // Probe before the event loop reads the terminal (detection.md).
+    let _ = term::caps_for(true);
     let mut terminal = ratatui::init();
+    install_panic_hook();
+    TUI_ON.store(true, Ordering::Release);
+    // After entering the alternate screen: each screen has its own stack.
+    term::keyboard_push();
     let result = event_loop(&mut terminal, &mut App::new());
-    ratatui::restore();
+    leave();
     result.map_err(|e| {
         AppError::general(
             ctx,
@@ -197,6 +247,39 @@ pub(crate) fn run(ctx: &Context) -> Result<TuiAction, AppError> {
             "construct skill find --json",
         )
     })
+}
+
+/// Pop the keyboard flags while still on the alternate screen, then let
+/// ratatui leave it and raw mode (skill §2.3 order).
+fn leave() {
+    TUI_ON.store(false, Ordering::Release);
+    term::restore();
+    ratatui::restore();
+}
+
+/// `ratatui::init` installs a hook that leaves the alternate screen; chain in
+/// front of it so the kitty flags are popped first, on the alternate screen
+/// they were pushed on.
+fn install_panic_hook() {
+    static ONCE: OnceLock<()> = OnceLock::new();
+    ONCE.get_or_init(|| {
+        let prev = std::panic::take_hook();
+        std::panic::set_hook(Box::new(move |info| {
+            term::restore();
+            prev(info);
+        }));
+    });
+}
+
+/// SIGINT / SIGTERM / SIGHUP teardown, run by `term`'s signal thread after it
+/// has popped the keyboard flags and cleared any progress indicator.
+pub(crate) fn restore_after_signal() {
+    if TUI_ON.swap(false, Ordering::AcqRel) {
+        ratatui::restore();
+        // The `Terminal` is never dropped on this path, so its own
+        // show-cursor-on-drop does not run.
+        let _ = ratatui::crossterm::execute!(std::io::stdout(), ratatui::crossterm::cursor::Show);
+    }
 }
 
 /// The draw/event loop.
@@ -209,6 +292,7 @@ fn event_loop(terminal: &mut DefaultTerminal, app: &mut App) -> std::io::Result<
         if key.kind != KeyEventKind::Press {
             continue;
         }
+        app.status = None;
 
         if app.searching {
             match key.code {
@@ -243,6 +327,7 @@ fn event_loop(terminal: &mut DefaultTerminal, app: &mut App) -> std::io::Result<
             KeyCode::Down | KeyCode::Char('j') => app.move_sel(true),
             KeyCode::Up | KeyCode::Char('k') => app.move_sel(false),
             KeyCode::Char(' ') => app.toggle_mark(),
+            KeyCode::Char('y') => app.copy(),
             KeyCode::Char('/') => {
                 app.searching = true;
                 app.filter.clear();
@@ -430,7 +515,9 @@ fn render_detail(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
 }
 
 fn render_help(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
-    let help = if app.searching {
+    let help = if let Some(status) = &app.status {
+        status.clone()
+    } else if app.searching {
         format!("/{}_   (Enter/Esc to apply)", app.filter)
     } else {
         let marks = if app.marks.is_empty() {
@@ -439,7 +526,7 @@ fn render_help(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
             format!("  [{} marked]", app.marks.len())
         };
         format!(
-            "Tab/1/2 switch · j/k move · / search · Space mark · i install · s sync · q quit{marks}"
+            "Tab/1/2 switch · j/k move · / search · Space mark · i install · y copy · s sync · q quit{marks}"
         )
     };
     frame.render_widget(

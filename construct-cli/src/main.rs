@@ -106,6 +106,53 @@ fn real_main() -> i32 {
     )
     .emit(&ctx);
 
+    // Terminal protocols (output::term): the overrides are validated here so
+    // a typo is a usage error before any work starts; the probe itself runs
+    // lazily, on the first use.
+    // `mcp` speaks JSON-RPC on stdio and draws nothing, so it neither needs
+    // nor validates the overrides: a stray variable must not stop the server.
+    let is_mcp = matches!(cli.command, Some(cli::Command::Mcp(_)));
+    let overrides = match output::term::overrides(cli.global.term_protocols.as_deref()) {
+        Ok(o) => o,
+        Err(_) if is_mcp => output::term::Overrides::default(),
+        Err(e) => {
+            let err = AppError::invalid_argument(
+                &ctx,
+                e,
+                "construct describe --json  # terminal_protocols lists the names; e.g. --term-protocols=-all,+progress",
+            );
+            return output::error::report(&err, ctx.mode);
+        }
+    };
+    output::term::configure(
+        !is_mcp
+            && std::io::IsTerminal::is_terminal(&std::io::stderr())
+            && matches!(
+                ctx.mode,
+                output::mode::OutputMode::HumanWithColor
+                    | output::mode::OutputMode::HumanNoColor
+                    | output::mode::OutputMode::Explore
+            ),
+        overrides,
+    );
+    output::term::install_signal_handlers(|| {}, tui::restore_after_signal);
+    if ctx.verbose > 0 {
+        // The explore TUI is the only caller that probes for the keyboard
+        // protocol, so resolve with that in mind, before it starts.
+        let caps = output::term::caps_for(ctx.mode == output::mode::OutputMode::Explore);
+        output::diagnostic::Diagnostic::new(
+            &ctx,
+            output::diagnostic::Severity::Info,
+            "TERM_PROTOCOLS",
+            caps.summary().replace('\n', "; "),
+        )
+        .with_extension(
+            "terminal_protocols",
+            serde_json::to_value(caps).unwrap_or(serde_json::Value::Null),
+        )
+        .emit(&ctx);
+    }
+
     let dispatched = std::panic::catch_unwind(AssertUnwindSafe(|| commands::dispatch(&cli, &ctx)));
 
     match dispatched {
