@@ -331,6 +331,12 @@ fn legacy_keys(bytes: &[u8]) -> Vec<KeyCode> {
                     i += 1;
                     None
                 }
+                // Alt+key sent as ESC + key: the key, as crossterm reports it
+                // live (modifiers are ignored here), never Esc then the key.
+                (Some(&c @ 0x20..=0x7e), _) => {
+                    i += 1;
+                    Some(KeyCode::Char(char::from(c)))
+                }
                 _ => Some(KeyCode::Esc),
             },
             b'\t' => Some(KeyCode::Tab),
@@ -600,7 +606,7 @@ mod tests {
     #[test]
     fn legacy_keys_decode_typeahead() {
         assert_eq!(
-            legacy_keys(b"/ab\x7f\r\x1b[B\x1b[1;5Cq\x1b"),
+            legacy_keys(b"/ab\x7f\r\x1b[B\x1b[1;5C\x1bjq\x1b"),
             vec![
                 KeyCode::Char('/'),
                 KeyCode::Char('a'),
@@ -608,6 +614,7 @@ mod tests {
                 KeyCode::Backspace,
                 KeyCode::Enter,
                 KeyCode::Down,
+                KeyCode::Char('j'),
                 KeyCode::Char('q'),
                 KeyCode::Esc,
             ]
