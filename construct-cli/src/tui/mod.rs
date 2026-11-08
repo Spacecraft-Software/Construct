@@ -284,6 +284,13 @@ pub(crate) fn restore_after_signal() {
 
 /// The draw/event loop.
 fn event_loop(terminal: &mut DefaultTerminal, app: &mut App) -> std::io::Result<TuiAction> {
+    // Keys typed while the startup probe owned the terminal (legacy
+    // encodings: the probe ran before raw mode and the kitty flags).
+    for code in legacy_keys(&term::take_typeahead()) {
+        if let Some(action) = handle_key(app, code) {
+            return Ok(action);
+        }
+    }
     loop {
         terminal.draw(|frame| ui(frame, app))?;
         let Event::Key(key) = event::read()? else {
@@ -292,49 +299,96 @@ fn event_loop(terminal: &mut DefaultTerminal, app: &mut App) -> std::io::Result<
         if key.kind != KeyEventKind::Press {
             continue;
         }
-        app.status = None;
-
-        if app.searching {
-            match key.code {
-                KeyCode::Enter | KeyCode::Esc => app.searching = false,
-                KeyCode::Backspace => {
-                    app.filter.pop();
-                }
-                KeyCode::Char(c) => app.filter.push(c),
-                _ => {}
-            }
-            continue;
-        }
-
-        match key.code {
-            KeyCode::Char('q') | KeyCode::Esc => return Ok(TuiAction::Quit),
-            KeyCode::Char('s') => return Ok(TuiAction::Sync),
-            KeyCode::Char('i') => {
-                let skills = app.action_skills();
-                if !skills.is_empty() {
-                    return Ok(TuiAction::Install(skills));
-                }
-            }
-            KeyCode::Tab => {
-                app.tab = if app.tab == Tab::Skills {
-                    Tab::Agents
-                } else {
-                    Tab::Skills
-                }
-            }
-            KeyCode::Char('1') => app.tab = Tab::Skills,
-            KeyCode::Char('2') => app.tab = Tab::Agents,
-            KeyCode::Down | KeyCode::Char('j') => app.move_sel(true),
-            KeyCode::Up | KeyCode::Char('k') => app.move_sel(false),
-            KeyCode::Char(' ') => app.toggle_mark(),
-            KeyCode::Char('y') => app.copy(),
-            KeyCode::Char('/') => {
-                app.searching = true;
-                app.filter.clear();
-            }
-            _ => {}
+        if let Some(action) = handle_key(app, key.code) {
+            return Ok(action);
         }
     }
+}
+
+/// Decode legacy key bytes; anything not recognised is skipped.
+fn legacy_keys(bytes: &[u8]) -> Vec<KeyCode> {
+    let mut keys = Vec::new();
+    let mut i = 0;
+    while i < bytes.len() {
+        let b = bytes[i];
+        i += 1;
+        let key = match b {
+            0x1b => match (bytes.get(i), bytes.get(i + 1)) {
+                (Some(b'[' | b'O'), Some(&f)) if f.is_ascii_uppercase() => {
+                    i += 2;
+                    match f {
+                        b'A' => Some(KeyCode::Up),
+                        b'B' => Some(KeyCode::Down),
+                        _ => None,
+                    }
+                }
+                (Some(b'['), _) => {
+                    // Some other CSI key: skip through its final byte.
+                    i += 1;
+                    while bytes.get(i).is_some_and(|c| !(0x40..=0x7e).contains(c)) {
+                        i += 1;
+                    }
+                    i += 1;
+                    None
+                }
+                _ => Some(KeyCode::Esc),
+            },
+            b'\t' => Some(KeyCode::Tab),
+            b'\r' | b'\n' => Some(KeyCode::Enter),
+            0x7f | 0x08 => Some(KeyCode::Backspace),
+            0x20..=0x7e => Some(KeyCode::Char(char::from(b))),
+            _ => None,
+        };
+        keys.extend(key);
+    }
+    keys
+}
+
+/// One key press; `Some` ends the TUI with that action.
+fn handle_key(app: &mut App, code: KeyCode) -> Option<TuiAction> {
+    app.status = None;
+
+    if app.searching {
+        match code {
+            KeyCode::Enter | KeyCode::Esc => app.searching = false,
+            KeyCode::Backspace => {
+                app.filter.pop();
+            }
+            KeyCode::Char(c) => app.filter.push(c),
+            _ => {}
+        }
+        return None;
+    }
+
+    match code {
+        KeyCode::Char('q') | KeyCode::Esc => return Some(TuiAction::Quit),
+        KeyCode::Char('s') => return Some(TuiAction::Sync),
+        KeyCode::Char('i') => {
+            let skills = app.action_skills();
+            if !skills.is_empty() {
+                return Some(TuiAction::Install(skills));
+            }
+        }
+        KeyCode::Tab => {
+            app.tab = if app.tab == Tab::Skills {
+                Tab::Agents
+            } else {
+                Tab::Skills
+            }
+        }
+        KeyCode::Char('1') => app.tab = Tab::Skills,
+        KeyCode::Char('2') => app.tab = Tab::Agents,
+        KeyCode::Down | KeyCode::Char('j') => app.move_sel(true),
+        KeyCode::Up | KeyCode::Char('k') => app.move_sel(false),
+        KeyCode::Char(' ') => app.toggle_mark(),
+        KeyCode::Char('y') => app.copy(),
+        KeyCode::Char('/') => {
+            app.searching = true;
+            app.filter.clear();
+        }
+        _ => {}
+    }
+    None
 }
 
 // ── rendering ───────────────────────────────────────────────────────────────
@@ -530,7 +584,33 @@ fn render_help(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
         )
     };
     frame.render_widget(
-        Paragraph::new(help).style(Style::default().fg(rgb(theme::STRUCTURE))),
+        // Two lines, wrapped: at 80 columns the key list and a copy result
+        // run past one line, and cutting them would hide `y copy` / `q quit`.
+        Paragraph::new(help)
+            .style(Style::default().fg(rgb(theme::STRUCTURE)))
+            .wrap(Wrap { trim: true }),
         area,
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn legacy_keys_decode_typeahead() {
+        assert_eq!(
+            legacy_keys(b"/ab\x7f\r\x1b[B\x1b[1;5Cq\x1b"),
+            vec![
+                KeyCode::Char('/'),
+                KeyCode::Char('a'),
+                KeyCode::Char('b'),
+                KeyCode::Backspace,
+                KeyCode::Enter,
+                KeyCode::Down,
+                KeyCode::Char('q'),
+                KeyCode::Esc,
+            ]
+        );
+    }
 }
