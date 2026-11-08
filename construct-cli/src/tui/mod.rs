@@ -327,6 +327,13 @@ fn legacy_keys(bytes: &[u8]) -> Vec<KeyCode> {
                         _ => None,
                     }
                 }
+                // Any other SS3 key (the keypad in application mode sends
+                // ESC O p..y), or one cut off by the end: skip it, never
+                // read its final byte as a key of its own.
+                (Some(b'O'), _) => {
+                    i = (i + 2).min(bytes.len());
+                    None
+                }
                 (Some(b'['), _) => {
                     // Some other CSI key: skip through its final byte.
                     i += 1;
@@ -611,7 +618,7 @@ mod tests {
     #[test]
     fn legacy_keys_decode_typeahead() {
         assert_eq!(
-            legacy_keys(b"/ab\x7f\r\x1b[B\x1b[1;5C\x1bjq\x1b"),
+            legacy_keys(b"/ab\x7f\r\x1b[B\x1b[1;5C\x1bOq\x1bjq\x1b\x1bO"),
             vec![
                 KeyCode::Char('/'),
                 KeyCode::Char('a'),
