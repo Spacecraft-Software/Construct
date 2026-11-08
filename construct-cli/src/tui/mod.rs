@@ -232,9 +232,14 @@ static TUI_ON: AtomicBool = AtomicBool::new(false);
 pub(crate) fn run(ctx: &Context) -> Result<TuiAction, AppError> {
     // Probe before the event loop reads the terminal (detection.md).
     let _ = term::caps_for(true);
-    let mut terminal = ratatui::init();
+    // Raw mode and `TUI_ON` together, so a signal's teardown either sees the
+    // TUI on and leaves it, or runs first and this never turns raw on.
+    let mut terminal = term::raw_entry(|| {
+        let t = ratatui::init();
+        TUI_ON.store(true, Ordering::Release);
+        t
+    });
     install_panic_hook();
-    TUI_ON.store(true, Ordering::Release);
     // After entering the alternate screen: each screen has its own stack.
     term::keyboard_push();
     let result = event_loop(&mut terminal, &mut App::new());
