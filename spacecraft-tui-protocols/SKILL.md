@@ -191,8 +191,10 @@ environment.
 
 - [ ] `prog | cat` and `AI_AGENT=x prog` emit no escape sequences on
       either stream: `prog 2>&1 | tr -cd '\033' | wc -c` and
-      `AI_AGENT=x prog 2>&1 | tr -cd '\033' | wc -c` both print 0. Count
-      the ESC byte itself. Never grep `od -c` output for `033`: its octal
+      `AI_AGENT=x script -qec prog /dev/null | tr -cd '\033' | wc -c` both
+      print 0. The agent check runs on a pseudo-terminal (`script`), so a
+      program that ignores `AI_AGENT` cannot pass on its non-TTY gate
+      alone. Count the ESC byte itself. Never grep `od -c` output for `033`: its octal
       offset column contains `033` too (`0000330`, `0003300`), so clean
       output of 1728 bytes or more, and some shorter lengths, fails.
 - [ ] Startup in a terminal that answers nothing but DA1 (e.g. `TERM=xterm`
