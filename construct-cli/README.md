@@ -121,7 +121,10 @@ protocol when the terminal answers for it (WezTerm needs
 `construct skill add --skills …` command, or an agent's project path, with
 OSC 52. One DA1-fenced probe with a 200 ms deadline decides; nothing is sent
 or probed for an agent, CI, a pipe, `TERM=dumb` or the Linux console, and
-every mode is undone on exit, panic and SIGINT/SIGTERM/SIGHUP.
+every mode is undone on exit, panic and SIGINT/SIGTERM/SIGHUP, including a
+signal that arrives during the probe itself. The probe runs only in the
+terminal's foreground process group; keys typed while it runs reach the
+explore TUI as its first input, and Ctrl-C still interrupts.
 `--term-protocols=-all,+progress` (names: `keyboard`, `graphics`, `animation`,
 `clipboard`, `clipboard-rich`, `progress`, `pointer`, `all`) beats
 `SPACECRAFT_TERM_PROTOCOLS`, which beats detection. `describe` reports each
