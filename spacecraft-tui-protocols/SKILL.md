@@ -21,7 +21,7 @@ website: https://Construct.SpacecraftSoftware.org/
 
 # Spacecraft Software TUI Protocols
 
-**Version:** 1.0.0 | **Date:** 2026-11-06 | **Author:** Mohamed Hammad
+**Version:** 1.0.1 | **Date:** 2026-11-08 | **Author:** Mohamed Hammad
 **Maintainer:** Mohamed Hammad | **Contact:** [Mohamed.Hammad@SpacecraftSoftware.org](mailto:Mohamed.Hammad@SpacecraftSoftware.org)
 **Copyright:** (C) 2026 Mohamed Hammad & Spacecraft Software | **License:** GPL-3.0-or-later
 **Website:** [https://Construct.SpacecraftSoftware.org/](https://Construct.SpacecraftSoftware.org/)
@@ -189,8 +189,14 @@ these crates move quickly.
 Run, don't read. Each item is checked by running the program in the named
 environment.
 
-- [ ] `prog | cat` and `AI_AGENT=x prog` emit no escape sequences
-      (`prog | od -c | grep -c '033'` → 0).
+- [ ] `prog | cat` and `AI_AGENT=x prog` emit no escape sequences on
+      either stream: `prog 2>&1 | tr -cd '\033' | wc -c` and
+      `AI_AGENT=x script -qec prog /dev/null | tr -cd '\033' | wc -c` both
+      print 0. The agent check runs on a pseudo-terminal (`script`), so a
+      program that ignores `AI_AGENT` cannot pass on its non-TTY gate
+      alone. Count the ESC byte itself. Never grep `od -c` output for `033`: its octal
+      offset column contains `033` too (`0000330`, `0003300`), so clean
+      output of 1728 bytes or more, and some shorter lengths, fails.
 - [ ] Startup in a terminal that answers nothing but DA1 (e.g. `TERM=xterm`
       inside `script`) completes within the probe deadline and leaves no reply
       bytes in the shell.
